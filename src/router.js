@@ -53,9 +53,9 @@ const router = new Router({
                     }
 				},
 				{
-					path: '/page2',
-					name: 'page2',
-					component: () => import('./views/Page2.vue'),
+					path: '/cliente/cadastro',
+					name: 'Cadastro de Cliente',
+					component: () => import('./views/pages/ClienteCadastro.vue'),
 					meta: {
               rule: 'editor'
           }

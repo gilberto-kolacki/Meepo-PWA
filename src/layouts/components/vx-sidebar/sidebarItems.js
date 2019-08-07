@@ -25,11 +25,11 @@ export default [
     name: "Home",
     slug: "home",
     icon: "HomeIcon",
-  },
+  },  
   {
-    url: "/page2",
-    name: "Page 2",
-    slug: "page2",
-    icon: "FileIcon",
+    url: "/cliente/cadastro",
+    name: "Cadastro Cliente",
+    slug: "Cliente",
+    icon: "UserIcon",
   },
 ]
