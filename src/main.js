@@ -51,12 +51,22 @@ import '@/assets/css/main.css';
 import router from './router'
 
 
+import VueTheMask from 'vue-the-mask'
+Vue.use(VueTheMask)
+
+import money from 'v-money'
+Vue.use(money, {precision: 2})
+
 // Vuex Store
 import store from './store/store'
 
 
 // Vuesax Admin Filters
 import './filters/filters'
+
+// VeeValidate
+import VeeValidate from 'vee-validate';
+Vue.use(VeeValidate);
 
 
 // Vuejs - Vue wrapper for hammerjs
@@ -72,6 +82,12 @@ import './registerServiceWorker';
 
 // Feather font icon
 require('./assets/css/iconfont.css')
+
+Vue.directive('focus', {
+  inserted: function (el) {
+    el.focus()
+  }
+})
 
 
 Vue.config.productionTip = false

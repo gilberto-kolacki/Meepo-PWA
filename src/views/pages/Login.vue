@@ -39,8 +39,8 @@
                                     v-model="password"
                                     class="w-full mt-6 no-icon-border" />
 
-                                <div class="flex flex-wrap justify-between my-5">
-                                    <vs-button class="float-right btn-block" :disabled="!validateForm" @click="login">Login</vs-button>
+                                <div class="my-5">
+                                    <vs-button class="w-full" :disabled="!validateForm" @click="login">Login</vs-button>
                                 </div>
 
                             </div>
