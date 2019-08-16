@@ -35,6 +35,9 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 Vue.use(VueAxios, axios)
 
+// ACL
+import acl from './acl/acl'
+
 // Globally Registered Components
 import './globalComponents.js'
 
@@ -83,17 +86,11 @@ import './registerServiceWorker';
 // Feather font icon
 require('./assets/css/iconfont.css')
 
-Vue.directive('focus', {
-  inserted: function (el) {
-    el.focus()
-  }
-})
-
-
 Vue.config.productionTip = false
 
 new Vue({
     router,
     store,
+    acl,
     render: h => h(App)
 }).$mount('#app')

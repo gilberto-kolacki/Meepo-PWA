@@ -12,11 +12,11 @@
 <template>
     <div class="parentx">
         <vs-sidebar v-hammer:swipe.left="onSwipeLeft" ref="mainSidebar" :parent="parent" :hiddenBackground="clickNotClose" :reduce="reduce" default-index="-1" class="sidebarx main-menu-sidebar items-no-padding" v-model="isSidebarActive" :click-not-close="clickNotClose" :reduce-not-rebound="reduceNotRebound">
-            <div @mouseenter="sidebarMouseEntered" @mouseleave="sidebarMouseLeave">
+            <div v-on:click="sidebarMouseEntered" v-on:mouseleave="sidebarMouseLeave">
                 <div class="header-sidebar flex items-end justify-between" slot="header">
                     <div class="logo flex items-center">
-                        <!-- <img :src="logo" alt="logo" class="w-10 mr-4" v-if="logo"> -->
-                        <span class="logo-text" v-show="isMouseEnter || !reduce" v-if="title">{{ 'Meepo' }}</span>
+                        <img :src="logo" alt="logo" class="w-10 mr-4" v-if="logo">
+                        <span class="logo-text" v-show="isMouseEnter || !reduce" v-if="title">{{ title }}</span>
                     </div>
                     <div>
                         <template v-if="showCloseButton">
@@ -35,11 +35,11 @@
                     <template v-for="(sidebarItem, index) in sidebarItems">
 
                         <!-- GROUP ITEM HEADER -->
-                        <span :key="`header-${index}`" v-if="sidebarItem.header && !sidebarItemsMin" class="navigation-header truncate">{{ sidebarItem.header }}</span>
+                        <span :key="`header-${index}`" v-if="sidebarItem.header && !sidebarItemsMin" class="navigation-header truncate">{{sidebarItem.header }}</span>
                         <template v-else-if="!sidebarItem.header">
 
                             <!-- IF IT'S SINGLE ITEM -->
-                            <vx-sidebar-item ref="sidebarLink" :key="`sidebarItem-${index}`" v-if="!sidebarItem.submenu" :index="index" :to="sidebarItem.slug != 'external' ? sidebarItem.url : ''" :href="sidebarItem.slug == 'external' ? sidebarItem.url : ''" :icon="sidebarItem.icon" :target="sidebarItem.target" :isDisabled="sidebarItem.isDisabled">
+                            <vx-sidebar-item ref="sidebarLink" :key="`sidebarItem-${index}`" v-if="!sidebarItem.submenu" :index="index" :to="sidebarItem.slug != 'external' ? sidebarItem.url : ''" :href="sidebarItem.slug == 'external' ? sidebarItem.url : ''" :icon="sidebarItem.icon" :target="sidebarItem.target" :isDisabled="sidebarItem.isDisabled" :slug="sidebarItem.slug">
                                 <span v-show="!sidebarItemsMin" class="truncate">{{ sidebarItem.name }}</span>
                                 <vs-chip class="ml-auto" :color="sidebarItem.tagColor" v-if="sidebarItem.tag && (isMouseEnter || !reduce)">{{ sidebarItem.tag }}</vs-chip>
                             </vx-sidebar-item>
@@ -162,7 +162,9 @@ export default {
     },
     methods: {
         sidebarMouseEntered() {
-            if (this.reduce) this.$store.commit('UPDATE_SIDEBAR_ITEMS_MIN', false)
+            if (this.reduce)  {
+                this.$store.commit('UPDATE_SIDEBAR_ITEMS_MIN', false);
+            }
             this.isMouseEnter = true;
         },
         sidebarMouseLeave() {

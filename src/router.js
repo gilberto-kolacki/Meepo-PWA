@@ -49,8 +49,8 @@ const router = new Router({
 					name: 'home',
 					component: () => import('./views/Home.vue'),
 					meta: {
-                        rule: 'editor'
-                    }
+              rule: 'editor'
+          }
 				},
 				{
 					path: '/cliente/cadastro',
