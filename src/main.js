@@ -13,13 +13,7 @@ import App from './App.vue'
 
 // Vuesax Component Framework
 import Vuesax from 'vuesax'
-import 'material-icons/iconfont/material-icons.css' //Material Icons
-import 'vuesax/dist/vuesax.css'; // Vuesax
 Vue.use(Vuesax)
-
-
-// Theme Configurations
-import '../themeConfig.js'
 
 // Firebase
 import '@/firebase/firebaseConfig'
@@ -41,15 +35,6 @@ import acl from './acl/acl'
 // Globally Registered Components
 import './globalComponents.js'
 
-
-// Styles: SCSS
-import './assets/scss/main.scss'
-
-
-// Tailwind
-import '@/assets/css/main.css';
-
-
 // Vue Router
 import router from './router'
 
@@ -69,22 +54,47 @@ import './filters/filters'
 
 // VeeValidate
 import VeeValidate from 'vee-validate';
-Vue.use(VeeValidate);
+Vue.use(VeeValidate, {
+  mode: 'eager'
+});
 
 
 // Vuejs - Vue wrapper for hammerjs
 import { VueHammer } from 'vue2-hammer'
 Vue.use(VueHammer)
 
+// import BootstrapVue from 'bootstrap-vue'
+// Vue.use(BootstrapVue)
+
+import { CarouselPlugin } from 'bootstrap-vue'
+Vue.use(CarouselPlugin)
+
+
+//CSS
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+import 'material-icons/iconfont/material-icons.css' //Material Icons
+import 'vuesax/dist/vuesax.css'; // Vuesax
+
+// Theme Configurations
+import '../themeConfig.js'
+
+// Styles: SCSS
+import './assets/scss/main.scss'
+
+// Tailwind
+import '@/assets/css/main.css';
 
 // PrismJS
 import 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css'
 
+
 import './registerServiceWorker';
 
 // Feather font icon
-require('./assets/css/iconfont.css')
+import './assets/css/iconfont.css'
 
 Vue.config.productionTip = false
 

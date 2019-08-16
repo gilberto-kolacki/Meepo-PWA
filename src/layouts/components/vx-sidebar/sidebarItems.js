@@ -32,4 +32,10 @@ export default [
     slug: "Cliente",
     icon: "UserIcon",
   },
+  {
+    url: "/pages/page2",
+    name: "Teste",
+    slug: "Cliente",
+    icon: "UserIcon",
+  },
 ]

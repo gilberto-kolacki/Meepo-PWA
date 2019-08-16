@@ -60,6 +60,14 @@ const router = new Router({
               rule: 'editor'
           }
         },
+        {
+					path: '/pages/page2',
+					name: 'Imagens',
+					component: () => import('./views/Page2.vue'),
+					meta: {
+              rule: 'editor'
+          }
+        },
 			],
 		},
     // =============================================================================

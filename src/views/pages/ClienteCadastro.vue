@@ -3,7 +3,6 @@
 
         <div class="vx-col w-full mb-base-button">
             <div class="btn-group centex">
-                <vs-button class="w-full" size="small" @click="scrollMeTo('basico')">Básico</vs-button>
                 <vs-button class="w-full" size="small" @click="scrollMeTo('enderecoCobranca')">Endereço de Cobrança</vs-button>
                 <vs-button class="w-full" size="small" @click="scrollMeTo('contatos')">Contato</vs-button>
                 <vs-button class="w-full" size="small" @click="scrollMeTo('endereco')">Endereço de Entrega</vs-button>
@@ -31,16 +30,16 @@
 
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/2 w-full mb-2">
-                            <vs-input v-validate="'required'" label="Razão Social*" id="razaoSocial" name="razaoSocial" v-model="clienteEdit.razaoSocial" class="w-full" v-on:keyup.enter="isJuridico ? proximoCampo('inscricaoEstadual') : proximoCampo('registroGeral')" />
+                            <vs-input v-validate=" isJuridico ? 'required' : ''" label="Razão Social*" id="razaoSocial" name="razaoSocial" v-model="clienteEdit.razaoSocial" class="w-full" v-on:keyup.enter="isJuridico ? proximoCampo('dataFundacao') : proximoCampo('dataAniversario')" />
                             <span class="text-danger text-sm">{{ errors.first('razaoSocial') }}</span>
                         </div>
-                        <div class="vx-col sm:w-1/2 w-full mb-2" v-if="isJuridico">
-                            <label for="" class="vs-input--label">Data Fundação*</label>                            
-                            <datepicker placeholder="Selecione..." v-model="clienteEdit.dataFundacao" format="dd/MM/yyyy" input-type="date" type="date" :language="langSettings" wrapper-class="w-full" input-class="vs-inputx vs-input--input normal"></datepicker>
+                        <div class="vx-col sm:w-1/2 w-full mb-2" v-if="isJuridico" v-on:keyup.enter="proximoCampo('inscricaoEstadual')">
+                            <label for="dataFundacao" class="vs-input--label">Data Fundação*</label>                            
+                            <datepicker placeholder="DD/MM/AAAA" v-model="clienteEdit.dataFundacao" format="dd/MM/yyyy" id="dataFundacao" name="dataFundacao" ref="dataFundacao" :language="langSettings" :disabledDates="disabledDates" wrapper-class="w-full" input-class="vs-inputx vs-input--input normal"/>
                         </div>
-                        <div class="vx-col sm:w-1/2 w-full mb-2" v-else>
-                            <label for="" class="vs-input--label">Data Aniversário*</label>                            
-                            <datepicker placeholder="Selecione..." v-model="clienteEdit.dataAniversario" format="dd/MM/yyyy" :language="langSettings" wrapper-class="w-full" input-class="vs-inputx vs-input--input normal"></datepicker>
+                        <div class="vx-col sm:w-1/2 w-full mb-2" v-else v-on:keyup.enter="proximoCampo('registroGeral')" >
+                            <label for="dataAniversario" class="vs-input--label">Data Aniversário*</label>                            
+                            <datepicker placeholder="DD/MM/AAAA" v-model="clienteEdit.dataAniversario" format="dd/MM/yyyy" id="dataAniversario" name="dataAniversario" ref="dataAniversario" :language="langSettings" :disabledDates="disabledDates" wrapper-class="w-full" input-class="vs-inputx vs-input--input normal"/>
                         </div>
                     </div>
 
@@ -53,15 +52,18 @@
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('emailNfe')">
                                 <label for="" class="vs-input--label">RG*</label>
                                 <div class="vs-con-input">
-                                    <the-mask v-validate="'required|min:11'" id="registroGeral" name="registroGeralregistroGeral" v-model="clienteEdit.registroGeral" class="vs-inputx vs-input--input normal hasValue" :mask="['#.###.###-#', '##.###.###-#', '#.###.###']" :masked="true" />
+                                    <the-mask v-validate="'required'" id="registroGeral" name="registroGeral" v-model="clienteEdit.registroGeral" class="vs-inputx vs-input--input normal hasValue" :mask="['#.###.###-#', '##.###.###-#', '#.###.###']" :masked="true" />
                                 </div>
                                 <span class="text-danger text-sm">{{ errors.first('registroGeral') }}</span>
                             </div>
 
                         </div>
-                        <div class="vx-col sm:w-1/2 w-full mb-2">
-                            <label for="segmento" class="vs-input--label">Segmento*</label>
-                            <v-select id="segmento" :options="segmentos"></v-select>
+                        <div class="vx-col sm:w-1/2 w-full mb-2" v-if="clienteEdit.segmentos.length > 0">
+                            <ul class="demo-alignment" id="segmento">
+                                <li v-for="(segmento, index) in clienteEdit.segmentos" :key="`segmento-cliente-${index}`">
+                                    <vs-checkbox v-model="clienteEdit.segmentos[index].ativo">{{clienteEdit.segmentos[index].name}}</vs-checkbox>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                     <div class="vx-row">
@@ -69,9 +71,9 @@
                             <vs-input v-validate="'required|email'" label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="clienteEdit.emailNfe" class="w-full" type="email" />
                             <span class="text-danger text-sm">{{ errors.first('emailNfe') }}</span>
                         </div>
-                        <div class="vx-col sm:w-1/2 w-full mb-2">
+                        <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('cepEndereco')">
                             <label for="" class="vs-input--label">Grupo de Clientes*</label>
-                            <v-select :options="grupoClientes"></v-select>
+                            <v-select id="grupoCliente" v-model="clienteEdit.grupoCliente" :options="grupoClientes"></v-select>
                         </div>
                     </div>
                     <div class="vx-row">
@@ -89,8 +91,13 @@
                     <vs-divider> Endereço de Cobrança </vs-divider>
                     <div class="vx-row" ref="enderecoCobranca">
                         <div class="vx-col sm:w-1/4 w-full mb-2">
-                            <vs-input v-validate="'required|alpha_spaces'" label="CEP*" id="cepEndereco" name="cepEndereco" v-model="clienteEdit.endereco.cep" class="w-full" v-on:keyup.enter="proximoCampo('endereco')"/>
-                            <span class="text-danger text-sm">{{ errors.first('cepEndereco') }}</span>
+                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('endereco')">
+                                <label for="cepEndereco" class="vs-input--label">CEP*</label>
+                                <div class="vs-con-input">
+                                    <the-mask v-validate="'required|alpha_spaces'" id="cepEndereco" name="cepEndereco" v-model="clienteEdit.endereco.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true" v-on:keyup.enter="proximoCampo('endereco')" />
+                                </div>
+                                <span class="text-danger text-sm">{{ errors.first('cepEndereco') }}</span>
+                            </div>
                         </div>
                         <div class="vx-col sm:w-3/4 w-full mb-2">
                             <vs-input label="Endereço*" id="endereco" v-model="clienteEdit.endereco.endereco" class="w-full" v-on:keyup.enter="proximoCampo('numeroEndereco')"/>                                
@@ -411,6 +418,10 @@ export default {
                 contatos: [],
                 enderecos: [],
                 imagensCliente: [],
+                segmentos: [
+                    {name: 'Beach', ativo: false},
+                    {name: 'Fitness', ativo: false}
+                ]
             },
             contatoEdit: {},
             enderecoEdit: {}, 
@@ -419,12 +430,18 @@ export default {
             isEditEndereco: false,
             langSettings: lang.ptBR,
             segmentos: ['foo','bar'],
-            grupoClientes: ['Grupo 1', 'Grupo 2'],            
+            grupoClientes: ['Grupo 1', 'Grupo 2'],
+            disabledDates: {            
+                from: new Date(), // Disable all dates after specific date                
+            }
         }
     },
     components: {
         Datepicker,        
         'v-select': vSelect,
+    },
+    watch:{
+
     },
     computed:{
         getFilesFilter() {
@@ -449,8 +466,11 @@ export default {
             var top = element.offsetTop;
             window.scrollTo(0, top);
         },
-        proximoCampo(refName) {           
-            document.getElementById(refName).focus();       
+        proximoCampo(refName) {                  
+            document.getElementById(refName).focus();      
+            if (refName === "dataAniversario" || refName === "dataFundacao") {
+                this.$refs[refName].showCalendar()
+            } 
         },
         toBase64(file) {
             return new Promise((resolve) => {
@@ -533,15 +553,33 @@ export default {
             this.isEditEndereco = false;
         },
         salvarCliente() {
-            let cliente = _.cloneDeep(this.clienteEdit);            
-            ClienteDB.validarObjetoDB(cliente).then((result) => {
-                console.log(result);
-                ClienteDB.salvar(result);
-            }).catch((erro) => {
-                console.log(erro);
-                
-            });
+            this.$vs.loading();
+            let cliente = _.cloneDeep(this.clienteEdit);
 
+            setTimeout(() => {  
+                ClienteDB.salvar(cliente).then(() => {
+                    this.$vs.notify({
+                        title: 'Sucesso',
+                        text: 'Cliente Salvo!',
+                        color: 'success',
+                        iconPack: 'feather',
+                        icon: 'icon-check'
+                    })
+                }).catch((erro) => {
+                    console.log(erro);
+                    
+                    this.$validator.validate();
+                    this.proximoCampo(erro.campo);
+                    this.$vs.notify({
+                        title: 'Erro!',
+                        text: erro.mensagem,
+                        color: 'danger',
+                        iconPack: 'feather',
+                        icon: 'icon-alert-circle'
+                    })
+                });
+                this.$vs.loading.close();
+            }, 300);
         },
         cancelarCliente() {
             window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/');
@@ -560,6 +598,7 @@ export default {
         setTimeout(() => {
             this.proximoCampo('cpfCnpj');
         }, 100);
+        this.disabledDates.from = new Date(new Date().getFullYear(), new Date().getMonth()-1, new Date().getDate());
     }
 }
 
@@ -590,6 +629,10 @@ export default {
 
 .my-5-top {
     margin-top: 1.25rem !important;    
+}
+
+.vdp-datepicker input:blur {
+    box-shadow: 0 3px 10px 0 rgba(0, 0, 0, .15);
 }
 
 </style>
