@@ -54,12 +54,28 @@ const router = new Router({
 				},
 				{
 					path: '/cliente/cadastro',
-					name: 'Cadastro de Cliente',
+					name: 'clienteCadastro',
 					component: () => import('./views/pages/ClienteCadastro.vue'),
 					meta: {
               rule: 'editor'
           }
         },
+        {
+					path: '/cliente/cadastro',
+					name: 'clienteEditar',
+					component: () => import('./views/pages/ClienteCadastro.vue'),
+					meta: {
+              rule: 'editor'
+          }
+        },
+        {
+					path: '/cliente/consulta',
+					name: 'clienteConsulta',
+					component: () => import('./views/pages/ClienteConsulta.vue'),
+					meta: {
+              rule: 'editor'
+          }
+        },        
         {
 					path: '/pages/page2',
 					name: 'Imagens',
