@@ -35,11 +35,13 @@
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-if="isJuridico" v-on:keyup.enter="proximoCampo('inscricaoEstadual')">
                             <label for="dataFundacao" class="vs-input--label">Data Fundação*</label>                            
-                            <datepicker placeholder="DD/MM/AAAA" v-model="clienteEdit.dataFundacao" format="dd/MM/yyyy" id="dataFundacao" name="dataFundacao" ref="dataFundacao" :language="langSettings" :disabledDates="disabledDates" wrapper-class="w-full" input-class="vs-inputx vs-input--input normal"/>
+                            <datepicker v-validate="'required'" placeholder="DD/MM/AAAA" v-model="clienteEdit.dataFundacao" format="dd/MM/yyyy" id="dataFundacao" name="dataFundacao" ref="dataFundacao" :language="langSettings" :disabledDates="disabledDates" wrapper-class="w-full" input-class="vs-inputx vs-input--input normal"/>
+                            <span class="text-danger text-sm">{{ errors.first('dataFundacao') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-else v-on:keyup.enter="proximoCampo('registroGeral')" >
                             <label for="dataAniversario" class="vs-input--label">Data Aniversário*</label>                            
-                            <datepicker placeholder="DD/MM/AAAA" v-model="clienteEdit.dataAniversario" format="dd/MM/yyyy" id="dataAniversario" name="dataAniversario" ref="dataAniversario" :language="langSettings" :disabledDates="disabledDates" wrapper-class="w-full" input-class="vs-inputx vs-input--input normal"/>
+                            <datepicker v-validate="'required'" placeholder="DD/MM/AAAA" v-model="clienteEdit.dataAniversario" format="dd/MM/yyyy" id="dataAniversario" name="dataAniversario" ref="dataAniversario" :language="langSettings" :disabledDates="disabledDates" wrapper-class="w-full" input-class="vs-inputx vs-input--input normal"/>
+                            <span class="text-danger text-sm">{{ errors.first('dataAniversario') }}</span>
                         </div>
                     </div>
 
@@ -73,7 +75,8 @@
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('cepEndereco')">
                             <label for="" class="vs-input--label">Grupo de Clientes*</label>
-                            <v-select id="grupoCliente" v-model="clienteEdit.grupoCliente" :options="grupoClientes"></v-select>
+                            <v-select v-validate="'required'" id="grupoCliente" name="grupoCliente" v-model="clienteEdit.grupoCliente" :options="grupoClientes"></v-select>
+                            <span class="text-danger text-sm">{{ errors.first('grupoCliente') }}</span>
                         </div>
                     </div>
                     <div class="vx-row">
@@ -94,44 +97,46 @@
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('endereco')">
                                 <label for="cepEndereco" class="vs-input--label">CEP*</label>
                                 <div class="vs-con-input">
-                                    <the-mask v-validate="'required|alpha_spaces'" id="cepEndereco" name="cepEndereco" v-model="clienteEdit.endereco.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true" v-on:keyup.enter="proximoCampo('endereco')" />
+                                    <the-mask v-validate="'required'" id="cepEndereco" name="cepEndereco" v-model="clienteEdit.endereco.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true" v-on:keyup.enter="proximoCampo('endereco')" />
                                 </div>
                                 <span class="text-danger text-sm">{{ errors.first('cepEndereco') }}</span>
                             </div>
                         </div>
                         <div class="vx-col sm:w-3/4 w-full mb-2">
-                            <vs-input label="Endereço*" id="endereco" v-model="clienteEdit.endereco.endereco" class="w-full" v-on:keyup.enter="proximoCampo('numeroEndereco')"/>                                
+                            <vs-input v-validate="'required|alpha_spaces'" label="Endereço*" id="endereco" name="endereco" v-model="clienteEdit.endereco.endereco" class="w-full" v-on:keyup.enter="proximoCampo('numeroEndereco')"/>                                
+                            <span class="text-danger text-sm">{{ errors.first('endereco') }}</span>
                         </div>
-                    </div>.
+                    </div>
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/6 w-full mb-2">
-                            <vs-input label="Numero*" id="numeroEndereco" v-model="clienteEdit.endereco.numero" class="w-full" v-on:keyup.enter="proximoCampo('complemento')"/>
+                            <vs-input v-validate="'required'" label="Numero*" id="numeroEndereco" name="numeroEndereco" v-model="clienteEdit.endereco.numero" class="w-full" v-on:keyup.enter="proximoCampo('complemento')"/>
+                            <span class="text-danger text-sm">{{ errors.first('numeroEndereco') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2">
-                            <vs-input v-validate="'required|alpha_spaces'" label="Complemento*" id="complemento" v-model="clienteEdit.endereco.complemento" class="w-full" v-on:keyup.enter="proximoCampo('bairro')"/>
+                            <vs-input v-validate="'required|alpha_spaces'" label="Complemento*" id="complemento" name="complemento" v-model="clienteEdit.endereco.complemento" class="w-full" v-on:keyup.enter="proximoCampo('bairro')"/>
                             <span class="text-danger text-sm">{{ errors.first('complemento') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2">
-                            <vs-input v-validate="'required|alpha_spaces'" label="Bairro*" id="bairro" v-model="clienteEdit.endereco.bairro" class="w-full" v-on:keyup.enter="proximoCampo('cidade')"/>
+                            <vs-input v-validate="'required|alpha_spaces'" label="Bairro*" id="bairro" name="bairro" v-model="clienteEdit.endereco.bairro" class="w-full" v-on:keyup.enter="proximoCampo('cidade')"/>
                             <span class="text-danger text-sm">{{ errors.first('bairro') }}</span>
                         </div>
                     </div>
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/2 w-full mb-2">
-                            <vs-input v-validate="'required|alpha_spaces'" label="Cidade*" id="cidade" v-model="clienteEdit.endereco.cidade" class="w-full" v-on:keyup.enter="proximoCampo('estado')"/>
-                            <span class="text-danger text-sm">{{ errors.first('nomeContato') }}</span>
+                            <vs-input v-validate="'required|alpha_spaces'" label="Cidade*" id="cidade" name="cidade" v-model="clienteEdit.endereco.cidade" class="w-full" v-on:keyup.enter="proximoCampo('estado')"/>
+                            <span class="text-danger text-sm">{{ errors.first('cidade') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/6 w-full mb-2">
-                            <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="estado" v-model="clienteEdit.endereco.estado" class="w-full" v-on:keyup.enter="proximoCampo('enderecoTelefone')"/>
-                            <span class="text-danger text-sm">{{ errors.first('complemento') }}</span>
+                            <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" class="w-full" v-on:keyup.enter="proximoCampo('enderecoTelefone')"/>
+                            <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="" class="vs-input--label">Telefone*</label>
                                 <div class="vs-con-input">
-                                    <the-mask v-validate="'required'" type="tel" id="enderecoTelefone" v-model="clienteEdit.endereco.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
+                                    <the-mask v-validate="'required'" type="tel" id="enderecoTelefone" name="enderecoTelefone" v-model="clienteEdit.endereco.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
                                 </div>
-                                <span class="text-danger text-sm">{{ errors.first('telefone') }}</span>
+                                <span class="text-danger text-sm">{{ errors.first('enderecoTelefone') }}</span>
                             </div>
                         </div>
                     </div>
@@ -388,7 +393,7 @@ import ClienteDB from '../../rapidsoft/db/clienteDB'
 
 const ptBR = {
     custom: {
-        email: {
+        emailNfe: {
             required: 'Campo obrigatório!',
             email: 'O campo deve ser um e-mail válido.'
         },
@@ -402,9 +407,48 @@ const ptBR = {
         razaoSocial: {
             required: 'Campo obrigatório!'
         },
-        telefone: {
+        enderecoTelefone: {
             required: 'Campo obrigatório!',
         },
+        inscricaoEstadual:{
+            required: 'Campo obrigatório!'
+        },
+        registroGeral:{
+            required: 'Campo obrigatório!'
+        },
+        grupoClientes:{
+            required: 'Campo obrigatório!'
+        },
+        cepEndereco:{
+            required: 'Campo obrigatório!'
+        },
+        endereco:{
+            required: 'Campo obrigatório!'
+        },
+        numeroEndereco:{
+            required: 'Campo obrigatório!'
+        },
+        bairro:{
+            required: 'Campo obrigatório!'
+        },
+        complemento:{
+            required: 'Campo obrigatório!'
+        },
+        cidade:{
+            required: 'Campo obrigatório!'
+        },
+        estado:{
+            required: 'Campo obrigatório!'
+        },
+        grupoCliente:{
+            required: 'Campo obrigatório!'
+        },
+        dataAniversario:{
+            required: 'Campo obrigatório!'
+        },
+        dataFundacao:{
+            required: 'Campo obrigatório!'
+        }
     }
 };
 
