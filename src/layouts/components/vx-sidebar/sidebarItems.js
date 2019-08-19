@@ -25,7 +25,11 @@ export default [
     name: "Home",
     slug: "home",
     icon: "HomeIcon",
-  },  
+  },
+  {
+    header: "Cliente",
+    i18n: "Cliente",
+  },
   {
     url: "/cliente/cadastro",
     name: "Cadastro Cliente",
@@ -43,5 +47,9 @@ export default [
     name: "Teste",
     slug: "Cliente",
     icon: "UserIcon",
+  },
+  {
+    header: "Pedido",
+    i18n: "Pedido",
   },
 ]

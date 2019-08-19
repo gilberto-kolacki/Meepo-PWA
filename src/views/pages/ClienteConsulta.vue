@@ -8,8 +8,8 @@
                 <template slot="thead">
                     <vs-th sort-key="cnpj">CNPJ</vs-th>
                     <vs-th sort-key="nome">Nome</vs-th>
-                    <vs-th sort-key="contato">Cidade</vs-th>
-                    <vs-th sort-key="telefone">UF</vs-th>
+                    <vs-th sort-key="cidade">Cidade</vs-th>
+                    <vs-th sort-key="estado">UF</vs-th>
                     <vs-th>Ações</vs-th>
                 </template>
                 <template slot-scope="{data}">
@@ -31,11 +31,8 @@
                                 <div class="p-1">
                                     <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editar(data[indextr])" />
                                 </div>
-                                <div class="p-1" v-if="data[indextr].ativo">
-                                    <vs-button type="filled" size="small" icon-pack="feather" color="success" icon="icon-unlock" @click="inativar(data[indextr])"/>
-                                </div>
-                                <div class="p-1" v-else>
-                                    <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-lock" @click="ativar(data[indextr])"/>
+                                <div class="p-1">
+                                    <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletar(data[indextr])"/>
                                 </div>
                             </div>
                         </vs-td>
@@ -62,10 +59,22 @@ export default {
     },
     methods: {
         editar(cliente) {
-            console.log(cliente);
-            this.$router.push({ name: 'clienteEditar', params: {clienteId: cliente._id } });
-
+            if (cliente) {
+                this.$router.push({ name: 'clienteEditar', params: {clienteId: cliente._id } });
+            } else {
+                this.$router.push('/cliente/cadastro');
+            }
         },
+        listar() {
+            clienteDB.listar().then((resposta) => {
+                this.clientes = _.clone(resposta);
+            })
+        },
+        deletar(cliente) {
+            clienteDB.deletar(cliente).then((resposta) => {
+                this.listar();
+            });
+        }
     },
     created() {
         if(navigator.platform === "iPad") {
@@ -74,15 +83,10 @@ export default {
             this.isIpad= false;
         }
 
-        clienteDB.listar().then(resposta => {
-            this.clientes = _.clone(resposta);
-            console.log(this.clientes);
-            
-		})
+        
     },
     mounted() {
-        
-        
+        this.listar();
     },
     beforeCreate() {
         

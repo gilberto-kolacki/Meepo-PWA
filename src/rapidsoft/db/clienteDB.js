@@ -1,4 +1,5 @@
-import PouchDB from 'pouchdb'
+import PouchDB from 'pouchdb';
+import _ from 'lodash';
 
 let dataBase = new PouchDB('meepo-cliente')
 let type = "cliente";
@@ -76,7 +77,14 @@ class clienteDB {
             let clientes = []
             dataBase.allDocs({include_docs: true, attachments: true}).then((result) => {
                 for (let index = 0; index < result.rows.length; index++) {
-                    clientes.push(result.rows[index].doc)
+                    let cliente = _.cloneDeep(result.rows[index].doc);
+
+                    if (_.isUndefined(cliente.endereco) || (_.isObject(cliente.endereco) && _.isUndefined(cliente.endereco.cep))) {
+                        cliente.endereco = {};
+                        cliente.endereco.cidade = "";
+                        cliente.endereco.estado = "";
+                    }
+                    clientes.push(cliente)
                 }
                 resolve(clientes);
             }).catch((err) => {
@@ -89,6 +97,17 @@ class clienteDB {
     findById(idCliente) {
         return new Promise((resolve, reject) => {
             dataBase.get(idCliente).then((result) => {
+                resolve(result);
+            }).catch((err) => {
+                console.log(err);
+                reject(err)
+            });
+        });
+    }
+
+    deletar(idCliente) {
+        return new Promise((resolve, reject) => {
+            dataBase.remove(idCliente).then((result) => {
                 resolve(result);
             }).catch((err) => {
                 console.log(err);

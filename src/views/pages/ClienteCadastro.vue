@@ -582,7 +582,7 @@ export default {
             }, 300);
         },
         cancelarCliente() {
-            window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/');
+            this.$router.push('/cliente/consulta');            
         },
 
         findById(idCliente) {
