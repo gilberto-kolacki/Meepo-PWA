@@ -86,6 +86,17 @@ class clienteDB {
         });
     }
 
+    findById(idCliente) {
+        return new Promise((resolve, reject) => {
+            dataBase.get(idCliente).then((result) => {
+                resolve(result);
+            }).catch((err) => {
+                console.log(err);
+                reject(err)
+            });
+        });
+    }
+
 }
 
 export default new clienteDB();

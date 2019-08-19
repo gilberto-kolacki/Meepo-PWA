@@ -30,7 +30,13 @@ export default [
     url: "/cliente/cadastro",
     name: "Cadastro Cliente",
     slug: "Cliente",
-    icon: "UserIcon",
+    icon: "UserPlusIcon",
+  },
+  {
+    url: "/cliente/consulta",
+    name: "Consulta Cliente",
+    slug: "Cliente",
+    icon: "UsersIcon",
   },
   {
     url: "/pages/page2",

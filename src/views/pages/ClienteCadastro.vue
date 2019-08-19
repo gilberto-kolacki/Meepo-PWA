@@ -1,6 +1,5 @@
 <template>
-    <div id="page-customers">
-
+    <div id="page-customer">
         <div class="vx-col w-full mb-base-button">
             <div class="btn-group centex">
                 <vs-button class="w-full" size="small" @click="scrollMeTo('enderecoCobranca')">Endereço de Cobrança</vs-button>
@@ -412,7 +411,8 @@ Validator.localize('pt', ptBR);
 
 export default {
     data() {
-        return {        
+        return {    
+            idCliente: null,    
             clienteEdit: {
                 endereco: {},
                 contatos: [],
@@ -584,21 +584,32 @@ export default {
         cancelarCliente() {
             window.history.length > 1 ? this.$router.go(-1) : this.$router.push('/');
         },
+
+        findById(idCliente) {
+            ClienteDB.findById(idCliente).then((result) => {
+                this.clienteEdit = _.cloneDeep(result);
+            });
+        }
         
     },
-    mounted() {
+    created() {
+        this.disabledDates.from = new Date(new Date().getFullYear(), new Date().getMonth()-1, new Date().getDate());
         if(navigator.platform === "iPad") {
             this.isIpad= true;
         } else {
             this.isIpad= false;
         }
-
     },
-    created() {
+    mounted() {
+        this.idCliente = this.$route.params.clienteId;
+        if (this.idCliente) {
+            this.findById(this.idCliente);
+        }
+    },
+    beforeCreate() {
         setTimeout(() => {
             this.proximoCampo('cpfCnpj');
         }, 100);
-        this.disabledDates.from = new Date(new Date().getFullYear(), new Date().getMonth()-1, new Date().getDate());
     }
 }
 
