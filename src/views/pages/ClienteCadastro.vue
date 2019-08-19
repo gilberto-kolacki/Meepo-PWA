@@ -272,7 +272,7 @@
                     <div class="my-1">
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/4 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="CEP*" id="cadCepEndereco" name="cepEndereco" v-model="enderecoEdit.cep" class="w-full" v-on:keyup.enter="proximoCampo('cadEndereco')"/>
+                                <vs-input v-validate="'required|alpha_spaces'" label="CEP*" id="cadCepEndereco" name="cadCepEndereco" v-model="enderecoEdit.cep" class="w-full" v-on:keyup.enter="proximoCampo('cadEndereco')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cepEndereco') }}</span>
                             </div>
                             <div class="vx-col sm:w-3/4 w-full mb-2">
@@ -288,8 +288,8 @@
                                 <span class="text-danger text-sm">{{ errors.first('complemento') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/3 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Bairro*" id="cadBairro" v-model="enderecoEdit.bairro" class="w-full" v-on:keyup.enter="proximoCampo('cadCidade')"/>
-                                <span class="text-danger text-sm">{{ errors.first('bairro') }}</span>
+                                <vs-input v-validate="'required|alpha_spaces'" label="Bairro*" id="cadBairro" name="cadBairro" v-model="enderecoEdit.bairro" class="w-full" v-on:keyup.enter="proximoCampo('cadCidade')"/>
+                                <span class="text-danger text-sm">{{ errors.first('cadBairro') }}</span>
                             </div>
                         </div>
                         <div class="vx-row">
@@ -415,7 +415,7 @@ const ptBR = {
         registroGeral:{
             required: 'Campo obrigatório!'
         },
-        grupoClientes:{
+        grupoCliente:{
             required: 'Campo obrigatório!'
         },
         cepEndereco:{
@@ -439,14 +439,14 @@ const ptBR = {
         estado:{
             required: 'Campo obrigatório!'
         },
-        grupoCliente:{
-            required: 'Campo obrigatório!'
-        },
         dataAniversario:{
             required: 'Campo obrigatório!'
         },
         dataFundacao:{
             required: 'Campo obrigatório!'
+        },
+        cadBairro:{
+            required: 'Campo obrigatório'
         }
     }
 };
