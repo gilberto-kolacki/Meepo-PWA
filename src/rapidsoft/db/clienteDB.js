@@ -12,6 +12,10 @@ const validarObjetoDB = (cliente) => {
         if (cliente.nome === undefined) {
             reject({campo: "nomeCliente", mensagem: "Campo obrigatório!"});
         }
+        if(cliente.emailNfe === undefined) {
+            reject({campo: "emailNfe", mensagem: "Campo obrigatório!"})
+        }
+        
         if (cliente.pessoaJuridica) {
             if (cliente.razaoSocial === undefined) {
                 reject({campo: "razaoSocial", mensagem: "Campo obrigatório!"});
@@ -33,22 +37,41 @@ const validarObjetoDB = (cliente) => {
                 reject({campo: "registroGeral", mensagem: "Campo obrigatório!"});
             }
         }
-       
+        console.log(cliente);
+        
         if (cliente.segmentos === undefined && cliente.segmentos.length >= 1) {
             reject({campo: "segmento", mensagem: "Campo obrigatório, informe ao menos 1 Segmento!"});
         }
         if (cliente.emailNfe === undefined && !(cliente.emailNfe.includes("@") && cliente.emailNfe.includes(".com"))) {
             reject({campo: "emailNfe", mensagem: "Campo obrigatório!"});
         }
-        // if (cliente.nome === undefined) {
-        //     reject({campo: "nomeCliente", mensagem: "Campo obrigatório!"});
-        // }
-        // if (cliente.nome === undefined) {
-        //     reject({campo: "nomeCliente", mensagem: "Campo obrigatório!"});
-        // }
-        // if (cliente.nome === undefined) {
-        //     reject({campo: "nomeCliente", mensagem: "Campo obrigatório!"});
-        // }
+        if (cliente.endereco.cep === undefined) {
+            reject({campo: "cepEndereco", mensagem: "Campo obrigatório!"});
+        }
+        if (cliente.endereco.endereco === undefined) {
+            reject({campo: "endereco", mensagem: "Campo obrigatório!"});
+        }
+        if (cliente.endereco.numero === undefined) {
+            reject({campo: "numeroEndereco", mensagem: "Campo obrigatório!"});
+        }
+         if(cliente.grupoCliente === undefined){
+            reject({campo: "grupoCliente", mensagem: "Campo obrigatório!"})
+        }
+        if(cliente.endereco.complemento === undefined){
+            reject({campo: "complemento", mensagem: "Campo obrigatório!"})
+        }
+        if(cliente.endereco.bairro === undefined){
+            reject({campo: "bairro", mensagem: "Campo obrigatório!"})
+        }
+        if(cliente.endereco.cidade === undefined){
+            reject({campo: "cidade", mensagem: "Campo obrigatório!"})
+        }
+        if(cliente.endereco.estado === undefined){
+            reject({campo: "estado", mensagem: "Campo obrigatório!"})
+        }
+        if(cliente.endereco.telefone === undefined){
+            reject({campo: "enderecoTelefone", mensagem: "Campo obrigatório!"})
+        }
         resolve(cliente);
     });
 }
