@@ -177,6 +177,9 @@ export default {
         },
         toggleHideScrollToTop(val) {
             this.hideScrollToTop = val;
+        },
+        setIsPlatForm() {
+            this.$store.dispatch('updatePlatform', /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase()));
         }
     },
     components: {
@@ -186,6 +189,7 @@ export default {
         BackToTop
     },
     created() {
+        this.setIsPlatForm();
         this.setSidebarWidth();
         if(this.navbarColor == "#fff" && this.isThemeDark) {
             this.updateNavbarColor("#10163a")

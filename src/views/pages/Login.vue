@@ -9,45 +9,47 @@
 
 
 <template>
-    <div class="h-screen flex w-full bg-img vx-row no-gutter items-center justify-center" id="page-login">
-        <div class="vx-col sm:w-1/2 md:w-1/2 lg:w-3/4 xl:w-3/5 sm:m-0 m-4">
-            <vx-card>
-                <div slot="no-body" class="full-page-bg-color">
-                    <div class="vx-row no-gutter justify-center items-center">
-                        <div class="vx-col hidden lg:block lg:w-1/2">
-                            <img src="@/assets/images/pages/login.png" alt="login" class="mx-auto">
-                        </div>
-                        <div class="vx-col sm:w-full md:w-full lg:w-1/2 d-theme-dark-bg">
-                            <div class="p-8">
-                                <div class="vx-card__title mb-8">
-                                    <h4 class="mb-4">Login</h4>
+    <div id="login">
+        <div class="h-screen flex w-full bg-img vx-row no-gutter items-center justify-center" id="page-login">
+            <div class="vx-col sm:w-1/2 md:w-1/2 lg:w-3/4 xl:w-3/5 sm:m-0 m-4">
+                <vx-card>
+                    <div slot="no-body" class="full-page-bg-color">
+                        <div class="vx-row no-gutter justify-center items-center">
+                            <div class="vx-col hidden lg:block lg:w-1/2">
+                                <img src="@/assets/images/pages/login.png" alt="login" class="mx-auto">
+                            </div>
+                            <div class="vx-col sm:w-full md:w-full lg:w-1/2 d-theme-dark-bg">
+                                <div class="p-8">
+                                    <div class="vx-card__title mb-8">
+                                        <h4 class="mb-4">Login</h4>
+                                    </div>
+                                    <vs-input
+                                        name="email"
+                                        icon="icon icon-user"
+                                        icon-pack="feather"
+                                        label-placeholder="Email"
+                                        v-model="email"
+                                        class="w-full no-icon-border"/>
+
+                                    <vs-input
+                                        type="password"
+                                        name="password"
+                                        icon="icon icon-lock"
+                                        icon-pack="feather"
+                                        label-placeholder="Password"
+                                        v-model="password"
+                                        class="w-full mt-6 no-icon-border" />
+
+                                    <div class="my-5">
+                                        <vs-button class="w-full" :disabled="!validateForm" @click="login">Login</vs-button>
+                                    </div>
+
                                 </div>
-                                <vs-input
-                                    name="email"
-                                    icon="icon icon-user"
-                                    icon-pack="feather"
-                                    label-placeholder="Email"
-                                    v-model="email"
-                                    class="w-full no-icon-border"/>
-
-                                <vs-input
-                                    type="password"
-                                    name="password"
-                                    icon="icon icon-lock"
-                                    icon-pack="feather"
-                                    label-placeholder="Password"
-                                    v-model="password"
-                                    class="w-full mt-6 no-icon-border" />
-
-                                <div class="my-5">
-                                    <vs-button class="w-full" :disabled="!validateForm" @click="login">Login</vs-button>
-                                </div>
-
                             </div>
                         </div>
                     </div>
-                </div>
-            </vx-card>
+                </vx-card>
+            </div>
         </div>
     </div>
 </template>
@@ -84,7 +86,10 @@ export default {
                 }, 600)
             });
         },
-    }
+    },
+    mounted() {
+    
+    },
 }
 </script>
 

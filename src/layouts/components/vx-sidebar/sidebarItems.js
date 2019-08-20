@@ -41,15 +41,31 @@ export default [
     name: "Consulta Cliente",
     slug: "Cliente",
     icon: "UsersIcon",
+  },  
+  {
+    header: "Pedido",
+    i18n: "Pedido",
   },
   {
     url: "/pages/page2",
     name: "Teste",
-    slug: "Cliente",
-    icon: "UserIcon",
+    slug: "Pedido",
+    icon: "ShoppingCartIcon",
   },
   {
-    header: "Pedido",
-    i18n: "Pedido",
+    header: "Suporte",
+    i18n: "Suporte",
+  },
+  {
+    url: "/pages/sincronizacao",
+    name: "Sincronizar",
+    slug: "Sincronizar",
+    icon: "RefreshCcwIcon",
+  },
+  {
+    url: "/pages/suporte/atualizacao",
+    name: "Atualização",
+    slug: "Atualização",
+    icon: "DownloadIcon",
   },
 ]

@@ -49,6 +49,10 @@ const mutations = {
       state.windowWidth = width;
     },
 
+    UPDATE_PLATFORM(state, val) {
+        state.isIOS = val;
+    },
+
 
     // ////////////////////////////////////////////
     // COMPONENT

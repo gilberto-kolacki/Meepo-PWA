@@ -32,6 +32,9 @@ const actions = {
     updateWindowWidth({ commit }, width) {
       commit('UPDATE_WINDOW_WIDTH', width);
     },
+    updatePlatform({ commit }, val) {
+      commit('UPDATE_PLATFORM', val);
+    },
 
 
     // ////////////////////////////////////////////

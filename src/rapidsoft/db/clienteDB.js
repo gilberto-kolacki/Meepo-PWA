@@ -101,7 +101,6 @@ class clienteDB {
             dataBase.allDocs({include_docs: true, attachments: true}).then((result) => {
                 for (let index = 0; index < result.rows.length; index++) {
                     let cliente = _.cloneDeep(result.rows[index].doc);
-
                     if (_.isUndefined(cliente.endereco) || (_.isObject(cliente.endereco) && _.isUndefined(cliente.endereco.cep))) {
                         cliente.endereco = {};
                         cliente.endereco.cidade = "";
@@ -112,7 +111,7 @@ class clienteDB {
                 resolve(clientes);
             }).catch((err) => {
                 console.log(err);
-                reject(err)
+                reject(err);
             });
         });
     }
@@ -123,7 +122,7 @@ class clienteDB {
                 resolve(result);
             }).catch((err) => {
                 console.log(err);
-                reject(err)
+                reject(err);
             });
         });
     }

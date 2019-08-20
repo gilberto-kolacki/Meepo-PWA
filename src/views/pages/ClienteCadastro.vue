@@ -164,7 +164,7 @@
                     <div class="vx-row">
                         <div class="vx-col my-5-top w-full">
                             <vs-button color="success" class="mr-3 mb-2 pull-right" @click="salvarCliente">Salvar</vs-button>
-                            <vs-button color="danger" type="border" class="mb-2 pull-right" @click="cancelarCliente">Cancelar</vs-button>
+                            <vs-button color="danger" type="border" class="mb-2 pull-right" @click="cancelarCliente">Voltar</vs-button>
                         </div>
                     </div>
                 </div>
@@ -213,7 +213,7 @@
                          <div class="vx-row">
                             <div class="vx-col my-5-top w-full">
                                 <vs-button color="success" class="mr-3 mb-2 pull-right" @click="salvarContato">Salvar</vs-button>
-                                <vs-button color="danger" type="border" class="mb-2 pull-right" @click="cancelarContato">Cancelar</vs-button>
+                                <vs-button color="danger" type="border" class="mb-2 pull-right" @click="cancelarContato">Voltar</vs-button>
                             </div>
                         </div>
                     </div>
@@ -314,7 +314,7 @@
                         <div class="vx-row">
                             <div class="vx-col my-5-top w-full">
                                 <vs-button color="success" class="mr-3 mb-2 pull-right" @click="salvarEndereco">Salvar</vs-button>
-                                <vs-button color="danger" type="border" class="mb-2 pull-right" @click="cancelarEndereco">Cancelar</vs-button>
+                                <vs-button color="danger" type="border" class="mb-2 pull-right" @click="cancelarEndereco">Voltar</vs-button>
                             </div>
                         </div>                        
                     </div>                    

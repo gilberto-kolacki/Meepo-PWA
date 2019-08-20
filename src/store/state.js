@@ -27,6 +27,7 @@ const state = {
         img: 'avatar-s-11.png',
         status: 'online',
     },
+    isIOS: true,
 
     themePrimaryColor: colors.primary,
 

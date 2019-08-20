@@ -50,7 +50,6 @@ import _ from 'lodash';
 import clienteDB from '../../rapidsoft/db/clienteDB';
 
 export default {
-    loading: true,
     data() {
         return { 
             clientes: [],
@@ -71,7 +70,7 @@ export default {
             })
         },
         deletar(cliente) {
-            clienteDB.deletar(cliente).then((resposta) => {
+            clienteDB.deletar(cliente).then(() => {
                 this.listar();
             });
         }

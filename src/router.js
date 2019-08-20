@@ -84,6 +84,22 @@ const router = new Router({
               rule: 'editor'
           }
         },
+        {
+					path: '/pages/sincronizacao',
+					name: 'sincronizacao',
+					component: () => import('./views/pages/Sincronizacao.vue'),
+					meta: {
+              rule: 'editor'
+          }
+        },
+        {
+					path: '/pages/suporte/atualizacao',
+					name: 'atualizacao',
+					component: () => import('./views/pages/suporte/Atualizacao.vue'),
+					meta: {
+              rule: 'editor'
+          }
+        },
 			],
 		},
     // =============================================================================

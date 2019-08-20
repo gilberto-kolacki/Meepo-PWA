@@ -20,7 +20,6 @@ Vue.use(Vuex)
 
 import moduleAuth from './auth/moduleAuth.js'
 
-
 export default new Vuex.Store({
     getters,
     mutations,
@@ -28,6 +27,6 @@ export default new Vuex.Store({
     actions,
     modules: {
       auth: moduleAuth,
-  },
+    },
     strict: process.env.NODE_ENV !== 'production'
 })

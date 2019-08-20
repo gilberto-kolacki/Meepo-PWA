@@ -12,6 +12,9 @@
 <template>
     <footer class="the-footer flex-wrap justify-between" :class="classes">
         <span>COPYRIGHT @ {{ new Date().getFullYear() }} <a href="http://rapidsoft.com.br/" target="_blank" rel="nofollow">RapidSoft</a></span>
+        <span class="md:flex hidden items-center">
+            <span>V: 1.0</span>
+        </span>
     </footer>
 </template>
 
