@@ -126,7 +126,6 @@ class clienteDB {
     salvar(cliente) {
         return new Promise((resolve, reject) => {
             validarObjetoDB(cliente).then((result) => {
-                result.type = type;
                 result._id = result.cpfCnpj.replace(/[^a-z0-9]/gi, "");
         
                 dataBase.put(cliente).then((result) => {
