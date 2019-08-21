@@ -22,7 +22,7 @@
 export default [
   {
     url: "/",
-    name: "Home",
+    name: "Início",
     slug: "home",
     icon: "HomeIcon",
   },
@@ -31,26 +31,38 @@ export default [
     i18n: "Cliente",
   },
   {
-    url: "/cliente/cadastro",
-    name: "Cadastro Cliente",
-    slug: "Cliente",
-    icon: "UserPlusIcon",
-  },
-  {
     url: "/cliente/consulta",
     name: "Consulta Cliente",
     slug: "Cliente",
     icon: "UsersIcon",
-  },  
+  }, 
+  {
+    url: "/cliente/cadastro",
+    name: "Novo Cliente",
+    slug: "Cliente",
+    icon: "UserPlusIcon",
+  },   
   {
     header: "Pedido",
     i18n: "Pedido",
   },
   {
-    url: "/pages/page2",
-    name: "Teste",
+    url: "/pedido/consulta",
+    name: "Consulta Pedidos",
     slug: "Pedido",
     icon: "ShoppingCartIcon",
+  },
+  {
+    url: "/pedido/novo",
+    name: "Novo Pedido",
+    slug: "Pedido",
+    icon: "ShoppingCartIcon",
+  },
+  {
+    url: "/pedido/catalogo",
+    name: "Catálogo",
+    slug: "Pedido",
+    icon: "ShoppingBagIcon",
   },
   {
     header: "Suporte",

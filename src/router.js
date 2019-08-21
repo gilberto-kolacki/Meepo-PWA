@@ -77,8 +77,8 @@ const router = new Router({
           }
         },        
         {
-					path: '/pages/page2',
-					name: 'Imagens',
+					path: '/pedido/catalogo',
+					name: 'catalogo',
 					component: () => import('./views/Page2.vue'),
 					meta: {
               rule: 'editor'
@@ -152,22 +152,14 @@ router.beforeEach((to, from, next) => {
       // get firebase current user
       const firebaseCurrentUser = firebase.auth().currentUser;
 
-      if (to.path === "/pages/login" ||
-          to.path === "/pages/forgot-password" ||
+      if (to.path === "/pages/login" ||          
           to.path === "/pages/error-404" ||
           to.path === "/pages/error-500" ||
-          to.path === "/pages/register" ||
-          to.path === "/callback" ||
-          to.path === "/pages/comingsoon" ||
           (auth.isAuthenticated() || firebaseCurrentUser)) {
           return next();
+      } else {
+        return next("/pages/login");
       }
-
-      router.push({ path: '/pages/login', query: { to: to.path } })
-      // Specify the current path as the customState parameter, meaning it
-      // will be returned to the application after auth
-      // auth.login({ target: to.path });
-
   });
 
 });

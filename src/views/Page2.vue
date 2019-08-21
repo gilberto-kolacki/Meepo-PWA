@@ -33,20 +33,13 @@ export default {
 	data() {
 		return {			
 			imagens: [],
-			slide: 0,
-        	sliding: null,
 		}
 	},
 	components: {
 		
 	},
 	methods: {
-		onSlideStart(slide) {
-			this.sliding = true
-		},
-		onSlideEnd(slide) {
-			this.sliding = false
-		}
+		
 	},
 
 	created() { 
@@ -68,23 +61,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .swiper-slide {
-    background-position: center;
-    background-size: cover;
-    &.slide-1 {
-      background-image:url('/static/images/surmon-1.jpg')
-    }
-    &.slide-2 {
-      background-image:url('/static/images/surmon-6.jpg')
-    }
-    &.slide-3 {
-      background-image:url('/static/images/surmon-8.jpg')
-    }
-    &.slide-4 {
-      background-image:url('/static/images/surmon-9.jpg')
-    }
-    &.slide-5 {
-      background-image:url('/static/images/surmon-10.jpg')
-    }
-  }
+  
+.carousel-inner {
+	border-radius: .5rem!important;
+}
+	  
 </style>

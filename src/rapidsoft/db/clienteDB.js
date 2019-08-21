@@ -37,8 +37,6 @@ const validarEnderecoDB = (endereco) => {
     return true;
 }
 const validarContatoDB = (contato) => {
-    console.log(contato);
-    
     return new Promise((resolve, reject) => {
         let retorno = {
             mensagem : "Campo obrigatório!"
@@ -224,7 +222,6 @@ class clienteDB {
             validarContatoDB(contato).then((result) => {
                 resolve(result)
             }).catch((err) => {
-                console.log(err.campo);
                 reject(err)
             })
         });
