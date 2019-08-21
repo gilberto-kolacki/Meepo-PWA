@@ -113,7 +113,7 @@
                             <span class="text-danger text-sm">{{ errors.first('numeroEndereco') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2">
-                            <vs-input v-validate="'required|alpha_spaces'" label="Complemento" id="complemento" name="complemento" v-model="clienteEdit.endereco.complemento" class="w-full" v-on:keyup.enter="proximoCampo('bairro')"/>
+                            <vs-input v-validate="'alpha_spaces'" label="Complemento" id="complemento" name="complemento" v-model="clienteEdit.endereco.complemento" class="w-full" v-on:keyup.enter="proximoCampo('bairro')"/>
                             <span class="text-danger text-sm">{{ errors.first('complemento') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2">
@@ -267,7 +267,7 @@
                 </div>
             </vx-card>
         </div>
-        <div class="vx-col w-full mb-base-button" ref="endereco">
+        <div class="vx-col w-full mb-base-button" ref="endereco" v-if="salvoContato">
             <vx-card title="Endereço">
                 <div id="cliente-endereco-edit" v-if="isEditEndereco">
                     <div class="my-1">
@@ -288,7 +288,7 @@
                                 <span class="text-danger text-sm">{{ errors.first('cadNumeroEndereco') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/2 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Complemento" id="cadComplemento" name="cadComplemento" v-model="enderecoEdit.complemento" class="w-full" v-on:keyup.enter="proximoCampo('cadBairro')"/>
+                                <vs-input v-validate="'alpha_spaces'" label="Complemento" id="cadComplemento" name="cadComplemento" v-model="enderecoEdit.complemento" class="w-full" v-on:keyup.enter="proximoCampo('cadBairro')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadComplemento') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/3 w-full mb-2">
@@ -623,13 +623,32 @@ export default {
         cancelarEndereco() {
             this.isEditEndereco = false;
         },
-        salvarContato() {
-            console.log('teste');
-            
+        salvarContato() {        
             ClienteDB.validarContato(_.cloneDeep(this.contatoEdit)).then((result) => {
                 console.log(result);
                 this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
                 this.isEditContato = false;
+            }).catch((erro) => {
+                this.$validator.validate();
+                console.log(erro.campo);               
+                if (erro.campo) {
+                    this.proximoCampo(erro.campo);
+                }
+                this.$vs.notify({
+                    title: 'Erro!',
+                    text: erro.mensagem,
+                    color: 'danger',
+                    iconPack: 'feather',
+                    icon: 'icon-alert-circle'
+                })
+            });
+        },
+        salvarEndereco() {
+            ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
+                console.log(result);
+                
+                this.clienteEdit.enderecos.push(_.clone(this.enderecoEdit));
+                this.isEditEndereco = false;
             }).catch((erro) => {
                 this.$validator.validate();
                 if (erro.campo) {
@@ -642,13 +661,7 @@ export default {
                     iconPack: 'feather',
                     icon: 'icon-alert-circle'
                 })
-                
             });
-
-        },
-        salvarEndereco() {
-            this.clienteEdit.enderecos.push(_.clone(this.enderecoEdit));
-            this.isEditEndereco = false;
         },
         salvarCliente() {
             this.$vs.loading();
@@ -664,8 +677,6 @@ export default {
                         icon: 'icon-check'
                     })
                 }).catch((erro) => {
-                    console.log(erro);
-                    
                     this.$validator.validate();
                     if (erro.campo) {
                         this.proximoCampo(erro.campo);
@@ -680,6 +691,13 @@ export default {
                 });
                 this.$vs.loading.close();
             }, 300);
+        },
+        salvoContato() {
+            if (_.isArray(this.clienteEdit.contatos) && this.clienteEdit.contatos.length >= 1) {
+                return true;
+            } else {
+                return false;
+            }
         },
         cancelarCliente() {
             this.$router.push('/cliente/consulta');            

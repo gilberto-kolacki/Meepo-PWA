@@ -37,12 +37,16 @@ const validarEnderecoDB = (endereco) => {
     return true;
 }
 const validarContatoDB = (contato) => {
-    let retorno = {
-        mensagem : "Campo obrigatório!"
-    }
+    console.log(contato);
+    
     return new Promise((resolve, reject) => {
+        let retorno = {
+            mensagem : "Campo obrigatório!"
+        }
         if (contato.nome === undefined || contato.nome === ""){
             retorno.campo = "nomeContato"
+            console.log("passou aki");
+            
             reject(retorno);
         }
         if (contato.funcao === undefined || contato.funcao === ""){
@@ -62,6 +66,43 @@ const validarContatoDB = (contato) => {
             reject(retorno);
         }
         resolve(contato);
+    });
+}
+
+const validarEnderecoEDB = (entrega) => {
+    let retorno = {
+        mensagem : "Campo obrigatório!"
+    }
+    return new Promise((resolve, reject) => {
+        if(entrega.cep === undefined || entrega.cep === ""){
+            retorno.campo = "cadCepEndereco"
+            reject(retorno);
+        }
+        if(entrega.endereco === undefined || entrega.endereco === ""){
+            retorno.campo = "cadEndereco"
+            reject(retorno);
+        }
+        if(entrega.numero === undefined || entrega.numero === ""){
+            retorno.campo = "cadNumeroEndereco"
+            reject(retorno);
+        }
+        if(entrega.bairro === undefined || entrega.bairro === ""){
+            retorno.campo = "cadBairro"
+            reject(retorno);
+        }
+        if(entrega.cidade === undefined || entrega.cidade === ""){
+            retorno.campo = "cadCidade"
+            reject(retorno);
+        }
+        if(entrega.estado === undefined || entrega.estado === ""){
+            retorno.campo = "cadEstado"
+            reject(retorno);
+        }
+        if(entrega.telefone === undefined || entrega.telefone === ""){
+            retorno.campo = "cadEnderecoTelefone"
+            reject(retorno);
+        }
+        resolve(entrega);
     });
 }
 
@@ -115,9 +156,6 @@ const validarObjetoDB = (cliente) => {
         if(!_.isEmpty(validarEndereco)){
             reject(validarEndereco);
         }
-        if (!(_.isArray(cliente.contatos) && cliente.contatos.length >= 1)) {
-            reject({mensagem: "É Nescessário adicionar ao menos um contato!"});
-        }
         resolve(cliente);
     });
 }
@@ -127,7 +165,6 @@ class clienteDB {
         return new Promise((resolve, reject) => {
             validarObjetoDB(cliente).then((result) => {
                 result._id = result.cpfCnpj.replace(/[^a-z0-9]/gi, "");
-        
                 dataBase.put(cliente).then((result) => {
                     resolve(result);
                 }).catch((erro) => {
@@ -185,6 +222,17 @@ class clienteDB {
     validarContato(contato) {
         return new Promise((resolve, reject) => {
             validarContatoDB(contato).then((result) => {
+                resolve(result)
+            }).catch((err) => {
+                console.log(err.campo);
+                reject(err)
+            })
+        });
+    }
+
+    validarEndereco(endereco) {
+        return new Promise((resolve, reject) => {
+            validarEnderecoEDB(endereco).then((result) => {
                 resolve(result)
             }).catch((err) => {
                 reject(err)
