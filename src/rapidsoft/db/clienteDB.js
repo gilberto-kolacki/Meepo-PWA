@@ -18,19 +18,19 @@ const validarEnderecoDB = (endereco) => {
         retorno.campo = "numeroEndereco"
         return retorno;
     }
-    if(endereco.bairro === undefined || endereco.bairro === ""){
+    if (endereco.bairro === undefined || endereco.bairro === ""){
         retorno.campo = "bairro"
         return retorno;
     }
-    if(endereco.cidade === undefined || endereco.cidade === ""){
+    if (endereco.cidade === undefined || endereco.cidade === ""){
         retorno.campo = "cidade"
         return retorno;
     }
-    if(endereco.estado === undefined || endereco.estado === ""){
+    if (endereco.estado === undefined || endereco.estado === ""){
         retorno.campo = "estado"
         return retorno
     }
-    if(endereco.telefone === undefined || endereco.telefone === ""){
+    if (endereco.telefone === undefined || endereco.telefone === ""){
         retorno.campo = "enderecoTelefone"
         return retorno;
     }
@@ -43,23 +43,21 @@ const validarContatoDB = (contato) => {
         }
         if (contato.nome === undefined || contato.nome === ""){
             retorno.campo = "nomeContato"
-            console.log("passou aki");
-            
             reject(retorno);
         }
-        if (contato.funcao === undefined || contato.funcao === ""){
+        else if (contato.funcao === undefined || contato.funcao === ""){
             retorno.campo = "funcao"
             reject(retorno);
         }
-        if (contato.telefone === undefined || contato.telefone === ""){
+        else if (contato.telefone === undefined || contato.telefone === ""){
             retorno.campo = "telefoneContato"
             reject(retorno);
         }
-        if (contato.celular === undefined || contato.celular === ""){
+        else if (contato.celular === undefined || contato.celular === ""){
             retorno.campo = "celularContato"
             reject(retorno);
         }
-        if (contato.email === undefined || contato.email === ""){
+        else if (contato.email === undefined || contato.email === ""){
             retorno.campo = "emailContato"
             reject(retorno);
         }
@@ -68,35 +66,35 @@ const validarContatoDB = (contato) => {
 }
 
 const validarEnderecoEDB = (entrega) => {
-    let retorno = {
-        mensagem : "Campo obrigatório!"
-    }
     return new Promise((resolve, reject) => {
-        if(entrega.cep === undefined || entrega.cep === ""){
+        let retorno = {
+            mensagem : "Campo obrigatório!"
+        }
+        if (entrega.cep === undefined || entrega.cep === ""){
             retorno.campo = "cadCepEndereco"
             reject(retorno);
         }
-        if(entrega.endereco === undefined || entrega.endereco === ""){
+        else if (entrega.endereco === undefined || entrega.endereco === ""){
             retorno.campo = "cadEndereco"
             reject(retorno);
         }
-        if(entrega.numero === undefined || entrega.numero === ""){
+        else if (entrega.numero === undefined || entrega.numero === ""){
             retorno.campo = "cadNumeroEndereco"
             reject(retorno);
         }
-        if(entrega.bairro === undefined || entrega.bairro === ""){
+        else if (entrega.bairro === undefined || entrega.bairro === ""){
             retorno.campo = "cadBairro"
             reject(retorno);
         }
-        if(entrega.cidade === undefined || entrega.cidade === ""){
+        else if (entrega.cidade === undefined || entrega.cidade === ""){
             retorno.campo = "cadCidade"
             reject(retorno);
         }
-        if(entrega.estado === undefined || entrega.estado === ""){
+        else if (entrega.estado === undefined || entrega.estado === ""){
             retorno.campo = "cadEstado"
             reject(retorno);
         }
-        if(entrega.telefone === undefined || entrega.telefone === ""){
+        else if (entrega.telefone === undefined || entrega.telefone === ""){
             retorno.campo = "cadEnderecoTelefone"
             reject(retorno);
         }
@@ -111,52 +109,70 @@ const validarObjetoDB = (cliente) => {
             mensagem : "Campo obrigatório!"
         }
         if (cliente.cpfCnpj === undefined || cliente.cpfCnpj.length < 14 || cliente.cpfCnpj === "") {
-            retorno.campo = "cpfCnpj"
+            retorno.campo = "cpfCnpj"            
             reject(retorno);
         }
-        if (cliente.nome === undefined || cliente.nome === "") {
-            reject({campo: "nomeCliente", mensagem: "Campo obrigatório!"});
+        else if (cliente.nome === undefined || cliente.nome === "") {
+            retorno.campo = "nomeCliente"
+            reject(retorno);
         }
-        if(cliente.emailNfe === undefined || cliente.emailNfe === "") {
-            reject({campo: "emailNfe", mensagem: "Campo obrigatório!"})
-        }
-        if (cliente.pessoaJuridica) {
+        else if (cliente.pessoaJuridica === true) {
             if (cliente.razaoSocial === undefined || cliente.razaoSocial === "") {
-                reject({campo: "razaoSocial", mensagem: "Campo obrigatório!"});
+                retorno.campo = "razaoSocial"
+                reject(retorno);
+                        }
+            else if (cliente.dataFundacao === undefined || cliente.dataFundacao === "") {
+                retorno.campo = "dataFundacao"
+                reject(retorno);
             }
-            if (cliente.dataFundacao === undefined || cliente.dataFundacao === "") {
-                reject({campo: "dataFundacao", mensagem: "Campo obrigatório!"});
-            }
-            if (cliente.inscricaoEstadual === undefined || cliente.inscricaoEstadual === "") {
-                reject({campo: "inscricaoEstadual", mensagem: "Campo obrigatório!"});
+            else if (cliente.inscricaoEstadual === undefined || cliente.inscricaoEstadual === "") {
+                retorno.campo = "inscricaoEstadual"
+                reject(retorno);
             }
         } else {
             if (cliente.razaoSocial === undefined) {
                 cliente.razaoSocial = cliente.nome;
             }
             if (cliente.dataAniversario === undefined || cliente.dataAniversario === "") {
-                reject({campo: "dataAniversario", mensagem: "Campo obrigatório!"});
+                retorno.campo = "dataAniversario"
+                reject(retorno);
             }
-            if (cliente.registroGeral === undefined || cliente.registroGeral === "") {
-                reject({campo: "registroGeral", mensagem: "Campo obrigatório!"});
+            else if (cliente.registroGeral === undefined || cliente.registroGeral === "") {
+                retorno.campo = "registroGeral"
+                reject(retorno);
             }
         }
-        if (cliente.segmentos === undefined && cliente.segmentos.length >= 1) {
+        if (cliente.segmentos[0].ativo === false && cliente.segmentos[1].ativo === false) {
+            //retorno.camp = "segmento"
+            //reject(retorno);
             reject({campo: "segmento", mensagem: "Campo obrigatório, informe ao menos 1 Segmento!"});
         }
-        if (cliente.emailNfe === undefined && !(cliente.emailNfe.includes("@") && cliente.emailNfe.includes(".com")) || cliente.emailNfe === "") {
-            reject({campo: "emailNfe", mensagem: "Campo obrigatório!"});
+        else if (cliente.emailNfe === undefined){
+            console.log("email");
+            retorno.campo = "emailNfe"
+            reject(retorno);
+        }else{
+            if(!(cliente.emailNfe.includes("@") && cliente.emailNfe.includes(".com"))){
+                reject({campo: "emailNfe", mensagem: "Campo obrigatório!"});
+            }
         }
-         if(cliente.grupoCliente === undefined){
+        if (cliente.grupoCliente === undefined){
+            //retorno.campo = "grupoCliente"
+            console.log("grupoCliente");
             reject({campo: "grupoCliente", mensagem: "Campo obrigatório!"})
+            //reject(retorno);
         }
         let validarEndereco = validarEnderecoDB(cliente.endereco);
-        if(!_.isEmpty(validarEndereco)){
+        if (!_.isEmpty(validarEndereco)){
             reject(validarEndereco);
+        }
+        if (!(_.isArray(cliente.contatos) && cliente.contatos.length >= 1)) {
+            reject ({mensagem: "É necessário adicionar ao menos um contato!"});
         }
         resolve(cliente);
     });
 }
+
 class clienteDB {
 
     salvar(cliente) {
@@ -166,6 +182,8 @@ class clienteDB {
                 dataBase.put(cliente).then((result) => {
                     resolve(result);
                 }).catch((erro) => {
+                    console.log(erro);
+                    
                     reject(erro);
                 });
             }).catch((erro) => {

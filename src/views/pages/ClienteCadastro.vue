@@ -52,7 +52,7 @@
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-else>
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('emailNfe')">
-                                <label for="" class="vs-input--label">RG*</label>
+                                <label for="registroGeral" class="vs-input--label">RG*</label>
                                 <div class="vs-con-input">
                                     <the-mask v-validate="'required'" id="registroGeral" name="registroGeral" v-model="clienteEdit.registroGeral" class="vs-inputx vs-input--input normal hasValue" :mask="['#.###.###-#', '##.###.###-#', '#.###.###']" :masked="true" />
                                 </div>
@@ -63,9 +63,10 @@
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-if="clienteEdit.segmentos.length > 0">
                             <ul class="demo-alignment" id="segmento">
                                 <li v-for="(segmento, index) in clienteEdit.segmentos" :key="`segmento-cliente-${index}`">
-                                    <vs-checkbox v-model="clienteEdit.segmentos[index].ativo">{{clienteEdit.segmentos[index].name}}</vs-checkbox>
+                                    <vs-checkbox v-validate="'required'" name="segmento" v-model="clienteEdit.segmentos[index].ativo">{{clienteEdit.segmentos[index].name}}</vs-checkbox>
                                 </li>
                             </ul>
+                            <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
                         </div>
                     </div>
                     <div class="vx-row">
@@ -267,7 +268,7 @@
                 </div>
             </vx-card>
         </div>
-        <div class="vx-col w-full mb-base-button" ref="endereco" v-if="salvoContato">
+        <div class="vx-col w-full mb-base-button" ref="endereco">
             <vx-card title="Endereço">
                 <div id="cliente-endereco-edit" v-if="isEditEndereco">
                     <div class="my-1">
@@ -417,6 +418,9 @@ const ptBR = {
             required: 'Campo obrigatório!'
         },
         registroGeral:{
+            required: 'Campo obrigatório!'
+        },
+        segmento:{
             required: 'Campo obrigatório!'
         },
         grupoCliente:{
@@ -678,6 +682,8 @@ export default {
                     })
                 }).catch((erro) => {
                     this.$validator.validate();
+                    console.log(erro);
+                    
                     if (erro.campo) {
                         this.proximoCampo(erro.campo);
                     }
@@ -691,13 +697,6 @@ export default {
                 });
                 this.$vs.loading.close();
             }, 300);
-        },
-        salvoContato() {
-            if (_.isArray(this.clienteEdit.contatos) && this.clienteEdit.contatos.length >= 1) {
-                return true;
-            } else {
-                return false;
-            }
         },
         cancelarCliente() {
             this.$router.push('/cliente/consulta');            

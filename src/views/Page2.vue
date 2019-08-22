@@ -65,5 +65,5 @@ export default {
 .carousel-inner {
 	border-radius: .5rem!important;
 }
-	  
+  
 </style>
