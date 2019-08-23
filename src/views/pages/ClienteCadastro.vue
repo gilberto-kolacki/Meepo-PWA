@@ -46,9 +46,11 @@
 
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-if="isJuridico">
-                            <label for="inscricaoEstadual" class="vs-input--label">Inscrição Estadual*</label>
-                            <the-mask v-validate="'required'" id="inscricaoEstadual" name="inscricaoEstadual" v-model="clienteEdit.inscricaoEstadual" class="vs-inputx vs-input--input normal hasValue" :mask="['##############']" :masked="true" v-on:keyup.enter="proximoCampo('emailNfe')" />
-                            <span class="text-danger text-sm">{{ errors.first('inscricaoEstadual') }}</span>
+                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('emailNfe')">
+                                <label for="inscricaoEstadual" class="vs-input--label">Inscrição Estadual*</label>
+                                <the-mask v-validate="'required'" id="inscricaoEstadual" name="inscricaoEstadual" v-model="clienteEdit.inscricaoEstadual" class="vs-inputx vs-input--input normal hasValue" :mask="['##############']" :masked="true" />
+                                <span class="text-danger text-sm">{{ errors.first('inscricaoEstadual') }}</span>
+                            </div>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-else>
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('emailNfe')">
@@ -58,12 +60,11 @@
                                 </div>
                                 <span class="text-danger text-sm">{{ errors.first('registroGeral') }}</span>
                             </div>
-
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-if="clienteEdit.segmentos.length > 0">
                             <ul class="demo-alignment" id="segmento">
                                 <li v-for="(segmento, index) in clienteEdit.segmentos" :key="`segmento-cliente-${index}`">
-                                    <vs-checkbox v-validate="'required'" name="segmento" v-model="clienteEdit.segmentos[index].ativo">{{clienteEdit.segmentos[index].name}}</vs-checkbox>
+                                    <vs-checkbox v-validate="'required'" name = "segmento" v-model="clienteEdit.segmentos[index].ativo" onFocus="value" value="okay">{{clienteEdit.segmentos[index].name}}</vs-checkbox>
                                 </li>
                             </ul>
                             <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
@@ -275,7 +276,9 @@
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/4 w-full mb-2">
                                 <label for="cadCepEndereco" class="vs-input--label">CEP*</label>
-                                <the-mask v-validate="'required'" id="cadCepEndereco" name="cadCepEndereco" v-model="enderecoEdit.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true" v-on:keyup.enter="proximoCampo('cadEndereco')"/>
+                                <div class="vs-con-input">
+                                    <the-mask v-validate="'required'" id="cadCepEndereco" name="cadCepEndereco" v-model="enderecoEdit.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true" v-on:keyup.enter="proximoCampo('cadEndereco')"/>
+                                </div>
                                 <span class="text-danger text-sm">{{ errors.first('cadCepEndereco') }}</span>
                             </div>
                             <div class="vx-col sm:w-3/4 w-full mb-2">
@@ -629,12 +632,10 @@ export default {
         },
         salvarContato() {        
             ClienteDB.validarContato(_.cloneDeep(this.contatoEdit)).then((result) => {
-                console.log(result);
                 this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
                 this.isEditContato = false;
             }).catch((erro) => {
-                this.$validator.validate();
-                console.log(erro.campo);               
+                this.$validator.validate();       
                 if (erro.campo) {
                     this.proximoCampo(erro.campo);
                 }
