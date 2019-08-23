@@ -145,22 +145,17 @@ const validarObjetoDB = (cliente) => {
         if (cliente.segmentos[0].ativo === false && cliente.segmentos[1].ativo === false) {
             //retorno.camp = "segmento"
             //reject(retorno);
+            document.getElementById("segmento").focus();
             reject({campo: "segmento", mensagem: "Campo obrigatório, informe ao menos 1 Segmento!"});
         }
-        else if (cliente.emailNfe === undefined){
-            console.log("email");
+        else if (cliente.emailNfe === undefined || (!(cliente.emailNfe.includes("@") && cliente.emailNfe.includes(".com"))) ){
             retorno.campo = "emailNfe"
             reject(retorno);
-        }else{
-            if(!(cliente.emailNfe.includes("@") && cliente.emailNfe.includes(".com"))){
-                reject({campo: "emailNfe", mensagem: "Campo obrigatório!"});
-            }
         }
-        if (cliente.grupoCliente === undefined){
-            //retorno.campo = "grupoCliente"
-            console.log("grupoCliente");
-            reject({campo: "grupoCliente", mensagem: "Campo obrigatório!"})
-            //reject(retorno);
+        else if (cliente.grupoCliente === undefined){
+            retorno.campo = "grupoCliente"
+            //reject({campo: "grupoCliente", mensagem: "Campo obrigatório!"})
+            reject(retorno);
         }
         let validarEndereco = validarEnderecoDB(cliente.endereco);
         if (!_.isEmpty(validarEndereco)){
