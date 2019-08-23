@@ -4,7 +4,7 @@ let api = 'https://5d546d7536ad770014ccd7bf.mockapi.io'
 
 export const http = Axios.create({
     baseURL: api,
-    timeout: 1000,
+    timeout: 10000,
 });
 
 export default http

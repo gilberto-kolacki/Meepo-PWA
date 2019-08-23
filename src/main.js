@@ -45,7 +45,6 @@ Vue.use(money, {precision: 2})
 // Vuex Store
 import store from './store/store'
 
-
 // Vuesax Admin Filters
 import './filters/filters'
 
