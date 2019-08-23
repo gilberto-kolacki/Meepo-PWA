@@ -15,9 +15,6 @@ import App from './App.vue'
 import Vuesax from 'vuesax'
 Vue.use(Vuesax)
 
-// Firebase
-import '@/firebase/firebaseConfig'
-
 // Auth0 Plugin
 import AuthPlugin from "./plugins/auth";
 Vue.use(AuthPlugin);

@@ -1,6 +1,10 @@
 {
   "name": "Meepo - FV",
   "short_name": "Live FV",
+  "start_url": "/?pwa_launcher=true",
+  "display": "standalone",
+  "background_color": "#fff",
+  "theme_color": "#fff",
   "icons": [
     {
       "src": "./img/icons/android-chrome-192x192.png",
@@ -12,9 +16,5 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "start_url": "/?pwa_launcher=true",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#6558Ef"
+  ]
 }

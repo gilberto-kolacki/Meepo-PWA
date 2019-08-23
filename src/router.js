@@ -19,10 +19,8 @@
 
 import Vue from 'vue'
 import Router from 'vue-router'
-import auth from "@/auth/authService";
-
-import firebase from 'firebase/app'
-import 'firebase/auth'
+import auth from "./rapidsoft/auth/authService";
+import usuarioDB from './rapidsoft/db/usuarioDB'
 
 Vue.use(Router)
 
@@ -49,7 +47,8 @@ const router = new Router({
 					name: 'home',
 					component: () => import('./views/Home.vue'),
 					meta: {
-              rule: 'editor'
+              requiresAuth: true,
+              rule: 'editor',
           }
 				},
 				{
@@ -57,7 +56,8 @@ const router = new Router({
 					name: 'clienteCadastro',
 					component: () => import('./views/pages/ClienteCadastro.vue'),
 					meta: {
-              rule: 'editor'
+            requiresAuth: true,
+            rule: 'editor'
           }
         },
         {
@@ -65,7 +65,8 @@ const router = new Router({
 					name: 'clienteEditar',
 					component: () => import('./views/pages/ClienteCadastro.vue'),
 					meta: {
-              rule: 'editor'
+            requiresAuth: true,
+            rule: 'editor'
           }
         },
         {
@@ -73,7 +74,8 @@ const router = new Router({
 					name: 'clienteConsulta',
 					component: () => import('./views/pages/ClienteConsulta.vue'),
 					meta: {
-              rule: 'editor'
+            requiresAuth: true,
+            rule: 'editor'
           }
         },        
         {
@@ -81,7 +83,8 @@ const router = new Router({
 					name: 'catalogo',
 					component: () => import('./views/Page2.vue'),
 					meta: {
-              rule: 'editor'
+            requiresAuth: true,
+            rule: 'editor'
           }
         },
         {
@@ -89,7 +92,8 @@ const router = new Router({
 					name: 'sincronizacao',
 					component: () => import('./views/pages/Sincronizacao.vue'),
 					meta: {
-              rule: 'editor'
+            requiresAuth: true,
+            rule: 'editor'
           }
         },
         {
@@ -97,7 +101,8 @@ const router = new Router({
 					name: 'atualizacao',
 					component: () => import('./views/pages/suporte/Atualizacao.vue'),
 					meta: {
-              rule: 'editor'
+            requiresAuth: true,
+            rule: 'editor'
           }
         },
 			],
@@ -113,8 +118,8 @@ const router = new Router({
       // PAGES
       // =============================================================================
 			{
-				path: '/pages/login',
-				name: 'pageLogin',
+				path: '/login',
+				name: 'login',
 				component: () => import('@/views/pages/Login.vue'),
 				meta: {
 					rule: 'editor'
@@ -141,27 +146,30 @@ const router = new Router({
 router.afterEach(() => {
   // Remove initial loading
   const appLoading = document.getElementById('loading-bg')
-    if (appLoading) {
-        appLoading.style.display = "none";
-    }
+  if (appLoading) {
+      appLoading.style.display = "none";
+  }
 })
 
 router.beforeEach((to, from, next) => {
-  firebase.auth().onAuthStateChanged(() => {
-
-      // get firebase current user
-      const firebaseCurrentUser = firebase.auth().currentUser;
-
-      if (to.path === "/pages/login" ||          
-          to.path === "/pages/error-404" ||
-          to.path === "/pages/error-500" ||
-          (auth.isAuthenticated() || firebaseCurrentUser)) {
-          return next();
-      } else {
-        return next("/pages/login");
-      }
-  });
-
+    if(to.matched.some(record => record.meta.requiresAuth)) {
+        if(auth.isAuthenticated()) {
+            next();
+        } else {
+            usuarioDB.onAuthStateChanged().then(() => {
+                if (auth.isAuthenticated()) {
+                    next();
+                } else {
+                    next('/login')
+                }
+            }).catch((err) => {
+                console.log(err);
+                next('/login')
+            });
+        }
+    } else {
+        next();
+    }
 });
 
 export default router

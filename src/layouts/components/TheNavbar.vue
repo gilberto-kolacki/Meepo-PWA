@@ -82,23 +82,21 @@
                 <!-- <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/apps/todo')"><feather-icon icon="CheckSquareIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Tasks</span></li> -->
                 <!-- <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/apps/chat')"><feather-icon icon="MessageSquareIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Chat</span></li> -->
                 <!-- <vs-divider class="m-1"></vs-divider> -->
-                <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="logout">
+                <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="logoutAlert">
                     <feather-icon icon="LogOutIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Sair</span>
                 </li>
             </ul>
           </vs-dropdown-menu>
         </vs-dropdown>
       </div>
-
     </vs-navbar>
-  </div>
+    </div>
 </div>
+
 </template>
 
 <script>
-import firebase from 'firebase/app'
-import 'firebase/auth'
-import VxAutoSuggest from '@/components/vx-auto-suggest/VxAutoSuggest.vue';
+import auth from "../../rapidsoft/auth/authService";
 import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 import draggable from 'vuedraggable'
 
@@ -112,6 +110,7 @@ export default {
     },
     data() {
         return {
+            logoutPrompt: false,
             navbarSearchAndPinList: this.$store.state.navbarSearchAndPinList,
             searchQuery: '',
             showFullSearch: false,
@@ -180,7 +179,7 @@ export default {
             return JSON.parse(localStorage.getItem('userInfo')).displayName
         },
         activeUserImg() {
-            return JSON.parse(localStorage.getItem('userInfo')).photoURL || this.$store.state.AppActiveUser.img;
+            return JSON.parse(localStorage.getItem('userInfo')).img || this.$store.state.AppActiveUser.img;
         }
     },
     methods: {
@@ -239,20 +238,22 @@ export default {
             this.showBookmarkPagesDropdown = false
         },
         logout() {
-            // if user is logged in via auth0
-            if (this.$auth.profile) this.$auth.logOut();
-
-            // if user is looged in via firebase
-            const firebaseCurrentUser = firebase.auth().currentUser
-
-            if (firebaseCurrentUser) {
-                firebase.auth().signOut().then(() => {
-                    this.$router.push('/pages/login')
-                    localStorage.removeItem('userInfo');
-                })
-            }
-            // Change role on logout. Same value as initialRole of acj.js
-            localStorage.removeItem('userRole');
+            this.$vs.loading();
+            auth.logOut();
+            setTimeout(() => {
+                this.$vs.loading.close();
+            }, 300)
+        },
+        logoutAlert() {
+            this.$vs.dialog({
+                type: 'confirm',
+                color: 'warning',
+                title: 'Atenção!',
+                text: 'Se sair da aplicação será preciso estar on-line para entrar novamente!',
+                acceptText: 'Sair',
+                cancelText: 'Cancelar',
+                accept: this.logout
+            })
         },
     },
     directives: {
@@ -276,7 +277,6 @@ export default {
         }
     },
     components: {
-        VxAutoSuggest,
         VuePerfectScrollbar,
         draggable
     },

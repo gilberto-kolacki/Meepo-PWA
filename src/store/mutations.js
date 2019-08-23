@@ -42,6 +42,11 @@ const mutations = {
         state.userRole = val
         localStorage.setItem('userRole', val)
     },
+    UPDATE_USER_ACTIVE(state, val) {
+        state.AppActiveUser = val
+        localStorage.setItem('userInfo', JSON.stringify(val))
+        localStorage.setItem('token', JSON.stringify(val.token));
+    },
     // UPDATE_STATUS_CHAT(state, value) {
     //     state.AppActiveUser.status = value;
     // },

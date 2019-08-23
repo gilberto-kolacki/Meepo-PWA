@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name='apple-mobile-web-app-capable' content='yes' />
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <link rel="stylesheet" type="text/css" href="<%= BASE_URL %>loader.css">
     <title>Meepo - RapidSoft</title>
@@ -17,10 +18,14 @@
         <img src="<%= BASE_URL %>logo.png" alt="Logo">
       </div>
       <div class="loading">
-        <div class="effect-1 effects"></div>
-        <div class="effect-2 effects"></div>
-        <div class="effect-3 effects"></div>
+        <div class="vs-loading material">
+          <img src="">
+          <svg width="50px" height="50px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg" class="spinner">
+            <circle fill="none" stroke-width="5" stroke-linecap="round" cx="33" cy="33" r="30" class="path"></circle>
+          </svg>
+        </div>
       </div>
+
     </div>
     <div id="app">
       

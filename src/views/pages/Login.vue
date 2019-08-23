@@ -41,7 +41,7 @@
                                         class="w-full mt-6 no-icon-border" />
 
                                     <div class="my-5">
-                                        <vs-button class="w-full" :disabled="!validateForm" @click="login">Login</vs-button>
+                                        <vs-button class="w-full" :disabled="!validateForm" @click="login">Entrar</vs-button>
                                     </div>
 
                                 </div>
@@ -61,7 +61,7 @@ export default {
         return {
             email: 'demo@demo.com',
             password: 'demodemo',
-            checkbox_remember_me: false
+            checkbox_remember_me: true
         }
     },
     computed: {
@@ -88,7 +88,7 @@ export default {
         },
     },
     mounted() {
-    
+        
     },
 }
 </script>
