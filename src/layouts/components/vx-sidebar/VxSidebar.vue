@@ -15,7 +15,7 @@
             <div v-on:click="sidebarMouseEntered" v-on:mouseleave="sidebarMouseLeave">
                 <div class="header-sidebar flex items-end justify-between" slot="header">
                     <div class="logo flex items-center">
-                        <img :src="logo" alt="logo" class="w-10 mr-4" v-if="logo">
+                        <img :src="logo" alt="logo" class="w-10 img-logo mr-4" v-if="logo">
                         <span class="logo-text" v-show="isMouseEnter || !reduce" v-if="title">{{title}}</span>
                     </div>
                     <div>
@@ -249,6 +249,11 @@ export default {
     }
     .main-menu-sidebar .header-sidebar .feather-icon svg {
         color: #040404;
+    }
+
+    .img-logo {
+        width: 1.5rem !important;
+        margin-left: 1rem;
     }
 
     

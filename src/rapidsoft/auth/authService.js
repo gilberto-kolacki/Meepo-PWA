@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import router from '@/router'
 import usuarioDB from '../db/usuarioDB'
+import clienteDB from '../db/clienteDB'
 
 const localStorageKey = 'token';
 const tokenExpiryKey = 'tokenExpiry';
@@ -14,15 +15,19 @@ class AuthService extends EventEmitter {
             if (localStorage.getItem(localStorageKey) === "") {
                 reject("Not logged in");
             } else {
-                resolve("logged in");
+                clienteDB.sincNuvem().then(() => {
+                    resolve("logged in");
+
+                });
             }
         });
     }
 
-    logOut() {
+    logOut(callback) {
         usuarioDB.signOut().then(() => {
             this.emit(loginEvent, { loggedIn: false });
             router.go(0);
+            callback();
         });
     }
 

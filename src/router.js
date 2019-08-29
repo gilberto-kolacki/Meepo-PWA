@@ -31,124 +31,141 @@ const router = new Router({
         return { x: 0, y: 0 }
     },
     routes: [
-
-		{
-		// =============================================================================
-		// MAIN LAYOUT ROUTES
-		// =============================================================================
+        {
+            // =============================================================================
+            // MAIN LAYOUT ROUTES
+            // =============================================================================
 			path: '',
 			component: () => import('./layouts/main/Main.vue'),
 			children: [
-		// =============================================================================
-		// Theme Routes
-		// =============================================================================
+            // =============================================================================
+            // Theme Routes
+            // =============================================================================
 				{
 					path: '/',
 					name: 'home',
 					component: () => import('./views/Home.vue'),
 					meta: {
-              requiresAuth: true,
-              rule: 'editor',
-          }
+                        requiresAuth: true,
+                        rule: 'editor',
+                    }
 				},
 				{
 					path: '/cliente/cadastro',
 					name: 'clienteCadastro',
 					component: () => import('./views/pages/ClienteCadastro.vue'),
 					meta: {
-            requiresAuth: true,
-            rule: 'editor'
-          }
-        },
-        {
+                        requiresAuth: true,
+                        rule: 'editor'
+                    }
+                },
+                {
 					path: '/cliente/cadastro',
 					name: 'clienteEditar',
 					component: () => import('./views/pages/ClienteCadastro.vue'),
 					meta: {
-            requiresAuth: true,
-            rule: 'editor'
-          }
-        },
-        {
+                        requiresAuth: true,
+                        rule: 'editor'
+                    }
+                },
+                {
 					path: '/cliente/consulta',
 					name: 'clienteConsulta',
 					component: () => import('./views/pages/ClienteConsulta.vue'),
 					meta: {
-            requiresAuth: true,
-            rule: 'editor'
-          }
-        },        
-        {
-					path: '/pedido/catalogo',
-					name: 'catalogo',
-					component: () => import('./views/Page2.vue'),
+                        requiresAuth: true,
+                        rule: 'editor'
+                    }
+                },
+                {
+					path: '/pedido/consulta',
+					name: 'pedidoConsulta',
+					component: () => import('./views/pages/PedidoConsulta.vue'),
 					meta: {
-            requiresAuth: true,
-            rule: 'editor'
-          }
-        },
-        {
+                        requiresAuth: true,
+                        rule: 'editor'
+                    }
+                },
+            {
+					path: '/pedido/cadastro',
+					name: 'pedidoCadastro',
+					component: () => import('./views/pages/PedidoCadastro.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor'
+                    }
+                }, 
+                {
+					path: '/pedido/catalogo',
+					name: 'pedidoCatalogo',
+					component: () => import('./views/pages/PedidoCatalogo.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor'
+                    }
+                },
+                {
 					path: '/pages/sincronizacao',
 					name: 'sincronizacao',
 					component: () => import('./views/pages/Sincronizacao.vue'),
 					meta: {
-            requiresAuth: true,
-            rule: 'editor'
-          }
-        },
-        {
+                        requiresAuth: true,
+                        rule: 'editor'
+                    }
+                },
+                {
 					path: '/pages/suporte/atualizacao',
 					name: 'atualizacao',
 					component: () => import('./views/pages/suporte/Atualizacao.vue'),
 					meta: {
-            requiresAuth: true,
-            rule: 'editor'
-          }
-        },
+                        requiresAuth: true,
+                        rule: 'editor'
+                    }
+                },
 			],
 		},
-    // =============================================================================
-    // FULL PAGE LAYOUTS
-    // =============================================================================
-      {
-        path: '',
-        component: () => import('@/layouts/full-page/FullPage.vue'),
-        children: [
-      // =============================================================================
-      // PAGES
-      // =============================================================================
-			{
-				path: '/login',
-				name: 'login',
-				component: () => import('@/views/pages/Login.vue'),
-				meta: {
-					rule: 'editor'
-				}
-			},
-			{
-				path: '/pages/error-404',
-				name: 'pageError404',
-				component: () => import('@/views/pages/Error404.vue'),
-				meta: {
-					rule: 'editor'
-				}
-			},
-        ]
-      },
-      // Redirect to 404 page, if no match found
-      {
-        path: '*',
-        redirect: '/pages/error-404'
-      }
+        // =============================================================================
+        // FULL PAGE LAYOUTS
+        // =============================================================================
+        {
+            path: '',
+            component: () => import('@/layouts/full-page/FullPage.vue'),
+            children: [
+                // =============================================================================
+                // PAGES
+                // =============================================================================
+                {
+                    path: '/login',
+                    name: 'login',
+                    component: () => import('@/views/pages/Login.vue'),
+                    meta: {
+                        rule: 'editor'
+                    }
+                },
+                {
+                    path: '/pages/error-404',
+                    name: 'pageError404',
+                    component: () => import('@/views/pages/Error404.vue'),
+                    meta: {
+                        rule: 'editor'
+                    }
+                },
+            ]
+        },
+        // Redirect to 404 page, if no match found
+        {
+            path: '*',
+            redirect: '/pages/error-404'
+        }
     ],
-})
+});
 
 router.afterEach(() => {
-  // Remove initial loading
-  const appLoading = document.getElementById('loading-bg')
-  if (appLoading) {
-      appLoading.style.display = "none";
-  }
+    // Remove initial loading
+    const appLoading = document.getElementById('loading-bg')
+    if (appLoading) {
+        appLoading.style.display = "none";
+    }
 })
 
 router.beforeEach((to, from, next) => {
@@ -162,13 +179,16 @@ router.beforeEach((to, from, next) => {
                 } else {
                     next('/login')
                 }
-            }).catch((err) => {
-                console.log(err);
+            }).catch(() => {
                 next('/login')
             });
         }
     } else {
-        next();
+        if (to.name === "login" && auth.isAuthenticated()) {
+            next('/')
+        } else {
+            next();
+        }
     }
 });
 

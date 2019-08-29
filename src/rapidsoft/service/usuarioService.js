@@ -1,10 +1,10 @@
 import _ from 'lodash'
 import { http } from './serviceConfig'
 
-class usuarioSync {
+class usuarioService {
 
-    signInWithUser(email, password) {
-        return http.post('/login', {email: email, password: password});
+    signInWithUser(login, password) {
+        return http.post('/login', {login: login, password: password});
     }
 
     setPersistence() {
@@ -14,4 +14,4 @@ class usuarioSync {
     }
 
 }
-export default new usuarioSync();
+export default new usuarioService();

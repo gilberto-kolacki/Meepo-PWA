@@ -21,15 +21,15 @@
                                 <span class="text-danger text-sm">{{ errors.first('cpfCnpj') }}</span>
                             </div>
                         </div>
-                        <div class="vx-col sm:w-1/2 w-full mb-2">
-                            <vs-input v-validate="'required'" label="Nome*" id="nomeCliente" name="nomeCliente" v-model="clienteEdit.nome" class="w-full" v-on:keyup.enter="proximoCampo('razaoSocial')" />
+                        <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('razaoSocial')">
+                            <vs-input v-validate="'required'" label="Nome*" id="nomeCliente" name="nomeCliente" v-model="clienteEdit.nome" class="w-full" />
                             <span class="text-danger text-sm">{{ errors.first('nomeCliente') }}</span>
                         </div>
                     </div>
 
                     <div class="vx-row">
-                        <div class="vx-col sm:w-1/2 w-full mb-2">
-                            <vs-input v-validate=" isJuridico ? 'required' : ''" label="Razão Social*" id="razaoSocial" name="razaoSocial" v-model="clienteEdit.razaoSocial" class="w-full" v-on:keyup.enter="isJuridico ? proximoCampo('dataFundacao') : proximoCampo('dataAniversario')" />
+                        <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="isJuridico ? proximoCampo('dataFundacao') : proximoCampo('dataAniversario')">
+                            <vs-input v-validate=" isJuridico ? 'required' : ''" label="Razão Social*" id="razaoSocial" name="razaoSocial" v-model="clienteEdit.razaoSocial" class="w-full" />
                             <span class="text-danger text-sm">{{ errors.first('razaoSocial') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-if="isJuridico" v-on:keyup.enter="proximoCampo('inscricaoEstadual')">
@@ -52,8 +52,8 @@
                                 <span class="text-danger text-sm">{{ errors.first('inscricaoEstadual') }}</span>
                             </div>
                         </div>
-                        <div class="vx-col sm:w-1/2 w-full mb-2" v-else>
-                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('emailNfe')">
+                        <div class="vx-col sm:w-1/2 w-full mb-2" v-else v-on:keyup.enter="proximoCampo('emailNfe')">
+                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="registroGeral" class="vs-input--label">RG*</label>
                                 <div class="vs-con-input">
                                     <the-mask v-validate="'required'" id="registroGeral" name="registroGeral" v-model="clienteEdit.registroGeral" class="vs-inputx vs-input--input normal hasValue" :mask="['#.###.###-#', '##.###.###-#', '#.###.###']" :masked="true" />
@@ -76,24 +76,16 @@
                             <span class="text-danger text-sm">{{ errors.first('emailNfe') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('cepEndereco')">
-                            <label for="" class="vs-input--label">Grupo de Clientes*</label>
-                            <v-select v-validate="'required'" id="grupoCliente" name="grupoCliente" v-model="clienteEdit.grupoCliente" :options="grupoClientes"></v-select>
-                            <span class="text-danger text-sm">{{ errors.first('grupoCliente') }}</span>
+                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
+                                <label for="" class="vs-input--label">Telefone*</label>
+                                <div class="vs-con-input">
+                                    <the-mask v-validate="'required'" type="tel" id="enderecoTelefone" name="enderecoTelefone" v-model="clienteEdit.endereco.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
+                                </div>
+                                <span class="text-danger text-sm">{{ errors.first('enderecoTelefone') }}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="vx-row">
-                        <div class="vx-col w-full mb-2">
-                            <label for="" class="vs-input--label">Referencias Comerciais</label>
-                            <vs-textarea v-model="clienteEdit.referenciaComercial"/>
-                        </div>
-                    </div>
-                    <div class="vx-row">
-                        <div class="vx-col w-full mb-2">
-                            <label for="" class="vs-input--label">Observações</label>
-                            <vs-textarea v-model="clienteEdit.observacao"/>
-                        </div>
-                    </div>
-                    <vs-divider> Endereço de Cobrança </vs-divider>
+                    <vs-divider> Endereço </vs-divider>
                     <div class="vx-row" ref="enderecoCobranca">
                         <div class="vx-col sm:w-1/4 w-full mb-2">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('endereco')">
@@ -133,16 +125,23 @@
                             <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2">
-                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
-                                <label for="" class="vs-input--label">Telefone*</label>
-                                <div class="vs-con-input">
-                                    <the-mask v-validate="'required'" type="tel" id="enderecoTelefone" name="enderecoTelefone" v-model="clienteEdit.endereco.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
-                                </div>
-                                <span class="text-danger text-sm">{{ errors.first('enderecoTelefone') }}</span>
-                            </div>
+                            <label for="" class="vs-input--label">Grupo de Clientes*</label>
+                            <v-select v-validate="'required'" id="grupoCliente" name="grupoCliente" v-model="clienteEdit.grupoCliente" :options="grupoClientes"></v-select>
+                            <span class="text-danger text-sm">{{ errors.first('grupoCliente') }}</span>
                         </div>
                     </div>
-
+                    <div class="vx-row">
+                        <div class="vx-col w-full mb-2">
+                            <label for="" class="vs-input--label">Referencias Comerciais</label>
+                            <vs-textarea v-model="clienteEdit.referenciaComercial"/>
+                        </div>
+                    </div>
+                    <div class="vx-row">
+                        <div class="vx-col w-full mb-2">
+                            <label for="" class="vs-input--label">Observações</label>
+                            <vs-textarea v-model="clienteEdit.observacao"/>
+                        </div>
+                    </div>
                     <div class="vx-row">
                         <div class="vx-col w-full mb-2">
                             <div class="con-upload">
@@ -270,7 +269,7 @@
             </vx-card>
         </div>
         <div class="vx-col w-full mb-base-button" ref="endereco">
-            <vx-card title="Endereço">
+            <vx-card title="Endereços">
                 <div id="cliente-endereco-edit" v-if="isEditEndereco">
                     <div class="my-1">
                         <div class="vx-row">
@@ -372,11 +371,8 @@
                                         <div class="p-1">
                                             <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editar(data[indextr])" />
                                         </div>
-                                        <div class="p-1" v-if="data[indextr].ativo">
-                                            <vs-button type="filled" size="small" icon-pack="feather" color="success" icon="icon-unlock" @click="inativar(data[indextr])"/>
-                                        </div>
-                                        <div class="p-1" v-else>
-                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-lock" @click="ativar(data[indextr])"/>
+                                        <div class="p-1">
+                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarEndereco(data[indextr])"/>
                                         </div>
                                     </div>
                                 </vs-td>
@@ -392,108 +388,14 @@
 <script>
 
 import { Validator } from 'vee-validate';
+import validatePtBR from '../../rapidsoft/validate/validate_ptBR'
 import Datepicker from 'vuejs-datepicker';
 import * as lang from "vuejs-datepicker/src/locale";
 import vSelect from 'vue-select';
 import _ from 'lodash'
 import ClienteDB from '../../rapidsoft/db/clienteDB'
 
-const ptBR = {
-    custom: {
-        emailNfe: {
-            required: 'Campo obrigatório!',
-            email: 'O campo deve ser um e-mail válido.'
-        },
-        cpfCnpj: {
-            required: 'Campo obrigatório!',            
-            min: 'Mínimo de 11 caracteres',            
-        },
-        nomeCliente: {
-            required: 'Campo obrigatório!'           
-        },
-        razaoSocial: {
-            required: 'Campo obrigatório!'
-        },
-        enderecoTelefone: {
-            required: 'Campo obrigatório!',
-        },
-        inscricaoEstadual:{
-            required: 'Campo obrigatório!'
-        },
-        registroGeral:{
-            required: 'Campo obrigatório!'
-        },
-        segmento:{
-            required: 'Campo obrigatório!'
-        },
-        grupoCliente:{
-            required: 'Campo obrigatório!'
-        },
-        cepEndereco:{
-            required: 'Campo obrigatório!'
-        },
-        endereco:{
-            required: 'Campo obrigatório!'
-        },
-        numeroEndereco:{
-            required: 'Campo obrigatório!'
-        },
-        bairro:{
-            required: 'Campo obrigatório!'
-        },
-        cidade:{
-            required: 'Campo obrigatório!'
-        },
-        estado:{
-            required: 'Campo obrigatório!'
-        },
-        dataAniversario:{
-            required: 'Campo obrigatório!'
-        },
-        dataFundacao:{
-            required: 'Campo obrigatório!'
-        },
-        cadBairro:{
-            required: 'Campo obrigatório!'
-        },
-        cadCepEndereco:{
-            required: 'Campo obrigatório!'
-        },
-        cadCidade:{
-            required: 'Campo obrigatório!'
-        },
-        cadEndereco:{
-            required: 'Campo obrigatório!'
-        },
-        cadEnderecoTelefone:{
-            required: 'Campo obrigatório!'
-        },
-        cadEstado:{
-            required: 'Campo obrigatório!'
-        },
-        cadNumeroEndereco:{
-            required: 'Campo obrigatório!'
-        },
-        emailContato:{
-            required: 'Campo obrigatório!',
-            email: 'O campo deve ser um e-mail válido.'
-        },
-        celularContato:{
-            required: 'Campo obrigatório!'
-        },
-        telefoneContato:{
-            required: 'Campo obrigatório!'
-        },
-        funcao:{
-            required: 'Campo obrigatório!'
-        },
-        nomeContato:{
-            required: 'Campo obrigatório!'
-        }
-    }
-};
-
-Validator.localize('pt', ptBR);
+Validator.localize('pt', validatePtBR);
 
 export default {
     data() {
@@ -538,10 +440,8 @@ export default {
         },
         isJuridico() {
             if(this.clienteEdit.cpfCnpj && this.clienteEdit.cpfCnpj.length > 14) {
-                this.clienteEdit.pessoaJuridica = true;
                 return true;
             } else {
-                this.clienteEdit.pessoaJuridica = false;
                 return false;
             }
         },
@@ -631,7 +531,7 @@ export default {
             this.isEditEndereco = false;
         },
         salvarContato() {        
-            ClienteDB.validarContato(_.cloneDeep(this.contatoEdit)).then((result) => {
+            ClienteDB.validarContato(_.cloneDeep(this.contatoEdit)).then(() => {
                 this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
                 this.isEditContato = false;
             }).catch((erro) => {
@@ -762,6 +662,10 @@ export default {
 
 .vdp-datepicker input:blur {
     box-shadow: 0 3px 10px 0 rgba(0, 0, 0, .15);
+}
+
+.vx-card {
+    width: 100%
 }
 
 </style>

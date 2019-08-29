@@ -1,7 +1,7 @@
 {
   "name": "Meepo - FV",
   "short_name": "Live FV",
-  "start_url": "/?pwa_launcher=true",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#fff",
   "theme_color": "#fff",

@@ -1,41 +1,24 @@
 import PouchDB from 'pouchdb';
 import _ from 'lodash';
+import Config from '../../../public/config.json'
 
-let dataBase = new PouchDB('meepo-cliente')
-const validarEnderecoDB = (endereco) => {
-    let retorno = {
-        mensagem : "Campo obrigatório!"
-    }
-    if (endereco.cep === undefined || endereco.cep === "") {
-        retorno.campo = "cepEndereco"
-        return retorno;
-    }
-    if (endereco.endereco === undefined || endereco.endereco === "") {
-        retorno.campo = "endereco"
-        return retorno;
-    }
-    if (endereco.numero === undefined || endereco.numero === "") {
-        retorno.campo = "numeroEndereco"
-        return retorno;
-    }
-    if (endereco.bairro === undefined || endereco.bairro === ""){
-        retorno.campo = "bairro"
-        return retorno;
-    }
-    if (endereco.cidade === undefined || endereco.cidade === ""){
-        retorno.campo = "cidade"
-        return retorno;
-    }
-    if (endereco.estado === undefined || endereco.estado === ""){
-        retorno.campo = "estado"
-        return retorno
-    }
-    if (endereco.telefone === undefined || endereco.telefone === ""){
-        retorno.campo = "enderecoTelefone"
-        return retorno;
-    }
-    return true;
+let localDB = null;
+let remoteDB = null;
+let dataBaselocal = null;
+let dataBaseRemote = null;
+
+const createDB = (representante) => {
+    dataBaselocal = "meepo_"+Config.empresa+"_rep"+representante.codigo+"_cliente";
+    dataBaseRemote = Config.endereco_couchdb+dataBaselocal;
+    localDB = new PouchDB(dataBaselocal, {revs_limit: 1, auto_compaction: true});
+    remoteDB = new PouchDB(dataBaseRemote, {ajax: {cache: false, timeout: 10000 }});
 }
+
+const representante = JSON.parse(localStorage.getItem('userInfo'));
+if (representante) {
+    createDB(representante);
+}
+
 const validarContatoDB = (contato) => {
     return new Promise((resolve, reject) => {
         let retorno = {
@@ -65,41 +48,40 @@ const validarContatoDB = (contato) => {
     });
 }
 
-const validarEnderecoEDB = (entrega) => {
-    return new Promise((resolve, reject) => {
+const validarEnderecoDB = (endereco, opcao) => {
         let retorno = {
             mensagem : "Campo obrigatório!"
         }
-        if (entrega.cep === undefined || entrega.cep === ""){
-            retorno.campo = "cadCepEndereco"
-            reject(retorno);
+        if (endereco.cep === undefined || endereco.cep === ""){
+            retorno.campo = opcao == 1 ? "cepEndereco" : "cadCepEndereco";
+            return retorno;
         }
-        else if (entrega.endereco === undefined || entrega.endereco === ""){
-            retorno.campo = "cadEndereco"
-            reject(retorno);
+        else if (endereco.endereco === undefined || endereco.endereco === ""){
+            retorno.campo = opcao == 1 ? "endereco" : "cadEndereco";
+            return retorno;
         }
-        else if (entrega.numero === undefined || entrega.numero === ""){
-            retorno.campo = "cadNumeroEndereco"
-            reject(retorno);
+        else if (endereco.numero === undefined || endereco.numero === ""){
+            retorno.campo = opcao == 1 ? "numeroEndereco" : "cadNumeroEndereco";
+            return retorno;
         }
-        else if (entrega.bairro === undefined || entrega.bairro === ""){
-            retorno.campo = "cadBairro"
-            reject(retorno);
+        else if (endereco.bairro === undefined || endereco.bairro === ""){
+            retorno.campo = opcao == 1 ? "bairro" : "cadBairro";
+            return retorno;
         }
-        else if (entrega.cidade === undefined || entrega.cidade === ""){
-            retorno.campo = "cadCidade"
-            reject(retorno);
+        else if (endereco.cidade === undefined || endereco.cidade === ""){
+            retorno.campo = opcao == 1 ? "cidade" : "cadCidade";
+            return retorno;
         }
-        else if (entrega.estado === undefined || entrega.estado === ""){
-            retorno.campo = "cadEstado"
-            reject(retorno);
+        else if (endereco.estado === undefined || endereco.estado === ""){
+            retorno.campo = opcao == 1 ? "estado" : "cadEstado";
+            return retorno;
         }
-        else if (entrega.telefone === undefined || entrega.telefone === ""){
-            retorno.campo = "cadEnderecoTelefone"
-            reject(retorno);
+        else if (endereco.telefone === undefined || endereco.telefone === ""){
+            retorno.campo = opcao == 1 ? "enderecoTelefone" : "cadEnderecoTelefone";
+            return retorno;
+        } else {
+            return true;
         }
-        resolve(entrega);
-    });
 }
 
 const validarObjetoDB = (cliente) => {
@@ -108,6 +90,8 @@ const validarObjetoDB = (cliente) => {
         let retorno = {
             mensagem : "Campo obrigatório!"
         }
+        let validarEndereco = validarEnderecoDB(cliente.endereco, 1);
+
         if (cliente.cpfCnpj === undefined || cliente.cpfCnpj.length < 14 || cliente.cpfCnpj === "") {
             retorno.campo = "cpfCnpj"            
             reject(retorno);
@@ -116,7 +100,8 @@ const validarObjetoDB = (cliente) => {
             retorno.campo = "nomeCliente"
             reject(retorno);
         }
-        else if (cliente.pessoaJuridica === true) {
+        else if (cliente.cpfCnpj && cliente.cpfCnpj.length > 14) {
+            cliente.pessoaJuridica = true;
             if (cliente.razaoSocial === undefined || cliente.razaoSocial === "") {
                 retorno.campo = "razaoSocial"
                 reject(retorno);
@@ -130,6 +115,7 @@ const validarObjetoDB = (cliente) => {
                 reject(retorno);
             }
         } else {
+            cliente.pessoaJuridica = false;
             if (cliente.razaoSocial === undefined) {
                 cliente.razaoSocial = cliente.nome;
             }
@@ -143,9 +129,6 @@ const validarObjetoDB = (cliente) => {
             }
         }
         if (cliente.segmentos[0].ativo === false && cliente.segmentos[1].ativo === false) {
-            //retorno.camp = "segmento"
-            //reject(retorno);
-            document.getElementById("segmento").focus();
             reject({campo: "segmento", mensagem: "Campo obrigatório, informe ao menos 1 Segmento!"});
         }
         else if (cliente.emailNfe === undefined || (!(cliente.emailNfe.includes("@") && cliente.emailNfe.includes(".com"))) ){
@@ -154,17 +137,20 @@ const validarObjetoDB = (cliente) => {
         }
         else if (cliente.grupoCliente === undefined){
             retorno.campo = "grupoCliente"
-            //reject({campo: "grupoCliente", mensagem: "Campo obrigatório!"})
             reject(retorno);
         }
-        let validarEndereco = validarEnderecoDB(cliente.endereco);
-        if (!_.isEmpty(validarEndereco)){
+        
+        else if (!_.isEmpty(validarEndereco)){
             reject(validarEndereco);
         }
-        if (!(_.isArray(cliente.contatos) && cliente.contatos.length >= 1)) {
+        else if (!(_.isArray(cliente.contatos) && cliente.contatos.length >= 1)) {
             reject ({mensagem: "É necessário adicionar ao menos um contato!"});
         }
-        resolve(cliente);
+        else if (!(_.isArray(cliente.enderecos) && cliente.enderecos.length >= 1)) {
+                reject ({mensagem: "É necessário adicionar ao menos um endereço!"});
+        } else {
+            resolve(cliente);
+        }
     });
 }
 
@@ -172,13 +158,12 @@ class clienteDB {
 
     salvar(cliente) {
         return new Promise((resolve, reject) => {
-            validarObjetoDB(cliente).then((result) => {
-                result._id = result.cpfCnpj.replace(/[^a-z0-9]/gi, "");
-                dataBase.put(cliente).then((result) => {
+            validarObjetoDB(cliente).then((resultCliente) => {
+                resultCliente._id = resultCliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
+                localDB.put(resultCliente).then((result) => {
                     resolve(result);
                 }).catch((erro) => {
                     console.log(erro);
-                    
                     reject(erro);
                 });
             }).catch((erro) => {
@@ -190,7 +175,7 @@ class clienteDB {
     listar() {
         return new Promise((resolve, reject) => {
             let clientes = []
-            dataBase.allDocs({include_docs: true, attachments: true}).then((result) => {
+            localDB.allDocs({include_docs: true, attachments: true}).then((result) => {
                 for (let index = 0; index < result.rows.length; index++) {
                     let cliente = _.cloneDeep(result.rows[index].doc);
                     if (_.isUndefined(cliente.endereco) || (_.isObject(cliente.endereco) && _.isUndefined(cliente.endereco.cep))) {
@@ -210,7 +195,7 @@ class clienteDB {
 
     findById(idCliente) {
         return new Promise((resolve, reject) => {
-            dataBase.get(idCliente).then((result) => {
+            localDB.get(idCliente).then((result) => {
                 resolve(result);
             }).catch((err) => {
                 console.log(err);
@@ -221,7 +206,7 @@ class clienteDB {
 
     deletar(idCliente) {
         return new Promise((resolve, reject) => {
-            dataBase.remove(idCliente).then((result) => {
+            localDB.remove(idCliente).then((result) => {
                 resolve(result);
             }).catch((err) => {
                 console.log(err);
@@ -242,11 +227,30 @@ class clienteDB {
 
     validarEndereco(endereco) {
         return new Promise((resolve, reject) => {
-            validarEnderecoEDB(endereco).then((result) => {
-                resolve(result)
-            }).catch((err) => {
-                reject(err)
-            })
+            let validarEndereco = validarEnderecoDB(endereco);
+            if (validarEndereco) {
+                resolve(validarEndereco);
+            } else {
+                reject(validarEndereco);
+            }
+        });
+    }
+
+    sincNuvem() {
+        return new Promise((resolve) => {
+            if (localDB) {
+                localDB.sync(remoteDB).then((result) => {
+                    resolve(result);
+                }).catch((err) => {
+                    console.log(err);
+                })
+            }
+        });
+    }
+
+    createDB(user) {
+        return new Promise((resolve) => {
+            resolve(createDB(user));
         });
     }
 

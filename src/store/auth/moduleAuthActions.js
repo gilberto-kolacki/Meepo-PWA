@@ -32,30 +32,29 @@ export default {
                 icon: 'icon-alert-circle',
                 color: 'warning'
             });
-            return false
-        }
-
-        // Try to sigin
-        usuarioService.signInWithUser(payload.userDetails.email, payload.userDetails.password).then((result) => {
-            if (payload.checkbox_remember_me) {
-                usuarioDB.signIn(result.data).then((result) => {
+        } else {
+            // Try to sigin
+            usuarioService.signInWithUser(payload.userDetails.email, payload.userDetails.password).then((result) => {
+                if (payload.checkbox_remember_me) {
+                    usuarioDB.signIn(result.data).then((result) => {
+                        router.push('/');
+                        commit('UPDATE_AUTHENTICATED_USER', result)
+                    })
+                } else {
                     router.push('/');
-                    commit('UPDATE_AUTHENTICATED_USER', result)
-                })
-            } else {
-                router.push('/');
-                commit('UPDATE_AUTHENTICATED_USER', result.data)
-            }
-        }, (err) => {
-            payload.notify({
-                time: 2500,
-                title: 'Error',
-                text: err.message,
-                iconPack: 'feather',
-                icon: 'icon-alert-circle',
-                color: 'danger'
-            });
-        })
+                    commit('UPDATE_AUTHENTICATED_USER', result.data)
+                }
+            }, (err) => {
+                payload.notify({
+                    time: 2500,
+                    title: 'Error',
+                    text: err.message,
+                    iconPack: 'feather',
+                    icon: 'icon-alert-circle',
+                    color: 'danger'
+                });
+            })
+        }
     },
 
     updateAuthenticatedUser({ commit }, payload) {

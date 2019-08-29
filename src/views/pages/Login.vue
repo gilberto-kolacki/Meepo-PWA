@@ -41,9 +41,11 @@
                                         class="w-full mt-6 no-icon-border" />
 
                                     <div class="my-5">
-                                        <vs-button class="w-full" :disabled="!validateForm" @click="login">Entrar</vs-button>
+                                        <vs-button class="w-full" :disabled="!validateForm" @click="login()">Entrar</vs-button>
                                     </div>
-
+                                    <div class="my-5">
+                                        <vs-button class="w-full" v-if="isIos && !isInStandaloneMode" type="filled" icon-pack="feather" icon="icon-download" color="dark" @click="instalar()">Instalar</vs-button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -51,6 +53,16 @@
                 </vx-card>
             </div>
         </div>
+        <vs-popup classContent="popup-example" title="Instalar" :active.sync="popupInstall">
+            <vx-card>
+                <div slot="no-body">
+                    <img :src="require(`@/assets/images/rapidsoft/install_IOS.png`)" alt="content-img" class="responsive card-img-top">
+                </div>
+                <h5 class="mb-2">Como Instalar</h5>
+                <p class="text-grey">-precisone o botão "Tela de início" no menu de opções</p>
+                <p class="text-grey">-Pronto!</p>
+            </vx-card>
+        </vs-popup>
     </div>
 </template>
 
@@ -61,13 +73,25 @@ export default {
         return {
             email: 'demo@demo.com',
             password: 'demodemo',
-            checkbox_remember_me: true
+            checkbox_remember_me: true,
+            popupInstall: false,
         }
     },
     computed: {
         validateForm() {
             return this.email != '' && this.password != '';
         },
+        isIos() {
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            return /iphone|ipad|ipod/.test( userAgent );
+        },
+        isInStandaloneMode() {
+            if ('standalone' in window.navigator && window.navigator.standalone) {
+                return true;
+            } else {
+                return false;
+            }
+        }
     },
     methods: {
         login() {
@@ -86,6 +110,10 @@ export default {
                 }, 600)
             });
         },
+        instalar() {
+            this.popupInstall=true
+        }
+
     },
     mounted() {
         
@@ -94,20 +122,4 @@ export default {
 </script>
 
 <style lang="scss">
-    #page-login {
-        .social-login {
-            .bg-facebook {
-            background-color: #1551b1;
-            }
-            .bg-twitter {
-            background-color: #00aaff;
-            }
-            .bg-google {
-            background-color: #4285F4;
-            }
-            .bg-github {
-            background-color: #333;
-            }
-        }
-    }
 </style>

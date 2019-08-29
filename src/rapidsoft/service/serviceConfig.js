@@ -1,10 +1,14 @@
 import Axios from 'axios'
+import Config from '../../../public/config.json'
 
-let api = 'https://5d546d7536ad770014ccd7bf.mockapi.io'
 
 export const http = Axios.create({
-    baseURL: api,
+    baseURL: Config.endereco_api,
     timeout: 10000,
+    headers: {
+		'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': Config.authorization,
+    }
 });
 
 export default http

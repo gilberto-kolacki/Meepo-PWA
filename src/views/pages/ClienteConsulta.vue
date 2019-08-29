@@ -3,7 +3,7 @@
         <div id="page-customers-list">
             <vs-table pagination max-items="10" search :data="clientes">            
                 <template slot="header">
-                    <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editar(null)">Nova</vs-button>
+                    <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editar(null)">Novo</vs-button>
                 </template>
                 <template slot="thead">
                     <vs-th sort-key="cnpj">CNPJ</vs-th>

@@ -1,8 +1,10 @@
 import PouchDB from 'pouchdb';
 import _ from 'lodash';
 import store from '../../store/store'
+import Config from '../../../public/config.json'
 
-let dataBase = new PouchDB('meepo-usuario');
+const dataBaselocal = "meepo_"+Config.empresa+"_usuario";
+const localDB = new PouchDB(dataBaselocal, {auto_compaction: true});
 let idUsuario = "1";
 
 class usuarioDB {
@@ -11,7 +13,8 @@ class usuarioDB {
         return new Promise((resolve, reject) => {
             usuario._id = idUsuario;
             usuario.img = 'avatar-s-11.png';
-            dataBase.put(_.cloneDeep(usuario)).then((result) => {
+            usuario.displayName = usuario.nome;
+            localDB.put(_.cloneDeep(usuario)).then((result) => {
                 usuario._id = result.id;
                 resolve(usuario);
             }).catch((erro) => {
@@ -22,7 +25,7 @@ class usuarioDB {
 
     signOut() {
         return new Promise((resolve, reject) => {
-            dataBase.destroy().then((result) => {
+            localDB.destroy().then((result) => {
                 localStorage.removeItem('userInfo')
                 localStorage.removeItem('token');
                 localStorage.removeItem('tokenExpiry');
@@ -36,7 +39,7 @@ class usuarioDB {
 
     onAuthStateChanged() {
         return new Promise((resolve, reject) => {
-            dataBase.get(idUsuario).then((user) => {
+            localDB.get(idUsuario).then((user) => {
                 store.dispatch('updateUserActive', user);
                 resolve(user);
             }).catch((err) => {

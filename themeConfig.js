@@ -9,7 +9,7 @@
 
 // MAIN COLORS - VUESAX THEME COLORS
 let colors = {
-	primary: '#EA5455',//'#7367F0',
+	primary: '#e41c40',//'#7367F0',
 	success: '#28C76F',
 	danger: '#EA5455',
 	warning: '#FF9F43',

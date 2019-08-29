@@ -52,7 +52,7 @@
 
       <!-- USER META -->
       <div class="the-navbar__user-meta flex items-center">
-        <div class="text-right leading-tight hidden sm:block" v-if="breakpoint != 'md'">
+        <div class="text-right leading-tight hidden sm:block" v-if="breakpoint != 'sm'">
           <p class="font-semibold">{{ user_displayName }}</p>
           <!-- <small>Available</small> -->
         </div>
@@ -239,10 +239,12 @@ export default {
         },
         logout() {
             this.$vs.loading();
-            auth.logOut();
-            setTimeout(() => {
-                this.$vs.loading.close();
-            }, 300)
+            auth.logOut(() => {
+                    setTimeout(() => {
+                    this.$vs.loading.close();
+                }, 300)
+            });
+            
         },
         logoutAlert() {
             this.$vs.dialog({

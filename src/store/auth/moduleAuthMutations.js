@@ -6,13 +6,14 @@
   Author: Pixinvent
   Author URL: http://www.themeforest.net/user/pixinvent
 ==========================================================================================*/
-
+import clienteDB from '../../rapidsoft/db/clienteDB'
 
 export default {
 	UPDATE_AUTHENTICATED_USER(state, user) {
 		localStorage.setItem('userInfo', JSON.stringify(user));
 		localStorage.setItem('token', JSON.stringify(user.token));
 		localStorage.setItem('tokenExpiry', new Date(new Date().getTime() + (15 * 24 * 60 * 60 * 1000)).getTime());
-		localStorage.setItem('userRole', 'admin');
+    localStorage.setItem('userRole', 'admin');
+    clienteDB.createDB(user);
 	},
 }

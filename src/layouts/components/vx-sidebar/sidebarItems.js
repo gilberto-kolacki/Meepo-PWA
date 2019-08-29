@@ -53,7 +53,7 @@ export default [
     icon: "ShoppingCartIcon",
   },
   {
-    url: "/pedido/novo",
+    url: "/pedido/cadastro",
     name: "Novo Pedido",
     slug: "Pedido",
     icon: "ShoppingCartIcon",
@@ -74,10 +74,10 @@ export default [
     slug: "Sincronizar",
     icon: "RefreshCcwIcon",
   },
-  {
-    url: "/pages/suporte/atualizacao",
-    name: "Atualização",
-    slug: "Atualização",
-    icon: "DownloadIcon",
-  },
+  // {
+  //   url: "/pages/suporte/atualizacao",
+  //   name: "Atualização",
+  //   slug: "Atualização",
+  //   icon: "DownloadIcon",
+  // },
 ]
