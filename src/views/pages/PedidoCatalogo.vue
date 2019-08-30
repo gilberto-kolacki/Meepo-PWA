@@ -3,7 +3,7 @@
 		<b-carousel
 			id="carousel-1"
 			v-model="slide"
-			no-animation
+			:interval="0"
 			controls
 			indicators
 			background="#ababab"
@@ -12,7 +12,7 @@
 			@sliding-start="onSlideStart"
 			@sliding-end="onSlideEnd"
 		>			
-			<b-carousel-slide v-for="(imagem, index) in imagens" :key="`segmento-cliente-${index}`" v-bind:img-src="imagem.src" v-bind:max-height="'500'"></b-carousel-slide>
+			<b-carousel-slide v-for="(imagem, index) in imagens" :key="`segmento-cliente-${index}`" v-bind:img-src="getBase64(imagem)" v-bind:max-height="'500'"></b-carousel-slide>
 		</b-carousel>
 			
     </vx-card>
@@ -30,12 +30,23 @@ export default {
 	data() {
 		return {			
 			imagens: [],
+			slide: 0,
+        	sliding: null
 		}
 	},
 	components: {
 		
 	},
 	methods: {
+		onSlideStart(slide) {
+			this.sliding = true
+		},
+		onSlideEnd(slide) {
+			this.sliding = false
+		},
+		getBase64(imagem) {
+            return URL.createObjectURL(imagem.file);
+        },
 		
 	},
 
@@ -45,7 +56,9 @@ export default {
 			let clientes = _.clone(resposta);
 
 			clientes.forEach(cliente => {
-				cliente.imagensCliente.forEach(imagem => {
+				cliente.imagensClienteBlob.forEach(imagem => {
+					console.log(imagem);
+					
 					this.imagens.push(_.clone(imagem));
 				});
 			});

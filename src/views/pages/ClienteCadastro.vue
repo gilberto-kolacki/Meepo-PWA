@@ -150,12 +150,12 @@
                                         <button class="btn-x-file" @click="removeImageCliente(index)">
                                             <i translate="translate" class="material-icons notranslate">clear</i>
                                         </button>
-                                        <img :src="imagenCliente.src" style="max-width: none; max-height: 100%;" />
+                                        <img :src="getBase64(imagenCliente)" style="max-width: none; max-height: 100%;" />
                                     </div>
                                     <div class="con-input-upload">
-                                        <input type="file" multiple="multiple" accept="image/*" @change="onFileChanged" :disabled="clienteEdit.imagensCliente.length >= 5"/>
+                                        <input type="file" multiple="multiple" accept="image/*" @change="onFileChanged" :disabled="clienteEdit.imagensClienteBlob.length >= 1000"/>
                                         <span class="text-input">Selecione as Imagens</span>                                
-                                        <button type="button" title="Upload" class="btn-upload-all vs-upload--button-upload" :disabled="clienteEdit.imagensCliente.length >= 5">
+                                        <button type="button" title="Upload" class="btn-upload-all vs-upload--button-upload" :disabled="clienteEdit.imagensClienteBlob.length >= 5">
                                             <i translate="translate" class="material-icons notranslate">cloud_upload</i>
                                         </button>
                                     </div>
@@ -405,7 +405,7 @@ export default {
                 endereco: {},
                 contatos: [],
                 enderecos: [],
-                imagensCliente: [],
+                imagensClienteBlob: [],
                 segmentos: [
                     {name: 'Beach', ativo: false},
                     {name: 'Fitness', ativo: false}
@@ -433,10 +433,10 @@ export default {
     },
     computed:{
         getFilesFilter() {
-            let files = this.clienteEdit.imagensCliente.filter((item) => {
-                return !item.remove
-            })
-            return files
+            // let files = this.clienteEdit.imagensClienteBlob.filter((item) => {
+            //     return !item.remove
+            // })
+            return this.clienteEdit.imagensClienteBlob
         },
         isJuridico() {
             if(this.clienteEdit.cpfCnpj && this.clienteEdit.cpfCnpj.length > 14) {
@@ -458,41 +458,30 @@ export default {
                 this.$refs[refName].showCalendar()
             } 
         },
+        getBase64(imagem) {
+            return URL.createObjectURL(imagem.file);
+        },
         toBase64(file) {
             return new Promise((resolve) => {
-                var reader = new FileReader();
-                reader.onload = function(readerEvt) {
-                    var binaryString = readerEvt.target.result;
-                    var binaryString64 = "data:image/png;base64,";
-                    binaryString64 = binaryString64.concat(window.btoa(binaryString));
-                    resolve(binaryString64);
+                let reader = new FileReader();
+                reader.onload = () => {
+                    resolve(reader.result);
                 };
-                reader.readAsBinaryString(file);
+                reader.readAsDataURL(file);
             });
         },
-        onFileChanged(event) {            
-            const imagens = _.cloneDeep(this.clienteEdit.imagensCliente);
-            const files = event.target.files;
-            if (files.length > 0) {
-                this.$vs.loading();
-                for (let index = 0; index < 5; index++) {
-                    this.toBase64(files[index]).then(result => {
-                        var image = {};
-                        image.index = index;
-                        image.src = result;
-                        imagens.push(image);
-                    });
-                }
-                this.clienteEdit.imagensCliente = imagens;
-                setTimeout(() => {
-                    this.$vs.loading.close();                
-                }, 1500)
-            }
+        onFileChanged(event) {
+            for (let index = 0; index < event.target.files.length; index++) {
+                let imagem = {};
+                imagem.file = event.target.files[index];
+                imagem.index = index;
+                this.clienteEdit.imagensClienteBlob.push(imagem);
+            }            
         },
         removeImageCliente(index) {
-            for( var i = 0; i < this.clienteEdit.imagensCliente.length; i++){ 
-                if (this.clienteEdit.imagensCliente[i] === this.clienteEdit.imagensCliente[index]) {
-                    this.clienteEdit.imagensCliente.splice(i, 1); 
+            for( var i = 0; i < this.clienteEdit.imagensClienteBlob.length; i++){ 
+                if (this.clienteEdit.imagensClienteBlob[i] === this.clienteEdit.imagensClienteBlob[index]) {
+                    this.clienteEdit.imagensClienteBlob.splice(i, 1); 
                 }
             }
         },
@@ -550,9 +539,7 @@ export default {
         },
         salvarEndereco() {
             ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
-                console.log(result);
-                
-                this.clienteEdit.enderecos.push(_.clone(this.enderecoEdit));
+                this.clienteEdit.enderecos.push(_.clone(result));
                 this.isEditEndereco = false;
             }).catch((erro) => {
                 this.$validator.validate();
@@ -571,9 +558,8 @@ export default {
         salvarCliente() {
             this.$vs.loading();
             let cliente = _.cloneDeep(this.clienteEdit);
-
             setTimeout(() => {  
-                ClienteDB.salvar(cliente).then(() => {
+                ClienteDB.salvar2(cliente).then(() => {
                     this.$vs.notify({
                         title: 'Sucesso',
                         text: 'Cliente Salvo!',
@@ -607,7 +593,7 @@ export default {
             ClienteDB.findById(idCliente).then((result) => {
                 this.clienteEdit = _.cloneDeep(result);
             });
-        }
+        },
         
     },
     created() {
@@ -627,7 +613,7 @@ export default {
     beforeCreate() {
         setTimeout(() => {
             this.proximoCampo('cpfCnpj');
-        }, 100);
+        }, 200);
     }
 }
 

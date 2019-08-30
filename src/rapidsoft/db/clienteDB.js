@@ -1,23 +1,29 @@
+/*=========================================================================================
+  File Name: clienteDB.js
+  Description: Classe de banco de cliente
+  ----------------------------------------------------------------------------------------
+  Author: Giba
+==========================================================================================*/
+
 import PouchDB from 'pouchdb';
+import BasicDB from './basicDB'
 import _ from 'lodash';
-import Config from '../../../public/config.json'
 
 let localDB = null;
 let remoteDB = null;
-let dataBaselocal = null;
-let dataBaseRemote = null;
 
-const createDB = (representante) => {
-    dataBaselocal = "meepo_"+Config.empresa+"_rep"+representante.codigo+"_cliente";
-    dataBaseRemote = Config.endereco_couchdb+dataBaselocal;
-    localDB = new PouchDB(dataBaselocal, {revs_limit: 1, auto_compaction: true});
-    remoteDB = new PouchDB(dataBaseRemote, {ajax: {cache: false, timeout: 10000 }});
-}
+const createDB = () => {
+    BasicDB.createDBLocal("cliente").then((dataBaseLocal) => {
+        if (dataBaseLocal) {
+            localDB = new PouchDB(dataBaseLocal, {revs_limit: 1, auto_compaction: true});
+            BasicDB.createDBRemote(dataBaseLocal).then((dataBaseRemote) => {
+                remoteDB = new PouchDB(dataBaseRemote, {ajax: {cache: false, timeout: 10000 }});
+            })
+        }
+    })
+};
 
-const representante = JSON.parse(localStorage.getItem('userInfo'));
-if (representante) {
-    createDB(representante);
-}
+createDB();
 
 const validarContatoDB = (contato) => {
     return new Promise((resolve, reject) => {
@@ -172,6 +178,18 @@ class clienteDB {
         });
     }
 
+    salvar2(cliente) {
+        return new Promise((resolve, reject) => {
+            cliente._id = cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
+            localDB.put(cliente).then((result) => {
+                resolve(result);
+            }).catch((erro) => {
+                console.log(erro);
+                reject(erro);
+            });
+        });
+    }
+
     listar() {
         return new Promise((resolve, reject) => {
             let clientes = []
@@ -238,12 +256,13 @@ class clienteDB {
 
     sincNuvem() {
         return new Promise((resolve) => {
-            if (localDB) {
-                localDB.sync(remoteDB).then((result) => {
-                    resolve(result);
-                }).catch((err) => {
-                    console.log(err);
-                })
+            if (localDB && remoteDB) {
+                resolve();
+                // localDB.sync(remoteDB).then((result) => {
+                //     resolve(result);
+                // }).catch((err) => {
+                //     console.log(err);
+                // })
             }
         });
     }

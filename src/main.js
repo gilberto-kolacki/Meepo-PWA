@@ -62,9 +62,8 @@ Vue.use(VueHammer)
 // import BootstrapVue from 'bootstrap-vue'
 // Vue.use(BootstrapVue)
 
-import { CarouselPlugin } from 'bootstrap-vue'
-Vue.use(CarouselPlugin)
-
+import { BootstrapVue  } from 'bootstrap-vue'
+Vue.use(BootstrapVue )
 
 //CSS
 import 'bootstrap/dist/css/bootstrap.css'
