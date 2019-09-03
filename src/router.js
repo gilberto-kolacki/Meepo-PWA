@@ -96,9 +96,18 @@ const router = new Router({
                     }
                 }, 
                 {
-					path: '/pedido/catalogo',
-					name: 'pedidoCatalogo',
+					path: '/catalogo',
+					name: 'catalogo',
 					component: () => import('./views/pages/PedidoCatalogo.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor'
+                    }
+                },
+                {
+					path: '/catalogo/segmento',
+					name: 'catalogoSegmento',
+					component: () => import('./views/pages/PedidoCatalogoSegmento.vue'),
 					meta: {
                         requiresAuth: true,
                         rule: 'editor'

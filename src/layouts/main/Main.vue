@@ -196,6 +196,20 @@ export default {
         }else {
             this.updateNavbarColor(this.navbarColor)
         }
+        // document.addEventListener('touchstart', handleTouchstart, supportsPassiveOption ? { passive : false } : false);
     }
 }
 </script>
+
+<style>
+
+html, body {
+    -webkit-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    /* -webkit-overflow-scrolling: touch;  */
+    user-select: none;
+    /* overflow: auto; */
+}
+
+</style>

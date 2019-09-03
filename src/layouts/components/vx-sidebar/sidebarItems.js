@@ -59,7 +59,7 @@ export default [
     icon: "ShoppingCartIcon",
   },
   {
-    url: "/pedido/catalogo",
+    url: "/catalogo",
     name: "Catálogo",
     slug: "Pedido",
     icon: "ShoppingBagIcon",
