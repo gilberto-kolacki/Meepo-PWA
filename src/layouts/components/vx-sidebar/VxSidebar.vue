@@ -52,6 +52,9 @@
                     </template>
                 </VuePerfectScrollbar>
             </div>
+                <div class="footer-sidebar" slot="footer">
+                    <vs-button icon="reply" color="danger" class="w-full" type="line" line-position="top" line-origin="left" @click="logoutAlert">Sair</vs-button>
+                </div>
         </vs-sidebar>
         <div v-hammer:swipe.right="onSwipeRightSidebarSwipeArea" v-if="!isSidebarActive" class="sidebar-swipe-area" id="sidebar-swipe-area"></div>
     </div>
@@ -61,6 +64,7 @@
 import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 import VxSidebarGroup from './VxSidebarGroup.vue'
 import VxSidebarItem  from './VxSidebarItem.vue'
+import auth from "../../../rapidsoft/auth/authService"
 
 export default {
     name: 'vx-sidebar',
@@ -221,7 +225,26 @@ export default {
         },
         onSwipeRightSidebarSwipeArea() {
           if(!this.isSidebarActive && this.showCloseButton) this.isSidebarActive = true
-        }
+        },
+        logout() {
+            this.$vs.loading();
+            auth.logOut(() => {
+                    setTimeout(() => {
+                    this.$vs.loading.close();
+                }, 300)
+            });
+        },
+        logoutAlert() {
+            this.$vs.dialog({
+                type: 'confirm',
+                color: 'warning',
+                title: 'Atenção!',
+                text: 'Se sair da aplicação será preciso estar on-line para entrar novamente!',
+                acceptText: 'Sair',
+                cancelText: 'Cancelar',
+                accept: this.logout
+            })
+        },
     },
     components: {
         VxSidebarGroup,

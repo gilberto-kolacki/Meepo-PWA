@@ -13,18 +13,26 @@
     <footer class="the-footer flex-wrap justify-between" :class="classes">
         <span>COPYRIGHT @ {{ new Date().getFullYear() }} <a href="http://rapidsoft.com.br/" target="_blank" rel="nofollow">RapidSoft</a></span>
         <span class="md:flex hidden items-center">
-            <span>V: 1.0</span>
+            <span>V: {{versao}}</span>
         </span>
     </footer>
 </template>
 
 <script>
+
+import Config from '../../../public/config.json'
+
 export default {
     name: "the-footer",
     props: {
         classes: {
             type: String,
         },
+    },
+    data() {
+        return {
+            versao: Config.versao,
+        }
     }
 }
 </script>

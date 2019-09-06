@@ -57,3 +57,15 @@
  * @import "utilities/background-patterns";
  * @import "utilities/skew-transforms";
  */
+
+ .centex {
+    display: -ms-flexbox;
+    display: -webkit-box;
+    display: flex;
+    -ms-flex-align: center;
+    -webkit-box-align: center;
+    align-items: center;
+    -ms-flex-pack: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+}

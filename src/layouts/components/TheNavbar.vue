@@ -68,8 +68,8 @@
               class="rounded-full shadow-md cursor-pointer block" />
             <img
               v-else
-              key="localImg"
-              :src="require(`@/assets/images/portrait/small/${activeUserImg}`)"
+              key="localImg"              
+              :src="require(`@/assets/images/rapidsoft/${activeUserImg}`)"
               alt="user-img"
               width="40"
               height="40"
@@ -77,11 +77,11 @@
           </div>
           <vs-dropdown-menu class="vx-navbar-dropdown">
             <ul style="min-width: 9rem">
-                <!-- <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/pages/profile')"><feather-icon icon="UserIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Profile</span></li> -->
-                <!-- <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/apps/email')"><feather-icon icon="MailIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Inbox</span></li> -->
-                <!-- <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/apps/todo')"><feather-icon icon="CheckSquareIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Tasks</span></li> -->
-                <!-- <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/apps/chat')"><feather-icon icon="MessageSquareIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Chat</span></li> -->
-                <!-- <vs-divider class="m-1"></vs-divider> -->
+                <!-- <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/pages/profile')"><feather-icon icon="UserIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Profile</span></li>
+                <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/apps/email')"><feather-icon icon="MailIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Inbox</span></li>
+                <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/apps/todo')"><feather-icon icon="CheckSquareIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Tasks</span></li>
+                <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="$router.push('/apps/chat')"><feather-icon icon="MessageSquareIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Chat</span></li>
+                <vs-divider class="m-1"></vs-divider> -->
                 <li class="flex py-2 px-4 cursor-pointer hover:bg-primary hover:text-white" @click="logoutAlert">
                     <feather-icon icon="LogOutIcon" svgClasses="w-4 h-4"></feather-icon> <span class="ml-2">Sair</span>
                 </li>
@@ -244,7 +244,6 @@ export default {
                     this.$vs.loading.close();
                 }, 300)
             });
-            
         },
         logoutAlert() {
             this.$vs.dialog({

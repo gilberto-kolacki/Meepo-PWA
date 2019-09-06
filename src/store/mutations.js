@@ -57,6 +57,9 @@ const mutations = {
     UPDATE_PLATFORM(state, val) {
         state.isIOS = val;
     },
+    UPDATE_NAVBAR_TYPE(state, val) {
+        state.navbarType = val;
+    },
 
 
     // ////////////////////////////////////////////

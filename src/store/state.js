@@ -15,6 +15,7 @@ const state = {
     isSidebarActive: true,
     breakpoint: null,
     sidebarWidth: "default",
+    navbarType: "floating",
     reduceButton: themeConfig.sidebarCollapsed,
     bodyOverlay: false,
     sidebarItemsMin: false,

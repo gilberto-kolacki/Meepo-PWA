@@ -9,8 +9,8 @@
 				</li>
 			</ol>
 			<div class="carousel-inner">
-				<div class="carousel-item" :id="'carousel-item-'+index" v-for="(catalogo, index) in catalogos" :key="`catalogo-${index}`" v-on:click.stop="abrirCatalogo(catalogo)">
-					<img :src="require(`@/assets/images/rapidsoft/catalogo/`+ getImage(catalogo))" class="d-block w-100" :alt="catalogo.titulo">
+				<div class="carousel-item" :id="'carousel-item-'+index" v-for="(catalogo, index) in catalogos" :key="`catalogo-${index}`" v-on:click.once="abrirCatalogo(catalogo)">
+					<img :src="require(`@/assets/images/rapidsoft/catalogo/`+ getImage(catalogo))" class="d-block w-100 img-catalogo" :alt="catalogo.titulo">
 				</div>
 			</div>
 			<a class="carousel-control-prev" href="#" role="button" data-slide="prev" v-on:click.stop="prevSlide()">
@@ -160,6 +160,11 @@ export default {
 .carousel-indicators-catalog .active {
     opacity: 1;
 	background-color: #ec1e1e;
+}
+
+.img-catalogo {
+	max-height: 58rem;
+	// max-width: 50rem;
 }
   
 </style>

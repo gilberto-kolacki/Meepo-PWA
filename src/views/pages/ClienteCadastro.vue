@@ -625,18 +625,6 @@ export default {
     margin-bottom: 0.8rem !important;
 }
 
-.centex {
-    display: -ms-flexbox;
-    display: -webkit-box;
-    display: flex;
-    -ms-flex-align: center;
-    -webkit-box-align: center;
-    align-items: center;
-    -ms-flex-pack: center;
-    -webkit-box-pack: center;
-    justify-content: center;
-}
-
 .con-img-upload .img-upload {
     width: 185px;
     height: 185px;

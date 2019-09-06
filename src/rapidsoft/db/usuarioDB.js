@@ -12,7 +12,7 @@ class usuarioDB {
     signIn(usuario) {
         return new Promise((resolve, reject) => {
             usuario._id = idUsuario;
-            usuario.img = 'avatar-s-11.png';
+            usuario.img = usuario.img || 'user.png';
             usuario.displayName = usuario.nome;
             localDB.put(_.cloneDeep(usuario)).then((result) => {
                 usuario._id = result.id;

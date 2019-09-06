@@ -22,7 +22,7 @@ import Router from 'vue-router'
 import auth from "./rapidsoft/auth/authService";
 import usuarioDB from './rapidsoft/db/usuarioDB'
 
-Vue.use(Router)
+Vue.use(Router);
 
 const router = new Router({
     mode: 'history',

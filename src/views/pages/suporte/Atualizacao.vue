@@ -11,9 +11,8 @@
                     <b-list-group-item>Navegador: {{browserName}} v{{majorVersion}}</b-list-group-item>
                     <b-list-group-item>Token: {{token}}</b-list-group-item>
                     <b-list-group-item>Data Vencimento: {{dataVencimento}}</b-list-group-item>
-                    <!-- <b-list-group-item><b-button block variant="danger">Atualizar</b-button></b-list-group-item> -->
                     <b-list-group-item>
-                        <vs-button color="danger" class="vs-con-loading__container w-full" v-on:click.stop="atualizar()" type="relief" ref="loadableButton">Atualizar</vs-button>
+                         <vs-button color="primary" class="vs-con-loading__container w-full" id="button-with-loading"  v-on:click.stop="atualizar()" type="relief" ref="loadableButton">Atualizar</vs-button>
                     </b-list-group-item>
                 </b-list-group>
             </vx-card>
@@ -30,6 +29,8 @@ import ClienteDB from '../../../rapidsoft/db/clienteDB'
 export default {
     data() {
         return { 
+            backgroundLoading:'primary',
+            colorLoading:'#fff',
             clientes: [],
             quota: 0,
             usage:0,
@@ -56,7 +57,18 @@ export default {
     },
     methods: {
         atualizar() {
-            this.$router.go();
+             this.$vs.loading({
+                background: this.backgroundLoading,
+                color: this.colorLoading,
+                container: "#button-with-loading",
+                scale: 0.45
+            })
+            setTimeout( ()=> {
+                this.$vs.loading.close("#button-with-loading > .con-vs-loading")
+            }, 3000);
+
+            // this.$router.go();
+            window.location.reload(true);
         },
         getNavegador() {
             const nAgt = navigator.userAgent;
@@ -111,9 +123,6 @@ export default {
         getCalcularArmazenamento() {
             this.armazenamentoIndexedDB = 0;
             let pounchDB = 0
-
-            
-
             ClienteDB.listar().then(clientes => {
 
                 clientes.forEach(cliente => {

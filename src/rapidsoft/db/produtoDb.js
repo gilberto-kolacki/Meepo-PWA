@@ -2,6 +2,61 @@ import PouchDB from 'pouchdb'
 
 let dataBase = new PouchDB('meepo-produto')
 
+const produtos = [
+    {
+        referencia: "44577",
+        tipo: 1,
+        nome: 'BIQUINI BEACH OXYGEN',
+        tamanhos: ['P/S', 'M/M', 'G/L'],
+        imagem: '44577_EX1819_1.png',
+        categoria: {codigo: 1, nome: 'Biquini'},
+        cores: [
+            {
+                nome: 'EX1819',
+                imagens: ['1', '2', '3']
+            },
+            {
+                nome: 'EX1818',
+                imagens: ['1', '2']
+            },
+            {
+                nome: 'EX1815',
+                imagens: ['1', '2']
+            },
+        ],
+    },
+    {
+        referencia: "43288",
+        referenciaA: "43288",
+        referenciaB: "43289",
+        tipo: 2,
+        nome: 'Top Reversible Floral View',
+        tamanhos: ['P/S', 'M/M', 'G/L'],
+        imagem: '43288_EX1860_1.png',
+        categoria: {codigo: 4, nome: 'Top'},
+        cores: [
+            {
+                nome: 'EX1860',
+                imagens: ['1', '2', '3']
+            }
+        ]
+    },
+    {
+        referencia: "43360",
+        tipo: 1,
+        nome: 'Regata Strappy Rush',
+        tamanhos: ['P', 'M', 'G'],
+        imagem: '43360_0AZ131_1.png',
+        categoria: {codigo: 3, nome: 'Regata'},
+        cores: [
+            {
+                nome: '0AZ131',
+                imagens: ['1', '2', '3', '4']
+            }
+        ]
+    }
+];
+
 let produtoDB = {
 
     get: (produto)=> {
@@ -63,6 +118,19 @@ let produtoDB = {
                 }
             });
         });    
+    },
+
+    getProdutos: () => {
+        return produtos;
+    },
+
+    getCategorias: () => {
+        let categorias = [];
+        for (let index = 0; index < produtos.length; index++) {
+            const produto = produtos[index];
+            categorias.push(produto.categoria)
+        }
+        return categorias;
     }
 
 }

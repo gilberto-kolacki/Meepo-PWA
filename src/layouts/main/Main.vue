@@ -63,7 +63,7 @@
                         </div>
                         </transition>
                         <div class="content-area__content">
-                            <back-to-top bottom="5%" visibleoffset="500" v-if="!hideScrollToTop">
+                            <back-to-top bottom="5%" visibleoffset="500" v-if="!hideScrollToTop" @scrolled="backToTop()">
                                 <vs-button icon-pack="feather" icon="icon-arrow-up" class="shadow-lg" />
                             </back-to-top>
                             <transition :name="routerTransition" mode="out-in">
@@ -134,6 +134,11 @@ export default {
             else if(this.sidebarWidth) return "content-area-full"
         },
         navbarClasses() {
+            if (this.$route.name === "catalogoSegmento") {
+                this.navbarType = 'hidden';
+            } else {
+                this.navbarType = themeConfig.navbarType || 'floating';
+            }
             return {
                 'navbar-hidden': this.navbarType == 'hidden',
                 'navbar-sticky': this.navbarType == 'sticky',
@@ -180,6 +185,9 @@ export default {
         },
         setIsPlatForm() {
             this.$store.dispatch('updatePlatform', /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase()));
+        },
+        backToTop() {
+            window.scrollTo(0, 0);
         }
     },
     components: {
@@ -196,7 +204,6 @@ export default {
         }else {
             this.updateNavbarColor(this.navbarColor)
         }
-        // document.addEventListener('touchstart', handleTouchstart, supportsPassiveOption ? { passive : false } : false);
     }
 }
 </script>
@@ -210,6 +217,7 @@ html, body {
     /* -webkit-overflow-scrolling: touch;  */
     user-select: none;
     /* overflow: auto; */
+    background-color: #fff;
 }
 
 </style>
