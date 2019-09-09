@@ -30,8 +30,11 @@
                         </vx-card>
                     </div>
                 </div>
+                <!-- IMAGEM PRINCIPAL -->
                 <vs-col vs-type="flex" vs-justify="center" vs-align="baseline" vs-lg="7" vs-sm="7" vs-xs="12">
-                    <img :src="require(`@/assets/images/rapidsoft/produtos/${activeProductImgUp}`)" class="card-img-top card-img-principal">
+                    <div v-hammer:swipe.right="nextRef" class="produto-swipe-area-left"></div>
+                    <img :src="require(`@/assets/images/rapidsoft/produtos/${activeProductImgUp}`)" class="card-img-top card-img-principal" id="produto-swipe-area">
+                    <div v-hammer:swipe.left="prevRef" class="produto-swipe-area-right"></div>
                 </vs-col>
                 <div class="vx-col w-full md:w-1/5 h-12">
                     <div class="vx-row">
@@ -102,8 +105,7 @@
                         </vs-button>
                     </div>
                 </div>
-                <!-- <div v-hammer:swipe.left="prevRef()"></div> -->
-                <!-- <div v-hammer:swipe.right="nextRef()"></div> -->
+                
 
                 <vs-table ref="table" v-model="selected" search :data="getProdutosPesquisa">
                     <!-- <div slot="header" class="flex flex-wrap-reverse items-center flex-grow justify-between">
@@ -143,6 +145,7 @@
 
 import _ from 'lodash'
 import produtoDB from '../../rapidsoft/db/produtoDb'
+import { setTimeout } from 'timers';
 
 
 export default {
@@ -209,22 +212,33 @@ export default {
             }
         },
         prevRef() {
-            let anterior = this.produtos.indexOf(this.produtoA)-1;
-            if (anterior >= 0) {
-                this.produtoA = this.produtos[this.produtos.indexOf(this.produtoA)-1];
-            } else {
-                this.produtoA = this.produtos[this.produtos.length-1];
-            }
-            this.corSelecionada = 0;
+            let imagem = document.getElementById('produto-swipe-area');
+            imagem.classList.add("rotate-right");
+            setTimeout(() => {
+                let anterior = this.produtos.indexOf(this.produtoA)-1;
+                if (anterior >= 0) {
+                    this.produtoA = this.produtos[this.produtos.indexOf(this.produtoA)-1];
+                } else {
+                    this.produtoA = this.produtos[this.produtos.length-1];
+                }
+                this.corSelecionada = 0;
+                imagem.classList.remove("rotate-right");
+            }, 400);
+
         },
         nextRef() {
-            let proxima = this.produtos.indexOf(this.produtoA)+1;
-            if (proxima < this.produtos.length) {
-                this.produtoA = this.produtos[this.produtos.indexOf(this.produtoA)+1];
-            } else {
-                this.produtoA = this.produtos[0];
-            }
-            this.corSelecionada = 0;
+            let imagem = document.getElementById('produto-swipe-area');
+            imagem.classList.add("rotate-left");
+            setTimeout(() => {
+                let proxima = this.produtos.indexOf(this.produtoA)+1;
+                if (proxima < this.produtos.length) {
+                    this.produtoA = this.produtos[this.produtos.indexOf(this.produtoA)+1];
+                } else {
+                    this.produtoA = this.produtos[0];
+                }
+                this.corSelecionada = 0;
+                imagem.classList.remove("rotate-left");
+            }, 400);
         },
         showSidebar() {
             this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
@@ -352,6 +366,45 @@ export default {
     .vs-icon{
         animation: spin 1.5s linear infinite;
     }
+}
+
+.produto-swipe-area-left {
+    position: fixed;
+    background: transparent;
+    height: 100vh;
+    width: 27vw;
+    z-index: 1;
+    top: 0;
+    left: 23%;
+}
+
+.produto-swipe-area-right {
+    position: fixed;
+    background: transparent;
+    height: 100vh;
+    width: 27vw;
+    z-index: 2;
+    top: 0;
+    right: 23%;
+}
+
+.rotate-left {
+    transform: rotate(1deg) scale(1.1);
+    transition: 0.6s;
+    margin-left: 500px;
+    cursor: e-resize;
+    opacity: 0;
+    z-index: 0;
+    animation-delay: 20s;
+}
+.rotate-right {
+    transform: rotate(-5deg) scale(1.1);
+    transition: 0.6s;
+    opacity: 0;
+    margin-left: -500px;
+    cursor: w-resize;
+    z-index: 0;
+    animation-delay: 20s;
 }
 
 </style>
