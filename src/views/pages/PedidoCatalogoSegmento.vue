@@ -1,11 +1,11 @@
 <template>
-    <div id="page-catalogo">
-        <vs-button @click.stop="prevRef()" color="primary" type="filled" radius class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
-        <vs-button @click.stop="nextRef()" color="primary" type="filled" radius class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
+    <div id="page-catalogo" class="page-catalogo">
+        <vs-button @click.stop="prevRef" color="primary" type="filled" radius class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
+        <vs-button @click.stop="nextRef" color="primary" type="filled" radius class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
         <vs-col vs-order="3" vs-type="flex" vs-justify="center" vs-align="center" vs-w="12">
             <div class="vx-row">
                 
-                <div class="vx-col w-full sm:w-1/5 h-12">
+                <div class="vx-col w-full sm:w-1/5 h-12" style="z-index: 50;">
                     <div class="vx-row">
                         <div class="flex w-full items-center justify-center">
                             <vs-button color="dark" type="filled" icon-pack="feather" class="w-full" icon="icon-menu" @click.stop="showSidebar"></vs-button>
@@ -14,11 +14,13 @@
                     <div class="vx-row">
                         <vs-divider position="left" border-style="dashed" color="primary">Imagens</vs-divider>
                         <vx-card>
-                            <div slot="no-body">
-                                <div class="vx-row pt-2 items-center justify-center" v-for="(imagem, index) in getImagensCorProduto" :key="index">
-                                    <img :src="require(`@/assets/images/rapidsoft/produtos/${getImagemCorProduto(imagem)}.png`)" alt="latest-upload" class="rounded mb-4 user-latest-image responsive img-ref">
+                            <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button produto-image-gallery-button-up" @click="scrollUp" style="margin-top: -10px" />
+                            <div id="produto-image-gallery" class="produto-image-gallery">
+                                <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectImagemProduto(imagem)">
+                                    <img :src="require(`@/assets/images/rapidsoft/produtos/${getImagemCorProduto(imagem)}`)" :id="'produto-image-gallery-item-'+imagem" class="mb-4 responsive img-ref">
                                 </div>
                             </div>
+                            <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button produto-image-gallery-button-down" @click="scrollDown" style="margin-bottom: -10px; margin-top: 10px" />
                         </vx-card>
                     </div>
                     <div class="vx-row">
@@ -31,12 +33,30 @@
                     </div>
                 </div>
                 <!-- IMAGEM PRINCIPAL -->
-                <vs-col vs-type="flex" vs-justify="center" vs-align="baseline" vs-lg="7" vs-sm="7" vs-xs="12">
-                    <div v-hammer:swipe.right="nextRef" class="produto-swipe-area-left"></div>
-                    <img :src="require(`@/assets/images/rapidsoft/produtos/${activeProductImgUp}`)" class="card-img-top card-img-principal" id="produto-swipe-area">
-                    <div v-hammer:swipe.left="prevRef" class="produto-swipe-area-right"></div>
+                <vs-col vs-type="grid" vs-justify="center" vs-align="baseline" vs-lg="7" vs-sm="7" vs-xs="12" style="z-index: 100;">
+                    <div class="vx-row pt-2 items-center justify-center">
+                        <h6 class="title-ref">{{produtoA.referencia}} - {{produtoA.nome}}</h6>
+                    </div>
+                    <Vue2InteractDraggable
+                        @draggedLeft="nextRef"
+                        @draggedRight="prevRef"
+                        interact-lock-y-axis
+                        :interact-max-rotation="8"
+                        :interact-out-of-sight-x-coordinate="1000"
+                        :interact-x-threshold="120"                        
+                        v-if="isShowing">
+                        <div>
+                            <img :src="require(`@/assets/images/rapidsoft/produtos/${imagemProdutoPrincipal}`)" class="card-img-top card-img-principal" id="produto-swipe-area">
+                        </div>
+                    </Vue2InteractDraggable>
+                    <div v-else>
+                        <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-top card-img-principal">
+                    </div>
+                    <div class="vx-row pt-2 items-center justify-center" v-if="produtoB">
+                        <h6 class="title-ref">{{produtoB.nome}}</h6>
+                    </div>
                 </vs-col>
-                <div class="vx-col w-full md:w-1/5 h-12">
+                <div class="vx-col w-full md:w-1/5 h-12" style="z-index: 50;">
                     <div class="vx-row">
                         <div class="flex w-full items-center justify-center">
                             <vs-button color="primary" type="filled" icon-pack="feather" class="w-full" icon="icon-search" @click.stop="abrirListaPodutos()"></vs-button>
@@ -45,7 +65,7 @@
                     <div class="vx-row">
                         <vs-divider position="right" border-style="dashed" color="primary">Ações</vs-divider>
                         <span>Ref A: {{produtoA.referencia}}</span>
-                        <div class="btn-group centex mt-base-top1">
+                        <div class="btn-group centex mt-base-top1 w-full">
                             <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-plus" @click.stop="addCarrinho()"></vs-button>
                             <vs-button class="w-full" type="border" color="primary" icon-pack="feather" icon="icon-book-open" @click.stop="addCarrinho()"></vs-button>
                             <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-dollar-sign" @click.stop="addCarrinho()"></vs-button>
@@ -83,7 +103,7 @@
                     </div> -->
                 </div>
             </div>
-            <vs-popup class="popup-produto" fullscreen title="Pesquisa " :active.sync="popupListaProdutos">
+            <vs-popup fullscreen class="popup-produto-search" title="Pesquisa " :active.sync="popupListaProdutos">
                 
                 <div class="flex flex-wrap-reverse items-center">
                     <div v-for="(categoria, index) in getCategoriasCardPesquisa" :key="index" style="padding: 2px;">
@@ -143,16 +163,17 @@
 </template>
 <script>
 
+import { Vue2InteractDraggable } from "vue2-interact";
 import _ from 'lodash'
 import produtoDB from '../../rapidsoft/db/produtoDb'
 import { setTimeout } from 'timers';
-
 
 export default {
 
     data() {
         return {
             selected: [],
+            imagemProdutoPrincipal: null,
             produtoA: null,
             produtoB: null,
             popupListaProdutos: false,
@@ -162,14 +183,13 @@ export default {
                 categoria: 0
             },
             corSelecionada: 0,
-            imagens: [
-
-            ],
-            produtos: []
-
+            imagens: [],
+            produtos: [],
+            isShowing: true,
         }
     },
     components: {
+        Vue2InteractDraggable
     },
     computed: {
         getProdutosPesquisa() {
@@ -198,47 +218,56 @@ export default {
                 return [];
             }
         },
-        activeProductImgUp() {
-            return this.produtoA.imagem;
-        }
     },
     methods: {
+        selectImagemProduto(imagemSelecionada) {        
+            this.imagemProdutoPrincipal = this.getImagemCorProduto(imagemSelecionada);
+        },
         getImagemCorProduto(imagem) {
             var cor = _.cloneDeep(this.produtoA.cores[this.corSelecionada]);
             if (cor.nome) {
-                return this.produtoA.referencia +'_'+ cor.nome +'_'+ imagem;
+                return this.produtoA.referencia +'_'+ cor.nome +'_'+ imagem +'.png';
             } else {
-                return this.produtoA.referencia +'_'+ imagem;
+                return this.produtoA.referencia +'_'+ imagem +'.png';
             }
         },
-        prevRef() {
-            let imagem = document.getElementById('produto-swipe-area');
-            imagem.classList.add("rotate-right");
+        scrollUp() {
+            let gallery = document.getElementById("produto-image-gallery");
+            gallery.scrollTop = gallery.scrollTop - 80;
+        },
+        scrollDown() {
+            let gallery = document.getElementById("produto-image-gallery");
+            gallery.scrollTop = gallery.scrollTop + 80;
+        },
+        hideCard() {
             setTimeout(() => {
-                let anterior = this.produtos.indexOf(this.produtoA)-1;
-                if (anterior >= 0) {
-                    this.produtoA = this.produtos[this.produtos.indexOf(this.produtoA)-1];
-                } else {
-                    this.produtoA = this.produtos[this.produtos.length-1];
-                }
-                this.corSelecionada = 0;
-                imagem.classList.remove("rotate-right");
-            }, 400);
-
+                this.isShowing = false;
+            }, 100);
+            setTimeout(() => {
+                this.isShowing = true;
+            }, 100);
+        },
+        prevRef() {
+            let anterior = this.produtos.indexOf(this.produtoA)-1;
+            if (anterior >= 0) {
+                this.selectProduto(this.produtos[this.produtos.indexOf(this.produtoA)-1]);
+            } else {
+                this.selectProduto(this.produtos[this.produtos.length-1]);
+            }
+            document.getElementById("produto-image-gallery").scrollTop = 0;
+            this.corSelecionada = 0;
+            this.hideCard();
         },
         nextRef() {
-            let imagem = document.getElementById('produto-swipe-area');
-            imagem.classList.add("rotate-left");
-            setTimeout(() => {
-                let proxima = this.produtos.indexOf(this.produtoA)+1;
-                if (proxima < this.produtos.length) {
-                    this.produtoA = this.produtos[this.produtos.indexOf(this.produtoA)+1];
-                } else {
-                    this.produtoA = this.produtos[0];
-                }
-                this.corSelecionada = 0;
-                imagem.classList.remove("rotate-left");
-            }, 400);
+            let proxima = this.produtos.indexOf(this.produtoA)+1;
+            if (proxima < this.produtos.length) {
+                this.selectProduto(this.produtos[this.produtos.indexOf(this.produtoA)+1]);
+            } else {
+                this.selectProduto(this.produtos[0]);
+            }
+            document.getElementById("produto-image-gallery").scrollTop = 0;
+            this.corSelecionada = 0;
+            this.hideCard();
         },
         showSidebar() {
             this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
@@ -256,22 +285,20 @@ export default {
 		getImage(produto) {
 			return produto.imagem;
         },
-        handleWindowResize(event) {
-            this.windowWidth = event.currentTarget.innerWidth
-            this.setSidebarWidth()
-        },
-        setSidebarWidth() {
-            if(this.windowWidth < 992) {
-                this.isFilterSidebarActive = this.clickNotClose = false
-            }else {
-                this.isFilterSidebarActive = this.clickNotClose = true
-            }
-        },
         abrirListaPodutos() {
             this.popupListaProdutos=true
         },
         addCarrinho() {
             this.popupAddCarrinho = true;
+        },
+        selectProduto(produto) {
+            this.produtoA = produto;
+            this.imagemProdutoPrincipal = this.produtoA.imagem;
+            
+            this.corSelecionada = 0;
+            if(this.produtoA.tipo === 2) {
+                this.produtoDown = this.produtos[1];
+            }
         }
     },
     created() {
@@ -280,14 +307,10 @@ export default {
         this.categorias.forEach(categoria => {
             categoria.check = true;
         });
-        this.produtoA = this.produtos[0];
-        this.corSelecionada = 0;
-        if(this.produtoA.tipo === 2) {
-            this.produtoDown = this.produtos[1];
-        }
+        this.selectProduto(this.produtos[0]);
     },
     mounted() {
-        
+        // this.selectImagemProduto('1');
     },
     
 }
@@ -324,6 +347,7 @@ export default {
     max-height: 6rem;
     width: auto;
     /* max-width: 10rem; */
+    
 }
 
 .img-cor {
@@ -331,9 +355,18 @@ export default {
     max-width: 6rem;
 }
 
+.card-img-principal {
+    max-width: 40vh;
+    -webkit-animation: rebound .6s;
+    animation: rebound .6s;
+    -webkit-box-pack: center !important;
+    -ms-flex-pack: center !important;
+    justify-content: center !important
+}
+
 @media only screen and (min-width: 992px) {
     .card-img-principal {
-        max-width: 24rem;
+        max-width: 40vh;
     }
 }
 
@@ -368,43 +401,91 @@ export default {
     }
 }
 
-.produto-swipe-area-left {
-    position: fixed;
-    background: transparent;
-    height: 100vh;
-    width: 27vw;
-    z-index: 1;
-    top: 0;
-    left: 23%;
+.title-ref {
+    text-transform: uppercase;
 }
 
-.produto-swipe-area-right {
-    position: fixed;
-    background: transparent;
-    height: 100vh;
-    width: 27vw;
-    z-index: 2;
+.con-vs-popup {
+    // justify-content: left !important;
     top: 0;
-    right: 23%;
 }
 
-.rotate-left {
-    transform: rotate(1deg) scale(1.1);
-    transition: 0.6s;
-    margin-left: 500px;
-    cursor: e-resize;
-    opacity: 0;
-    z-index: 0;
-    animation-delay: 20s;
+.popup-produto-search {
+    width: 100%;
+    height: 100%;    
 }
-.rotate-right {
-    transform: rotate(-5deg) scale(1.1);
-    transition: 0.6s;
-    opacity: 0;
-    margin-left: -500px;
-    cursor: w-resize;
-    z-index: 0;
-    animation-delay: 20s;
+
+.vs-popup {
+    right: 0 !important;
 }
+
+.produto-image-gallery {
+    max-height: 28vh;
+    overflow-x: hidden;
+    overflow-y: scroll;    
+}
+
+.produto-image-gallery-item {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin: 0 -1rem;
+    -webkit-box-pack: center !important;
+    -ms-flex-pack: center !important;
+    justify-content: center !important;
+    -webkit-box-align: center !important;
+    -ms-flex-align: center !important;
+    align-items: center !important;
+
+    .selected {
+        border-radius: 2%;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        border-bottom: 2px solid #e41c40;
+    }
+}
+
+.produto-image-gallery::-webkit-scrollbar-track
+{
+	background-color: #fff;
+}
+
+.produto-image-gallery::-webkit-scrollbar
+{
+	width: 4px;
+    height: 10px;
+	background-color: #fff;
+}
+
+.produto-image-gallery::-webkit-scrollbar-thumb
+{
+	background-color: #fff;    
+}
+
+.produto-image-gallery-button {
+    width: 100% !important;
+    cursor: pointer;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;        
+    -webkit-box-pack: center !important;
+    -ms-flex-pack: center !important;
+    justify-content: center !important;
+    -webkit-box-align: center !important;
+    -ms-flex-align: center !important;
+    align-items: center !important;
+    border-radius: .5rem !important;
+    background-color: #fff;
+}
+
+.produto-image-gallery-button-up {
+    margin-bottom: 10px;
+}
+
+
 
 </style>
