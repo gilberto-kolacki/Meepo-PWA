@@ -2,39 +2,49 @@
     <div id="page-catalogo" class="page-catalogo">
         <vs-button @click.stop="prevRef" color="primary" type="filled" radius class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
         <vs-button @click.stop="nextRef" color="primary" type="filled" radius class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
-        <vs-col vs-order="3" vs-type="flex" vs-justify="center" vs-align="center" vs-w="12">
+        <vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12">
             <div class="vx-row">
                 
-                <div class="vx-col w-full sm:w-1/5 h-12" style="z-index: 50;">
+                <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 50;">
                     <div class="vx-row">
                         <div class="flex w-full items-center justify-center">
                             <vs-button color="dark" type="filled" icon-pack="feather" class="w-full" icon="icon-menu" @click.stop="showSidebar"></vs-button>
                         </div>
                     </div>
-                    <div class="vx-row">
-                        <vs-divider position="left" border-style="dashed" color="primary">Imagens</vs-divider>
+                    <div class="vx-row mt-base-top2">
+                        <!-- <vs-divider position="left" border-style="dashed" color="primary">Imagens</vs-divider> -->
                         <vx-card>
+                            <div class="vx-row items-center justify-center">
+                                <h6>{{this.produtoA.cores[this.corSelecionada].nome}}</h6>
+                            </div>
                             <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button produto-image-gallery-button-up" @click="scrollUp" style="margin-top: -10px" />
                             <div id="produto-image-gallery" class="produto-image-gallery">
-                                <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectImagemProduto(imagem)">
+                                <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(imagem)">
                                     <img :src="require(`@/assets/images/rapidsoft/produtos/${getImagemCorProduto(imagem)}`)" :id="'produto-image-gallery-item-'+imagem" class="mb-4 responsive img-ref">
                                 </div>
                             </div>
                             <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button produto-image-gallery-button-down" @click="scrollDown" style="margin-bottom: -10px; margin-top: 10px" />
                         </vx-card>
                     </div>
-                    <div class="vx-row">
-                        <vs-divider position="left" border-style="dashed" color="primary">Cores</vs-divider>
-                        <vx-card style="width: 18rem;">
-                            <div class="vx-row items-center justify-center"  v-for="(cor, index) in getCoresProduto" :key="index">
+                    <div class="vx-row items-center justify-center mt-base-top3">
+                        <!-- <vs-divider position="left" border-style="dashed" color="primary">Cor</vs-divider> -->
+                        <!-- <vx-card style="width: 18rem;"> -->
+                            <!-- <div class="vx-row items-center justify-center"  v-for="(cor, index) in getCoresProduto" :key="index">
                                 <img :src="require(`@/assets/images/rapidsoft/produtos/cores/${cor.nome}.png`)" alt="latest-upload" class="rounded mb-4 user-latest-image responsive img-cor">
-                            </div>
-                        </vx-card>
+                            </div> -->
+                        <!-- </vx-card> -->
+                        <div class="mr-2" v-for="(cor, index) in getCoresProduto" :key="index">
+                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="require(`@/assets/images/rapidsoft/produtos/cores/${cor.nome}.png`)" size="36px" @click="selectCorImagemProduto(index)" />
+                        </div>
+                    </div>
+                    <div class="vx-row items-center justify-center mt-base-top3" v-if="this.produtoA.video">
+                        <!-- <vs-divider position="left" border-style="dashed" color="primary"></vs-divider> -->
+                        <feather-icon icon="YoutubeIcon" svgClasses="h-10 w-10" @click="scrollDown" />
                     </div>
                 </div>
                 <!-- IMAGEM PRINCIPAL -->
-                <vs-col vs-type="grid" vs-justify="center" vs-align="baseline" vs-lg="7" vs-sm="7" vs-xs="12" style="z-index: 100;">
-                    <div class="vx-row pt-2 items-center justify-center">
+                <vs-col vs-type="inline-grid" vs-justify="center" vs-align="center" vs-lg="7" vs-sm="7" vs-xs="12" style="z-index: 10;">
+                    <div class="vx-row items-center justify-center">
                         <h6 class="title-ref">{{produtoA.referencia}} - {{produtoA.nome}}</h6>
                     </div>
                     <Vue2InteractDraggable
@@ -46,13 +56,13 @@
                         :interact-x-threshold="120"                        
                         v-if="isShowing">
                         <div>
-                            <img :src="require(`@/assets/images/rapidsoft/produtos/${imagemProdutoPrincipal}`)" class="card-img-top card-img-principal" id="produto-swipe-area">
+                            <img :src="require(`@/assets/images/rapidsoft/produtos/${imagemProdutoPrincipal}`)" class="card-img-principal" id="produto-swipe-area">
                         </div>
                     </Vue2InteractDraggable>
                     <div v-else>
-                        <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-top card-img-principal">
+                        <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal">
                     </div>
-                    <div class="vx-row pt-2 items-center justify-center" v-if="produtoB">
+                    <div class="vx-row pt-2 items-center justify-center" style="display: block;" v-if="produtoB">
                         <h6 class="title-ref">{{produtoB.nome}}</h6>
                     </div>
                 </vs-col>
@@ -62,17 +72,16 @@
                             <vs-button color="primary" type="filled" icon-pack="feather" class="w-full" icon="icon-search" @click.stop="abrirListaPodutos()"></vs-button>
                         </div>
                     </div>
-                    <div class="vx-row">
-                        <vs-divider position="right" border-style="dashed" color="primary">Ações</vs-divider>
-                        <span>Ref A: {{produtoA.referencia}}</span>
+                    <div class="vx-row mt-base-top3">
+                        <h6 class="title-ref">Ref A: {{produtoA.referencia}}</h6>
                         <div class="btn-group centex mt-base-top1 w-full">
-                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-plus" @click.stop="addCarrinho()"></vs-button>
-                            <vs-button class="w-full" type="border" color="primary" icon-pack="feather" icon="icon-book-open" @click.stop="addCarrinho()"></vs-button>
-                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-dollar-sign" @click.stop="addCarrinho()"></vs-button>
+                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-shopping-cart" @click.stop="addCarrinho()"></vs-button>
+                            <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" @click.stop="viewPreco(produtoA)"></vs-button>
+                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-book-open" @click.stop="addCarrinho()"></vs-button>
                         </div>
                     </div>
-                    <div class="vx-row mt-base-top2" v-if="produtoB">
-                        <span>Ref B: {{produtoB.referencia}}</span>
+                    <div class="vx-row mt-base-top3" v-if="produtoB">
+                        <h6 class="title-ref">Ref B: {{produtoB.referencia}}</h6>
                         <div class="flex w-full items-center justify-center">
                             <div class="flex w-full items-center justify-center">
                                 <vs-button color="success" radius type="filled" icon-pack="feather" class="mr-2" icon="icon-plus-circle" @click.stop="addCarrinho()"></vs-button>
@@ -81,18 +90,18 @@
                             </div>
                         </div>
                     </div>                     
-                    <div class="vx-row">
-                        <vs-divider position="right" border-style="dashed" color="primary">Categorias</vs-divider>
-                        <vx-card>
+                    <div class="vx-row mt-base-top2">
+                        <!-- <vs-divider position="right" border-style="dashed" color="primary">Categorias</vs-divider> -->
+                        <!-- <vx-card>
                             <ul class="leftx">
                                 <li v-for="(categoria, index) in categorias" :key="index" style="margin-bottom: 0.5rem;">
                                     <vs-radio v-model="filtro.categoria" :vs-value="categoria.codigo">{{categoria.nome}}</vs-radio>
                                 </li>
-                            </ul>
+                            </ul> -->
                             <!-- <div class="flex w-full items-center justify-center">
                                 <vs-button color="primary" type="filled" icon-pack="feather" icon="icon-plus" @click="abrirListaPodutos()">Lista</vs-button>
                             </div> -->
-                        </vx-card>
+                        <!-- </vx-card> -->
                     </div>
                     <!-- <div class="vx-row">
                         <vs-divider position="right" border-style="dashed" color="primary"></vs-divider>
@@ -103,60 +112,62 @@
                     </div> -->
                 </div>
             </div>
-            <vs-popup fullscreen class="popup-produto-search" title="Pesquisa " :active.sync="popupListaProdutos">
-                
-                <div class="flex flex-wrap-reverse items-center">
-                    <div v-for="(categoria, index) in getCategoriasCardPesquisa" :key="index" style="padding: 2px;">
-                        <vs-button v-show="categoria.check"
-                            type="filled"
-                            color="primary" 
-                            icon-pack="feather" 
-                            v-on:click.stop="categoria.check = !categoria.check"
-                            icon="icon-check">
-                            {{categoria.nome}}
-                        </vs-button>
-                        <vs-button v-show="!categoria.check"
-                            type="border"
-                            color="primary" 
-                            icon-pack="feather" 
-                            v-on:click.stop="categoria.check = !categoria.check"
-                            icon="icon-x">
-                            {{categoria.nome}}
-                        </vs-button>
-                    </div>
-                </div>
-                
-
-                <vs-table ref="table" v-model="selected" search :data="getProdutosPesquisa">
-                    <!-- <div slot="header" class="flex flex-wrap-reverse items-center flex-grow justify-between">
-                    </div> -->
-                    <template slot="thead">
-                        <vs-th>Image</vs-th>
-                        <vs-th sort-key="referencia">Referencia</vs-th>
-                        <vs-th sort-key="nome">Nome</vs-th>
-                    </template>
-                    <template slot-scope="{data}">
-                        <tbody>
-                            <vs-tr :data="tr" :key="indextr" v-for="(tr, indextr) in data">
-                                <vs-td :data="data[indextr].imagem">
-                                    <img :src="require(`@/assets/images/rapidsoft/produtos/${getImage(tr)}`)" class="rounded mb-4 user-latest-image responsive img-popup product-img" />
-                                </vs-td>
-                                <vs-td :data="data[indextr].referencia">
-                                    <p class="product-name font-medium">{{ tr.referencia }}</p>
-                                </vs-td>
-                                <vs-td :data="data[indextr].nome">
-                                    <p class="product-category">{{ tr.nome }}</p>
-                                </vs-td>
-                            </vs-tr>
-                        </tbody>
-                    </template>
-                </vs-table>
-            </vs-popup>
-
-            <vs-popup class="popup-produto" fullscreen title="Referencia " :active.sync="popupAddCarrinho">
-                
-            </vs-popup>
         </vs-col>
+        <vs-popup v-bind:class="'popup-produto-search'" title="Pesquisa" :active.sync="popupListaProdutos">
+            
+            <div class="flex flex-wrap-reverse items-center">
+                <div v-for="(categoria, index) in getCategoriasCardPesquisa" :key="index" style="padding: 2px;">
+                    <vs-button v-show="categoria.check"
+                        type="filled"
+                        color="primary" 
+                        icon-pack="feather" 
+                        size="small"
+                        v-on:click.stop="searchProduct(categoria)"
+                        icon="icon-check">
+                        {{categoria.nome}}
+                    </vs-button>
+                    <vs-button v-show="!categoria.check"
+                        type="border"
+                        color="primary" 
+                        icon-pack="feather" 
+                        size="small"
+                        v-on:click.stop="searchProduct(categoria)"
+                        icon="icon-x">
+                        {{categoria.nome}}
+                    </vs-button>
+                </div>
+            </div>
+            
+
+            <vs-table ref="table" v-model="selectSearchProduto" @selected="selectProduto(selectSearchProduto)" search :data="getProdutosPesquisa">
+                <!-- <div slot="header" class="flex flex-wrap-reverse items-center flex-grow justify-between">
+                </div> -->
+                <template slot="thead">
+                    <vs-th>Image</vs-th>
+                    <vs-th sort-key="referencia">Referencia</vs-th>
+                    <vs-th sort-key="nome">Nome</vs-th>
+                </template>
+                <template slot-scope="{data}">
+                    <tbody>
+                        <vs-tr :data="tr" :key="indextr" v-for="(tr, indextr) in data">
+                            <vs-td :data="data[indextr].imagem">
+                                <img :src="require(`@/assets/images/rapidsoft/produtos/${getImage(tr)}`)" class="rounded mb-4 user-latest-image responsive img-popup product-img" />
+                            </vs-td>
+                            <vs-td :data="data[indextr].referencia">
+                                <p class="product-name font-medium">{{ tr.referencia }}</p>
+                            </vs-td>
+                            <vs-td :data="data[indextr].nome">
+                                <p class="product-category">{{ tr.nome }}</p>
+                            </vs-td>
+                        </vs-tr>
+                    </tbody>
+                </template>
+            </vs-table>
+        </vs-popup>
+
+        <vs-popup class="popup-produto" fullscreen title="Referencia " :active.sync="popupAddCarrinho">
+            
+        </vs-popup>        
     </div>
     
     
@@ -172,7 +183,7 @@ export default {
 
     data() {
         return {
-            selected: [],
+            selectSearchProduto: null,
             imagemProdutoPrincipal: null,
             produtoA: null,
             produtoB: null,
@@ -185,6 +196,7 @@ export default {
             corSelecionada: 0,
             imagens: [],
             produtos: [],
+            produtosFiltro: [],
             isShowing: true,
         }
     },
@@ -220,7 +232,25 @@ export default {
         },
     },
     methods: {
-        selectImagemProduto(imagemSelecionada) {        
+        viewPreco(produto) {
+            this.$vs.notify({
+                title:'REF: '+produto.referencia,
+                text:'R$ '+ produto.preco,
+                color:'dark',
+                time: 4000,
+                iconPack: 'feather',
+                icon:'icon-dollar-sign'
+            })
+        },
+        searchProduct(categoria) {
+            categoria.check = !categoria.check;
+
+        },
+        selectCorImagemProduto(indexCor) {
+            this.corSelecionada = indexCor;
+            this.selectSequenciaImagemProduto('1')
+        },
+        selectSequenciaImagemProduto(imagemSelecionada) {        
             this.imagemProdutoPrincipal = this.getImagemCorProduto(imagemSelecionada);
         },
         getImagemCorProduto(imagem) {
@@ -272,13 +302,6 @@ export default {
         showSidebar() {
             this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
         },
-        getPopularityColor(num) {
-            if(num > 90) return "success"
-            if(num >70) return "primary"
-            if(num >= 50) return "warning"
-            if(num < 50) return "danger"
-            return "primary"
-        },
         getProdutoNome(produto) {
             return produto.referencia +"-"+ produto.nome;
         },
@@ -287,14 +310,15 @@ export default {
         },
         abrirListaPodutos() {
             this.popupListaProdutos=true
+            this.selectSearchProduto = null;
         },
         addCarrinho() {
             this.popupAddCarrinho = true;
         },
         selectProduto(produto) {
+            this.popupListaProdutos = false;
             this.produtoA = produto;
             this.imagemProdutoPrincipal = this.produtoA.imagem;
-            
             this.corSelecionada = 0;
             if(this.produtoA.tipo === 2) {
                 this.produtoDown = this.produtos[1];
@@ -316,10 +340,35 @@ export default {
 }
 </script>
 
+<style lang="scss">
+
+.popup-produto-search .vs-popup {
+    right: 0;
+    height: 100%;
+    width: 60%;        
+}
+
+.popup-produto-search .vs-table--search  {
+    justify-content: center;
+    max-width: 100%;
+    position: relative;
+    margin-left: auto;
+
+    .input-search {
+        width: 100vw;
+    }
+}
+
+</style>
+
 <style lang="scss" scoped>
 
 .mt-base-bottom {
     margin-bottom: 2rem !important
+}
+
+.mt-base-top3 {
+    margin-top: 2rem !important
 }
 
 .mt-base-top2 {
@@ -356,9 +405,9 @@ export default {
 }
 
 .card-img-principal {
-    max-width: 40vh;
-    -webkit-animation: rebound .6s;
-    animation: rebound .6s;
+    width: 40vh;
+    -webkit-animation: rebound .4s;
+    animation: rebound .4s;
     -webkit-box-pack: center !important;
     -ms-flex-pack: center !important;
     justify-content: center !important
@@ -404,23 +453,8 @@ export default {
 .title-ref {
     text-transform: uppercase;
 }
-
-.con-vs-popup {
-    // justify-content: left !important;
-    top: 0;
-}
-
-.popup-produto-search {
-    width: 100%;
-    height: 100%;    
-}
-
-.vs-popup {
-    right: 0 !important;
-}
-
 .produto-image-gallery {
-    max-height: 28vh;
+    height: 32vh;
     overflow-x: hidden;
     overflow-y: scroll;    
 }
@@ -485,6 +519,7 @@ export default {
 .produto-image-gallery-button-up {
     margin-bottom: 10px;
 }
+
 
 
 

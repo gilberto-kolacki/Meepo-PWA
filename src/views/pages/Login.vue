@@ -27,7 +27,7 @@
                                         name="email"
                                         icon="icon icon-user"
                                         icon-pack="feather"
-                                        label-placeholder="Email"
+                                        label-placeholder="CNPJ"
                                         v-model="email"
                                         class="w-full no-icon-border"/>
 
@@ -71,8 +71,8 @@
 export default {
     data() {
         return {
-            email: 'demo@demo.com',
-            password: 'demodemo',
+            email: '12345670000101',
+            password: 'teste',
             checkbox_remember_me: true,
             popupInstall: false,
         }
@@ -108,6 +108,9 @@ export default {
                 setTimeout(() => {
                     this.$vs.loading.close();
                 }, 600)
+            }).catch((error) => {
+                console.log(error);
+                
             });
         },
         instalar() {

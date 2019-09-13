@@ -10,6 +10,8 @@ const produtos = [
         tamanhos: ['P/S', 'M/M', 'G/L'],
         imagem: '44577_EX1819_1.png',
         categoria: {codigo: 1, nome: 'Biquini'},
+        preco: 189.90,
+        video: 'lklklk',
         cores: [
             {
                 nome: 'EX1819',
@@ -34,6 +36,7 @@ const produtos = [
         tamanhos: ['P/S', 'M/M', 'G/L'],
         imagem: '43288_EX1860_1.png',
         categoria: {codigo: 4, nome: 'Top'},
+        preco: 199.90,
         cores: [
             {
                 nome: 'EX1860',
@@ -48,6 +51,7 @@ const produtos = [
         tamanhos: ['P', 'M', 'G'],
         imagem: '43360_0AZ131_1.png',
         categoria: {codigo: 3, nome: 'Regata'},
+        preco: 119.90,
         cores: [
             {
                 nome: '0AZ131',
@@ -125,10 +129,11 @@ let produtoDB = {
     },
 
     getCategorias: () => {
-        let categorias = [];
+        let categorias = [{codigo: 0, nome: 'Todos'}];
         for (let index = 0; index < produtos.length; index++) {
-            const produto = produtos[index];
-            categorias.push(produto.categoria)
+            const categoria = produtos[index].categoria;
+            categoria.check = true;
+            categorias.push(categoria)
         }
         return categorias;
     }

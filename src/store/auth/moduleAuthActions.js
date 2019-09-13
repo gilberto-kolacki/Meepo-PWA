@@ -45,14 +45,25 @@ export default {
                     commit('UPDATE_AUTHENTICATED_USER', result.data)
                 }
             }, (err) => {
-                payload.notify({
-                    time: 2500,
-                    title: 'Error',
-                    text: err.message,
-                    iconPack: 'feather',
-                    icon: 'icon-alert-circle',
-                    color: 'danger'
-                });
+                if(err.response.status >= 400 ) {
+                    payload.notify({
+                        time: 2500,
+                        title: 'Erro!',
+                        text: err.response.data.mensagem,
+                        iconPack: 'feather',
+                        icon: 'icon-alert-circle',
+                        color: 'danger'
+                    });
+                } else {
+                    payload.notify({
+                        time: 2500,
+                        title: 'Error',
+                        text: err.message,
+                        iconPack: 'feather',
+                        icon: 'icon-alert-circle',
+                        color: 'danger'
+                    });
+                }
             })
         }
     },
