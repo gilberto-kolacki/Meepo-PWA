@@ -6,8 +6,7 @@ const produtos = [
     {
         referencia: "44577",
         tipo: 1,
-        nome: 'BIQUINI BEACH OXYGEN',
-        tamanhos: ['P/S', 'M/M', 'G/L'],
+        nome: 'BIQUINI BEACH OXYGEN',        
         imagem: '44577_EX1819_1.png',
         categoria: {codigo: 1, nome: 'Biquini'},
         preco: 189.90,
@@ -15,15 +14,18 @@ const produtos = [
         cores: [
             {
                 nome: 'EX1819',
-                imagens: ['1', '2', '3']
+                imagens: ['1', '2', '3'],
+                tamanhos: ['P/S', 'M/M', 'G/L'],
             },
             {
                 nome: 'EX1818',
-                imagens: ['1', '2']
+                imagens: ['1', '2'],
+                tamanhos: ['P/S', 'M/M'],
             },
             {
                 nome: 'EX1815',
-                imagens: ['1', '2']
+                imagens: ['1', '2'],
+                tamanhos: ['P/S', 'M/M'],
             },
         ],
     },
@@ -32,30 +34,30 @@ const produtos = [
         referenciaA: "43288",
         referenciaB: "43289",
         tipo: 2,
-        nome: 'Top Reversible Floral View',
-        tamanhos: ['P/S', 'M/M', 'G/L'],
+        nome: 'Top Reversible Floral View',        
         imagem: '43288_EX1860_1.png',
         categoria: {codigo: 4, nome: 'Top'},
         preco: 199.90,
         cores: [
             {
                 nome: 'EX1860',
-                imagens: ['1', '2', '3']
+                imagens: ['1', '2', '3'],
+                tamanhos: ['P/S', 'M/M', 'G/L'],
             }
         ]
     },
     {
         referencia: "43360",
         tipo: 1,
-        nome: 'Regata Strappy Rush',
-        tamanhos: ['P', 'M', 'G'],
+        nome: 'Regata Strappy Rush',        
         imagem: '43360_0AZ131_1.png',
         categoria: {codigo: 3, nome: 'Regata'},
         preco: 119.90,
         cores: [
             {
                 nome: '0AZ131',
-                imagens: ['1', '2', '3', '4']
+                imagens: ['1', '2', '3', '4'],
+                tamanhos: ['PP', 'P', 'M', 'G', 'GG'],
             }
         ]
     }

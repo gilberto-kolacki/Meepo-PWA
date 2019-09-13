@@ -69,3 +69,7 @@
     -webkit-box-pack: center;
     justify-content: center;
 }
+
+.pull-right {
+    float: right !important;
+}

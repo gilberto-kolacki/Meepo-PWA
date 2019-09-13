@@ -75,19 +75,17 @@
                     <div class="vx-row mt-base-top3">
                         <h6 class="title-ref">Ref A: {{produtoA.referencia}}</h6>
                         <div class="btn-group centex mt-base-top1 w-full">
-                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-shopping-cart" @click.stop="addCarrinho()"></vs-button>
+                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-shopping-cart" @click.stop="addProduto(produtoA)"></vs-button>
                             <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" @click.stop="viewPreco(produtoA)"></vs-button>
-                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-book-open" @click.stop="addCarrinho()"></vs-button>
+                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-book-open" @click.stop="monteSeuLook(produtoA)"></vs-button>
                         </div>
                     </div>
                     <div class="vx-row mt-base-top3" v-if="produtoB">
                         <h6 class="title-ref">Ref B: {{produtoB.referencia}}</h6>
-                        <div class="flex w-full items-center justify-center">
-                            <div class="flex w-full items-center justify-center">
-                                <vs-button color="success" radius type="filled" icon-pack="feather" class="mr-2" icon="icon-plus-circle" @click.stop="addCarrinho()"></vs-button>
-                                <vs-button color="success" radius type="filled" icon-pack="feather" class="mr-2" icon="icon-plus-circle" @click.stop="addCarrinho()"></vs-button>
-                                <vs-button color="success" radius type="filled" icon-pack="feather" class="mr-2" icon="icon-plus-circle" @click.stop="addCarrinho()"></vs-button>
-                            </div>
+                        <div class="btn-group centex mt-base-top1 w-full">
+                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-shopping-cart" @click.stop="addProduto(produtoB)"></vs-button>
+                            <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" @click.stop="viewPreco(produtoB)"></vs-button>
+                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-book-open" @click.stop="monteSeuLook(produtoB)"></vs-button>
                         </div>
                     </div>                     
                     <div class="vx-row mt-base-top2">
@@ -165,8 +163,33 @@
             </vs-table>
         </vs-popup>
 
-        <vs-popup class="popup-produto" fullscreen title="Referencia " :active.sync="popupAddCarrinho">
-            
+        <vs-popup class="popup-produto-add" :title="'Produto: '+ produtoAdd.referencia" :active.sync="popupAddProduto" v-if="produtoAdd" :button-close-hidden="true">
+            <!-- <div class="row"> -->
+                <div class="col">
+                    <table class="table table-striped table-bordered table-responsive">
+                        <thead>
+                            <tr>
+                                <th scope="col">Cor/Tamanho</th>
+                                <th scope="col" style="text-align: center;" v-for="(tamanho, indextr) in produtoAddTamanhos" :key="indextr">{{tamanho}}</th>
+                                <th scope="col">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(cor, indexCor) in produtoAdd.cores" :key="indexCor">
+                                <th scope="row">{{cor.nome}}</th>
+                                <td v-for="(tamanho, indextr) in produtoAddTamanhos" :key="indextr">
+                                    <input type="text" class="form-control">
+                                </td>
+                                <td> </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col">
+                    <vs-divider></vs-divider>
+                    <vs-button class="pull-right mr-1" color="success" type="border" icon-pack="feather" icon="icon-plus">Adicionar</vs-button>
+                    <vs-button class="pull-right mr-1" color="primary" type="border" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Cancelar</vs-button>
+                </div>
         </vs-popup>        
     </div>
     
@@ -177,19 +200,22 @@
 import { Vue2InteractDraggable } from "vue2-interact";
 import _ from 'lodash'
 import produtoDB from '../../rapidsoft/db/produtoDb'
+import produtoUtils from '../../rapidsoft/utils/produtoUtils'
 import { setTimeout } from 'timers';
 
 export default {
 
     data() {
         return {
-            selectSearchProduto: null,
             imagemProdutoPrincipal: null,
             produtoA: null,
             produtoB: null,
-            popupListaProdutos: false,
-            popupAddCarrinho: false,
             categorias: [],
+            popupListaProdutos: false,
+            selectSearchProduto: null,
+            popupAddProduto: false,
+            produtoAdd: null,
+            produtoAddTamanhos: null,
             filtro:{
                 categoria: 0
             },
@@ -312,8 +338,16 @@ export default {
             this.popupListaProdutos=true
             this.selectSearchProduto = null;
         },
-        addCarrinho() {
-            this.popupAddCarrinho = true;
+        addProduto(produto) {
+            this.produtoAdd = _.cloneDeep(produto);
+            this.produtoAddTamanhos = produtoUtils.getTamanhosProduto(this.produtoAdd);
+            this.popupAddProduto = true;
+        },
+        cancelarAdd() {
+           this.popupAddProduto=false;
+        },
+        monteSeuLook() {
+
         },
         selectProduto(produto) {
             this.popupListaProdutos = false;
@@ -346,6 +380,10 @@ export default {
     right: 0;
     height: 100%;
     width: 60%;        
+}
+
+.popup-produto-add .vs-popup {
+    width: 100%;
 }
 
 .popup-produto-search .vs-table--search  {
