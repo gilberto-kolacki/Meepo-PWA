@@ -13,16 +13,19 @@ const produtos = [
         video: 'lklklk',
         cores: [
             {
+                codigo: 'EX1819',
                 nome: 'EX1819',
                 imagens: ['1', '2', '3'],
                 tamanhos: ['P/S', 'M/M', 'G/L'],
             },
             {
+                codigo: 'EX1818',
                 nome: 'EX1818',
                 imagens: ['1', '2'],
                 tamanhos: ['P/S', 'M/M'],
             },
             {
+                codigo: 'EX1815',
                 nome: 'EX1815',
                 imagens: ['1', '2'],
                 tamanhos: ['P/S', 'M/M'],
@@ -40,6 +43,7 @@ const produtos = [
         preco: 199.90,
         cores: [
             {
+                codigo: 'EX1860',
                 nome: 'EX1860',
                 imagens: ['1', '2', '3'],
                 tamanhos: ['P/S', 'M/M', 'G/L'],
@@ -55,6 +59,7 @@ const produtos = [
         preco: 119.90,
         cores: [
             {
+                codigo: '0AZ131',
                 nome: '0AZ131',
                 imagens: ['1', '2', '3', '4'],
                 tamanhos: ['PP', 'P', 'M', 'G', 'GG'],

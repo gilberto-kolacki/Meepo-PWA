@@ -37,9 +37,12 @@
                             <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="require(`@/assets/images/rapidsoft/produtos/cores/${cor.nome}.png`)" size="36px" @click="selectCorImagemProduto(index)" />
                         </div>
                     </div>
-                    <div class="vx-row items-center justify-center mt-base-top3" v-if="this.produtoA.video">
-                        <!-- <vs-divider position="left" border-style="dashed" color="primary"></vs-divider> -->
-                        <feather-icon icon="YoutubeIcon" svgClasses="h-10 w-10" @click="scrollDown" />
+                    <div class="vx-row items-center justify-center mt-base-top2">
+                        <div class="btn-group centex w-full" v-if="this.produtoA.video">
+                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-youtube" @click.stop="showVideo()"></vs-button>
+                            <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-zoom-in" @click.stop="showZoom()"></vs-button>
+                        </div>
+                        <vs-button color="rgb(123, 123, 123)" type="filled" icon-pack="feather" v-else class="w-full" icon="icon-zoom-in" @click.stop="showZoom()"></vs-button>
                     </div>
                 </div>
                 <!-- IMAGEM PRINCIPAL -->
@@ -53,10 +56,10 @@
                         interact-lock-y-axis
                         :interact-max-rotation="8"
                         :interact-out-of-sight-x-coordinate="1000"
-                        :interact-x-threshold="120"                        
+                        :interact-x-threshold="120"                         
                         v-if="isShowing">
                         <div>
-                            <img :src="require(`@/assets/images/rapidsoft/produtos/${imagemProdutoPrincipal}`)" class="card-img-principal" id="produto-swipe-area">
+                            <img :src="require(`@/assets/images/rapidsoft/produtos/${imagemProdutoPrincipal}`)" class="card-img-principal" id="produto-swipe-area"/>>
                         </div>
                     </Vue2InteractDraggable>
                     <div v-else>
@@ -163,34 +166,85 @@
             </vs-table>
         </vs-popup>
 
-        <vs-popup class="popup-produto-add" :title="'Produto: '+ produtoAdd.referencia" :active.sync="popupAddProduto" v-if="produtoAdd" :button-close-hidden="true">
+        <vs-popup :id="'popup-produto-add'" class="popup-produto-add" title="Adicionar produto" :active.sync="popupAddProduto">
             <!-- <div class="row"> -->
-                <div class="col">
-                    <table class="table table-striped table-bordered table-responsive">
-                        <thead>
-                            <tr>
-                                <th scope="col">Cor/Tamanho</th>
-                                <th scope="col" style="text-align: center;" v-for="(tamanho, indextr) in produtoAddTamanhos" :key="indextr">{{tamanho}}</th>
-                                <th scope="col">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(cor, indexCor) in produtoAdd.cores" :key="indexCor">
-                                <th scope="row">{{cor.nome}}</th>
-                                <td v-for="(tamanho, indextr) in produtoAddTamanhos" :key="indextr">
-                                    <input type="text" class="form-control">
-                                </td>
-                                <td> </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <vs-collapse type="border" v-if="produtoAdd">
+                    <vs-collapse-item v-if="produtoAdd.produtoA" icon-arrow="arrow_downward" :open="produtoAddOpen">
+                        <div slot="header">                            
+                            <h4><strong>Referencia A:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h4>
+                            <h5><strong>Política:</strong></h5>
+                        </div>
+                        <div class="col table-responsive">
+                            <table class="table table-striped table-bordered table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Cor/Tamanho</th>
+                                        <th scope="col" style="text-align: center;" v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">{{tamanho}}</th>
+                                        <th scope="col">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(cor, indexCor) in produtoAdd.produtoA.cores" :key="indexCor">
+                                        <th scope="row">{{cor.nome}}</th>
+                                        <td v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">
+                                            <input type="text" class="form-control">
+                                        </td>
+                                        <td> </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </vs-collapse-item>
+                    <vs-collapse-item v-if="produtoAdd.produtoA" icon-arrow="arrow_downward" @click="produtoAddOpen=false">
+                        <div slot="header">                            
+                            <h4><strong>Referencia B:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h4>
+                            <h5><strong>Política:</strong></h5>
+                        </div>
+                        <div class="col">
+                            <table class="table table-striped table-bordered table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Cor/Tamanho</th>
+                                        <th scope="col" style="text-align: center;" v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">{{tamanho}}</th>
+                                        <th scope="col">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(cor, indexCor) in produtoAdd.produtoA.cores" :key="indexCor">
+                                        <th scope="row">{{cor.codigo}}-{{cor.nome}}</th>
+                                        <td v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">
+                                            <input type="text" class="form-control">
+                                        </td>
+                                        <td> </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </vs-collapse-item>
+                </vs-collapse>
+
+                <div class="col my-5">
+                    <vs-button class="pull-right mr-1"  size="small" color="success" type="relief" icon-pack="feather" icon="icon-plus">Adicionar</vs-button>
+                    <vs-button class="pull-right mr-1"  size="small" color="danger" type="relief" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Cancelar</vs-button>
                 </div>
-                <div class="col">
-                    <vs-divider></vs-divider>
-                    <vs-button class="pull-right mr-1" color="success" type="border" icon-pack="feather" icon="icon-plus">Adicionar</vs-button>
-                    <vs-button class="pull-right mr-1" color="primary" type="border" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Cancelar</vs-button>
+        </vs-popup>
+        
+        <vs-popup class="popup-produto-zoom" fullscreen :title="'Produto: '+ produtoZoom.referencia" :active.sync="popupZoomProduto" v-if="produtoZoom">
+            <div class="vx-row">
+                <div class="vx-col w-full lg:w-1/5 sm:w-1/5">
+                    <div id="produto-image-gallery-zoom" class="produto-image-gallery produto-image-gallery-zoom">
+                        <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(imagem)">
+                            <img :src="require(`@/assets/images/rapidsoft/produtos/${getImagemCorProduto(imagem)}`)" :id="'produto-image-gallery-item-'+imagem" class="mb-4 responsive img-ref">
+                        </div>
+                    </div>
                 </div>
-        </vs-popup>        
+                <div class="vx-col w-full lg:w-4/5 sm:w-4/5">
+                    <div class="vx-row items-center justify-center">
+                        <img :src="require(`@/assets/images/rapidsoft/produtos/${imagemProdutoPrincipal}`)" class="card-img-zoom" id="produto-swipe-area"/>
+                    </div>
+                </div>
+            </div>        
+        </vs-popup>
     </div>
     
     
@@ -215,7 +269,7 @@ export default {
             selectSearchProduto: null,
             popupAddProduto: false,
             produtoAdd: null,
-            produtoAddTamanhos: null,
+            produtoAddOpen: true,
             filtro:{
                 categoria: 0
             },
@@ -224,10 +278,12 @@ export default {
             produtos: [],
             produtosFiltro: [],
             isShowing: true,
+            produtoZoom: null,
+            popupZoomProduto: false,
         }
     },
     components: {
-        Vue2InteractDraggable
+        Vue2InteractDraggable,
     },
     computed: {
         getProdutosPesquisa() {
@@ -255,7 +311,7 @@ export default {
             } else {
                 return [];
             }
-        },
+        },        
     },
     methods: {
         viewPreco(produto) {
@@ -326,7 +382,14 @@ export default {
             this.hideCard();
         },
         showSidebar() {
-            this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
+            return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
+        },
+        showZoom() {
+            this.popupZoomProduto = true;
+            this.produtoZoom = this.produtoA;
+        },
+        showVideo() {
+
         },
         getProdutoNome(produto) {
             return produto.referencia +"-"+ produto.nome;
@@ -339,12 +402,14 @@ export default {
             this.selectSearchProduto = null;
         },
         addProduto(produto) {
-            this.produtoAdd = _.cloneDeep(produto);
-            this.produtoAddTamanhos = produtoUtils.getTamanhosProduto(this.produtoAdd);
+            this.produtoAdd = {};
+            this.produtoAdd.produtoA = _.cloneDeep(produto);
+            this.produtoAdd.produtoA.produtoAddTamanhos = produtoUtils.getTamanhosProduto(this.produtoAdd.produtoA);
             this.popupAddProduto = true;
         },
         cancelarAdd() {
            this.popupAddProduto=false;
+           this.produtoAdd=null;
         },
         monteSeuLook() {
 
@@ -457,6 +522,15 @@ export default {
     }
 }
 
+.card-img-zoom {
+    width: 100%;
+    -webkit-animation: rebound .4s;
+    animation: rebound .4s;
+    -webkit-box-pack: center !important;
+    -ms-flex-pack: center !important;
+    justify-content: center !important
+}
+
 .img-popup {
     max-height: 7rem;
     max-width: 4rem;
@@ -558,6 +632,16 @@ export default {
     margin-bottom: 10px;
 }
 
+.produto-image-gallery-zoom {
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;    
+}
+
+.header-colapse-add {
+    background-color: #403e3e;
+    color: #fff;
+}
 
 
 
