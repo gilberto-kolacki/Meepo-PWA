@@ -59,7 +59,7 @@
                         :interact-x-threshold="120"                         
                         v-if="isShowing">
                         <div>
-                            <img :src="require(`@/assets/images/rapidsoft/produtos/${imagemProdutoPrincipal}`)" class="card-img-principal" id="produto-swipe-area"/>>
+                            <img :src="require(`@/assets/images/rapidsoft/produtos/${imagemProdutoPrincipal}`)" class="card-img-principal" id="produto-swipe-area"/>
                         </div>
                     </Vue2InteractDraggable>
                     <div v-else>
@@ -164,70 +164,205 @@
                     </tbody>
                 </template>
             </vs-table>
-        </vs-popup>
+        </vs-popup>        
 
-        <vs-popup :id="'popup-produto-add'" class="popup-produto-add" title="Adicionar produto" :active.sync="popupAddProduto">
-            <!-- <div class="row"> -->
-                <vs-collapse type="border" v-if="produtoAdd">
-                    <vs-collapse-item v-if="produtoAdd.produtoA" icon-arrow="arrow_downward" :open="produtoAddOpen">
-                        <div slot="header">                            
-                            <h4><strong>Referencia A:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h4>
-                            <h5><strong>Política:</strong></h5>
-                        </div>
-                        <div class="col table-responsive">
-                            <table class="table table-striped table-bordered table-responsive">
+        <b-modal 
+            id="popup-produto-add" 
+            v-model="popupAddProduto"
+            size="xl"             
+            no-close-on-backdrop                         
+            hide-header>
+            <!-- <vs-collapse accordion type="border" v-if="produtoAdd">
+                <vs-collapse-item v-if="produtoAdd.produtoA" icon-arrow="arrow_downward" :open="true">
+                    <div slot="header">                            
+                        <h5><strong>Referencia A:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h5>
+                        <h6><strong>Política:</strong></h6>
+                    </div>
+                    <div class="row">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered" id="table-add-produto-a">
                                 <thead>
                                     <tr>
                                         <th scope="col">Cor/Tamanho</th>
-                                        <th scope="col" style="text-align: center;" v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">{{tamanho}}</th>
+                                        <th scope="col" v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr" @click.prevent="disabledTamanho(indextr, tamanho)">
+                                            <div class="flex w-full items-center justify-center">
+                                                <vs-checkbox v-model="tamanho.ativo" :checked="tamanho.ativo">{{tamanho.codigo}}</vs-checkbox>
+                                            </div>
+                                        </th>
                                         <th scope="col">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="(cor, indexCor) in produtoAdd.produtoA.cores" :key="indexCor">
-                                        <th scope="row">{{cor.nome}}</th>
-                                        <td v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">
-                                            <input type="text" class="form-control">
+                                        <th scope="row" @click="cor.ativo = !cor.ativo">
+                                            <div class="flex w-full items-center justify-center">
+                                                <vs-checkbox v-model="cor.ativo"></vs-checkbox>
+                                                <vs-avatar class="m-0" :src="require(`@/assets/images/rapidsoft/produtos/cores/${cor.codigo}.png`)" size="25px" @click="selectCorImagemProduto(index)" />
+                                                <span class="ml-1">{{cor.codigo}}</span>                                                
+                                            </div>
+                                        </th>
+                                        <td v-for="(tamanho, indexTamanho) in produtoAdd.produtoA.cores[indexCor].tamanhos" :key="indexTamanho">
+                                            <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button produto-add-button-mais" @click="maisQuantidade(produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho])"/>
+                                            <input 
+                                                type="text" 
+                                                class="form-control" 
+                                                :class="'input-tamanho-'+indexTamanho"
+                                                v-model="produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho].quantidade"
+                                                :disabled="!produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho].ativo"
+                                                style="margin-top: 5px; margin-bottom: 5px; min-width: 4rem;" 
+                                            />
+                                            <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button produto-add-button-menos" @click="menosQuantidade(produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho])"/>
                                         </td>
-                                        <td> </td>
+                                        <td></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                    </vs-collapse-item>
-                    <vs-collapse-item v-if="produtoAdd.produtoA" icon-arrow="arrow_downward" @click="produtoAddOpen=false">
-                        <div slot="header">                            
-                            <h4><strong>Referencia B:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h4>
-                            <h5><strong>Política:</strong></h5>
-                        </div>
-                        <div class="col">
-                            <table class="table table-striped table-bordered table-responsive">
+                    </div>
+                </vs-collapse-item>
+                <vs-collapse-item v-if="produtoAdd.produtoA" icon-arrow="arrow_downward">
+                    <div slot="header">                            
+                        <h5><strong>Referencia B:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h5>
+                        <h6><strong>Política:</strong></h6>
+                    </div>
+                    <div class="row">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered">
                                 <thead>
                                     <tr>
                                         <th scope="col">Cor/Tamanho</th>
-                                        <th scope="col" style="text-align: center;" v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">{{tamanho}}</th>
+                                        <th scope="col" style="text-align: center;" v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">
+                                            <div class="flex w-full items-center justify-center">
+                                                <vs-checkbox v-model="tamanho.ativo"></vs-checkbox>
+                                                {{tamanho.codigo}}
+                                            </div>
+                                        </th>
                                         <th scope="col">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(cor, indexCor) in produtoAdd.produtoA.cores" :key="indexCor">
-                                        <th scope="row">{{cor.codigo}}-{{cor.nome}}</th>
+                                    <tr v-for="(cor, indexCor) in produtoAdd.produtoA.produtoAddCores" :key="indexCor">
+                                        <th scope="row" @click="cor.ativo = !cor.ativo">
+                                            <div class="flex w-full items-center justify-center">
+                                                <vs-checkbox v-model="cor.ativo"></vs-checkbox>
+                                                <vs-avatar class="m-0" :src="require(`@/assets/images/rapidsoft/produtos/cores/${cor.codigo}.png`)" size="25px" @click="selectCorImagemProduto(index)" />
+                                                <span class="ml-1">{{cor.codigo}}</span>                                                
+                                            </div>
+                                        </th>
                                         <td v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">
-                                            <input type="text" class="form-control">
+                                            <input type="number" class="form-control" style="margin-top: -6px; min-width: 5rem;">
+                                            <div class="produto-add-button2">
+                                                <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button-menos2" />
+                                                <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button-mais2" />
+                                            </div>
                                         </td>
-                                        <td> </td>
+                                        <td></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                    </vs-collapse-item>
-                </vs-collapse>
+                    </div>
+                </vs-collapse-item>
+            </vs-collapse> -->
 
-                <div class="col my-5">
-                    <vs-button class="pull-right mr-1"  size="small" color="success" type="relief" icon-pack="feather" icon="icon-plus">Adicionar</vs-button>
-                    <vs-button class="pull-right mr-1"  size="small" color="danger" type="relief" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Cancelar</vs-button>
-                </div>
-        </vs-popup>
+            <b-card no-body class="mb-1" v-if="produtoAdd">
+                <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle.accordion-ref-a>
+                    <h5><strong>Referencia A:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h5>
+                    <h6><strong>Política:</strong></h6>
+                </b-card-header>
+                <b-collapse id="accordion-ref-a" visible accordion="my-accordion" role="tabpanel">
+                    <b-card-body>
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Cor/Tamanho</th>
+                                            <th scope="col" style="text-align: center;" v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">
+                                                <div class="flex w-full items-center justify-center">
+                                                    <vs-checkbox v-model="tamanho.ativo"></vs-checkbox>
+                                                    {{tamanho.codigo}}
+                                                </div>
+                                            </th>
+                                            <th scope="col">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(cor, indexCor) in produtoAdd.produtoA.produtoAddCores" :key="indexCor">
+                                            <th scope="row" @click="cor.ativo = !cor.ativo">
+                                                <div class="flex w-full items-center justify-center">
+                                                    <vs-checkbox v-model="cor.ativo"></vs-checkbox>
+                                                    <vs-avatar class="m-0" :src="require(`@/assets/images/rapidsoft/produtos/cores/${cor.codigo}.png`)" size="25px" @click="selectCorImagemProduto(index)" />
+                                                    <span class="ml-1">{{cor.codigo}}</span>                                                
+                                                </div>
+                                            </th>
+                                            <td v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">
+                                                <input type="number" class="form-control" style="margin-top: -6px; min-width: 5rem;">
+                                                <div class="produto-add-button2">
+                                                    <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button-menos2" />
+                                                    <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button-mais2" />
+                                                </div>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </b-card-body>
+                </b-collapse>
+                <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle.accordion-ref-b>
+                    <h5><strong>Referencia B:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h5>
+                    <h6><strong>Política:</strong></h6>
+                </b-card-header>
+                <b-collapse id="accordion-ref-b" accordion="my-accordion" role="tabpanel">
+                    <b-card-body>
+                        <div class="row">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Cor/Tamanho</th>
+                                            <th scope="col" style="text-align: center;" v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">
+                                                <div class="flex w-full items-center justify-center">
+                                                    <vs-checkbox v-model="tamanho.ativo"></vs-checkbox>
+                                                    {{tamanho.codigo}}
+                                                </div>
+                                            </th>
+                                            <th scope="col">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(cor, indexCor) in produtoAdd.produtoA.produtoAddCores" :key="indexCor">
+                                            <th scope="row" @click="cor.ativo = !cor.ativo">
+                                                <div class="flex w-full items-center justify-center">
+                                                    <vs-checkbox v-model="cor.ativo"></vs-checkbox>
+                                                    <vs-avatar class="m-0" :src="require(`@/assets/images/rapidsoft/produtos/cores/${cor.codigo}.png`)" size="25px" @click="selectCorImagemProduto(index)" />
+                                                    <span class="ml-1">{{cor.codigo}}</span>                                                
+                                                </div>
+                                            </th>
+                                            <td v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">
+                                                <input type="number" class="form-control" style="margin-top: -6px; min-width: 5rem;">
+                                                <div class="produto-add-button2">
+                                                    <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button-menos2" />
+                                                    <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button-mais2" />
+                                                </div>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </b-card-body>
+                </b-collapse>
+            </b-card>
+
+            <template v-slot:modal-footer="{ ok, cancel, hide }">
+                <vs-button class="pull-right mr-1"  size="small" color="danger" type="border" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Cancelar</vs-button>
+                <vs-button class="pull-right mr-1"  size="small" color="success" type="border" icon-pack="feather" icon="icon-plus" @click="addReferenciaCarrinho()">Adicionar</vs-button>
+            </template>
+        </b-modal>
         
         <vs-popup class="popup-produto-zoom" fullscreen :title="'Produto: '+ produtoZoom.referencia" :active.sync="popupZoomProduto" v-if="produtoZoom">
             <div class="vx-row">
@@ -269,7 +404,7 @@ export default {
             selectSearchProduto: null,
             popupAddProduto: false,
             produtoAdd: null,
-            produtoAddOpen: true,
+            // produtoAddOpen: true,
             filtro:{
                 categoria: 0
             },
@@ -284,6 +419,12 @@ export default {
     },
     components: {
         Vue2InteractDraggable,
+    },
+    watch: {
+        // 'produtoAdd' () {
+        //     console.log(this.produtoAdd);
+            
+        // }
     },
     computed: {
         getProdutosPesquisa() {
@@ -314,6 +455,9 @@ export default {
         },        
     },
     methods: {
+        maisQuantidade(tamanho) {
+            tamanho.quantidade = tamanho.quantidade+1;
+        },
         viewPreco(produto) {
             this.$vs.notify({
                 title:'REF: '+produto.referencia,
@@ -323,6 +467,23 @@ export default {
                 iconPack: 'feather',
                 icon:'icon-dollar-sign'
             })
+        },
+        disabledTamanho(index, tamanho) {
+            console.log(index);
+            tamanho.ativo = !tamanho.ativo;
+            console.log(tamanho);
+
+            // let cores = produtoAdd.produtoA.cores;
+
+            let linhas = document.getElementById("table-add-produto-a").getElementsByClassName("input-tamanho-"+index);
+            for (let index = 0; index < linhas.length; index++) {
+                const element = linhas[index];
+                element.disabled = !tamanho.ativo;
+            }
+            // console.log(table);
+            console.log(linhas);
+            
+            this.produtoAdd.produtoA.produtoAddTamanhos[index] = tamanho;
         },
         searchProduct(categoria) {
             categoria.check = !categoria.check;
@@ -404,12 +565,19 @@ export default {
         addProduto(produto) {
             this.produtoAdd = {};
             this.produtoAdd.produtoA = _.cloneDeep(produto);
+            this.produtoAdd.produtoA.produtoAddCores = produtoUtils.getCoresProduto(this.produtoAdd.produtoA);
             this.produtoAdd.produtoA.produtoAddTamanhos = produtoUtils.getTamanhosProduto(this.produtoAdd.produtoA);
+
+            // document.getElementById("popup-produto-add").style.display = null;
             this.popupAddProduto = true;
         },
         cancelarAdd() {
-           this.popupAddProduto=false;
-           this.produtoAdd=null;
+            // _.defer(() => document.getElementById("popup-produto-add").style.display = "none", 'deferred');
+            this.popupAddProduto = false;
+            this.produtoAdd=null;
+        },
+        addReferenciaCarrinho() {
+            console.log(this.produtoAdd);
         },
         monteSeuLook() {
 
@@ -438,31 +606,6 @@ export default {
     
 }
 </script>
-
-<style lang="scss">
-
-.popup-produto-search .vs-popup {
-    right: 0;
-    height: 100%;
-    width: 60%;        
-}
-
-.popup-produto-add .vs-popup {
-    width: 100%;
-}
-
-.popup-produto-search .vs-table--search  {
-    justify-content: center;
-    max-width: 100%;
-    position: relative;
-    margin-left: auto;
-
-    .input-search {
-        width: 100vw;
-    }
-}
-
-</style>
 
 <style lang="scss" scoped>
 
@@ -542,7 +685,7 @@ export default {
     left: 0;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    z-index: 50000;
+    z-index: 1000;
 
     .vs-icon{
         animation: spin 1.5s linear infinite;
@@ -555,7 +698,7 @@ export default {
     right: 0;
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    z-index: 50000;
+    z-index: 1000;
 
     .vs-icon{
         animation: spin 1.5s linear infinite;
@@ -643,6 +786,112 @@ export default {
     color: #fff;
 }
 
+.produto-add-button {
+    width: 100% !important;
+    cursor: pointer;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;        
+    -webkit-box-pack: center !important;
+    -ms-flex-pack: center !important;
+    justify-content: center !important;
+    -webkit-box-align: center !important;
+    -ms-flex-align: center !important;
+    align-items: center !important;
+    border-radius: .2rem !important;
+}
 
+.produto-add-button-mais {
+    color: #28a745;
+}
+
+.produto-add-button-menos {
+    color: #dc3545;
+}
+
+.produto-add-button2 {
+    margin-top: 3px;
+    margin-bottom: -10px;
+}
+
+.produto-add-button-mais2 {
+    background-color: #fff;
+    width: 50% !important;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;        
+    -webkit-box-pack: center !important;
+    -ms-flex-pack: center !important;
+    justify-content: center !important;
+    -webkit-box-align: center !important;
+    -ms-flex-align: center !important;
+    align-items: center !important;
+    border-radius: .2rem !important;
+    border: 0.9px solid #808992;
+    // border-right: 1px solid #080808;
+    // border-left: 1px solid #080808;
+    color: #28a745;
+}
+
+.produto-add-button-menos2 {
+    background-color: #fff;
+    width: 50% !important;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;        
+    -webkit-box-pack: center !important;
+    -ms-flex-pack: center !important;
+    justify-content: center !important;
+    -webkit-box-align: center !important;
+    -ms-flex-align: center !important;
+    align-items: center !important;
+    border-radius: .2rem !important;
+    border: 0.9px solid #808992;
+    // border-right: 1px solid #080808;
+    // border-left: 1px solid #080808;
+    color: #dc3545;
+}
+
+
+</style>
+<style lang="scss">
+
+.popup-produto-search .vs-popup {
+    right: 0;
+    height: 100%;
+    width: 60%;        
+}
+
+.popup-produto-search .vs-table--search  {
+    justify-content: center;
+    max-width: 100%;
+    position: relative;
+    margin-left: auto;
+
+    .input-search {
+        width: 100vw;
+    }
+}
+
+.popup-produto-add {
+    z-index: 60000;
+}
+
+.modal-xl {
+    max-width: 1024px;
+    width: 100%;
+    margin: 0.3rem 0.0rem 0.3rem 0.0rem;
+    z-index: 60000;
+}
+
+.modal-content {
+    border-radius: 10px;
+    align-content: center;
+    justify-content: center;
+}
+
+.modal {
+    z-index: 53000;
+}
 
 </style>

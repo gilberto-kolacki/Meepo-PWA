@@ -5,30 +5,46 @@ let dataBase = new PouchDB('meepo-produto')
 const produtos = [
     {
         referencia: "44577",
+        referenciB: "44578",
         tipo: 1,
         nome: 'BIQUINI BEACH OXYGEN',        
         imagem: '44577_EX1819_1.png',
-        categoria: {codigo: 1, nome: 'Biquini'},
+        categoria: {codigo: 1, nome: 'Biquini'}, 
         preco: 189.90,
         video: 'lklklk',
         cores: [
             {
                 codigo: 'EX1819',
                 nome: 'EX1819',
+                ativo: true,
                 imagens: ['1', '2', '3'],
-                tamanhos: ['P/S', 'M/M', 'G/L'],
+                tamanhos: [
+                    {codigo: 'P/S', ativo: true},
+                    {codigo: 'M/M', ativo: true},
+                    {codigo: 'G/L', ativo: true}
+                ],
             },
             {
                 codigo: 'EX1818',
                 nome: 'EX1818',
+                ativo: true,
                 imagens: ['1', '2'],
-                tamanhos: ['P/S', 'M/M'],
+                tamanhos: [
+                    {codigo: 'P/S', ativo: true},
+                    {codigo: 'M/M', ativo: true},
+                    {codigo: 'G/L', ativo: false}
+                ],
             },
             {
                 codigo: 'EX1815',
                 nome: 'EX1815',
+                ativo: true,
                 imagens: ['1', '2'],
-                tamanhos: ['P/S', 'M/M'],
+                tamanhos: [
+                    {codigo: 'P/S', ativo: true},
+                    {codigo: 'M/M', ativo: false},
+                    {codigo: 'G/L', ativo: true}
+                ],
             },
         ],
     },
@@ -62,7 +78,19 @@ const produtos = [
                 codigo: '0AZ131',
                 nome: '0AZ131',
                 imagens: ['1', '2', '3', '4'],
-                tamanhos: ['PP', 'P', 'M', 'G', 'GG'],
+                tamanhos: ['XPP','PP', 'P', 'M', 'G', 'GG', 'XGG', 'XXG', 'XXX', 'XXXX', 'XXXXX'],
+            },
+            {
+                codigo: '0AZ132',
+                nome: '0AZ132',
+                imagens: ['1'],
+                tamanhos: ['XPP','PP', 'M', 'G', 'GG', 'XGG', 'XXG', 'XXX', 'XXXX', 'XXXXX'],
+            },
+            {
+                codigo: '0AZ132',
+                nome: '0AZ132',
+                imagens: ['1'],
+                tamanhos: ['XPP','PP', 'P', 'M', 'G', 'GG', 'XGG', 'XXG', 'XXX'],
             }
         ]
     }
