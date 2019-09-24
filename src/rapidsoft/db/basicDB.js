@@ -4,6 +4,10 @@ const createDBLocal = (dataBaseName, representante) => {
     return "meepo_"+Config.empresa+"_rep"+representante.codigo+"_"+dataBaseName;
 }
 
+const createDBLocalBasic = (dataBaseName) => {
+    return "meepo_"+Config.empresa+"_"+dataBaseName;
+}
+
 const createDBRemote = (dataBaselocal) => {
     return Config.endereco_couchdb+dataBaselocal;
 }
@@ -18,6 +22,12 @@ class basicDB {
             } else {
                 resolve(null);
             }
+        });
+    }
+
+    createDBLocalBasic(dataBaseName) {
+        return new Promise((resolve) => {
+            resolve(createDBLocalBasic(dataBaseName));
         });
     }
 

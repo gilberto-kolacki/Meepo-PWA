@@ -10,8 +10,9 @@ class produtoUtils {
             for (let index = 0; index < cor.tamanhos.length; index++) {
                 const tamanho = cor.tamanhos[index];
                 if (_.indexOf(tamanhos, tamanho.codigo) == -1) {
+                    tamanho.ativo = true;
                     tamanhos.push(tamanho.codigo);
-                    retorno.push(tamanho);
+                    retorno.push(_.clone(tamanho));
                 }
             }
         }

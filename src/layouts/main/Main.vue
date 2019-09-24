@@ -188,7 +188,7 @@ export default {
         },
         backToTop() {
             window.scrollTo(0, 0);
-        }
+        },        
     },
     components: {
         VxSidebar,
@@ -203,7 +203,7 @@ export default {
             this.updateNavbarColor("#10163a")
         }else {
             this.updateNavbarColor(this.navbarColor)
-        }
+        }        
     }
 }
 </script>

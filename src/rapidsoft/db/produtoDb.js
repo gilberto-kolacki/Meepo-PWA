@@ -1,6 +1,18 @@
-import PouchDB from 'pouchdb'
+import PouchDB from 'pouchdb';
+import BasicDB from './basicDB'
+import _ from 'lodash';
 
-let dataBase = new PouchDB('meepo-produto')
+let localDB = null;
+
+const createDB = () => {
+    BasicDB.createDBLocalBasic("produto").then((dataBaseLocal) => {
+        if (dataBaseLocal) {
+            localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
+        }
+    })
+};
+
+createDB();
 
 const produtos = [
     {
@@ -19,9 +31,9 @@ const produtos = [
                 ativo: true,
                 imagens: ['1', '2', '3'],
                 tamanhos: [
-                    {codigo: 'P/S', ativo: true},
-                    {codigo: 'M/M', ativo: true},
-                    {codigo: 'G/L', ativo: true}
+                    {codigo: 'P', ativo: true},
+                    {codigo: 'M', ativo: true},
+                    {codigo: 'G', ativo: true}
                 ],
             },
             {
@@ -30,9 +42,9 @@ const produtos = [
                 ativo: true,
                 imagens: ['1', '2'],
                 tamanhos: [
-                    {codigo: 'P/S', ativo: true},
-                    {codigo: 'M/M', ativo: true},
-                    {codigo: 'G/L', ativo: false}
+                    {codigo: 'P', ativo: true},
+                    {codigo: 'M', ativo: true},
+                    {codigo: 'G', ativo: false}
                 ],
             },
             {
@@ -41,9 +53,9 @@ const produtos = [
                 ativo: true,
                 imagens: ['1', '2'],
                 tamanhos: [
-                    {codigo: 'P/S', ativo: true},
-                    {codigo: 'M/M', ativo: false},
-                    {codigo: 'G/L', ativo: true}
+                    {codigo: 'P', ativo: true},
+                    {codigo: 'M', ativo: false},
+                    {codigo: 'G', ativo: true}
                 ],
             },
         ],
@@ -96,74 +108,17 @@ const produtos = [
     }
 ];
 
-let produtoDB = {
+class produtoDB {
 
-    get: (produto)=> {
-        return new Promise((resolve) => {
-            dataBase.get(produto._id).then((doc) => {
-                resolve(doc)
-            });
-        });
-    },
+    listar() {
+ 
+    }
 
-    listar:() => {
-        return new Promise((resolve, reject) => {
-            let produtos = []
-            dataBase.allDocs({include_docs: true, attachments: true}).then((result) => {
-                for (let index = 0; index < result.rows.length; index++) {
-                    produtos.push(result.rows[index].doc)
-                }
-                resolve(produtos);
-            }).catch((err) => {
-                console.log(err);
-                reject(err)
-            });
-        });
-    },
-    salvar:(produto) => {
-        produto.type = "produto";
-        return new Promise((resolve, reject) => {
-            dataBase.put(produto).then((result) => {
-                resolve(result)
-            }).catch((erro) => {
-                reject(erro);
-            });
-        }); 
-    },
-
-    salvarLista: (listaProdutos) => {
-        let retorno = [];
-        return new Promise((resolve) => {
-
-            let index = 0;
-            listaProdutos.forEach(produto => {
-
-                console.log(produto);
-                
-                index++;
-                produtoDB.salvar(produto).then((result) => {
-                    retorno.push(result);
-                }).catch((erro) => {
-                    if (erro.name === 'conflict') {
-                        produtoDB.get(produto._id).then((result) => {
-                            produto._rev = result._rev
-                            produtoDB.salvar(produto)
-                        })
-                    }
-                });
-
-                if (index == listaProdutos.length) {
-                    resolve(retorno);
-                }
-            });
-        });    
-    },
-
-    getProdutos: () => {
+    getProdutos() {
         return produtos;
-    },
+    }
 
-    getCategorias: () => {
+    getCategorias() {
         let categorias = [{codigo: 0, nome: 'Todos'}];
         for (let index = 0; index < produtos.length; index++) {
             const categoria = produtos[index].categoria;
@@ -173,6 +128,39 @@ let produtoDB = {
         return categorias;
     }
 
+    salvar(produto) {
+        return new Promise((resolve, reject) => {
+            localDB.get(produto.referencia).then((result) => {
+                produto._id = result._id;
+                produto._rev = result._rev;
+                localDB.put(produto).then(() => {
+                    resolve();
+                });
+            }).catch((error) => {
+                if (error.status === 404) {
+                    produto._id = produto.referencia;
+                    localDB.put(produto).then(() => {
+                        resolve();
+                    });
+                } else {
+                    reject(error);
+                }
+            });
+        });
+    }
+
+    salvarLista(produtos) {
+        return new Promise((resolve, reject) => {
+            produtos.forEach(produto => {
+                this.salvar(produto).then(() => {
+                    resolve();
+                }).catch((error) => {
+                    reject(error);
+                });
+            });            
+        });
+    }
+
 }
 
-export default produtoDB
+export default new produtoDB();
