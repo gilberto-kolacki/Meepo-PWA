@@ -591,7 +591,11 @@ export default {
 
         findById(idCliente) {
             ClienteDB.findById(idCliente).then((result) => {
-                this.clienteEdit = _.cloneDeep(result);
+                this.clienteEdit = _.clone(result);
+                
+
+                console.log(JSON.stringify(this.clienteEdit));
+                
             });
         },
         

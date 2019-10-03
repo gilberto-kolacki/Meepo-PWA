@@ -1,6 +1,8 @@
-import PouchDB from 'pouchdb';
-import BasicDB from './basicDB'
 import _ from 'lodash';
+import BasicDB from './basicDB'
+import imagemDB from './imagemDB'
+
+import PouchDB from 'pouchdb';
 
 let localDB = null;
 
@@ -111,11 +113,87 @@ const produtos = [
 class produtoDB {
 
     listar() {
- 
+        return new Promise((resolve, reject) => {
+            let produtos = []
+            localDB.allDocs({include_docs: true}).then((result) => {
+                for (let index = 0; index < result.rows.length; index++) {
+                    produtos.push(_.cloneDeep(result.rows[index].doc));
+                    if (index+1 == result.rows.length) {
+                        resolve(produtos);
+                    }
+                }
+            }).catch((erro) => {
+                console.log(erro);
+                reject(erro);
+            });
+        });
     }
 
-    getProdutos() {
-        return produtos;
+    // getProdutos() {
+    //     return produtos;
+    // }
+    getImagensProduto(produto) {
+        return new Promise((resolve) => {
+
+            produto.cores.forEach(cor => {
+                imagemDB.getImagemCor(cor.idCor).then((result) => {
+                    cor.imagem = result;
+                    console.log(cor);
+                    
+                    // imagemDB.getImagemFotos(_.clone(cor.imagens)).then((result) => {
+                    //     produto.cores[index].imagens = result;
+
+                    // });
+                    if (_.last(produto.cores).codigo === cor.codigo) resolve(produto);
+                });
+            });
+        });
+    }
+    getAllProdutos() {
+        return new Promise((resolve) => {
+            let produtos = []
+            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                resultDocs.rows.forEach(row => {
+                    if (row.doc['referencia']) {
+                        let produto = _.clone(row.doc);
+                        delete produto['_rev'];
+                        produtos.push(produto)
+                        if (_.last(resultDocs.rows) === row) resolve(produtos);
+                    } else {
+                        if (_.last(resultDocs.rows) === row) resolve(produtos);
+                    }
+                });
+            }).catch((err) => {
+                console.log(err);
+                resolve(err);
+            });
+        });
+    }
+
+    getProdutosCatalogo() {
+        return new Promise((resolve) => {
+            this.getAllProdutos().then((produtos) => {
+                produtos = _.take(produtos, 100);
+                produtos.forEach(produto => {
+                    produto.cores.forEach(cor => {
+
+                        imagemDB.getCorById(cor).then((resultImagemCor) => {
+                            cor.imagemCor = resultImagemCor
+                            imagemDB.getSelos(cor).then((resultSelos) => {
+                                cor.selos = resultSelos
+                                imagemDB.getSimbolos(cor).then((resultSimbolos) => {
+                                    cor.simbolos = resultSimbolos
+                                    imagemDB.getFotosProduto(cor).then((resultFotos) => {
+                                        cor.imagens = _.orderBy(resultFotos, ['seq'], ['asc']);
+                                        if (_.last(produtos) === produto && _.last(produto.cores) === cor) resolve(produtos);
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
     }
 
     getCategorias() {
@@ -129,35 +207,125 @@ class produtoDB {
     }
 
     salvar(produto) {
-        return new Promise((resolve, reject) => {
-            localDB.get(produto.referencia).then((result) => {
-                produto._id = result._id;
-                produto._rev = result._rev;
-                localDB.put(produto).then(() => {
-                    resolve();
-                });
-            }).catch((error) => {
-                if (error.status === 404) {
-                    produto._id = produto.referencia;
-                    localDB.put(produto).then(() => {
-                        resolve();
-                    });
-                } else {
-                    reject(error);
-                }
+        return new Promise((resolve) => {
+            produto._id = produto.referencia;
+            localDB.put(produto).then(() => {
+                resolve();
             });
         });
     }
 
+    //demorado no ipad
     salvarLista(produtos) {
-        return new Promise((resolve, reject) => {
-            produtos.forEach(produto => {
-                this.salvar(produto).then(() => {
-                    resolve();
-                }).catch((error) => {
-                    reject(error);
+        return new Promise((resolve) => {
+            this.limparBase().then(() => {
+                produtos.forEach(produto => {
+                    produto._id = produto.referencia;
+                    if (_.last(produtos) === produto) {
+                        localDB.bulkDocs(produtos).then((result) => {
+                            resolve(result.length);
+                        });
+                    }
+                });        
+            });
+        });
+    }    
+
+    getIdsFotos() {
+        return new Promise((resolve) => {
+            let idsImagens = []
+            this.getAllProdutos().then((produtos) => {
+                produtos.forEach(produto => {
+                    let cores = _.clone(produto['cores']);
+                    cores.forEach(cor => {
+                        cor.imagens.forEach(imagem => {
+                            if(cor != undefined && cor.imagens) idsImagens.push(imagem.id);
+                            if ((_.last(produtos) === produto) && (_.last(cores) === cor) && (_.last(cor.imagens) === imagem)) resolve(idsImagens);
+                        });
+                        if ((_.last(produtos) === produto) && (_.last(cores) === cor)) resolve(idsImagens);
+                    });
+                    if (_.last(produtos) === produto) resolve(idsImagens);
                 });
-            });            
+            })
+        });
+    }
+
+    getIdsCores() {
+        return new Promise((resolve) => {
+            let idsCores = []
+            this.getAllProdutos().then((produtos) => {
+                produtos.forEach(produto => {
+                    let cores = _.clone(produto['cores']);
+                    cores.forEach(cor => {
+                        if(cor != undefined && cor.idCor) idsCores.push(cor.idCor);
+                        if ((_.last(produtos) === produto) && (_.last(cores) === cor)) resolve(idsCores);
+                    });
+                    if (_.last(produtos) === produto) resolve(idsCores);
+                });
+            })
+        });
+    }
+
+    getIdsSelos() {
+        return new Promise((resolve) => {
+            let idsSelos = []
+            this.getAllProdutos().then((produtos) => {
+                produtos.forEach(produto => {
+                    let cores = _.clone(produto['cores']);
+                    cores.forEach(cor => {
+                        if(cor != undefined && _.isArray(cor.selos)) idsSelos = _.concat(idsSelos, cor.selos);
+                        if ((_.last(produtos) === produto) && (_.last(cores) === cor)) resolve(idsSelos);
+                    });
+                    if (_.last(produtos) === produto) resolve(idsSelos);
+                });
+            })
+        });
+    }
+
+    getIdsSimbolos() {
+        return new Promise((resolve) => {
+            let idsSimbolos = []
+            this.getAllProdutos().then((produtos) => {
+                produtos.forEach(produto => {
+                    let cores = _.clone(produto['cores']);
+                    cores.forEach(cor => {
+                        if(cor != undefined && _.isArray(cor.simbolos)) idsSimbolos = _.concat(idsSimbolos, cor.simbolos);
+                        if ((_.last(produtos) === produto) && (_.last(cores) === cor)) resolve(idsSimbolos);
+                    });
+                    if (_.last(produtos) === produto) resolve(idsSimbolos);
+                });
+            })
+        });
+    }
+
+    getIdsImagens() {
+        return new Promise((resolve) => {
+            const dataResult = {fotos:[], selos:[], simbolos:[], cores:[]};
+            this.getIdsFotos().then((idsImagens) => {
+                dataResult.fotos = _.uniq(idsImagens);
+                this.getIdsCores().then((idsCores) => {
+                    dataResult.cores = _.uniq(idsCores);
+                    this.getIdsSelos().then((idsSelos) => {
+                        dataResult.selos = _.uniq(idsSelos);
+                        this.getIdsSimbolos().then((idsSimbolos) => {
+                            dataResult.simbolos = _.uniq(idsSimbolos);
+                            const qtdeImagens = dataResult.fotos.length + dataResult.cores.length + dataResult.selos.length + dataResult.simbolos.length;
+                            resolve({quantidade: qtdeImagens, data: dataResult});
+                        })
+                    })
+                })
+            })
+        });
+    }
+
+    limparBase() {
+        return new Promise((resolve) => {
+            localDB.destroy().then(() => {
+                createDB();
+                resolve();
+            }).catch((err) => {
+                resolve(err);
+            });
         });
     }
 

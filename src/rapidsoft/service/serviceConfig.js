@@ -4,10 +4,12 @@ import Config from '../../../public/config.json'
 
 export const http = Axios.create({
     baseURL: Config.endereco_api,
-    timeout: 10000,
+    timeout: 50000,
     headers: {
-		'Content-Type': 'application/json;charset=UTF-8',
         'Authorization': Config.authorization,
+		'Content-Type': 'application/json',
+        // 'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'de-DE,de;q=0.8,en-US;q=0.6,en;q=0.4',
     }
 });
 

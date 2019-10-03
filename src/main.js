@@ -63,7 +63,7 @@ Vue.use(VueHammer)
 // Vue.use(BootstrapVue)
 
 import { BootstrapVue  } from 'bootstrap-vue'
-Vue.use(BootstrapVue )
+Vue.use(BootstrapVue)
 
 //CSS
 import 'bootstrap/dist/css/bootstrap.css'
@@ -85,11 +85,12 @@ import '@/assets/css/main.css';
 import 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css'
 
-
 import './registerServiceWorker';
 
 // Feather font icon
 import './assets/css/iconfont.css'
+
+import './rapidsoft/filter/rapidSoftFilter'
 
 Vue.config.productionTip = false
 

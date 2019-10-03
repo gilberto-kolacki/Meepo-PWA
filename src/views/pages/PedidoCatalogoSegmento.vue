@@ -5,7 +5,7 @@
         <vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12">
             <div class="vx-row">
                 
-                <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 50;">
+                <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 50;" v-if="this.produtoA">
                     <div class="vx-row">
                         <div class="flex w-full items-center justify-center">
                             <vs-button color="dark" type="filled" icon-pack="feather" class="w-full" icon="icon-menu" @click.stop="showSidebar"></vs-button>
@@ -19,8 +19,8 @@
                             </div>
                             <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button produto-image-gallery-button-up" @click="scrollUp" style="margin-top: -10px" />
                             <div id="produto-image-gallery" class="produto-image-gallery">
-                                <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(imagem)">
-                                    <img :src="require(`@/assets/images/rapidsoft/produtos/${getImagemCorProduto(imagem)}`)" :id="'produto-image-gallery-item-'+imagem" class="mb-4 responsive img-ref">
+                                <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(index)">
+                                    <img :src="imagem.base64" :id="'produto-image-gallery-item-'+imagem.seq" class="mb-4 responsive img-ref">
                                 </div>
                             </div>
                             <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button produto-image-gallery-button-down" @click="scrollDown" style="margin-bottom: -10px; margin-top: 10px" />
@@ -34,7 +34,7 @@
                             </div> -->
                         <!-- </vx-card> -->
                         <div class="mr-2" v-for="(cor, index) in getCoresProduto" :key="index">
-                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="require(`@/assets/images/rapidsoft/produtos/cores/${cor.nome}.png`)" size="36px" @click="selectCorImagemProduto(index)" />
+                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor" size="36px" @click="selectCorImagemProduto(index)" />
                         </div>
                     </div>
                     <div class="vx-row items-center justify-center mt-base-top2">
@@ -46,7 +46,7 @@
                     </div>
                 </div>
                 <!-- IMAGEM PRINCIPAL -->
-                <vs-col id="col-img-principal" vs-type="inline-grid" vs-justify="center" vs-align="center" vs-lg="7" vs-sm="7" vs-xs="12" style="z-index: 10;">
+                <vs-col id="col-img-principal" vs-type="inline-grid" vs-justify="center" vs-align="center" vs-lg="7" vs-sm="7" vs-xs="12" style="z-index: 10;" v-if="this.produtoA">
                     <div class="vx-row items-center justify-center" style="z-index: 15;">
                         <h6 class="title-ref">{{produtoA.referencia}} - {{produtoA.nome}}</h6>
                     </div>
@@ -57,9 +57,9 @@
                         :interact-max-rotation="8"
                         :interact-out-of-sight-x-coordinate="1000"
                         :interact-x-threshold="120"                         
-                        v-if="isShowing">
+                        v-if="isShowing && imagemProdutoPrincipal">
                         <div>
-                            <img :src="require(`@/assets/images/rapidsoft/produtos/${imagemProdutoPrincipal}`)" class="card-img-principal" id="produto-swipe-area"/>
+                            <img :src="imagemProdutoPrincipal" class="card-img-principal" id="produto-swipe-area"/>
                         </div>
                     </Vue2InteractDraggable>
                     <div v-else>
@@ -69,7 +69,7 @@
                         <h6 class="title-ref">{{produtoB.referencia}} - {{produtoB.nome}}</h6>
                     </div>
                 </vs-col>
-                <div class="vx-col w-full md:w-1/5 h-12" style="z-index: 50;">
+                <div class="vx-col w-full md:w-1/5 h-12" style="z-index: 50;" v-if="this.produtoA">
                     <div class="vx-row">
                         <div class="flex w-full items-center justify-center">
                             <vs-button color="primary" type="filled" icon-pack="feather" class="w-full" icon="icon-search" @click.stop="abrirListaPodutos()"></vs-button>
@@ -152,7 +152,7 @@
                     <tbody>
                         <vs-tr :data="tr" :key="indextr" v-for="(tr, indextr) in data">
                             <vs-td :data="data[indextr].imagem">
-                                <img :src="require(`@/assets/images/rapidsoft/produtos/${getImage(tr)}`)" class="rounded mb-4 user-latest-image responsive img-popup product-img" />
+                                <!-- <img :src="require(`@/assets/images/rapidsoft/produtos/${getImage(tr)}`)" class="rounded mb-4 user-latest-image responsive img-popup product-img" /> -->
                             </vs-td>
                             <vs-td :data="data[indextr].referencia">
                                 <p class="product-name font-medium">{{ tr.referencia }}</p>
@@ -170,14 +170,14 @@
             <div class="vx-row">
                 <div class="vx-col w-full lg:w-1/5 sm:w-1/5">
                     <div id="produto-image-gallery-zoom" class="produto-image-gallery produto-image-gallery-zoom">
-                        <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(imagem)">
-                            <img :src="require(`@/assets/images/rapidsoft/produtos/${getImagemCorProduto(imagem)}`)" :id="'produto-image-gallery-item-'+imagem" class="mb-4 responsive img-ref">
+                        <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(index)">
+                            <img :src="imagem.base64" :id="'produto-image-gallery-item-'+imagem.id" class="mb-4 responsive img-ref">
                         </div>
                     </div>
                 </div>
                 <div class="vx-col w-full lg:w-4/5 sm:w-4/5">
                     <div class="vx-row items-center justify-center">
-                        <img :src="require(`@/assets/images/rapidsoft/produtos/${imagemProdutoPrincipal}`)" class="card-img-zoom" id="produto-swipe-area"/>
+                        <img :src="imagemProdutoPrincipal" class="card-img-zoom" id="produto-swipe-area"/>
                     </div>
                 </div>
             </div>        
@@ -212,7 +212,7 @@
                                         <div class="flex w-full items-center justify-center">
                                             <!-- <vs-checkbox v-model="cor.ativo"></vs-checkbox> -->
                                             <b-form-checkbox :id="'cor-check-'+cor.codigo" v-model="cor.ativo" @input="disabledCorTamanho(produtoAdd.produtoA, cor, 1)"></b-form-checkbox>
-                                            <vs-avatar class="m-0" :src="require(`@/assets/images/rapidsoft/produtos/cores/${cor.codigo}.png`)" size="25px"/>
+                                            <vs-avatar class="m-0" :src="cor.imagemCor" size="25px"/>
                                             <span class="ml-1">{{cor.codigo}}</span>                                                
                                         </div>
                                     </th>
@@ -236,7 +236,7 @@
                 </div>
             </b-card-body>
         </b-collapse>
-        <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle.accordion-ref-b>
+        <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle.accordion-ref-b v-if="produtoAdd.produtoB">
             <h5><strong>Referencia B:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h5>
             <h6><strong>Política:</strong></h6>
         </b-card-header>
@@ -262,7 +262,7 @@
                                     <th scope="row" @click="cor.ativo = !cor.ativo">
                                         <div class="flex w-full items-center justify-center">
                                             <vs-checkbox v-model="cor.ativo"></vs-checkbox>
-                                            <vs-avatar class="m-0" :src="require(`@/assets/images/rapidsoft/produtos/cores/${cor.codigo}.png`)" size="25px" @click="selectCorImagemProduto(index)" />
+                                            <vs-avatar class="m-0" :src="cor.imagemCor" size="25px" @click="selectCorImagemProduto(index)" />
                                             <span class="ml-1">{{cor.codigo}}</span>                                                
                                         </div>
                                     </th>
@@ -462,18 +462,16 @@ export default {
         },
         selectCorImagemProduto(indexCor) {
             this.corSelecionada = indexCor;
-            this.selectSequenciaImagemProduto('1')
+            this.selectSequenciaImagemProduto(0);
         },
         selectSequenciaImagemProduto(imagemSelecionada) {        
             this.imagemProdutoPrincipal = this.getImagemCorProduto(imagemSelecionada);
         },
         getImagemCorProduto(imagem) {
             var cor = _.cloneDeep(this.produtoA.cores[this.corSelecionada]);
-            if (cor.nome) {
-                return this.produtoA.referencia +'_'+ cor.nome +'_'+ imagem +'.png';
-            } else {
-                return this.produtoA.referencia +'_'+ imagem +'.png';
-            }
+            console.log(cor.imagens);
+            
+            return cor.imagens[imagem].base64;
         },
         scrollUp() {
             let gallery = document.getElementById("produto-image-gallery");
@@ -558,35 +556,68 @@ export default {
         selectProduto(produto) {
             this.popupListaProdutos = false;
             this.produtoA = produto;
-            this.imagemProdutoPrincipal = this.produtoA.imagem;
+            this.imagemProdutoPrincipal = this.produtoA.cores[0].imagens.length > 0 ? this.produtoA.cores[0].imagens[0].base64 : null ;
             this.corSelecionada = 0;
             if(this.produtoA.tipo === 2) {
                 this.produtoDown = this.produtos[1];
             }
+
+            console.log(this.produtoA);
+            
         },
-        preventDefault(e){
-            console.log(e);
-            e.preventDefault();
-        }
+        // preventDefault(e){
+        //     console.log(e);
+        //     e.preventDefault();
+        // }
+    },
+    beforeCreate() {
+        produtoDB.getProdutosCatalogo().then(result => {
+            this.produtos = result;
+            this.categorias = produtoDB.getCategorias()
+            this.categorias.forEach(categoria => {
+                categoria.check = true;
+            });
+            this.selectProduto(this.produtos[0]);
+        });
     },
     created() {
-        this.produtos = produtoDB.getProdutos();
-        this.categorias = produtoDB.getCategorias()
-        this.categorias.forEach(categoria => {
-            categoria.check = true;
-        });
-        this.selectProduto(this.produtos[0]);
+        
+    },
+    beforeMount() {
+        
     },
     mounted() {
-        document.getElementById("col-img-principal").addEventListener('touchmove', this.preventDefault, { passive: false });
+        // document.getElementById("col-img-principal").addEventListener('touchmove', this.preventDefault, { passive: false });
         // document.body.addEventListener('touchmove', this.preventDefault, { passive: false });
         // document.getElementById("produto-image-gallery").removeEventListener('touchmove', this.preventDefault);
+
+        // document.getElementById("page-catalogo").ontouchmove = (e) => {
+        //     console.log('catalogo');
+            
+        //     e.preventDefault();
+        // }
+        // document.getElementById("produto-image-gallery").ontouchmove = () => {
+        //     console.log('galeria');
+        //     return true;
+        // }
+
+        
     },
     
 }
 </script>
 
 <style lang="scss" scoped>
+
+html {
+  position: fixed;
+  width: 100%; 
+  height: 100%
+}
+
+// .page-catalogo{
+//   -webkit-overflow-scrolling: touch;
+// }
 
 .mt-base-bottom {
     margin-bottom: 2rem !important

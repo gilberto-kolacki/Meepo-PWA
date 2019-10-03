@@ -25,6 +25,8 @@
 import _ from 'lodash';
 import sizeOf from 'object-sizeof'
 import ClienteDB from '../../../rapidsoft/db/clienteDB'
+import ProdutoDB from '../../../rapidsoft/db/produtoDB'
+import ImagemDB from '../../../rapidsoft/db/imagemDB'
 
 export default {
     data() {
@@ -113,29 +115,78 @@ export default {
                 else if(navigator.userAgent.indexOf("OS 12_3") != -1) this.sistemaOperacional="IOS 12.3";
                 else if(navigator.userAgent.indexOf("OS 12") != -1) this.sistemaOperacional="IOS 12";
                 else this.sistemaOperacional="IOS";
-
             } 
             else if (navigator.userAgent.indexOf("Mac") != -1) this.sistemaOperacional="Mac";
             else if (navigator.userAgent.indexOf("X11") != -1) this.sistemaOperacional="UNIX";
             else if (navigator.userAgent.indexOf("Linux") != -1) this.sistemaOperacional="Linux";
             else this.sistemaOperacional="Não Identificado";
         },
-        getCalcularArmazenamento() {
-            this.armazenamentoIndexedDB = 0;
-            let pounchDB = 0
-            ClienteDB.listar().then(clientes => {
-
-                clientes.forEach(cliente => {
-                    if(cliente.imagensClienteBlob && cliente.imagensClienteBlob.length > 0) {
-                        for (let index = 0; index < cliente.imagensClienteBlob.length; index++) {
-                            const imagem = cliente.imagensClienteBlob[index];
-                            pounchDB += imagem.file.size;
+        armazenamentoImagem() {
+            return new Promise((resolve) => {
+                ImagemDB.listarFotos().then(imagens => {
+                    if (imagens.length <= 0) resolve(0);
+                    let pounchDB = 0
+                    imagens.forEach(imagem => {
+                        pounchDB += sizeOf(_.clone(imagem));
+                        if(_.last(imagens)._id == imagem._id) {
+                            let armazenamento = _.round(pounchDB / 1024 / 1024, 2);
+                            resolve(armazenamento);
                         }
-                    }
-                    pounchDB += sizeOf(_.cloneDeep(cliente));
+                    });
                 });
-                this.armazenamentoIndexedDB += _.round(pounchDB / 1024 / 1024, 2);
+            });
+        },
+        armazenamentoProduto() {
+            return new Promise((resolve) => {
+                ProdutoDB.listar().then(produtos => {
+                    if (produtos.length <= 0) resolve(0);
+                    let pounchDB = 0
+                    produtos.forEach(produto => {
+                        pounchDB += sizeOf(_.clone(produto));
+                        if(_.last(produtos)._id == produto._id) {
+                            let armazenamento = _.round(pounchDB / 1024 / 1024, 2);
+                            resolve(armazenamento);
+                        }
+                    });
+                })
             })
+        },
+        armazenamentoCliente() {
+            return new Promise((resolve) => {
+                ClienteDB.listar().then(clientes => {
+                    if (clientes.length <= 0) resolve(0);
+                    let pounchDB = 0
+                    clientes.forEach(cliente => {
+                        if(cliente.imagensClienteBlob && cliente.imagensClienteBlob.length > 0) {
+                            for (let index = 0; index < cliente.imagensClienteBlob.length; index++) {
+                                const imagem = cliente.imagensClienteBlob[index];
+                                pounchDB += imagem.file.size;
+                            }
+                        }
+                        pounchDB += sizeOf(_.clone(cliente));
+                        if(_.last(clientes)._id == cliente._id) {
+                            let armazenamento = _.round(pounchDB / 1024 / 1024, 2);
+                            resolve(armazenamento);
+                        }
+                    });
+                });
+            });
+        },
+        getCalcularArmazenamento() {
+            return new Promise((resolve) => {
+                let armazenamento = 0;
+                let pounchDB = 0
+                this.armazenamentoCliente().then((lengthCliente) => {
+                    armazenamento += lengthCliente;
+                    this.armazenamentoProduto().then((lengthProduto) => {
+                        armazenamento += lengthProduto;
+                        this.armazenamentoImagem().then((lengthImagem) => {
+                            armazenamento += lengthImagem;
+                            resolve(armazenamento);
+                        })
+                    })
+                })
+            });
         }
     },
     created() {
@@ -143,7 +194,6 @@ export default {
         this.getSistema();
     },
     mounted() {
-        this.getCalcularArmazenamento();
         if ('storage' in navigator && 'estimate' in navigator.storage) {
             navigator.storage.estimate().then(({usage, quota}) => {
                 this.usage = _.round(_.divide(_.divide(usage, 1024), 1024), 1);
@@ -160,7 +210,13 @@ export default {
         if (!window.indexedDB) {
             window.alert("Seu navegador não suporta uma versão estável do IndexedDB. Alguns recursos não estarão disponíveis.");
         }
-        
+    },
+    beforeMount() {
+        // this.$vs.loading();
+        this.getCalcularArmazenamento().then((armazenamento) => {
+            this.armazenamentoIndexedDB = armazenamento;
+        //     this.$vs.loading.close();
+        });
     }
 }
 

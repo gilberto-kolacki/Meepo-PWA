@@ -45,7 +45,17 @@ export default {
                     commit('UPDATE_AUTHENTICATED_USER', result.data)
                 }
             }, (err) => {
-                if(err.response.status >= 400 ) {
+                if (err.response === undefined) {
+                    console.log(err.message);
+                    payload.notify({
+                        time: 2500,
+                        title: 'Erro!',
+                        text: err.message,
+                        iconPack: 'feather',
+                        icon: 'icon-alert-circle',
+                        color: 'danger'
+                    });
+                } else if(err.response.status >= 400 ) {
                     payload.notify({
                         time: 2500,
                         title: 'Erro!',

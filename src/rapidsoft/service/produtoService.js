@@ -1,16 +1,17 @@
-import _ from 'lodash'
 import { http } from './serviceConfig'
 
 class produtoService {
 
     sincProduto() {
-        let token = JSON.parse(localStorage.getItem('token'));
-        return http.post('/produto', {token: token});
-    }
-
-    sincImagem() {
-        let token = JSON.parse(localStorage.getItem('token'));
-        return http.post('/imagem', {token: token});
+        return new Promise((resolve) => {
+            let token = JSON.parse(localStorage.getItem('token'));
+            http.post('/produto', {token: token}).then((result) => {
+                resolve(result.data);
+            }).catch((error) => {
+                console.log(error);
+                resolve([]);
+            });
+        });
     }
 
 }
