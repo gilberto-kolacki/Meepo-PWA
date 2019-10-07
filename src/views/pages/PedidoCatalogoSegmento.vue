@@ -18,9 +18,14 @@
                                 <h6>{{this.produtoA.cores[this.corSelecionada].nome}}</h6>
                             </div>
                             <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button produto-image-gallery-button-up" @click="scrollUp" style="margin-top: -10px" />
-                            <div id="produto-image-gallery" class="produto-image-gallery">
+                            <div id="produto-image-gallery" class="produto-image-gallery" v-if="getImagensCorProduto.length > 0">
                                 <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(index)">
                                     <img :src="imagem.base64" :id="'produto-image-gallery-item-'+imagem.seq" class="mb-4 responsive img-ref">
+                                </div>
+                            </div>
+                            <div id="produto-image-gallery" class="produto-image-gallery" v-else>
+                                <div class="produto-image-gallery-item">
+                                    <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="mb-4 responsive img-ref">
                                 </div>
                             </div>
                             <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button produto-image-gallery-button-down" @click="scrollDown" style="margin-bottom: -10px; margin-top: 10px" />
@@ -34,7 +39,8 @@
                             </div> -->
                         <!-- </vx-card> -->
                         <div class="mr-2" v-for="(cor, index) in getCoresProduto" :key="index">
-                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor" size="36px" @click="selectCorImagemProduto(index)" />
+                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor" size="36px" @click="selectCorImagemProduto(index)" v-if="cor.imagemCor"/>
+                            <vs-avatar class="m-0" size="36px" :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" v-else/>
                         </div>
                     </div>
                     <div class="vx-row items-center justify-center mt-base-top2">
@@ -57,13 +63,13 @@
                         :interact-max-rotation="8"
                         :interact-out-of-sight-x-coordinate="1000"
                         :interact-x-threshold="120"                         
-                        v-if="isShowing && imagemProdutoPrincipal">
+                        v-if="isShowing">
                         <div>
-                            <img :src="imagemProdutoPrincipal" class="card-img-principal" id="produto-swipe-area"/>
+                            <img :src="imagemProdutoPrincipal" class="card-img-principal" id="produto-swipe-area" v-if="imagemProdutoPrincipal"/>
+                            <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" v-else>
                         </div>
                     </Vue2InteractDraggable>
                     <div v-else>
-                        <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal">
                     </div>
                     <div class="vx-row pt-2 items-center justify-center" style="display: block; z-index: 15;" v-if="produtoB">
                         <h6 class="title-ref">{{produtoB.referencia}} - {{produtoB.nome}}</h6>
@@ -554,23 +560,22 @@ export default {
 
         },
         selectProduto(produto) {
-            this.popupListaProdutos = false;
-            this.produtoA = produto;
-            this.imagemProdutoPrincipal = this.produtoA.cores[0].imagens.length > 0 ? this.produtoA.cores[0].imagens[0].base64 : null ;
-            this.corSelecionada = 0;
-            if(this.produtoA.tipo === 2) {
-                this.produtoDown = this.produtos[1];
-            }
-
-            console.log(this.produtoA);
+            this.$vs.loading();
+            produtoDB.getImagensProduto(produto).then((result) => {
+                this.popupListaProdutos = false;
+                this.produtoA = result;
+                this.imagemProdutoPrincipal = this.produtoA.cores[0].imagens.length > 0 ? this.produtoA.cores[0].imagens[0].base64 : null ;
+                this.corSelecionada = 0;
+                if(this.produtoA.tipo === 2) {
+                    this.produtoDown = this.produtos[1];
+                }
+                this.$vs.loading.close();
+            })
             
         },
-        // preventDefault(e){
-        //     console.log(e);
-        //     e.preventDefault();
-        // }
     },
     beforeCreate() {
+        this.$vs.loading();
         produtoDB.getProdutosCatalogo().then(result => {
             this.produtos = result;
             this.categorias = produtoDB.getCategorias()
@@ -578,30 +583,23 @@ export default {
                 categoria.check = true;
             });
             this.selectProduto(this.produtos[0]);
+            this.$vs.loading.close();
         });
     },
     created() {
-        
+        console.log('created');
     },
     beforeMount() {
-        
+        console.log('beforeMount');
     },
     mounted() {
-        // document.getElementById("col-img-principal").addEventListener('touchmove', this.preventDefault, { passive: false });
-        // document.body.addEventListener('touchmove', this.preventDefault, { passive: false });
-        // document.getElementById("produto-image-gallery").removeEventListener('touchmove', this.preventDefault);
-
-        // document.getElementById("page-catalogo").ontouchmove = (e) => {
-        //     console.log('catalogo');
-            
-        //     e.preventDefault();
-        // }
-        // document.getElementById("produto-image-gallery").ontouchmove = () => {
-        //     console.log('galeria');
-        //     return true;
-        // }
-
+        console.log('mounted');
         
+        document.getElementById("page-catalogo").ontouchmove = (e) => {
+            if(!(e.target.className == "produto-image-gallery-item" || e.target.className == "mb-4 responsive img-ref")) {
+                e.preventDefault();
+            }
+        }
     },
     
 }

@@ -255,6 +255,12 @@ class imagemDB {
                         if(_.last(cor.imagens) === imagem) {
                             resolve(cor.imagens)
                         }
+                    }).catch((error) => {
+                        console.log(error);
+                        imagem.base64 = null
+                        if(_.last(cor.imagens) === imagem) {
+                            resolve(cor.imagens)
+                        }
                     })
                 });
             } else {
