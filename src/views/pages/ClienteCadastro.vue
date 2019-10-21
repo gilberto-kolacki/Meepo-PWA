@@ -16,7 +16,7 @@
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('nomeCliente')">
                                 <label for="" class="vs-input--label">CPF/CNPJ*</label>
                                 <div class="vs-con-input">
-                                    <the-mask v-validate="'required|min:14'" id="cpfCnpj" name="cpfCnpj" v-model="clienteEdit.cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
+                                    <the-mask v-validate="'required|min:14'" id="cpfCnpj" name="cpfCnpj" v-model="cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
                                 </div>
                                 <span class="text-danger text-sm">{{ errors.first('cpfCnpj') }}</span>
                             </div>
@@ -47,8 +47,7 @@
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-if="isJuridico">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('emailNfe')">
-                                <label for="inscricaoEstadual" class="vs-input--label">Inscrição Estadual*</label>
-                                <the-mask v-validate="'required'" id="inscricaoEstadual" name="inscricaoEstadual" v-model="clienteEdit.inscricaoEstadual" class="vs-inputx vs-input--input normal hasValue" :mask="['##############']" :masked="true" />
+                                <vs-input v-validate="'required'" label="Inscrição Estadual*" id="inscricaoEstadual" name="inscricaoEstadual" v-model="clienteEdit.inscricaoEstadual" class="w-full" />
                                 <span class="text-danger text-sm">{{ errors.first('inscricaoEstadual') }}</span>
                             </div>
                         </div>
@@ -126,7 +125,7 @@
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2">
                             <label for="" class="vs-input--label">Grupo de Clientes*</label>
-                            <v-select v-validate="'required'" id="grupoCliente" name="grupoCliente" v-model="clienteEdit.grupoCliente" :options="grupoClientes"></v-select>
+                            <v-select v-validate="'required'" id="grupoCliente" name="grupoCliente" v-model="grupoCliente" :options="getGrupoClientesSelect"></v-select>
                             <span class="text-danger text-sm">{{ errors.first('grupoCliente') }}</span>
                         </div>
                     </div>
@@ -142,7 +141,7 @@
                             <vs-textarea v-model="clienteEdit.observacao"/>
                         </div>
                     </div>
-                    <div class="vx-row">
+                    <div class="vx-row" v-if="!clienteEdit.clienteErp">
                         <div class="vx-col w-full mb-2">
                             <div class="con-upload">
                                 <div class="con-img-upload" ref="customer-images">
@@ -150,12 +149,12 @@
                                         <button class="btn-x-file" @click="removeImageCliente(index)">
                                             <i translate="translate" class="material-icons notranslate">clear</i>
                                         </button>
-                                        <img :src="getBase64(imagenCliente)" style="max-width: none; max-height: 100%;" />
+                                        <img :src="imagenCliente.base64" style="max-width: none; max-height: 100%;" />
                                     </div>
                                     <div class="con-input-upload">
-                                        <input type="file" multiple="multiple" accept="image/*" @change="onFileChanged" :disabled="clienteEdit.imagensClienteBlob.length >= 1000"/>
+                                        <input type="file" multiple="multiple" accept="image/*" @change="onFileChanged" :disabled="clienteEdit.imagens.length >= 1000"/>
                                         <span class="text-input">Selecione as Imagens</span>                                
-                                        <button type="button" title="Upload" class="btn-upload-all vs-upload--button-upload" :disabled="clienteEdit.imagensClienteBlob.length >= 5">
+                                        <button type="button" title="Upload" class="btn-upload-all vs-upload--button-upload" :disabled="clienteEdit.imagens.length >= 5">
                                             <i translate="translate" class="material-icons notranslate">cloud_upload</i>
                                         </button>
                                     </div>
@@ -165,8 +164,8 @@
                     </div>
                     <div class="vx-row">
                         <div class="vx-col my-5-top w-full">
-                            <vs-button color="success" class="mr-3 mb-2 pull-right" @click="salvarCliente">Salvar</vs-button>
-                            <vs-button color="danger" type="border" class="mb-2 pull-right" @click="cancelarCliente">Voltar</vs-button>
+                            <vs-button color="success" class="mr-3 mb-2 pull-right" v-if="!clienteEdit.clienteErp" @click="salvarCliente">Salvar</vs-button>
+                            <vs-button color="danger" type="border" class="mb-2 pull-right"  @click="cancelarCliente">Voltar</vs-button>
                         </div>
                     </div>
                 </div>
@@ -224,7 +223,7 @@
                     <vs-table max-items="5" :data="clienteEdit.contatos">            
                         <template slot="header">
                             <div class="mb-base-button">
-                                <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarContato(null)">Novo</vs-button>
+                                <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarContato(null)" v-if="!clienteEdit.clienteErp">Novo</vs-button>
                             </div>
                         </template>
                         <template slot="thead">
@@ -330,7 +329,7 @@
                     <vs-table max-items="5" :data="clienteEdit.enderecos">            
                         <template slot="header">
                             <div class="mb-base-button">
-                                <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarEndereco(null)">Novo</vs-button>
+                                <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarEndereco(null)" v-if="!clienteEdit.clienteErp">Novo</vs-button>
                             </div>
                         </template>
                         <template slot="thead">
@@ -393,19 +392,24 @@ import Datepicker from 'vuejs-datepicker';
 import * as lang from "vuejs-datepicker/src/locale";
 import vSelect from 'vue-select';
 import _ from 'lodash'
-import ClienteDB from '../../rapidsoft/db/clienteDB'
+import clienteDB from '../../rapidsoft/db/clienteDB'
+import grupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
 
 Validator.localize('pt', validatePtBR);
 
 export default {
     data() {
         return {    
-            idCliente: null,    
+            idCliente: null,  
+            cpfCnpj: null, 
+            tipoPessoa: 1,
+            grupoCliente: null,
             clienteEdit: {
+                tipoPessoa: 1,
                 endereco: {},
                 contatos: [],
                 enderecos: [],
-                imagensClienteBlob: [],
+                imagens: [],
                 segmentos: [
                     {name: 'Beach', ativo: false},
                     {name: 'Fitness', ativo: false}
@@ -418,7 +422,7 @@ export default {
             isEditEndereco: false,
             langSettings: lang.ptBR,
             segmentos: ['foo','bar'],
-            grupoClientes: ['Grupo 1', 'Grupo 2'],
+            grupoClientes: [],
             disabledDates: {            
                 from: new Date(), // Disable all dates after specific date                
             }
@@ -428,23 +432,40 @@ export default {
         Datepicker,        
         'v-select': vSelect,
     },
-    watch:{
+    watch: {
+        cpfCnpj(val) {
+            this.clienteEdit.cpfCnpj = val;
+            if(this.clienteEdit.cpfCnpj && this.clienteEdit.cpfCnpj.length > 14) {
+                this.tipoPessoa = 1;
+            } else {
+                this.tipoPessoa = 2;
+            }
+        },
+        tipoPessoa(val) {
+            this.clienteEdit.tipoPessoa = val;
+        },
+        grupoCliente(val) {
+            this.clienteEdit.grupoCliente = val.value;
+        }
 
     },
     computed:{
         getFilesFilter() {
-            // let files = this.clienteEdit.imagensClienteBlob.filter((item) => {
-            //     return !item.remove
-            // })
-            return this.clienteEdit.imagensClienteBlob
+            return this.clienteEdit.imagens
         },
         isJuridico() {
-            if(this.clienteEdit.cpfCnpj && this.clienteEdit.cpfCnpj.length > 14) {
+            if(this.tipoPessoa === 1) {
                 return true;
             } else {
                 return false;
             }
         },
+
+        getGrupoClientesSelect() {
+            return this.grupoClientes.map((grupo) => {
+                return {value: grupo.id, label: grupo.nome, padrao: grupo.padrao}
+            })
+        }
     },
     methods: {
         scrollMeTo(refName) {
@@ -458,30 +479,33 @@ export default {
                 this.$refs[refName].showCalendar()
             } 
         },
-        getBase64(imagem) {
-            return URL.createObjectURL(imagem.file);
-        },
-        toBase64(file) {
-            return new Promise((resolve) => {
-                let reader = new FileReader();
-                reader.onload = () => {
-                    resolve(reader.result);
-                };
-                reader.readAsDataURL(file);
-            });
+        toBase64(file, callback) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file); 
+            reader.onloadend = function() {
+                callback(reader.result)
+            }
         },
         onFileChanged(event) {
-            for (let index = 0; index < event.target.files.length; index++) {
+            let index = 0;
+            Array.from(event.target.files).forEach(file => {
                 let imagem = {};
-                imagem.file = event.target.files[index];
                 imagem.index = index;
-                this.clienteEdit.imagensClienteBlob.push(imagem);
-            }            
+                imagem.name = file.name
+                imagem.size = file.size
+                imagem.type = file.type
+                imagem.lastModified = file.lastModified;
+                this.toBase64(file, (imageNase64) => {
+                    imagem.base64 = imageNase64;
+                    this.clienteEdit.imagens.push(imagem);
+                })
+                index++;
+            });
         },
         removeImageCliente(index) {
-            for( var i = 0; i < this.clienteEdit.imagensClienteBlob.length; i++){ 
-                if (this.clienteEdit.imagensClienteBlob[i] === this.clienteEdit.imagensClienteBlob[index]) {
-                    this.clienteEdit.imagensClienteBlob.splice(i, 1); 
+            for( var i = 0; i < this.clienteEdit.imagens.length; i++){ 
+                if (this.clienteEdit.imagens[i] === this.clienteEdit.imagens[index]) {
+                    this.clienteEdit.imagens.splice(i, 1); 
                 }
             }
         },
@@ -520,7 +544,7 @@ export default {
             this.isEditEndereco = false;
         },
         salvarContato() {        
-            ClienteDB.validarContato(_.cloneDeep(this.contatoEdit)).then(() => {
+            clienteDB.validarContato(_.cloneDeep(this.contatoEdit)).then(() => {
                 this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
                 this.isEditContato = false;
             }).catch((erro) => {
@@ -538,7 +562,7 @@ export default {
             });
         },
         salvarEndereco() {
-            ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
+            clienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
                 this.clienteEdit.enderecos.push(_.clone(result));
                 this.isEditEndereco = false;
             }).catch((erro) => {
@@ -556,48 +580,60 @@ export default {
             });
         },
         salvarCliente() {
-            this.$vs.loading();
+            // this.$vs.loading();
             let cliente = _.cloneDeep(this.clienteEdit);
-            setTimeout(() => {  
-                ClienteDB.salvar2(cliente).then(() => {
-                    this.$vs.notify({
-                        title: 'Sucesso',
-                        text: 'Cliente Salvo!',
-                        color: 'success',
-                        iconPack: 'feather',
-                        icon: 'icon-check'
-                    })
-                }).catch((erro) => {
-                    this.$validator.validate();
-                    console.log(erro);
+
+            console.log(cliente);
+            
+            // setTimeout(() => {  
+            //     clienteDB.salvar2(cliente).then(() => {
+            //         this.$vs.notify({
+            //             title: 'Sucesso',
+            //             text: 'Cliente Salvo!',
+            //             color: 'success',
+            //             iconPack: 'feather',
+            //             icon: 'icon-check'
+            //         })
+            //     }).catch((erro) => {
+            //         this.$validator.validate();
+            //         console.log(erro);
                     
-                    if (erro.campo) {
-                        this.proximoCampo(erro.campo);
-                    }
-                    this.$vs.notify({
-                        title: 'Erro!',
-                        text: erro.mensagem,
-                        color: 'danger',
-                        iconPack: 'feather',
-                        icon: 'icon-alert-circle'
-                    })
-                });
-                this.$vs.loading.close();
-            }, 300);
+            //         if (erro.campo) {
+            //             this.proximoCampo(erro.campo);
+            //         }
+            //         this.$vs.notify({
+            //             title: 'Erro!',
+            //             text: erro.mensagem,
+            //             color: 'danger',
+            //             iconPack: 'feather',
+            //             icon: 'icon-alert-circle'
+            //         })
+            //     });
+            //     this.$vs.loading.close();
+            // }, 300);
         },
         cancelarCliente() {
             this.$router.push('/cliente/consulta');            
         },
 
         findById(idCliente) {
-            ClienteDB.findById(idCliente).then((result) => {
+            clienteDB.findById(idCliente).then((result) => {
                 this.clienteEdit = _.clone(result);
-                
-
-                console.log(JSON.stringify(this.clienteEdit));
-                
+                this.cpfCnpj = this.clienteEdit.cpfCnpj;
+                if (_.isNil(this.clienteEdit.grupoCliente)) {
+                    this.grupoCliente = _.filter(this.getGrupoClientesSelect, (grupo) => { return grupo.padrao });
+                } else {
+                    this.grupoCliente = _.clone(_.filter(this.getGrupoClientesSelect, (grupo) => { return grupo.value === this.clienteEdit.grupoCliente }));
+                }
             });
         },
+
+        buscaGrupos(callback) {
+            grupoClienteDB.getAll().then((grupos) => {
+                this.grupoClientes = _.clone(grupos);
+                callback();
+            });
+        }
         
     },
     created() {
@@ -609,10 +645,12 @@ export default {
         }
     },
     mounted() {
-        this.idCliente = this.$route.params.clienteId;
-        if (this.idCliente) {
-            this.findById(this.idCliente);
-        }
+        this.buscaGrupos(() => {
+            this.idCliente = this.$route.params.clienteId;
+            if (this.idCliente) {
+                this.findById(this.idCliente);
+            }
+        });
     },
     beforeCreate() {
         setTimeout(() => {

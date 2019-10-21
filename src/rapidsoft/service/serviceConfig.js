@@ -4,7 +4,7 @@ import Config from '../../../public/config.json'
 
 export const http = Axios.create({
     baseURL: Config.endereco_api,
-    timeout: 50000,
+    timeout: 100000,
     headers: {
         'Authorization': Config.authorization,
 		'Content-Type': 'application/json',

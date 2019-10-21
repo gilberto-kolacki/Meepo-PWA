@@ -43,10 +43,15 @@
 
 import _ from 'lodash'
 import produtoService from '../../rapidsoft/service/produtoService'
+import cidadeService from '../../rapidsoft/service/cidadeService'
+import clienteService from '../../rapidsoft/service/clienteService'
 import imagemService from '../../rapidsoft/service/imagemService'
 import sincDataDB from '../../rapidsoft/db/sincDataDB'
 import produtoDB from '../../rapidsoft/db/produtoDB'
 import imagemDB from '../../rapidsoft/db/imagemDB'
+import clienteDB from '../../rapidsoft/db/clienteDB'
+import grupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
+import cidadeDB from '../../rapidsoft/db/cidadeDB'
 
 export default {
     data() {
@@ -98,8 +103,6 @@ export default {
             })
         },
         errorSinc(sinc, error) {
-            console.log(error);
-            
             sinc.erro = true;
             const mensagem = error.response.data.mensagem ? error.response.status +" "+ error.response.data.mensagem : error.response.status +" "+ error.response.statusText;
             this.$vs.notify({
@@ -117,7 +120,7 @@ export default {
                 produtoDB.limparBase().then(() => {
                     produtos.forEach(produto => {
                         produtoDB.salvar(produto).then(() => {
-                            this.atuaizaParcialSincImagem(sinc, 1);
+                            this.atuaizaParcialSinc(sinc, 1);
                             if(_.last(produtos) === produto) this.closeLoading(sinc);
                         });
                     });
@@ -126,37 +129,37 @@ export default {
                 this.errorSinc(sinc, error);
             });
         },        
-        atuaizaParcialSincImagem(sinc, imagensSalvas) {
+        atuaizaParcialSinc(sinc, imagensSalvas) {
             sinc.parcial = (sinc.parcial + imagensSalvas);
             sinc.percent = _.round((sinc.parcial)/sinc.total * 100, 1);
         },
         downloadImagensFromData(sinc, data) {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 const quantidadeSinc = 60;
                 let idsFotos = _.take(data.fotos, quantidadeSinc);
                 
                 imagemService.sincImagemFoto(idsFotos).then((resultFotos) => {
                     imagemDB.salvarFotos(resultFotos).then((fotosSalvas) => {
                         data.fotos = _.pullAll(data.fotos, idsFotos);
-                        this.atuaizaParcialSincImagem(sinc, fotosSalvas);
+                        this.atuaizaParcialSinc(sinc, fotosSalvas);
 
                         let idsCores = _.take(data.cores, quantidadeSinc);
                         imagemService.sincImagemCor(idsCores).then((resultCores) => {
                             imagemDB.salvarCores(resultCores).then((coresSalvas) => {
                                 data.cores = _.pullAll(data.cores, idsCores);
-                                this.atuaizaParcialSincImagem(sinc, coresSalvas);
+                                this.atuaizaParcialSinc(sinc, coresSalvas);
 
                                 let idsSelos = _.take(data.selos, quantidadeSinc);
                                 imagemService.sincImagemSelo(idsSelos).then((resultSelos) => {
                                     imagemDB.salvarSelos(resultSelos).then((selosSalvos) => {
                                         data.selos = _.pullAll(data.selos, idsSelos);
-                                        this.atuaizaParcialSincImagem(sinc, selosSalvos);
+                                        this.atuaizaParcialSinc(sinc, selosSalvos);
 
                                         let idsSimbolos = _.take(data.simbolos, quantidadeSinc);
                                         imagemService.sincImagemSimbolo(idsSimbolos).then((resultSimbolos) => {
                                             imagemDB.salvarSimbolos(resultSimbolos).then((simbolosSalvos) => {
                                                 data.simbolos = _.pullAll(data.simbolos, idsSimbolos);
-                                                this.atuaizaParcialSincImagem(sinc, simbolosSalvos);
+                                                this.atuaizaParcialSinc(sinc, simbolosSalvos);
 
                                                 if (fotosSalvas > 0 || coresSalvas > 0 || selosSalvos > 0 || simbolosSalvos > 0) {
                                                     this.downloadImagensFromData(sinc, data).then(() => resolve());
@@ -173,11 +176,10 @@ export default {
                 })
             });
         },
-        sincImagem(sinc) {           
+        sincImagem(sinc) {
             produtoDB.getIdsImagens().then((retorno) => {
                 sinc.parcial = 0;
                 sinc.total = retorno.quantidade;
-                
                 imagemDB.limparBase().then(() => {
                     this.downloadImagensFromData(sinc, retorno.data).then(() => {
                         this.closeLoading(sinc);
@@ -186,12 +188,75 @@ export default {
             });
         },
 
+        sincCliente(sinc) {
+            clienteService.sincCliente().then((clientes) => {
+                sinc.total = clientes.length;
+                clienteDB.limparBase().then(() => {
+                    clientes.forEach(cliente => {
+                        clienteDB.salvarSinc(cliente).then(() => {
+                            this.atuaizaParcialSinc(sinc, 1);
+                            if(_.last(clientes) === cliente) this.closeLoading(sinc);
+                        });
+                    });
+                });
+            }).catch((error) => {
+                this.errorSinc(sinc, error);
+            });
+        },
+
+        sincGrupoCliente(sinc) {
+            clienteService.sincGrupoCliente().then((gruposClientes) => {
+                sinc.total = gruposClientes.length;
+                grupoClienteDB.limparBase().then(() => {
+                    gruposClientes.forEach(grupoCliente => {
+                        grupoClienteDB.salvar(grupoCliente).then(() => {
+                            this.atuaizaParcialSinc(sinc, 1);
+                            if(_.last(gruposClientes) === grupoCliente) this.closeLoading(sinc);
+                        });
+                    });
+                });
+            }).catch((error) => {
+                this.errorSinc(sinc, error);
+            });
+        },
+
+        downloadCidadesFromData(sinc, siglasEstados) {
+            return new Promise((resolve) => {
+                let siglaEstado = siglasEstados[sinc.parcial];
+                
+                cidadeService.sincCidade(siglaEstado).then((estado) => {
+                    cidadeDB.salvar(estado).then(() => {
+                        this.atuaizaParcialSinc(sinc, 1);
+                        if(_.last(siglasEstados) === siglaEstado) {
+                            resolve();
+                        } else {
+                            this.downloadCidadesFromData(sinc, siglasEstados).then(() => resolve());
+                        }
+                    })
+                }).catch((error) => {
+                    this.errorSinc(sinc, error);
+                }); 
+
+            });
+        },
+
+        sincCidade(sinc) {
+            const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
+            sinc.total = siglasEstados.length;
+            cidadeDB.limparBase().then(() => {
+                this.downloadCidadesFromData(sinc, siglasEstados).then(() => {
+                    this.closeLoading(sinc);
+                })
+            });
+        },
+
+
     },
 
     beforeMount() {
         this.$vs.loading();
         sincDataDB.getAll().then((sinData) => {
-            this.sincronizacao = sinData;
+            this.sincronizacao = _.orderBy(sinData, ['order']);
             this.$vs.loading.close();
         });
     }

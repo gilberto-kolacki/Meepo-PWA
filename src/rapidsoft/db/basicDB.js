@@ -1,7 +1,7 @@
 import Config from '../../../public/config.json'
 
 const createDBLocal = (dataBaseName, representante) => {
-    return "meepo_"+Config.empresa+"_rep"+representante.codigo+"_"+dataBaseName;
+    return "meepo_"+Config.empresa+"_rep_"+representante.id+"_"+dataBaseName;
 }
 
 const createDBLocalBasic = (dataBaseName) => {

@@ -165,6 +165,34 @@ class produtoDB {
         });
     }
 
+    filtrarProdutosPesquisa(produtos, filtro) {
+        return this.produtos.filter((produto) => {
+            return this.getCategoriasCardPesquisa.some((categoria) => {
+                return categoria.check && produto.hasOwnProperty('categoria') && produto.categoria.hasOwnProperty('codigo') && produto.categoria.codigo == categoria.codigo;
+            });
+        });
+    }
+
+    getProdutosSearch() {
+        return new Promise((resolve) => {
+            this.getAllProdutos().then((produtos) => {
+                produtos = _.take(produtos, 50);
+                if(produtos.length > 0) {
+                    produtos.forEach(produto => {
+                        if(produto.cores.length > 0) {
+                            imagemDB.getFotoPrincipal(produto).then((result) => {
+                                produto.imagemPrincipal = result;
+                                if (_.last(produtos) === produto) resolve(produtos);
+                            })
+                        } else {
+                            if (_.last(produtos) === produto) resolve(produtos);
+                        }
+                    });
+                }
+            });
+        });
+    }
+
     getImagensProduto(produto) {
         return new Promise((resolve) => {
             if(produto.cores.length > 0) {

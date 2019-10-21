@@ -1,4 +1,3 @@
-import Axios from 'axios'
 import BasicDB from './basicDB'
 import _ from 'lodash';
 import PouchDB from 'pouchdb';
@@ -19,7 +18,7 @@ const createDB = (name) => {
         case nameFotoDB:
             BasicDB.createDBLocalBasic(name).then((dataBaseLocal) => {
                 if (dataBaseLocal) {
-                    imagemFotoDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
+                    imagemFotoDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true, size: 10});
                 }
             });
             break;
@@ -173,7 +172,7 @@ class imagemDB {
                     });
                 });
             } else {
-                resolve(0)
+                resolve(0);
             }
         })
     }
@@ -225,9 +224,13 @@ class imagemDB {
     getCorById(cor) {
         return new Promise((resolve) => {
             if (cor.idCor && cor.idCor > 0) {
-                imagemCorDB.get(_.toString(cor.idCor)).then((result) => {
-                    resolve(result.base64);
-                })
+                this.getById(cor.idCor, imagemCorDB).then((corProduto) => {
+                    if(corProduto.existe) {
+                        resolve(corProduto.result.base64);
+                    } else {
+                        resolve(null);
+                    }
+                });
             } else {
                 resolve(null);
             }
@@ -250,21 +253,38 @@ class imagemDB {
         return new Promise((resolve) => {
             if (cor.imagens && cor.imagens.length > 0) {
                 cor.imagens.forEach(imagem => {
-                    imagemFotoDB.get(_.toString(imagem.id)).then((result) => {
-                        imagem.base64 = result.base64
-                        if(_.last(cor.imagens) === imagem) {
-                            resolve(cor.imagens)
+                    this.getById(imagem.id, imagemFotoDB).then((fotoProduto) => {
+                        if(fotoProduto.existe) {
+                            imagem.base64 = fotoProduto.result.base64
+                            if(_.last(cor.imagens) === imagem) {
+                                resolve(cor.imagens)
+                            }
+                        } else {
+                            imagem.base64 = null
+                            if(_.last(cor.imagens) === imagem) {
+                                resolve(cor.imagens)
+                            }
                         }
-                    }).catch((error) => {
-                        console.log(error);
-                        imagem.base64 = null
-                        if(_.last(cor.imagens) === imagem) {
-                            resolve(cor.imagens)
-                        }
-                    })
+                    });
                 });
             } else {
                 resolve(cor.imagens);
+            }
+        });
+    }
+
+    getFotoPrincipal(produto) {
+        return new Promise((resolve) => {
+            if (produto.cores[0].imagens.length > 0) {
+                this.getById(produto.cores[0].imagens[0].id, imagemFotoDB).then((fotoProduto) => {
+                    if(fotoProduto.existe) {
+                        resolve(fotoProduto.result.base64);
+                    } else {
+                        resolve(null);
+                    }
+                });
+            } else {
+                resolve(null);
             }
         });
     }

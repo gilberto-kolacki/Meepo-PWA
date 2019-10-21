@@ -1,7 +1,9 @@
 <template>
     <div id="page-catalogo" class="page-catalogo" v-if="!popupAddProduto">
-        <vs-button @click.stop="prevRef" color="primary" type="filled" radius class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
-        <vs-button @click.stop="nextRef" color="primary" type="filled" radius class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
+        <div v-if="this.produtoA">
+            <vs-button @click.stop="prevRef" color="primary" type="filled" radius class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
+            <vs-button @click.stop="nextRef" color="primary" type="filled" radius class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
+        </div>
         <vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12">
             <div class="vx-row">
                 
@@ -12,7 +14,6 @@
                         </div>
                     </div>
                     <div class="vx-row mt-base-top2">
-                        <!-- <vs-divider position="left" border-style="dashed" color="primary">Imagens</vs-divider> -->
                         <vx-card>
                             <div class="vx-row items-center justify-center">
                                 <h6>{{this.produtoA.cores[this.corSelecionada].nome}}</h6>
@@ -32,15 +33,9 @@
                         </vx-card>
                     </div>
                     <div class="vx-row items-center justify-center mt-base-top3">
-                        <!-- <vs-divider position="left" border-style="dashed" color="primary">Cor</vs-divider> -->
-                        <!-- <vx-card style="width: 18rem;"> -->
-                            <!-- <div class="vx-row items-center justify-center"  v-for="(cor, index) in getCoresProduto" :key="index">
-                                <img :src="require(`@/assets/images/rapidsoft/produtos/cores/${cor.nome}.png`)" alt="latest-upload" class="rounded mb-4 user-latest-image responsive img-cor">
-                            </div> -->
-                        <!-- </vx-card> -->
                         <div class="mr-2" v-for="(cor, index) in getCoresProduto" :key="index">
-                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor" size="36px" @click="selectCorImagemProduto(index)" v-if="cor.imagemCor"/>
-                            <vs-avatar class="m-0" size="36px" :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" v-else/>
+                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor" size="36px" @click="selectCorImagemProduto(index)" v-if="cor.imagemCor" style="border: 0.9px solid #7b7b7b;"/>
+                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" size="36px" @click="selectCorImagemProduto(index)" style="border: 0.9px solid #7b7b7b;" v-else/>
                         </div>
                     </div>
                     <div class="vx-row items-center justify-center mt-base-top2">
@@ -78,7 +73,7 @@
                 <div class="vx-col w-full md:w-1/5 h-12" style="z-index: 50;" v-if="this.produtoA">
                     <div class="vx-row">
                         <div class="flex w-full items-center justify-center">
-                            <vs-button color="primary" type="filled" icon-pack="feather" class="w-full" icon="icon-search" @click.stop="abrirListaPodutos()"></vs-button>
+                            <vs-button color="primary" type="filled" icon-pack="feather" class="w-full" icon="icon-search" @click.stop="abrirPesquisaPodutos()"></vs-button>
                         </div>
                     </div>
                     <div class="vx-row mt-base-top3">
@@ -122,7 +117,7 @@
         </vs-col>
         <vs-popup v-bind:class="'popup-produto-search'" title="Pesquisa" :active.sync="popupListaProdutos">
             
-            <div class="flex flex-wrap-reverse items-center">
+            <!-- <div class="flex flex-wrap-reverse items-center">
                 <div v-for="(categoria, index) in getCategoriasCardPesquisa" :key="index" style="padding: 2px;">
                     <vs-button v-show="categoria.check"
                         type="filled"
@@ -143,10 +138,10 @@
                         {{categoria.nome}}
                     </vs-button>
                 </div>
-            </div>
+            </div> -->
             
 
-            <vs-table ref="table" v-model="selectSearchProduto" @selected="selectProduto(selectSearchProduto)" search :data="getProdutosPesquisa">
+            <vs-table ref="table" v-model="selectSearchProduto" @selected="selectProduto(selectSearchProduto)" search :data="listaProdutosPesquisa">
                 <!-- <div slot="header" class="flex flex-wrap-reverse items-center flex-grow justify-between">
                 </div> -->
                 <template slot="thead">
@@ -157,8 +152,9 @@
                 <template slot-scope="{data}">
                     <tbody>
                         <vs-tr :data="tr" :key="indextr" v-for="(tr, indextr) in data">
-                            <vs-td :data="data[indextr].imagem">
-                                <!-- <img :src="require(`@/assets/images/rapidsoft/produtos/${getImage(tr)}`)" class="rounded mb-4 user-latest-image responsive img-popup product-img" /> -->
+                            <vs-td :data="data[indextr].imagemPrincipal">
+                                <img :src="data[indextr].imagemPrincipal" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-if="data[indextr].imagemPrincipal"/>
+                                <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-else />
                             </vs-td>
                             <vs-td :data="data[indextr].referencia">
                                 <p class="product-name font-medium">{{ tr.referencia }}</p>
@@ -334,6 +330,7 @@ export default {
             popupZoomProduto: false,
             disabledInputCor: [],
             disabledInputTamanho: [],
+            listaProdutosPesquisa: []
         }
     },
     components: {
@@ -351,13 +348,13 @@ export default {
         getTamanhosProdutoA() {
             return this.produtoAdd.produtoA.produtoAddCores[0].produtoAddTamanhos;
         },
-        getProdutosPesquisa() {
-            return this.produtos.filter((produto) => {
-                return this.getCategoriasCardPesquisa.some((categoria) => {
-                    return categoria.check && produto.hasOwnProperty('categoria') && produto.categoria.hasOwnProperty('codigo') && produto.categoria.codigo == categoria.codigo;
-                });
-            });
-        },
+        // getProdutosPesquisa() {
+        //     return this.produtos.filter((produto) => {
+        //         return this.getCategoriasCardPesquisa.some((categoria) => {
+        //             return categoria.check && produto.hasOwnProperty('categoria') && produto.categoria.hasOwnProperty('codigo') && produto.categoria.codigo == categoria.codigo;
+        //         });
+        //     });
+        // },
         getCategoriasCardPesquisa() {
             return this.categorias.filter((categoria) => {
                 return categoria.codigo != 0;
@@ -533,9 +530,14 @@ export default {
 		getImage(produto) {
 			return produto.imagem;
         },
-        abrirListaPodutos() {
-            this.popupListaProdutos=true
+        abrirPesquisaPodutos() {
+            this.$vs.loading();
             this.selectSearchProduto = null;
+            produtoDB.getProdutosSearch().then((result) => {
+                this.listaProdutosPesquisa = result;
+                this.popupListaProdutos=true
+                this.$vs.loading.close();
+            });
         },
         addProduto(produto) {
             this.produtoAdd = {};
@@ -575,7 +577,11 @@ export default {
         },
     },
     beforeCreate() {
-        this.$vs.loading();
+        // this.$vs.loading();
+
+        const appLoading = document.getElementById('loading-bg');
+        appLoading.style.display = null
+        
         produtoDB.getProdutosCatalogo().then(result => {
             this.produtos = result;
             this.categorias = produtoDB.getCategorias()
@@ -583,7 +589,8 @@ export default {
                 categoria.check = true;
             });
             this.selectProduto(this.produtos[0]);
-            this.$vs.loading.close();
+            // this.$vs.loading.close();
+            appLoading.style.display = "none";
         });
     },
     created() {
@@ -600,6 +607,8 @@ export default {
                 e.preventDefault();
             }
         }
+
+        
     },
     
 }

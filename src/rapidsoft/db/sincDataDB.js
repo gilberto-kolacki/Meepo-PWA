@@ -21,6 +21,39 @@ const createDB = () => {
 
 const sincDados =  [
     {
+        _id:"1",
+        type:"cliente",
+        titulo: "Clientes",
+        methodo: "sincCliente",
+        percent: 0,
+        parcial: 0,
+        total: 0,
+        tempoSincronizacao: 0,
+        dataSincronizacao: null
+    },
+    {
+        _id:"2",
+        type:"grupoCliente",
+        titulo: "Grupos de cliente",
+        methodo: "sincGrupoCliente",
+        percent: 0,
+        parcial: 0,
+        total: 0,
+        tempoSincronizacao: 0,
+        dataSincronizacao: null
+    },
+    {
+        _id:"9",
+        type:"cidade",
+        titulo: "Cidades",
+        methodo: "sincCidade",
+        percent: 0,
+        parcial: 0,
+        total: 0,
+        tempoSincronizacao: 0,
+        dataSincronizacao: null
+    },
+    {
         _id:"10",
         type:"produto",
         titulo: "Produtos",
@@ -42,6 +75,8 @@ const sincDados =  [
         tempoSincronizacao: 0,
         dataSincronizacao: null
     },
+    
+    
 ]
 
 const createSincs = () => {
@@ -67,6 +102,7 @@ class sincDataDB {
 
     zerar(sincData) {
         sincData = _.clone(sincData);
+        sincData.order = _.toNumber(sincData._id);
         sincData.parcial = 0;
         sincData.percent = 0;
         sincData.ativo = false;

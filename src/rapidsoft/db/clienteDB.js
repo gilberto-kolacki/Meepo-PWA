@@ -178,6 +178,37 @@ class clienteDB {
         });
     }
 
+    salvarSinc(cliente) {
+        return new Promise((resolve) => {
+            cliente._id = cliente.cpfCnpj;
+            cliente.clienteErp = true
+            localDB.put(cliente).then(() => {
+                resolve();
+            });
+        });
+    }
+
+    getClientesNovos(){
+        return new Promise((resolve, reject) => {
+            let clientes = [];
+            localDB.allDocs({include_docs: true}).then((result) => {
+                for (let index = 0; index < result.rows.length; index++) {
+                    let cliente = _.clone(result.rows[index].doc);
+                    if (_.isUndefined(cliente.endereco) || (_.isObject(cliente.endereco) && _.isUndefined(cliente.endereco.cep))) {
+                        cliente.endereco = {};
+                        cliente.endereco.cidade = "";
+                        cliente.endereco.estado = "";
+                    }
+                    clientes.push(cliente)
+                }
+                resolve(clientes);
+            }).catch((err) => {
+                console.log(err);
+                reject(err);
+            });
+        });
+    }
+
     salvar2(cliente) {
         return new Promise((resolve, reject) => {
             cliente._id = cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
@@ -214,6 +245,9 @@ class clienteDB {
     findById(idCliente) {
         return new Promise((resolve, reject) => {
             localDB.get(idCliente).then((result) => {
+                result.dataAniversario = new Date(_.toNumber(result.dataAniversario));
+                result.dataFundacao = new Date(_.toNumber(result.dataFundacao));
+                result.inscricaoEstadual = result.inscricaoEstadual == "" ? "ISENTO" : result.inscricaoEstadual;
                 resolve(result);
             }).catch((err) => {
                 console.log(err);
@@ -270,6 +304,17 @@ class clienteDB {
     createDB(user) {
         return new Promise((resolve) => {
             resolve(createDB(user));
+        });
+    }
+
+    limparBase() {
+        return new Promise((resolve) => {
+            localDB.destroy().then(() => {
+                createDB();
+                resolve();
+            }).catch((err) => {
+                resolve(err);
+            });
         });
     }
 
