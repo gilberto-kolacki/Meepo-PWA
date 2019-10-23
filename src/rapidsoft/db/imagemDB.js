@@ -237,6 +237,32 @@ class imagemDB {
         })
     }
 
+    getFotoById(idFoto) {
+        return new Promise((resolve) => {
+            if (idFoto > 0) {
+                this.getById(idFoto, imagemFotoDB).then((fotoProduto) => {
+                    if(fotoProduto.existe) {
+                        resolve(fotoProduto.result.base64);
+                    } else {
+                        resolve(null);
+                    }
+                });
+            } else {
+                resolve(null);
+            }
+        })
+    }
+
+    existFoto(idFoto) {
+        this.getById(idFoto, imagemFotoDB).then((fotoProduto) => {
+            if(fotoProduto.existe) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
+
     getSelos(cor) {
         return new Promise((resolve) => {
             resolve([]);

@@ -131,18 +131,13 @@ class produtoDB {
 
     getAllProdutos() {
         return new Promise((resolve) => {
-            let produtos = []
             localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resultDocs.rows.forEach(row => {
-                    if (row.doc['referencia']) {
-                        let produto = _.clone(row.doc);
-                        delete produto['_rev'];
-                        produtos.push(produto)
-                        if (_.last(resultDocs.rows) === row) resolve(produtos);
-                    } else {
-                        if (_.last(resultDocs.rows) === row) resolve(produtos);
+                resolve(resultDocs.rows.map((produto) => {
+                    if (produto.doc['referencia']) {
+                        delete produto.doc['_rev'];
+                        return _.clone(produto.doc);
                     }
-                });
+                }))
             }).catch((err) => {
                 console.log(err);
                 resolve(err);
@@ -254,67 +249,54 @@ class produtoDB {
 
     getIdsFotos() {
         return new Promise((resolve) => {
-            let idsImagens = []
             this.getAllProdutos().then((produtos) => {
-                produtos.forEach(produto => {
+                resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    cores.forEach(cor => {
-                        cor.imagens.forEach(imagem => {
-                            if(cor != undefined && cor.imagens) idsImagens.push(imagem.id);
-                            if ((_.last(produtos) === produto) && (_.last(cores) === cor) && (_.last(cor.imagens) === imagem)) resolve(idsImagens);
-                        });
-                        if ((_.last(produtos) === produto) && (_.last(cores) === cor)) resolve(idsImagens);
+                    return cores.map((cor) => {
+                        return cor.imagens.map((imagem) => {
+                            return imagem.id;
+                        })
                     });
-                    if (_.last(produtos) === produto) resolve(idsImagens);
-                });
-            })
+                })));
+            });
         });
     }
 
     getIdsCores() {
         return new Promise((resolve) => {
-            let idsCores = []
             this.getAllProdutos().then((produtos) => {
-                produtos.forEach(produto => {
+                resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    cores.forEach(cor => {
-                        if(cor != undefined && cor.idCor) idsCores.push(cor.idCor);
-                        if ((_.last(produtos) === produto) && (_.last(cores) === cor)) resolve(idsCores);
+                    return cores.map((cor) => {
+                        if(cor != undefined && cor.idCor) return cor.idCor;
                     });
-                    if (_.last(produtos) === produto) resolve(idsCores);
-                });
-            })
+                })));
+            });
         });
     }
 
     getIdsSelos() {
         return new Promise((resolve) => {
-            let idsSelos = []
             this.getAllProdutos().then((produtos) => {
-                produtos.forEach(produto => {
+                resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    cores.forEach(cor => {
-                        if(cor != undefined && _.isArray(cor.selos)) idsSelos = _.concat(idsSelos, cor.selos);
-                        if ((_.last(produtos) === produto) && (_.last(cores) === cor)) resolve(idsSelos);
-                    });
-                    if (_.last(produtos) === produto) resolve(idsSelos);
-                });
+                    return cores.map((cor) => {
+                        if(cor != undefined && _.isArray(cor.selos)) return cor.selos;
+                    })
+                })));
             })
         });
     }
 
     getIdsSimbolos() {
         return new Promise((resolve) => {
-            let idsSimbolos = []
             this.getAllProdutos().then((produtos) => {
-                produtos.forEach(produto => {
+                resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    cores.forEach(cor => {
-                        if(cor != undefined && _.isArray(cor.simbolos)) idsSimbolos = _.concat(idsSimbolos, cor.simbolos);
-                        if ((_.last(produtos) === produto) && (_.last(cores) === cor)) resolve(idsSimbolos);
-                    });
-                    if (_.last(produtos) === produto) resolve(idsSimbolos);
-                });
+                    return cores.map((cor) => {
+                        if(cor != undefined && _.isArray(cor.simbolos)) return cor.simbolos;
+                    })
+                })));
             })
         });
     }
@@ -330,6 +312,8 @@ class produtoDB {
                         dataResult.selos = _.uniq(idsSelos);
                         this.getIdsSimbolos().then((idsSimbolos) => {
                             dataResult.simbolos = _.uniq(idsSimbolos);
+                            console.log(dataResult);
+                            
                             const qtdeImagens = dataResult.fotos.length + dataResult.cores.length + dataResult.selos.length + dataResult.simbolos.length;
                             resolve({quantidade: qtdeImagens, data: dataResult});
                         })

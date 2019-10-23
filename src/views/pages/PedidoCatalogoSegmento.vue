@@ -47,11 +47,12 @@
                     </div>
                 </div>
                 <!-- IMAGEM PRINCIPAL -->
-                <vs-col id="col-img-principal" vs-type="inline-grid" vs-justify="center" vs-align="center" vs-lg="7" vs-sm="7" vs-xs="12" style="z-index: 10;" v-if="this.produtoA">
-                    <div class="vx-row items-center justify-center" style="z-index: 15;">
+                <div class="vx-col w-full lg:w-3/5 sm:w-3/5 h-12" style="z-index: 10;" v-if="this.produtoA">
+                    <div class="vx-row items-center justify-center" style="z-index: 15; margin-bottom: 2rem;">
                         <h6 class="title-ref">{{produtoA.referencia}} - {{produtoA.nome}}</h6>
                     </div>
                     <Vue2InteractDraggable
+                        class="vx-row items-center justify-center"
                         @draggedLeft="nextRef"
                         @draggedRight="prevRef"
                         interact-lock-y-axis
@@ -64,12 +65,10 @@
                             <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" v-else>
                         </div>
                     </Vue2InteractDraggable>
-                    <div v-else>
-                    </div>
                     <div class="vx-row pt-2 items-center justify-center" style="display: block; z-index: 15;" v-if="produtoB">
                         <h6 class="title-ref">{{produtoB.referencia}} - {{produtoB.nome}}</h6>
                     </div>
-                </vs-col>
+                </div>
                 <div class="vx-col w-full md:w-1/5 h-12" style="z-index: 50;" v-if="this.produtoA">
                     <div class="vx-row">
                         <div class="flex w-full items-center justify-center">

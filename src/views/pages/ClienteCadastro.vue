@@ -60,14 +60,21 @@
                                 <span class="text-danger text-sm">{{ errors.first('registroGeral') }}</span>
                             </div>
                         </div>
-                        <div class="vx-col sm:w-1/2 w-full mb-2" v-if="clienteEdit.segmentos.length > 0">
+                        <!-- <div class="vx-col sm:w-1/2 w-full mb-2" v-if="getSegmentosCheckBox.length > 0">
                             <ul class="demo-alignment" id="segmento">
-                                <li v-for="(segmento, index) in clienteEdit.segmentos" :key="`segmento-cliente-${index}`">
-                                    <vs-checkbox v-validate="'required'" name = "segmento" v-model="clienteEdit.segmentos[index].ativo" onFocus="value" value="okay">{{clienteEdit.segmentos[index].name}}</vs-checkbox>
+                                <li v-for="(segmento, index) in getSegmentosCheckBox" :key="`segmento-cliente-${index}`">
+                                    <vs-checkbox v-validate="'required'" :name="segmento.id" v-model="clienteEdit.segmentos">{{segmento.nome}}</vs-checkbox>
                                 </li>
                             </ul>
                             <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
+                        </div> -->
+
+                        <div class="vx-col sm:w-1/2 w-full mb-2">
+                            <label for="" class="vs-input--label">Segmentos*</label>
+                            <v-select multiple v-validate="'required'" id="segmento" name="segmento" v-model="segmentosCliente" :options="getSegmentosCheckBox"></v-select>                            
+                            <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
                         </div>
+
                     </div>
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/2 w-full mb-2">
@@ -87,7 +94,7 @@
                     <vs-divider> Endereço </vs-divider>
                     <div class="vx-row" ref="enderecoCobranca">
                         <div class="vx-col sm:w-1/4 w-full mb-2">
-                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('endereco')">
+                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('endereco'), consultaCep(clienteEdit.endereco.cep)">
                                 <label for="cepEndereco" class="vs-input--label">CEP*</label>
                                 <div class="vs-con-input">
                                     <the-mask v-validate="'required'" id="cepEndereco" name="cepEndereco" v-model="clienteEdit.endereco.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true" v-on:keyup.enter="proximoCampo('endereco')" />
@@ -165,7 +172,7 @@
                     <div class="vx-row">
                         <div class="vx-col my-5-top w-full">
                             <vs-button color="success" class="mr-3 mb-2 pull-right" v-if="!clienteEdit.clienteErp" @click="salvarCliente">Salvar</vs-button>
-                            <vs-button color="danger" type="border" class="mb-2 pull-right"  @click="cancelarCliente">Voltar</vs-button>
+                            <vs-button color="danger" type="border" class="mr-2 mb-2 pull-right"  @click="cancelarCliente">Voltar</vs-button>
                         </div>
                     </div>
                 </div>
@@ -253,10 +260,10 @@
                                 </vs-td>
                                 <vs-td>
                                     <div class="flex">
-                                        <div class="p-1">
+                                        <div class="p-1 mr-1">
                                             <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarContato(data[indextr])" />
                                         </div>
-                                        <div class="p-1">
+                                        <div class="p-1 mr-1">
                                             <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarContato(data[indextr])"/>
                                         </div>
                                     </div>
@@ -392,8 +399,11 @@ import Datepicker from 'vuejs-datepicker';
 import * as lang from "vuejs-datepicker/src/locale";
 import vSelect from 'vue-select';
 import _ from 'lodash'
-import clienteDB from '../../rapidsoft/db/clienteDB'
-import grupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
+import ClienteDB from '../../rapidsoft/db/clienteDB'
+import CidadeDB from '../../rapidsoft/db/cidadeDB'
+import CidadeService from '../../rapidsoft/service/cidadeService'
+import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
+import SegmentoDB from '../../rapidsoft/db/segmentoDB'
 
 Validator.localize('pt', validatePtBR);
 
@@ -404,6 +414,8 @@ export default {
             cpfCnpj: null, 
             tipoPessoa: 1,
             grupoCliente: null,
+            segmentosCliente: [],
+            cepCobranca: null,
             clienteEdit: {
                 tipoPessoa: 1,
                 endereco: {},
@@ -421,7 +433,7 @@ export default {
             isEditContato: false,
             isEditEndereco: false,
             langSettings: lang.ptBR,
-            segmentos: ['foo','bar'],
+            segmentos: [],
             grupoClientes: [],
             disabledDates: {            
                 from: new Date(), // Disable all dates after specific date                
@@ -446,7 +458,15 @@ export default {
         },
         grupoCliente(val) {
             this.clienteEdit.grupoCliente = val.value;
-        }
+        },
+        cepCobranca(val) {
+            this.clienteEdit.endereco.cep = val;
+        },
+        segmentosCliente(val) {
+            this.clienteEdit.segmentos = val.map((segmento) => {
+                return _.toString(segmento.value);
+            })
+        },
 
     },
     computed:{
@@ -460,10 +480,14 @@ export default {
                 return false;
             }
         },
-
         getGrupoClientesSelect() {
             return this.grupoClientes.map((grupo) => {
-                return {value: grupo.id, label: grupo.nome, padrao: grupo.padrao}
+                return {value: grupo.id, label: grupo.nome, padrao: grupo.padrao};
+            })
+        },
+        getSegmentosCheckBox() {
+            return this.segmentos.map((segmento) => {
+                return {value: segmento.id, label: segmento.nome};
             })
         }
     },
@@ -543,8 +567,48 @@ export default {
         cancelarEndereco() {
             this.isEditEndereco = false;
         },
+        erroPermissaoCidade() {
+            this.$vs.notify({
+                title: 'Erro!',
+                text: 'Cidade não liberada para cadastrar clientes',
+                color: 'danger',
+                iconPack: 'feather',
+                icon: 'icon-alert-circle',
+                position:'top-right'
+            })
+        },
+        consultaCep(cep) {
+            const endereco = {}
+            endereco.cep = cep;
+            endereco.endereco = null;
+            endereco.bairro = null;
+            endereco.cidade = null;
+            endereco.estado = null;
+            if (navigator.onLine && cep.length === 9) {
+                this.$vs.loading();
+                CidadeService.buscaEndereco(this.clienteEdit.endereco.cep).then((endereco) =>{
+                    if (endereco.id) {
+                        CidadeDB.buscaCidade(endereco.id).then((cidade) => {
+                            if (cidade.existe && cidade.result.rel === 1) {
+                                endereco.cep = cep;
+                                endereco.endereco = endereco.e;
+                                endereco.bairro = endereco.b;
+                                endereco.cidade = cidade.result.nome;
+                                endereco.estado = cidade.result.uf;
+                            } else {
+                                this.erroPermissaoCidade()
+                            }
+                            this.$set(this.clienteEdit, 'endereco', endereco);
+                        })
+                    }
+                    this.$vs.loading.close();
+                })
+            } else {
+                this.$set(this.clienteEdit, 'endereco', endereco);
+            }
+        },
         salvarContato() {        
-            clienteDB.validarContato(_.cloneDeep(this.contatoEdit)).then(() => {
+            ClienteDB.validarContato(_.cloneDeep(this.contatoEdit)).then(() => {
                 this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
                 this.isEditContato = false;
             }).catch((erro) => {
@@ -562,7 +626,7 @@ export default {
             });
         },
         salvarEndereco() {
-            clienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
+            ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
                 this.clienteEdit.enderecos.push(_.clone(result));
                 this.isEditEndereco = false;
             }).catch((erro) => {
@@ -617,23 +681,36 @@ export default {
         },
 
         findById(idCliente) {
-            clienteDB.findById(idCliente).then((result) => {
-                this.clienteEdit = _.clone(result);
+            ClienteDB.findById(idCliente).then((result) => {
+                this.clienteEdit = _.cloneDeep(result);
                 this.cpfCnpj = this.clienteEdit.cpfCnpj;
                 if (_.isNil(this.clienteEdit.grupoCliente)) {
                     this.grupoCliente = _.filter(this.getGrupoClientesSelect, (grupo) => { return grupo.padrao });
                 } else {
                     this.grupoCliente = _.clone(_.filter(this.getGrupoClientesSelect, (grupo) => { return grupo.value === this.clienteEdit.grupoCliente }));
                 }
+                if (this.clienteEdit.segmentos.length > 0) {
+                    this.segmentosCliente = _.flattenDeep(this.clienteEdit.segmentos.map((segmentoCliente) => {
+                        return _.filter(this.getSegmentosCheckBox, (segmento) => { 
+                            return _.toString(segmentoCliente) == _.toString(segmento.value)
+                        })
+                    }))
+                }
             });
         },
 
         buscaGrupos(callback) {
-            grupoClienteDB.getAll().then((grupos) => {
-                this.grupoClientes = _.clone(grupos);
+            GrupoClienteDB.getAll().then((grupos) => {
+                this.grupoClientes = grupos;
                 callback();
             });
-        }
+        },
+        buscaSegmentos(callback) {
+            SegmentoDB.getAll().then((segmentos) => {
+                this.segmentos = segmentos;
+                callback();
+            })
+        },
         
     },
     created() {
@@ -646,16 +723,21 @@ export default {
     },
     mounted() {
         this.buscaGrupos(() => {
-            this.idCliente = this.$route.params.clienteId;
-            if (this.idCliente) {
-                this.findById(this.idCliente);
-            }
+            this.buscaSegmentos(() => {
+                this.idCliente = this.$route.params.clienteId;
+                if (this.idCliente) {
+                    this.findById(this.idCliente);
+                }
+            })
         });
     },
     beforeCreate() {
         setTimeout(() => {
             this.proximoCampo('cpfCnpj');
         }, 200);
+    },
+    afterMounted() {
+        
     }
 }
 
@@ -682,6 +764,10 @@ export default {
 
 .vx-card {
     width: 100%
+}
+
+.vs-input--input.normal {
+    font-size: 0.75rem;
 }
 
 </style>

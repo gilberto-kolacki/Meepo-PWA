@@ -42,16 +42,16 @@
 <script>
 
 import _ from 'lodash'
-import produtoService from '../../rapidsoft/service/produtoService'
-import cidadeService from '../../rapidsoft/service/cidadeService'
-import clienteService from '../../rapidsoft/service/clienteService'
-import imagemService from '../../rapidsoft/service/imagemService'
-import sincDataDB from '../../rapidsoft/db/sincDataDB'
-import produtoDB from '../../rapidsoft/db/produtoDB'
-import imagemDB from '../../rapidsoft/db/imagemDB'
-import clienteDB from '../../rapidsoft/db/clienteDB'
-import grupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
-import cidadeDB from '../../rapidsoft/db/cidadeDB'
+import ProdutoService from '../../rapidsoft/service/produtoService'
+import CidadeService from '../../rapidsoft/service/cidadeService'
+import ClienteService from '../../rapidsoft/service/clienteService'
+import ImagemService from '../../rapidsoft/service/imagemService'
+import SincDataDB from '../../rapidsoft/db/sincDataDB'
+import ProdutoDB from '../../rapidsoft/db/produtoDB'
+import ImagemDB from '../../rapidsoft/db/imagemDB'
+import ClienteDB from '../../rapidsoft/db/clienteDB'
+import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
+import CidadeDB from '../../rapidsoft/db/cidadeDB'
 
 export default {
     data() {
@@ -91,7 +91,7 @@ export default {
         },
         closeLoading(sinc) {
             sinc.erro = false;
-            sincDataDB.finalizaSinc(_.clone(sinc)).then((sincResult) => {
+            SincDataDB.finalizaSinc(_.clone(sinc)).then((sincResult) => {
                 sinc.dataSincronizacao = sincResult.dataSincronizacao;
                 sinc.tempoSincronizacao = sincResult.tempoSincronizacao;
 
@@ -115,11 +115,11 @@ export default {
             _.defer(() => this.closeLoading(sinc));
         },
         sincProduto(sinc) {
-            produtoService.sincProduto().then((produtos) => {
+            ProdutoService.sincProduto().then((produtos) => {
                 sinc.total = produtos.length;
-                produtoDB.limparBase().then(() => {
+                ProdutoDB.limparBase().then(() => {
                     produtos.forEach(produto => {
-                        produtoDB.salvar(produto).then(() => {
+                        ProdutoDB.salvar(produto).then(() => {
                             this.atuaizaParcialSinc(sinc, 1);
                             if(_.last(produtos) === produto) this.closeLoading(sinc);
                         });
@@ -138,26 +138,26 @@ export default {
                 const quantidadeSinc = 60;
                 let idsFotos = _.take(data.fotos, quantidadeSinc);
                 
-                imagemService.sincImagemFoto(idsFotos).then((resultFotos) => {
-                    imagemDB.salvarFotos(resultFotos).then((fotosSalvas) => {
+                ImagemService.sincImagemFoto(idsFotos).then((resultFotos) => {
+                    ImagemDB.salvarFotos(resultFotos).then((fotosSalvas) => {
                         data.fotos = _.pullAll(data.fotos, idsFotos);
                         this.atuaizaParcialSinc(sinc, fotosSalvas);
 
                         let idsCores = _.take(data.cores, quantidadeSinc);
-                        imagemService.sincImagemCor(idsCores).then((resultCores) => {
-                            imagemDB.salvarCores(resultCores).then((coresSalvas) => {
+                        ImagemService.sincImagemCor(idsCores).then((resultCores) => {
+                            ImagemDB.salvarCores(resultCores).then((coresSalvas) => {
                                 data.cores = _.pullAll(data.cores, idsCores);
                                 this.atuaizaParcialSinc(sinc, coresSalvas);
 
                                 let idsSelos = _.take(data.selos, quantidadeSinc);
-                                imagemService.sincImagemSelo(idsSelos).then((resultSelos) => {
-                                    imagemDB.salvarSelos(resultSelos).then((selosSalvos) => {
+                                ImagemService.sincImagemSelo(idsSelos).then((resultSelos) => {
+                                    ImagemDB.salvarSelos(resultSelos).then((selosSalvos) => {
                                         data.selos = _.pullAll(data.selos, idsSelos);
                                         this.atuaizaParcialSinc(sinc, selosSalvos);
 
                                         let idsSimbolos = _.take(data.simbolos, quantidadeSinc);
-                                        imagemService.sincImagemSimbolo(idsSimbolos).then((resultSimbolos) => {
-                                            imagemDB.salvarSimbolos(resultSimbolos).then((simbolosSalvos) => {
+                                        ImagemService.sincImagemSimbolo(idsSimbolos).then((resultSimbolos) => {
+                                            ImagemDB.salvarSimbolos(resultSimbolos).then((simbolosSalvos) => {
                                                 data.simbolos = _.pullAll(data.simbolos, idsSimbolos);
                                                 this.atuaizaParcialSinc(sinc, simbolosSalvos);
 
@@ -177,10 +177,10 @@ export default {
             });
         },
         sincImagem(sinc) {
-            produtoDB.getIdsImagens().then((retorno) => {
+            ProdutoDB.getIdsImagens().then((retorno) => {
                 sinc.parcial = 0;
                 sinc.total = retorno.quantidade;
-                imagemDB.limparBase().then(() => {
+                ImagemDB.limparBase().then(() => {
                     this.downloadImagensFromData(sinc, retorno.data).then(() => {
                         this.closeLoading(sinc);
                     })
@@ -189,11 +189,11 @@ export default {
         },
 
         sincCliente(sinc) {
-            clienteService.sincCliente().then((clientes) => {
+            ClienteService.sincCliente().then((clientes) => {
                 sinc.total = clientes.length;
-                clienteDB.limparBase().then(() => {
+                ClienteDB.limparBase().then(() => {
                     clientes.forEach(cliente => {
-                        clienteDB.salvarSinc(cliente).then(() => {
+                        ClienteDB.salvarSinc(cliente).then(() => {
                             this.atuaizaParcialSinc(sinc, 1);
                             if(_.last(clientes) === cliente) this.closeLoading(sinc);
                         });
@@ -205,11 +205,11 @@ export default {
         },
 
         sincGrupoCliente(sinc) {
-            clienteService.sincGrupoCliente().then((gruposClientes) => {
+            ClienteService.sincGrupoCliente().then((gruposClientes) => {
                 sinc.total = gruposClientes.length;
-                grupoClienteDB.limparBase().then(() => {
+                GrupoClienteDB.limparBase().then(() => {
                     gruposClientes.forEach(grupoCliente => {
-                        grupoClienteDB.salvar(grupoCliente).then(() => {
+                        GrupoClienteDB.salvar(grupoCliente).then(() => {
                             this.atuaizaParcialSinc(sinc, 1);
                             if(_.last(gruposClientes) === grupoCliente) this.closeLoading(sinc);
                         });
@@ -224,8 +224,8 @@ export default {
             return new Promise((resolve) => {
                 let siglaEstado = siglasEstados[sinc.parcial];
                 
-                cidadeService.sincCidade(siglaEstado).then((estado) => {
-                    cidadeDB.salvar(estado).then(() => {
+                CidadeService.sincCidade(siglaEstado).then((estado) => {
+                    CidadeDB.salvar(estado).then(() => {
                         this.atuaizaParcialSinc(sinc, 1);
                         if(_.last(siglasEstados) === siglaEstado) {
                             resolve();
@@ -240,10 +240,11 @@ export default {
             });
         },
 
+
         sincCidade(sinc) {
             const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
             sinc.total = siglasEstados.length;
-            cidadeDB.limparBase().then(() => {
+            CidadeDB.limparBase().then(() => {
                 this.downloadCidadesFromData(sinc, siglasEstados).then(() => {
                     this.closeLoading(sinc);
                 })
@@ -255,7 +256,7 @@ export default {
 
     beforeMount() {
         this.$vs.loading();
-        sincDataDB.getAll().then((sinData) => {
+        SincDataDB.getAll().then((sinData) => {
             this.sincronizacao = _.orderBy(sinData, ['order']);
             this.$vs.loading.close();
         });

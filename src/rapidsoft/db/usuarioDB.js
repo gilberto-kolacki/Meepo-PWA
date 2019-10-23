@@ -2,6 +2,7 @@ import PouchDB from 'pouchdb';
 import _ from 'lodash';
 import store from '../../store/store'
 import BasicDB from './basicDB'
+import SegmentoDB from './segmentoDB'
 
 let idUsuario = "1";
 let localDB = null;
@@ -16,34 +17,38 @@ const createDB = () => {
 
 createDB();
 
-class usuarioDB {
+class UsuarioDB {
 
     signIn(usuario) {
         return new Promise((resolve, reject) => {
-            usuario._id = idUsuario;
-            usuario.img = usuario.img || 'user.png';
-            usuario.displayName = usuario.nome;
-            localDB.put(_.cloneDeep(usuario)).then((result) => {
-                usuario._id = result.id;
-                resolve(usuario);
-            }).catch((erro) => {
-                reject(erro);
-            });
+            SegmentoDB.salva(usuario.segmento).then(() => {
+                usuario._id = idUsuario;
+                usuario.img = usuario.img || 'user.png';
+                usuario.displayName = usuario.nome;
+                delete usuario["segmento"];
+                localDB.put(_.cloneDeep(usuario)).then((result) => {
+                    usuario._id = result.id;
+                    resolve(usuario);
+                }).catch((erro) => {
+                    reject(erro);
+                });
+            })
         });
     }
 
     signOut() {
         return new Promise((resolve, reject) => {
-            localDB.destroy().then((result) => {
-                localStorage.removeItem('userInfo')
-                localStorage.removeItem('token');
-                localStorage.removeItem('tokenExpiry');
-                localStorage.removeItem('userRole');
-                createDB();
-                resolve(result);
-            }).catch((err) => {
-                reject(err);
-            });
+            SegmentoDB.limparBase().then(() => {
+                localDB.destroy().then(() => {
+                    localStorage.removeItem('userInfo')
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('tokenExpiry');
+                    localStorage.removeItem('userRole');
+                    resolve(createDB());
+                }).catch((err) => {
+                    reject(err);
+                });
+            })
         });
     }
 
@@ -59,4 +64,4 @@ class usuarioDB {
     }
 
 }
-export default new usuarioDB();
+export default new UsuarioDB();
