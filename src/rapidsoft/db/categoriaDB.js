@@ -5,7 +5,7 @@ import _ from 'lodash';
 let localDB = null;
 
 const createDB = () => {
-    BasicDB.createDBLocalBasic("grupo_cliente").then((dataBaseLocal) => {
+    BasicDB.createDBLocalBasic("categoria").then((dataBaseLocal) => {
         if (dataBaseLocal) {
             localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
         }
@@ -14,7 +14,7 @@ const createDB = () => {
 
 createDB();
 
-class grupoClienteDB {
+class categoriaDB {
 
     limparBase() {
         return new Promise((resolve) => {
@@ -26,14 +26,14 @@ class grupoClienteDB {
         });
     }
 
-    salvarSinc(gruposCliente) {
+    salvarSinc(categorias) {
         return new Promise((resolve) => {
             this.limparBase().then(() => {
-                if(gruposCliente.length > 0) {
-                    const done = _.after(gruposCliente.length, () => resolve());
-                    gruposCliente.forEach(grupo => {
-                        grupo._id = _.toString(grupo.id);
-                        localDB.put(grupo).then(() => done()).catch(() => done());
+                if(categorias.length > 0) {
+                    const done = _.after(categorias.length, () => resolve());
+                    categorias.forEach(categoria => {
+                        categoria._id = _.toString(categoria.id);
+                        localDB.put(categoria).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
@@ -59,4 +59,4 @@ class grupoClienteDB {
 
 }
 
-export default new grupoClienteDB();
+export default new categoriaDB();

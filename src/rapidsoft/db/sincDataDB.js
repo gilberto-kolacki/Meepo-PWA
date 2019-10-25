@@ -32,10 +32,10 @@ const sincDados =  [
         dataSincronizacao: null
     },
     {
-        _id:"2",
-        type:"grupoCliente",
-        titulo: "Grupos de cliente",
-        methodo: "sincGrupoCliente",
+        _id:"3",
+        type:"parametros",
+        titulo: "Parâmetros",
+        methodo: "sincParametro",
         percent: 0,
         parcial: 0,
         total: 0,
@@ -134,13 +134,6 @@ class sincDataDB {
                 console.log(erro);
                 resolve(sinc);
             });
-            
-            // this.findById(sinc._id).then((sincResult) => {
-            //     console.log(sincResult);
-            //     sinc.
-                
-            //     resolve();
-            // })
         });
     }
 

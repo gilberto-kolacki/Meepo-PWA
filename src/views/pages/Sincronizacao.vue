@@ -25,7 +25,6 @@
                             <vs-progress :height="10" :percent="sinc.percent" color="primary" v-else></vs-progress>
                         </div>
                     </template>
-
                     <div class="flex justify-between text-center" slot="no-body-bottom">
                         <div class="w-full border border-solid d-theme-border-grey-light border-r-0 border-b-0 border-l-0">
                             <div class="vx-col my-5">
@@ -52,6 +51,10 @@ import ProdutoDB from '../../rapidsoft/db/produtoDB'
 import ImagemDB from '../../rapidsoft/db/imagemDB'
 import ClienteDB from '../../rapidsoft/db/clienteDB'
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
+import CategoriaDB from '../../rapidsoft/db/categoriaDB'
+import ProntaEntregaDB from '../../rapidsoft/db/prontaEntregaDB'
+import PeriodoDB from '../../rapidsoft/db/periodoDB'
+import EmbarqueDB from '../../rapidsoft/db/embarqueDB'
 import CidadeDB from '../../rapidsoft/db/cidadeDB'
 
 export default {
@@ -205,17 +208,27 @@ export default {
             });
         },
 
-        sincGrupoCliente(sinc) {
-            ParametroService.sincGrupoCliente().then((gruposClientes) => {
-                sinc.total = gruposClientes.length;
-                GrupoClienteDB.limparBase().then(() => {
-                    gruposClientes.forEach(grupoCliente => {
-                        GrupoClienteDB.salvar(grupoCliente).then(() => {
+        sincParametro(sinc) {
+            ParametroService.sincParametro().then((data) => {
+                console.log(data);
+                sinc.total = Object.keys(data).length;
+                GrupoClienteDB.salvarSinc(data.grupoCliente).then(() => {
+                    this.atuaizaParcialSinc(sinc, 1);
+                    CategoriaDB.salvarSinc(data.categoria).then(() => {
+                        this.atuaizaParcialSinc(sinc, 1);
+                        ProntaEntregaDB.salvarSinc(data.prontaEntrega).then(() => {
                             this.atuaizaParcialSinc(sinc, 1);
-                            if(_.last(gruposClientes) === grupoCliente) this.closeLoading(sinc);
-                        });
-                    });
-                });
+                            PeriodoDB.salvarSinc(data.periodo).then(() => {
+                                this.atuaizaParcialSinc(sinc, 1);
+                                EmbarqueDB.salvarSinc(data.embarque).then(() => {
+                                    this.atuaizaParcialSinc(sinc, 1);
+                                    this.closeLoading(sinc);
+                                })
+                            })
+                        })
+                    })
+
+                })
             }).catch((error) => {
                 this.errorSinc(sinc, error);
             });
