@@ -19,17 +19,6 @@ const createDB = () => {
     })
 };
 
-const salvaCidades = (cidades) => {
-    console.log('aqui2');
-    
-    localDB.bulkDocs(cidades, (error) => {
-        if (error) {
-            console.log(error);
-            console.log(cidades);
-        }
-    });
-}
-
 createDB();
 
 class cidadeDB {
