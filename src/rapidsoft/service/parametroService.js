@@ -1,12 +1,12 @@
 import { http } from './serviceConfig'
 
-class clienteService {
+class parametroService {
 
-    sincCliente(clientes) {
+    sincGrupoCliente() {
         return new Promise((resolve, reject) => {
             let token = JSON.parse(localStorage.getItem('token'));
-            http.post('/cliente', {token: token, data: clientes}).then((result) => {
-                resolve(result.data);
+            http.post('/parametro', {token: token}).then((result) => {
+                resolve(result.data.grupoCliente);
             }).catch((error) => {
                 reject(error);
             });
@@ -14,4 +14,4 @@ class clienteService {
     }
 
 }
-export default new clienteService();
+export default new parametroService();

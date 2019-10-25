@@ -45,6 +45,7 @@ import _ from 'lodash'
 import ProdutoService from '../../rapidsoft/service/produtoService'
 import CidadeService from '../../rapidsoft/service/cidadeService'
 import ClienteService from '../../rapidsoft/service/clienteService'
+import ParametroService from '../../rapidsoft/service/parametroService'
 import ImagemService from '../../rapidsoft/service/imagemService'
 import SincDataDB from '../../rapidsoft/db/sincDataDB'
 import ProdutoDB from '../../rapidsoft/db/produtoDB'
@@ -205,7 +206,7 @@ export default {
         },
 
         sincGrupoCliente(sinc) {
-            ClienteService.sincGrupoCliente().then((gruposClientes) => {
+            ParametroService.sincGrupoCliente().then((gruposClientes) => {
                 sinc.total = gruposClientes.length;
                 GrupoClienteDB.limparBase().then(() => {
                     gruposClientes.forEach(grupoCliente => {
