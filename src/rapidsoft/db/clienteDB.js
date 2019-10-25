@@ -111,7 +111,11 @@ const validarObjetoDB = (cliente) => {
             if (cliente.razaoSocial === undefined || cliente.razaoSocial === "") {
                 retorno.campo = "razaoSocial"
                 reject(retorno);
-                        }
+            }
+            else if (cliente.fantasia === undefined || cliente.fantasia === "") {
+                retorno.campo = "fantasia"
+                reject(retorno);
+            }
             else if (cliente.dataFundacao === undefined || cliente.dataFundacao === "") {
                 retorno.campo = "dataFundacao"
                 reject(retorno);
@@ -205,18 +209,6 @@ class clienteDB {
             }).catch((err) => {
                 console.log(err);
                 reject(err);
-            });
-        });
-    }
-
-    salvar2(cliente) {
-        return new Promise((resolve, reject) => {
-            cliente._id = cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
-            localDB.put(cliente).then((result) => {
-                resolve(result);
-            }).catch((erro) => {
-                console.log(erro);
-                reject(erro);
             });
         });
     }

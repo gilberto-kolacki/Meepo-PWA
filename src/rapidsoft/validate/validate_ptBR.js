@@ -8,6 +8,9 @@ const ptBR = {
             required: 'Campo obrigatório!',            
             min: 'Mínimo de 11 caracteres',            
         },
+        fantasia:{
+            required: 'Campo obrigatório!'
+        },
         nomeCliente: {
             required: 'Campo obrigatório!'           
         },

@@ -629,7 +629,7 @@ export default {
                 this.$set(this.clienteEdit, 'endereco', endereco);
             }
         },
-        salvarContato() {        
+        salvarContato() {          
             ClienteDB.validarContato(_.cloneDeep(this.contatoEdit)).then(() => {
                 this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
                 this.isEditContato = false;
@@ -669,7 +669,7 @@ export default {
             this.$vs.loading();
             let cliente = _.cloneDeep(this.clienteEdit);
             setTimeout(() => {  
-                ClienteDB.salvar2(cliente).then(() => {
+                ClienteDB.salvar(cliente).then(() => {
                     this.$vs.notify({
                         title: 'Sucesso',
                         text: 'Cliente Salvo!',
