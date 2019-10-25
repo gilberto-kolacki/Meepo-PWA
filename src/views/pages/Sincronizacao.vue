@@ -122,10 +122,11 @@ export default {
             ProdutoService.sincProduto().then((produtos) => {
                 sinc.total = produtos.length;
                 ProdutoDB.limparBase().then(() => {
+                    const done = _.after(produtos.length, () => this.closeLoading(sinc));
                     produtos.forEach(produto => {
                         ProdutoDB.salvar(produto).then(() => {
                             this.atuaizaParcialSinc(sinc, 1);
-                            if(_.last(produtos) === produto) this.closeLoading(sinc);
+                            done();
                         });
                     });
                 });
@@ -196,10 +197,11 @@ export default {
             ClienteService.sincCliente().then((clientes) => {
                 sinc.total = clientes.length;
                 ClienteDB.limparBase().then(() => {
+                    const done = _.after(clientes.length, () => this.closeLoading(sinc));
                     clientes.forEach(cliente => {
                         ClienteDB.salvarSinc(cliente).then(() => {
                             this.atuaizaParcialSinc(sinc, 1);
-                            if(_.last(clientes) === cliente) this.closeLoading(sinc);
+                            done();
                         });
                     });
                 });
@@ -227,7 +229,6 @@ export default {
                             })
                         })
                     })
-
                 })
             }).catch((error) => {
                 this.errorSinc(sinc, error);
@@ -237,23 +238,20 @@ export default {
         downloadCidadesFromData(sinc, siglasEstados) {
             return new Promise((resolve) => {
                 let siglaEstado = siglasEstados[sinc.parcial];
-                
-                CidadeService.sincCidade(siglaEstado).then((estado) => {
-                    CidadeDB.salvar(estado).then(() => {
-                        this.atuaizaParcialSinc(sinc, 1);
-                        if(_.last(siglasEstados) === siglaEstado) {
-                            resolve();
-                        } else {
+                if(_.isNil(siglaEstado)) {
+                    resolve();
+                } else {
+                    CidadeService.sincCidade(siglaEstado).then((estado) => {
+                        CidadeDB.salvar(estado).then(() => {
+                            this.atuaizaParcialSinc(sinc, 1);
                             this.downloadCidadesFromData(sinc, siglasEstados).then(() => resolve());
-                        }
-                    })
-                }).catch((error) => {
-                    this.errorSinc(sinc, error);
-                }); 
-
+                        })
+                    }).catch((error) => {
+                        this.errorSinc(sinc, error);
+                    }); 
+                }
             });
         },
-
 
         sincCidade(sinc) {
             const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
