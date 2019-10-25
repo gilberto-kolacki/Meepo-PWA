@@ -36,7 +36,6 @@
                             <span class="text-danger text-sm">{{ errors.first('fantasia') }}</span>
                         </div>
                     </div>
-
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/4 w-full mb-2" v-if="isJuridico" v-on:keyup.enter="proximoCampo('inscricaoEstadual')">
                             <label for="dataFundacao" class="vs-input--label">Data Fundação*</label>                            
@@ -110,7 +109,15 @@
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="cepEndereco" class="vs-input--label">CEP*</label>
                                 <div class="vs-con-input">
-                                    <the-mask v-validate="'required'" id="cepEndereco" name="cepEndereco" v-model="clienteEdit.endereco.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true" v-on:keyup.enter="proximoCampo('endereco')" />
+                                    <the-mask 
+                                        v-validate="'required'" 
+                                        id="cepEndereco" 
+                                        name="cepEndereco" 
+                                        v-model="clienteEdit.endereco.cep" 
+                                        class="vs-inputx vs-input--input normal hasValue" 
+                                        :mask="['#####-###']" 
+                                        :masked="true">
+                                    </the-mask>
                                 </div>
                                 <span class="text-danger text-sm">{{ errors.first('cepEndereco') }}</span>
                             </div>
