@@ -13,5 +13,16 @@ class parametroService {
         });
     }
 
+    sincParametro() {
+        return new Promise((resolve, reject) => {
+            let token = JSON.parse(localStorage.getItem('token'));
+            http.post('/parametro', {token: token}).then((result) => {
+                resolve(result.data);
+            }).catch((error) => {
+                reject(error);
+            });
+        });
+    }
+
 }
 export default new parametroService();

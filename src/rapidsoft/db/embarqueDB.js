@@ -5,7 +5,7 @@ import _ from 'lodash';
 let localDB = null;
 
 const createDB = () => {
-    BasicDB.createDBLocalBasic("grupo_cliente").then((dataBaseLocal) => {
+    BasicDB.createDBLocalBasic("embarque").then((dataBaseLocal) => {
         if (dataBaseLocal) {
             localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
         }
@@ -14,7 +14,7 @@ const createDB = () => {
 
 createDB();
 
-class grupoClienteDB {
+class embarqueDB {
 
     limparBase() {
         return new Promise((resolve) => {
@@ -26,14 +26,14 @@ class grupoClienteDB {
         });
     }
 
-    salvarSinc(gruposCliente) {
+    salvarSinc(embarques) {
         return new Promise((resolve) => {
             this.limparBase().then(() => {
-                if(gruposCliente.length > 0) {
-                    const done = _.after(gruposCliente.length, () => resolve());
-                    gruposCliente.forEach(grupo => {
-                        grupo._id = _.toString(grupo.id);
-                        localDB.put(grupo).then(() => done()).catch(() => done());
+                if(embarques.length > 0) {
+                    const done = _.after(embarques.length, () => resolve());
+                    embarques.forEach(embarque => {
+                        embarque._id = _.toString(embarque.id);
+                        localDB.put(embarque).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
@@ -45,10 +45,10 @@ class grupoClienteDB {
     getAll() {
         return new Promise((resolve) => {
             localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((grupo) => {
-                    if (grupo.doc['nome']) {
-                        delete grupo.doc['_rev'];
-                        return _.clone(grupo.doc);
+                resolve(resultDocs.rows.map((embarque) => {
+                    if (embarque.doc['nome']) {
+                        delete embarque.doc['_rev'];
+                        return _.clone(embarque.doc);
                     }
                 }))
             }).catch((err) => {
@@ -59,4 +59,4 @@ class grupoClienteDB {
 
 }
 
-export default new grupoClienteDB();
+export default new embarqueDB();
