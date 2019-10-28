@@ -147,7 +147,7 @@
                             <span class="text-danger text-sm">{{ errors.first('cidade') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/6 w-full mb-2" v-on:keyup.enter="proximoCampo('referenciaComercial')">
-                            <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" class="w-full"/>
+                            <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" @change="carregaGrupoCliente()" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2">
@@ -435,6 +435,7 @@ export default {
             tipoPessoa: 1,
             grupoCliente: null,
             segmentosCliente: [],
+            estadoCliente: null,
             cepCobranca: null,
             clienteEdit: {
                 tipoPessoa: 1,
@@ -608,8 +609,8 @@ export default {
             endereco.estado = null;
             if (navigator.onLine && cep.length === 9) {
                 this.$vs.loading();
-                CidadeService.buscaEndereco(this.clienteEdit.endereco.cep).then((endereco) =>{
-                    if (endereco.id) {
+                CidadeService.buscaEndereco(this.clienteEdit.endereco.cep).then((endereco) => {
+                    if (endereco && endereco.id) {
                         CidadeDB.buscaCidade(endereco.id).then((cidade) => {
                             if (cidade.existe && cidade.result.rel === 1) {
                                 endereco.cep = cep;
@@ -624,6 +625,7 @@ export default {
                         })
                     }
                     this.$vs.loading.close();
+                    this.carregaGrupoCliente();
                 })
             } else {
                 this.$set(this.clienteEdit, 'endereco', endereco);
@@ -730,6 +732,20 @@ export default {
                 callback();
             })
         },
+        carregaGrupoCliente() {
+            this.grupoCliente = _.head(_.flattenDeep(this.grupoClientes.map((grupo) => {
+                return grupo.estados.map((estado) => {
+                    if (_.toUpper(this.clienteEdit.endereco.estado) === _.toUpper(estado)) {
+                        return {value: grupo.id, label: grupo.nome, padrao: grupo.padrao};
+                    }
+                });
+            })));
+            console.log(this.grupoCliente);
+            
+            if (_.isNil(this.grupoCliente)) {
+                this.grupoCliente = _.filter(this.getGrupoClientesSelect, (grupo) => { return grupo.padrao });
+            }
+        },
         
     },
     created() {
@@ -745,6 +761,8 @@ export default {
                 this.idCliente = this.$route.params.clienteId;
                 if (this.idCliente) {
                     this.findById(this.idCliente);
+                } else {
+                    this.grupoCliente = _.filter(this.getGrupoClientesSelect, (grupo) => { return grupo.padrao });
                 }
             })
         });
@@ -785,6 +803,11 @@ export default {
 }
 
 .vs-input--input.normal {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+}
+
+.v-select {
     font-size: 0.75rem;
 }
 
