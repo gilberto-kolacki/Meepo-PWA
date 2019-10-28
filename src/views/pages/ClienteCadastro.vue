@@ -38,7 +38,7 @@
                     </div>
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/4 w-full mb-2" v-if="isJuridico" v-on:keyup.enter="proximoCampo('inscricaoEstadual')">
-                            <label for="dataFundacao" class="vs-input--label">Data Fundação*</label>                            
+                            <label for="dataFundacao" class="vs-input--label">Data Fundação*</label>
                             <datepicker 
                                 v-validate="'required'" 
                                 placeholder="DD/MM/AAAA" 
@@ -50,11 +50,11 @@
                                 :language="langSettings" 
                                 wrapper-class="w-full"
                                 input-class="vs-inputx vs-input--input normal">
-                            </datepicker> 
+                            </datepicker>
                             <span class="text-danger text-sm">{{ errors.first('dataFundacao') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/4 w-full mb-2" v-else v-on:keyup.enter="proximoCampo('registroGeral')" >
-                            <label for="dataAniversario" class="vs-input--label">Data Aniversário*</label>                            
+                            <label for="dataAniversario" class="vs-input--label">Data Aniversário*</label>
                             <datepicker 
                                 v-validate="'required'" 
                                 placeholder="DD/MM/AAAA" 
@@ -64,7 +64,7 @@
                                 :language="langSettings" 
                                 wrapper-class="w-full" 
                                 input-class="vs-inputx vs-input--input normal">
-                            </datepicker> 
+                            </datepicker>
                             <span class="text-danger text-sm">{{ errors.first('dataAniversario') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/4 w-full mb-2" v-if="isJuridico">
@@ -84,7 +84,7 @@
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2">
                             <label for="" class="vs-input--label">Segmentos*</label>
-                            <v-select multiple v-validate="'required'" id="segmento" name="segmento" v-model="segmentosCliente" :options="getSegmentosCheckBox"></v-select>                            
+                            <v-select multiple v-validate="'required'" id="segmento" name="segmento" v-model="segmentosCliente" :options="getSegmentosCheckBox"></v-select>
                             <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
                         </div>
                     </div>
@@ -179,8 +179,8 @@
                                         <img :src="imagenCliente.base64" style="max-width: none; max-height: 100%;" />
                                     </div>
                                     <div class="con-input-upload">
-                                        <input type="file" multiple="multiple" accept="image/*" @change="onFileChanged" :disabled="clienteEdit.imagens.length >= 1000"/>
-                                        <span class="text-input">Selecione as Imagens</span>                                
+                                        <input type="file" multiple="multiple" accept="image/*" @change="onFileChanged" :disabled="clienteEdit.imagens.length >= 5"/>
+                                        <span class="text-input">Selecione as Imagens</span>
                                         <button type="button" title="Upload" class="btn-upload-all vs-upload--button-upload" :disabled="clienteEdit.imagens.length >= 5">
                                             <i translate="translate" class="material-icons notranslate">cloud_upload</i>
                                         </button>
@@ -241,13 +241,13 @@
                          <div class="vx-row">
                             <div class="vx-col my-5-top w-full">
                                 <vs-button color="success" class="mr-3 mb-2 pull-right" @click="salvarContato">Salvar</vs-button>
-                                <vs-button color="danger" type="border" class="mb-2 pull-right" @click="cancelarContato">Voltar</vs-button>
+                                <vs-button color="danger" type="border" class="mr-2 mb-2 pull-right" @click="cancelarContato">Voltar</vs-button>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div id="cliente-contato-list" v-else>
-                    <vs-table max-items="5" :data="clienteEdit.contatos">            
+                    <vs-table max-items="5" :data="clienteEdit.contatos">
                         <template slot="header">
                             <div class="mb-base-button">
                                 <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarContato(null)" v-if="!clienteEdit.clienteErp">Novo</vs-button>
@@ -281,10 +281,10 @@
                                 <vs-td>
                                     <div class="flex">
                                         <div class="p-1 mr-1">
-                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarContato(data[indextr])" />
+                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarContato(data[indextr], indextr)" />
                                         </div>
                                         <div class="p-1 mr-1">
-                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarContato(data[indextr])"/>
+                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarContato(data[indextr], indextr)"/>
                                         </div>
                                     </div>
                                 </vs-td>
@@ -300,14 +300,16 @@
                     <div class="my-1">
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/4 w-full mb-2">
-                                <label for="cadCepEndereco" class="vs-input--label">CEP*</label>
-                                <div class="vs-con-input">
-                                    <the-mask v-validate="'required'" id="cadCepEndereco" name="cadCepEndereco" v-model="enderecoEdit.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true" v-on:keyup.enter="proximoCampo('cadEndereco')"/>
+                                <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('cadEndereco')">
+                                    <label for="cadCepEndereco" class="vs-input--label">CEP*</label>
+                                    <div class="vs-con-input">
+                                        <the-mask v-validate="'required'" id="cadCepEndereco" name="cadCepEndereco" v-model="enderecoEdit.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true"/>
+                                    </div>
+                                    <span class="text-danger text-sm">{{ errors.first('cadCepEndereco') }}</span>
                                 </div>
-                                <span class="text-danger text-sm">{{ errors.first('cadCepEndereco') }}</span>
                             </div>
                             <div class="vx-col sm:w-3/4 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Endereço*" id="cadEndereco" name="cadEndereco" v-model="enderecoEdit.endereco" class="w-full" v-on:keyup.enter="proximoCampo('cadNumeroEndereco')"/>                                
+                                <vs-input v-validate="'required|alpha_spaces'" label="Endereço*" id="cadEndereco" name="cadEndereco" v-model="enderecoEdit.endereco" class="w-full" v-on:keyup.enter="proximoCampo('cadNumeroEndereco')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadEndereco') }}</span>
                             </div>
                         </div>
@@ -347,13 +349,13 @@
                         <div class="vx-row">
                             <div class="vx-col my-5-top w-full">
                                 <vs-button color="success" class="mr-3 mb-2 pull-right" @click="salvarEndereco">Salvar</vs-button>
-                                <vs-button color="danger" type="border" class="mb-2 pull-right" @click="cancelarEndereco">Voltar</vs-button>
+                                <vs-button color="danger" type="border" class="mr-2 mb-2 pull-right" @click="cancelarEndereco">Voltar</vs-button>
                             </div>
-                        </div>                        
-                    </div>                    
+                        </div>
+                    </div>
                 </div>
                 <div id="cliente-endereco-list" v-else>
-                    <vs-table max-items="5" :data="clienteEdit.enderecos">            
+                    <vs-table max-items="5" :data="clienteEdit.enderecos">
                         <template slot="header">
                             <div class="mb-base-button">
                                 <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarEndereco(null)" v-if="!clienteEdit.clienteErp">Novo</vs-button>
@@ -395,10 +397,10 @@
                                 <vs-td>
                                     <div class="flex">
                                         <div class="p-1">
-                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editar(data[indextr])" />
+                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarEndereco(data[indextr], indextr)" />
                                         </div>
                                         <div class="p-1">
-                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarEndereco(data[indextr])"/>
+                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarEndereco(data[indextr], indextr)"/>
                                         </div>
                                     </div>
                                 </vs-td>
@@ -449,8 +451,8 @@ export default {
                 ]
             },
             contatoEdit: {},
-            enderecoEdit: {}, 
-            isIpad: false,     
+            enderecoEdit: {},
+            isIpad: false,
             isEditContato: false,
             isEditEndereco: false,
             langSettings: lang.ptBR,
@@ -459,7 +461,7 @@ export default {
         }
     },
     components: {
-        Datepicker,        
+        Datepicker,
         'v-select': vSelect,
     },
     watch: {
@@ -472,7 +474,7 @@ export default {
                     this.tipoPessoa = 1;
                 }
             } else {
-              this.tipoPessoa = 1;  
+              this.tipoPessoa = 1;
             }
         },
         tipoPessoa(val) {
@@ -555,33 +557,35 @@ export default {
                 }
             }
         },
-        editarContato(contato) {
+        editarContato(contato, index) {
             this.isEditContato = true;
             if (contato === null) {
                 this.contatoEdit = {};
             } else {
                 this.contatoEdit = contato;
+                this.clienteEdit.contatos.splice(index, 1);
             }
             setTimeout(() => {
                 this.proximoCampo('nomeContato');
             }, 100);
         },
-        editarEndereco(endereco) {
+        editarEndereco(endereco, index) {
             this.isEditEndereco = true;
             if (endereco === null) {
                 this.enderecoEdit = {};
             } else {
                 this.enderecoEdit = endereco;
+                this.clienteEdit.enderecos.splice(index, 1)
             }
             setTimeout(() => {
                 this.proximoCampo('cadCepEndereco');
             }, 100);
         },
-        deletarContato() {
-
+        deletarContato(data, index) {
+            this.clienteEdit.contatos.splice(index, 1);
         },
-        deletarEndereco() {
-
+        deletarEndereco(data, index) {
+            this.clienteEdit.enderecos.splice(index, 1)
         },
         cancelarContato() {
             this.isEditContato = false;
@@ -600,6 +604,7 @@ export default {
             })
         },
         consultaCep(cep) {
+            const telefone = this.clienteEdit.endereco.telefone
             const endereco = {}
             endereco.cep = cep;
             endereco.endereco = null;
@@ -612,6 +617,7 @@ export default {
                     if (endereco.id) {
                         CidadeDB.buscaCidade(endereco.id).then((cidade) => {
                             if (cidade.existe && cidade.result.rel === 1) {
+                                endereco.telefone = telefone
                                 endereco.cep = cep;
                                 endereco.endereco = endereco.e;
                                 endereco.bairro = endereco.b;
@@ -668,8 +674,9 @@ export default {
         salvarCliente() {
             this.$vs.loading();
             let cliente = _.cloneDeep(this.clienteEdit);
+            console.log(cliente)
             setTimeout(() => {  
-                ClienteDB.salvar(cliente).then(() => {
+                ClienteDB.salvar(cliente).then((result) => {
                     this.$vs.notify({
                         title: 'Sucesso',
                         text: 'Cliente Salvo!',
