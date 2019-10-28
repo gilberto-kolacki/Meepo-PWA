@@ -1,3 +1,10 @@
+/*=========================================================================================
+  File Name: usuarioDB.js
+  Description: Classe de banco de Produtos
+  ----------------------------------------------------------------------------------------
+  Author: Giba
+==========================================================================================*/
+
 import PouchDB from 'pouchdb';
 import _ from 'lodash';
 import store from '../../store/store'
@@ -17,7 +24,7 @@ const createDB = () => {
 
 createDB();
 
-class UsuarioDB {
+class usuarioDB {
 
     signIn(usuario) {
         return new Promise((resolve, reject) => {
@@ -64,4 +71,4 @@ class UsuarioDB {
     }
 
 }
-export default new UsuarioDB();
+export default new usuarioDB();

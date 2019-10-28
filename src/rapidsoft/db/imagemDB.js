@@ -1,3 +1,10 @@
+/*=========================================================================================
+  File Name: imagemDB.js
+  Description: Classe de banco responsavel pelas imagens
+  ----------------------------------------------------------------------------------------
+  Author: Giba
+==========================================================================================*/
+
 import BasicDB from './basicDB'
 import _ from 'lodash';
 import PouchDB from 'pouchdb';
@@ -129,13 +136,10 @@ class imagemDB {
     salvarFotos(fotos) {
         return new Promise((resolve) => {
             if (_.isArray(fotos) && fotos.length > 0) {
+                const done = _.after(fotos.length, () => resolve(fotos.length));
                 fotos.forEach(imagem => {
                     imagem._id = _.toString(imagem.id);
-                    imagemFotoDB.put(imagem).then(() => {
-                        if(_.last(fotos) === imagem) {
-                            resolve(fotos.length)
-                        }
-                    });
+                    imagemFotoDB.put(imagem).then(() => done()).catch(() => done());
                 });
             } else {
                 resolve(0)
@@ -146,13 +150,10 @@ class imagemDB {
     salvarCores(cores) {
         return new Promise((resolve) => {
             if (_.isArray(cores) && cores.length > 0) {
+                const done = _.after(cores.length, () => resolve(cores.length));
                 cores.forEach(imagem => {
                     imagem._id = _.toString(imagem.id);
-                    imagemCorDB.put(imagem).then(() => {
-                        if(_.last(cores) === imagem) {
-                            resolve(cores.length)
-                        }
-                    });
+                    imagemCorDB.put(imagem).then(() => done()).catch(() => done());
                 });
             } else {
                 resolve(0)
@@ -163,13 +164,10 @@ class imagemDB {
     salvarSelos(selos) {
         return new Promise((resolve) => {
             if (_.isArray(selos) && selos.length > 0) {
+                const done = _.after(selos.length, () => resolve(selos.length));
                 selos.forEach(imagem => {
                     imagem._id = _.toString(imagem.id);
-                    imagemSeloDB.put(imagem).then(() => {
-                        if(_.last(selos) === imagem) {
-                            resolve(selos.length)
-                        }
-                    });
+                    imagemSeloDB.put(imagem).then(() => done()).catch(() => done());
                 });
             } else {
                 resolve(0);
@@ -180,13 +178,10 @@ class imagemDB {
     salvarSimbolos(simbolos) {
         return new Promise((resolve) => {
             if (_.isArray(simbolos) && simbolos.length > 0) {
+                const done = _.after(simbolos.length, () => resolve(simbolos.length));
                 simbolos.forEach(imagem => {
                     imagem._id = _.toString(imagem.id);
-                    imagemSimboloDB.put(imagem).then(() => {
-                        if(_.last(simbolos) === imagem) {
-                            resolve(simbolos.length)
-                        }
-                    });
+                    imagemSimboloDB.put(imagem).then(() => done()).catch(() => done());
                 });
             } else {
                 resolve(0)

@@ -1,3 +1,10 @@
+/*=========================================================================================
+  File Name: grupoClienteDB.js
+  Description: Classe de banco de Grupo de clientes
+  ----------------------------------------------------------------------------------------
+  Author: Giba
+==========================================================================================*/
+
 import PouchDB from 'pouchdb';
 import BasicDB from './basicDB'
 import _ from 'lodash';

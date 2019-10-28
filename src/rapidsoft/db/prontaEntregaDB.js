@@ -1,3 +1,10 @@
+/*=========================================================================================
+  File Name: prontaEntregaDB.js
+  Description: Classe de banco de Produtos pronta entrega
+  ----------------------------------------------------------------------------------------
+  Author: Giba
+==========================================================================================*/
+
 import PouchDB from 'pouchdb';
 import BasicDB from './basicDB'
 import _ from 'lodash';

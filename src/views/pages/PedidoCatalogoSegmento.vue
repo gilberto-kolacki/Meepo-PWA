@@ -583,10 +583,10 @@ export default {
         
         produtoDB.getProdutosCatalogo().then(result => {
             this.produtos = result;
-            this.categorias = produtoDB.getCategorias()
-            this.categorias.forEach(categoria => {
-                categoria.check = true;
-            });
+            // this.categorias = produtoDB.getCategorias()
+            // this.categorias.forEach(categoria => {
+            //     categoria.check = true;
+            // });
             this.selectProduto(this.produtos[0]);
             // this.$vs.loading.close();
             appLoading.style.display = "none";

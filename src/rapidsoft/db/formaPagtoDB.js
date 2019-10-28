@@ -1,6 +1,6 @@
 /*=========================================================================================
-  File Name: periodoDB.js
-  Description: Classe de banco de Periodos
+  File Name: formaPagtoDB.js
+  Description: Classe de banco de categorias
   ----------------------------------------------------------------------------------------
   Author: Giba
 ==========================================================================================*/
@@ -12,7 +12,7 @@ import _ from 'lodash';
 let localDB = null;
 
 const createDB = () => {
-    BasicDB.createDBLocalBasic("periodo").then((dataBaseLocal) => {
+    BasicDB.createDBLocalBasic("forma_pagto").then((dataBaseLocal) => {
         if (dataBaseLocal) {
             localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
         }
@@ -21,7 +21,7 @@ const createDB = () => {
 
 createDB();
 
-class periodoDB {
+class formaPagtoDB {
 
     limparBase() {
         return new Promise((resolve) => {
@@ -33,14 +33,14 @@ class periodoDB {
         });
     }
 
-    salvarSinc(periodos) {
+    salvarSinc(formasPagto) {
         return new Promise((resolve) => {
             this.limparBase().then(() => {
-                if(periodos.length > 0) {
-                    const done = _.after(periodos.length, () => resolve());
-                    periodos.forEach(periodo => {
-                        periodo._id = _.toString(periodo.id);
-                        localDB.put(periodo).then(() => done()).catch(() => done());
+                if(formasPagto.length > 0) {
+                    const done = _.after(formasPagto.length, () => resolve());
+                    formasPagto.forEach(formPagto => {
+                        formPagto._id = _.toString(formPagto.id);
+                        localDB.put(formPagto).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
@@ -52,10 +52,10 @@ class periodoDB {
     getAll() {
         return new Promise((resolve) => {
             localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((periodo) => {
-                    if (periodo.doc['nome']) {
-                        delete periodo.doc['_rev'];
-                        return _.clone(periodo.doc);
+                resolve(resultDocs.rows.map((grupo) => {
+                    if (grupo.doc['id']) {
+                        delete grupo.doc['_rev'];
+                        return _.clone(grupo.doc);
                     }
                 }))
             }).catch((err) => {
@@ -66,4 +66,4 @@ class periodoDB {
 
 }
 
-export default new periodoDB();
+export default new formaPagtoDB();

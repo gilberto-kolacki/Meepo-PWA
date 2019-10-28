@@ -52,9 +52,9 @@ export default {
         dataVencimento() {
             let data = new Date(parseInt(localStorage.getItem("tokenExpiry")));
             let dia = data.getDate();
-            let mes = data.getMonth();
+            let mes = data.getMonth()+1;
             let ano = data.getFullYear();
-            return dia +"/"+ (mes <= 9 ? "0"+mes : mes) +"/"+ ano;
+            return (dia <= 9 ? "0"+dia : dia) +"/"+ (mes <= 9 ? "0"+mes : mes) +"/"+ ano;
         }
     },
     methods: {
@@ -138,7 +138,7 @@ export default {
         },
         armazenamentoProduto() {
             return new Promise((resolve) => {
-                ProdutoDB.listar().then(produtos => {
+                ProdutoDB.getAllProdutos().then(produtos => {
                     if (produtos.length <= 0) resolve(0);
                     let pounchDB = 0
                     produtos.forEach(produto => {

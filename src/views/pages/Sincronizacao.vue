@@ -55,6 +55,7 @@ import CategoriaDB from '../../rapidsoft/db/categoriaDB'
 import ProntaEntregaDB from '../../rapidsoft/db/prontaEntregaDB'
 import PeriodoDB from '../../rapidsoft/db/periodoDB'
 import EmbarqueDB from '../../rapidsoft/db/embarqueDB'
+import FormaPagtoDB from '../../rapidsoft/db/formaPagtoDB'
 import CidadeDB from '../../rapidsoft/db/cidadeDB'
 
 export default {
@@ -212,7 +213,6 @@ export default {
 
         sincParametro(sinc) {
             ParametroService.sincParametro().then((data) => {
-                console.log(data);
                 sinc.total = Object.keys(data).length;
                 GrupoClienteDB.salvarSinc(data.grupoCliente).then(() => {
                     this.atuaizaParcialSinc(sinc, 1);
@@ -224,7 +224,10 @@ export default {
                                 this.atuaizaParcialSinc(sinc, 1);
                                 EmbarqueDB.salvarSinc(data.embarque).then(() => {
                                     this.atuaizaParcialSinc(sinc, 1);
-                                    this.closeLoading(sinc);
+                                    FormaPagtoDB.salvarSinc(data.formaPagamento).then(() => {
+                                        this.atuaizaParcialSinc(sinc, 1);
+                                        this.closeLoading(sinc);
+                                    })
                                 })
                             })
                         })
