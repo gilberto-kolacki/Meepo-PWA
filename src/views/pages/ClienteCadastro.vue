@@ -26,7 +26,7 @@
                             <span class="text-danger text-sm">{{ errors.first('razaoSocial') }}</span>
                         </div>
                         <div v-else class="vx-col sm:w-3/4 w-full mb-2" v-on:keyup.enter="proximoCampo('dataAniversario')">
-                            <vs-input v-validate="'required'" label="Nome*" id="nomeCliente" name="nomeCliente" v-model="clienteEdit.nome" class="w-full" />
+                            <vs-input v-validate="'required|alpha_spaces'" label="Nome*" id="nomeCliente" name="nomeCliente" v-model="clienteEdit.nome" class="w-full" />
                             <span class="text-danger text-sm">{{ errors.first('nomeCliente') }}</span>
                         </div>
                     </div>
@@ -60,7 +60,9 @@
                                 placeholder="DD/MM/AAAA" 
                                 v-model="clienteEdit.dataAniversario" 
                                 format="dd/MM/yyyy" 
-                                id="dataAniversario" name="dataAniversario" ref="dataAniversario" 
+                                id="dataAniversario"
+                                name="dataAniversario"
+                                ref="dataAniversario" 
                                 :language="langSettings" 
                                 wrapper-class="w-full" 
                                 input-class="vs-inputx vs-input--input normal">
@@ -129,11 +131,11 @@
                     </div>
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/6 w-full mb-2" v-on:keyup.enter="proximoCampo('complemento')">
-                            <vs-input v-validate="'required'" label="Numero*" id="numeroEndereco" name="numeroEndereco" v-model="clienteEdit.endereco.numero" class="w-full"/>
+                            <vs-input v-validate="'required|numeric'" label="Numero*" id="numeroEndereco" name="numeroEndereco" v-model="clienteEdit.endereco.numero" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('numeroEndereco') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('bairro')">
-                            <vs-input v-validate="'alpha_spaces'" label="Complemento" id="complemento" name="complemento" v-model="clienteEdit.endereco.complemento" class="w-full"/>
+                            <vs-input v-validate="'regex:.'" label="Complemento" id="complemento" name="complemento" v-model="clienteEdit.endereco.complemento" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('complemento') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2" v-on:keyup.enter="proximoCampo('cidade')">
@@ -147,7 +149,7 @@
                             <span class="text-danger text-sm">{{ errors.first('cidade') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/6 w-full mb-2" v-on:keyup.enter="proximoCampo('referenciaComercial')">
-                            <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" @change="carregaGrupoCliente()" class="w-full"/>
+                            <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2">
@@ -300,7 +302,7 @@
                     <div class="my-1">
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/4 w-full mb-2">
-                                <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('cadEndereco')">
+                                <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('cadEndereco'), consultaCepEnd(enderecoEdit.cep)">
                                     <label for="cadCepEndereco" class="vs-input--label">CEP*</label>
                                     <div class="vs-con-input">
                                         <the-mask v-validate="'required'" id="cadCepEndereco" name="cadCepEndereco" v-model="enderecoEdit.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true"/>
@@ -315,11 +317,11 @@
                         </div>
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/6 w-full mb-2">
-                                <vs-input v-validate="'required'" label="Numero*" id="cadNumeroEndereco" name="cadNumeroEndereco" v-model="enderecoEdit.numero" class="w-full" v-on:keyup.enter="proximoCampo('cadComplemento')"/>
+                                <vs-input v-validate="'required|numeric'" label="Numero*" id="cadNumeroEndereco" name="cadNumeroEndereco" v-model="enderecoEdit.numero" class="w-full" v-on:keyup.enter="proximoCampo('cadComplemento')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadNumeroEndereco') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/2 w-full mb-2">
-                                <vs-input v-validate="'alpha_spaces'" label="Complemento" id="cadComplemento" name="cadComplemento" v-model="enderecoEdit.complemento" class="w-full" v-on:keyup.enter="proximoCampo('cadBairro')"/>
+                                <vs-input v-validate="'regex:.'" label="Complemento" id="cadComplemento" name="cadComplemento" v-model="enderecoEdit.complemento" class="w-full" v-on:keyup.enter="proximoCampo('cadBairro')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadComplemento') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/3 w-full mb-2">
@@ -438,7 +440,6 @@ export default {
             tipoPessoa: 1,
             grupoCliente: null,
             segmentosCliente: [],
-            estadoCliente: null,
             cepCobranca: null,
             clienteEdit: {
                 tipoPessoa: 1,
@@ -605,6 +606,39 @@ export default {
                 position:'top-right'
             })
         },
+        consultaCepEnd(cep) {
+            const endereco = {}
+            endereco.cep = cep;
+            endereco.endereco = null;
+            endereco.bairro = null;
+            endereco.cidade = null;
+            endereco.estado = null;
+            if (navigator.onLine && cep.length === 9) {
+                this.$vs.loading();
+                CidadeService.buscaEndereco(this.enderecoEdit.cep).then((endereco) =>{
+                    if (endereco.id) {
+                        CidadeDB.buscaCidade(endereco.id).then((cidade) => {
+                            if (cidade.existe && cidade.result.rel === 1) {
+                                endereco.cep = cep;
+                                endereco.endereco = endereco.e;
+                                endereco.bairro = endereco.b;
+                                endereco.cidade = cidade.result.nome;
+                                endereco.estado = cidade.result.uf;
+                            } else {
+                                this.erroPermissaoCidade()
+                            }
+                                this.$set(this.enderecoEdit, 'endereco', endereco.endereco)
+                                this.$set(this.enderecoEdit, 'bairro', endereco.bairro)
+                                this.$set(this.enderecoEdit, 'cidade', endereco.cidade)
+                                this.$set(this.enderecoEdit, 'estado', endereco.estado)
+                        })
+                    }
+                    this.$vs.loading.close();
+                })
+            } else {
+                this.$set(this.clienteEdit, 'endereco', endereco);
+            }
+        },
         consultaCep(cep) {
             const telefone = this.clienteEdit.endereco.telefone
             const endereco = {}
@@ -615,8 +649,8 @@ export default {
             endereco.estado = null;
             if (navigator.onLine && cep.length === 9) {
                 this.$vs.loading();
-                CidadeService.buscaEndereco(this.clienteEdit.endereco.cep).then((endereco) => {
-                    if (endereco && endereco.id) {
+                CidadeService.buscaEndereco(this.clienteEdit.endereco.cep).then((endereco) =>{
+                    if (endereco.id) {
                         CidadeDB.buscaCidade(endereco.id).then((cidade) => {
                             if (cidade.existe && cidade.result.rel === 1) {
                                 endereco.telefone = telefone
@@ -628,11 +662,10 @@ export default {
                             } else {
                                 this.erroPermissaoCidade()
                             }
-                            this.$set(this.clienteEdit, 'endereco', endereco);
+                                this.$set(this.clienteEdit, 'endereco', endereco);
                         })
                     }
                     this.$vs.loading.close();
-                    this.carregaGrupoCliente();
                 })
             } else {
                 this.$set(this.clienteEdit, 'endereco', endereco);
@@ -677,7 +710,17 @@ export default {
         salvarCliente() {
             this.$vs.loading();
             let cliente = _.cloneDeep(this.clienteEdit);
+            let fundacaoTime = null
+            let aniversarioTime = null
             console.log(cliente)
+            if (cliente.dataFundacao !== undefined) {
+                fundacaoTime = cliente.dataFundacao.getTime()
+                cliente.dataFundacao = fundacaoTime
+            }
+            if (cliente.dataAniversario !== undefined) {
+                aniversarioTime = cliente.dataAniversario.getTime()
+                cliente.dataAniversario = aniversarioTime
+            }
             setTimeout(() => {  
                 ClienteDB.salvar(cliente).then((result) => {
                     this.$vs.notify({
@@ -693,6 +736,7 @@ export default {
                     
                     if (erro.campo) {
                         this.proximoCampo(erro.campo);
+                        console.log(erro.campo)
                     }
                     this.$vs.notify({
                         title: 'Erro!',
@@ -740,20 +784,6 @@ export default {
                 callback();
             })
         },
-        carregaGrupoCliente() {
-            this.grupoCliente = _.head(_.flattenDeep(this.grupoClientes.map((grupo) => {
-                return grupo.estados.map((estado) => {
-                    if (_.toUpper(this.clienteEdit.endereco.estado) === _.toUpper(estado)) {
-                        return {value: grupo.id, label: grupo.nome, padrao: grupo.padrao};
-                    }
-                });
-            })));
-            console.log(this.grupoCliente);
-            
-            if (_.isNil(this.grupoCliente)) {
-                this.grupoCliente = _.filter(this.getGrupoClientesSelect, (grupo) => { return grupo.padrao });
-            }
-        },
         
     },
     created() {
@@ -769,8 +799,6 @@ export default {
                 this.idCliente = this.$route.params.clienteId;
                 if (this.idCliente) {
                     this.findById(this.idCliente);
-                } else {
-                    this.grupoCliente = _.filter(this.getGrupoClientesSelect, (grupo) => { return grupo.padrao });
                 }
             })
         });
@@ -811,11 +839,6 @@ export default {
 }
 
 .vs-input--input.normal {
-    font-size: 0.75rem;
-    padding: 0.5rem;
-}
-
-.v-select {
     font-size: 0.75rem;
 }
 
