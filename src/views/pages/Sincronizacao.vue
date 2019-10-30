@@ -119,6 +119,10 @@ export default {
             })
             _.defer(() => this.closeLoading(sinc));
         },
+        atuaizaParcialSinc(sinc, imagensSalvas) {
+            sinc.parcial = (sinc.parcial + imagensSalvas);
+            sinc.percent = _.round((sinc.parcial)/sinc.total * 100, 1);
+        },
         sincProduto(sinc) {
             ProdutoService.sincProduto().then((produtos) => {
                 sinc.total = produtos.length;
@@ -134,11 +138,72 @@ export default {
             }).catch((error) => {
                 this.errorSinc(sinc, error);
             });
-        },        
-        atuaizaParcialSinc(sinc, imagensSalvas) {
-            sinc.parcial = (sinc.parcial + imagensSalvas);
-            sinc.percent = _.round((sinc.parcial)/sinc.total * 100, 1);
         },
+        sincImagem(sinc) {
+            ProdutoDB.getIdsImagens().then((retorno) => {
+                sinc.parcial = 0;
+                sinc.total = retorno.quantidade;
+                ImagemDB.limparBase().then(() => {
+                    this.downloadImagensFromData(sinc, retorno.data).then(() => {
+                        this.closeLoading(sinc);
+                    })
+                })
+            });
+        },
+        sincCliente(sinc) {
+            ClienteDB.buscaClientesSinc().then((clientesSinc) => {
+                ClienteService.sincCliente(clientesSinc).then((clientes) => {
+                    sinc.total = clientes.length;
+                    ClienteDB.limparBase().then(() => {
+                        const done = _.after(clientes.length, () => this.closeLoading(sinc));
+                        clientes.forEach(cliente => {
+                            ClienteDB.salvarSinc(cliente).then(() => {
+                                this.atuaizaParcialSinc(sinc, 1);
+                                done();
+                            });
+                        });
+                    });
+                }).catch((error) => {
+                    this.errorSinc(sinc, error);
+                });
+            })
+        },
+        sincParametro(sinc) {
+            ParametroService.sincParametro().then((data) => {
+                sinc.total = Object.keys(data).length;
+                GrupoClienteDB.salvarSinc(data.grupoCliente).then(() => {
+                    this.atuaizaParcialSinc(sinc, 1);
+                    CategoriaDB.salvarSinc(data.categoria).then(() => {
+                        this.atuaizaParcialSinc(sinc, 1);
+                        ProntaEntregaDB.salvarSinc(data.prontaEntrega).then(() => {
+                            this.atuaizaParcialSinc(sinc, 1);
+                            PeriodoDB.salvarSinc(data.periodo).then(() => {
+                                this.atuaizaParcialSinc(sinc, 1);
+                                EmbarqueDB.salvarSinc(data.embarque).then(() => {
+                                    this.atuaizaParcialSinc(sinc, 1);
+                                    FormaPagtoDB.salvarSinc(data.formaPagamento).then(() => {
+                                        this.atuaizaParcialSinc(sinc, 1);
+                                        this.closeLoading(sinc);
+                                    })
+                                })
+                            })
+                        })
+                    })
+                })
+            }).catch((error) => {
+                this.errorSinc(sinc, error);
+            });
+        },
+        sincCidade(sinc) {
+            const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
+            sinc.total = siglasEstados.length;
+            CidadeDB.limparBase().then(() => {
+                this.downloadCidadesFromData(sinc, siglasEstados).then(() => {
+                    this.closeLoading(sinc);
+                })
+            });
+        },
+        
         downloadImagensFromData(sinc, data) {
             return new Promise((resolve) => {
                 const quantidadeSinc = 60;
@@ -182,62 +247,6 @@ export default {
                 })
             });
         },
-        sincImagem(sinc) {
-            ProdutoDB.getIdsImagens().then((retorno) => {
-                sinc.parcial = 0;
-                sinc.total = retorno.quantidade;
-                ImagemDB.limparBase().then(() => {
-                    this.downloadImagensFromData(sinc, retorno.data).then(() => {
-                        this.closeLoading(sinc);
-                    })
-                })
-            });
-        },
-
-        sincCliente(sinc) {
-            ClienteService.sincCliente().then((clientes) => {
-                sinc.total = clientes.length;
-                ClienteDB.limparBase().then(() => {
-                    const done = _.after(clientes.length, () => this.closeLoading(sinc));
-                    clientes.forEach(cliente => {
-                        ClienteDB.salvarSinc(cliente).then(() => {
-                            this.atuaizaParcialSinc(sinc, 1);
-                            done();
-                        });
-                    });
-                });
-            }).catch((error) => {
-                this.errorSinc(sinc, error);
-            });
-        },
-
-        sincParametro(sinc) {
-            ParametroService.sincParametro().then((data) => {
-                sinc.total = Object.keys(data).length;
-                GrupoClienteDB.salvarSinc(data.grupoCliente).then(() => {
-                    this.atuaizaParcialSinc(sinc, 1);
-                    CategoriaDB.salvarSinc(data.categoria).then(() => {
-                        this.atuaizaParcialSinc(sinc, 1);
-                        ProntaEntregaDB.salvarSinc(data.prontaEntrega).then(() => {
-                            this.atuaizaParcialSinc(sinc, 1);
-                            PeriodoDB.salvarSinc(data.periodo).then(() => {
-                                this.atuaizaParcialSinc(sinc, 1);
-                                EmbarqueDB.salvarSinc(data.embarque).then(() => {
-                                    this.atuaizaParcialSinc(sinc, 1);
-                                    FormaPagtoDB.salvarSinc(data.formaPagamento).then(() => {
-                                        this.atuaizaParcialSinc(sinc, 1);
-                                        this.closeLoading(sinc);
-                                    })
-                                })
-                            })
-                        })
-                    })
-                })
-            }).catch((error) => {
-                this.errorSinc(sinc, error);
-            });
-        },
-
         downloadCidadesFromData(sinc, siglasEstados) {
             return new Promise((resolve) => {
                 let siglaEstado = siglasEstados[sinc.parcial];
@@ -255,18 +264,6 @@ export default {
                 }
             });
         },
-
-        sincCidade(sinc) {
-            const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
-            sinc.total = siglasEstados.length;
-            CidadeDB.limparBase().then(() => {
-                this.downloadCidadesFromData(sinc, siglasEstados).then(() => {
-                    this.closeLoading(sinc);
-                })
-            });
-        },
-
-
     },
 
     beforeMount() {

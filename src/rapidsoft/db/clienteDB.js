@@ -223,45 +223,20 @@ class clienteDB {
             });
         });
     }
-
-    getClientesNovos(){
-        return new Promise((resolve, reject) => {
-            let clientes = [];
-            localDB.allDocs({include_docs: true}).then((result) => {
-                for (let index = 0; index < result.rows.length; index++) {
-                    let cliente = _.clone(result.rows[index].doc);
-                    if (_.isUndefined(cliente.endereco) || (_.isObject(cliente.endereco) && _.isUndefined(cliente.endereco.cep))) {
-                        cliente.endereco = {};
-                        cliente.endereco.cidade = "";
-                        cliente.endereco.estado = "";
-                    }
-                    clientes.push(cliente)
-                }
-                resolve(clientes);
-            }).catch((err) => {
-                console.log(err);
-                reject(err);
-            });
-        });
-    }
-
     listar() {
-        return new Promise((resolve, reject) => {
-            let clientes = []
-            localDB.allDocs({include_docs: true, attachments: true}).then((result) => {
-                for (let index = 0; index < result.rows.length; index++) {
-                    let cliente = _.cloneDeep(result.rows[index].doc);
-                    if (_.isUndefined(cliente.endereco) || (_.isObject(cliente.endereco) && _.isUndefined(cliente.endereco.cep))) {
-                        cliente.endereco = {};
-                        cliente.endereco.cidade = "";
-                        cliente.endereco.estado = "";
+        return new Promise((resolve) => {
+            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                resolve(resultDocs.rows.map((cliente) => {
+                    if (_.isUndefined(cliente.doc.endereco) || (_.isObject(cliente.doc.endereco) && _.isUndefined(cliente.doc.endereco.cep))) {
+                        cliente.doc.endereco = {};
+                        cliente.doc.endereco.cidade = "";
+                        cliente.doc.endereco.estado = "";
                     }
-                    clientes.push(cliente)
-                }
-                resolve(clientes);
+                    return _.clone(cliente.doc);
+                }))
             }).catch((err) => {
                 console.log(err);
-                reject(err);
+                resolve(err);
             });
         });
     }
@@ -337,6 +312,22 @@ class clienteDB {
                 createDB();
                 resolve();
             }).catch((err) => {
+                resolve(err);
+            });
+        });
+    }
+
+    buscaClientesSinc() {
+        return new Promise((resolve) => {
+            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                const clientes = _.filter(resultDocs.rows, (cliente) => {
+                    return cliente.doc.clienteErp === false
+                });
+                resolve(clientes.map((cliente) => {                    
+                    return _.cloneDeep(cliente.doc);
+                }))
+            }).catch((err) => {
+                console.log(err);
                 resolve(err);
             });
         });

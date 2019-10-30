@@ -426,6 +426,7 @@ import CidadeDB from '../../rapidsoft/db/cidadeDB'
 import CidadeService from '../../rapidsoft/service/cidadeService'
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
 import SegmentoDB from '../../rapidsoft/db/segmentoDB'
+import { log } from 'util';
 
 Validator.localize('pt', validatePtBR);
 
@@ -442,14 +443,12 @@ export default {
             clienteEdit: {
                 tipoPessoa: 1,
                 inscricaoEstadual: "ISENTO",
+                clienteErp: false,
                 endereco: {},
                 contatos: [],
                 enderecos: [],
                 imagens: [],
-                segmentos: [
-                    {name: 'Beach', ativo: false},
-                    {name: 'Fitness', ativo: false}
-                ]
+                segmentos: []
             },
             contatoEdit: {},
             enderecoEdit: {},
@@ -482,7 +481,9 @@ export default {
             this.clienteEdit.tipoPessoa = val;
         },
         grupoCliente(val) {
-            this.clienteEdit.grupoCliente = val.value;
+            console.log(_.cloneDeep(val[0].value));
+            
+            this.clienteEdit.grupoCliente = _.cloneDeep(val[0].value);
         },
         cepCobranca(val) {
             this.clienteEdit.endereco.cep = val;
