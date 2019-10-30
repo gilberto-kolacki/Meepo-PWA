@@ -136,7 +136,7 @@ const validarObjetoDB = (cliente) => {
                 cliente.razaoSocial = cliente.nome;
             }
         }
-        if (cliente.segmentos[0].ativo === false && cliente.segmentos[1].ativo === false) {
+        if (cliente.segmentos[0] === undefined && cliente.segmentos[1] === undefined) {
             reject({campo: "segmento", mensagem: "Campo obrigatório, informe ao menos 1 Segmento!"});
         }
         else if (cliente.emailNfe === undefined || (!(cliente.emailNfe.includes("@") && cliente.emailNfe.includes(".com"))) ) {
@@ -224,6 +224,35 @@ class clienteDB {
             });
         });
     }
+    listarConsulta() {
+        let docDados = {}
+        return new Promise((resolve) => {
+            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                console.log(resultDocs.rows.map);  
+                resolve(resultDocs.rows.map((cliente) => {
+                    if (_.isUndefined(cliente.doc.endereco) || (_.isObject(cliente.doc.endereco) && _.isUndefined(cliente.doc.endereco.cep))) {
+                        cliente.doc.endereco = {};
+                        cliente.doc.endereco.cidade = "";
+                        cliente.doc.endereco.estado = "";
+                    }
+                    console.log(cliente.doc);
+                    docDados.cpfCnpj = cliente.doc.cpfCnpj;
+                    docDados.nome = cliente.doc.nome
+                    docDados.cidade = cliente.doc.endereco.cidade
+                    docDados.estado = cliente.doc.endereco.estado
+                    docDados.clienteErp = cliente.doc.clienteErp
+                    docDados.id = cliente.doc._id
+                    console.log(docDados)
+                    return _.clone(docDados)
+                }))
+            }).catch((err) => {
+                console.log(err)
+                resolve(err);
+            })
+
+            })
+    }
+
     listar() {
         return new Promise((resolve) => {
             localDB.allDocs({include_docs: true}).then((resultDocs) => {
@@ -278,6 +307,7 @@ class clienteDB {
     }
 
     validarEndereco(endereco) {
+        console.log(endereco)
         return new Promise((resolve, reject) => {
             let validarEndereco = validarEnderecoDB(endereco);
             if (validarEndereco.mensagem === undefined) {

@@ -20,19 +20,19 @@
                         <vs-td :data="data[indextr].nome">
                             {{ data[indextr].nome }}
                         </vs-td>
-                        <vs-td :data="data[indextr].endereco.cidade">
-                            {{ data[indextr].endereco.cidade }}
+                        <vs-td :data="data[indextr].cidade">
+                            {{ data[indextr].cidade }}
                         </vs-td>
-                        <vs-td :data="data[indextr].endereco.estado">
-                            {{ data[indextr].endereco.estado }}
+                        <vs-td :data="data[indextr].estado">
+                            {{ data[indextr].estado }}
                         </vs-td>
                         <vs-td>
                             <div class="flex">
                                 <div class="p-1">
                                     <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editar(data[indextr])" />
                                 </div>
-                                <div class="p-1">
-                                    <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletar(data[indextr])"/>
+                                <div v-if="!data[indextr].clienteErp" class="p-1">
+                                    <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarMessage(data[indextr])"/>
                                 </div>
                             </div>
                         </vs-td>
@@ -58,19 +58,35 @@ export default {
     },
     methods: {
         editar(cliente) {
+            console.log(cliente);
             if (cliente) {
-                this.$router.push({ name: 'clienteEditar', params: {clienteId: cliente._id } });
+                this.$router.push({ name: 'clienteEditar', params: {clienteId: cliente.id } });
             } else {
                 this.$router.push('/cliente/cadastro');
             }
         },
         listar() {
-            clienteDB.listar().then((resposta) => {
+            clienteDB.listarConsulta().then((resposta) => {
+                console.log(resposta);
+                
                 this.clientes = _.clone(resposta);
+                console.log(this.clientes)
             })
         },
-        deletar(cliente) {
-            clienteDB.deletar(cliente).then(() => {
+        deletarMessage(data) {
+            this.$vs.dialog({
+                type:'confirm',
+                color:'danger',
+                title:'Deseja excluir?',
+                text:'Você esta prestes a excluir um cliente. Deseja continuar?',
+                accept:this.deletar,
+                acceptText: 'Continuar',
+                cancelText: 'Cancelar',
+                parameters: data
+            })
+        },
+        deletar: function(parameters) {
+            clienteDB.deletar(parameters).then(() => {
                 this.listar();
             });
         }
