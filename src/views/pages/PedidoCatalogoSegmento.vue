@@ -667,7 +667,7 @@ html {
 }
 
 .card-img-principal {
-    width: 40vh;
+    width: 50vh;
     -webkit-animation: rebound .4s;
     animation: rebound .4s;
     -webkit-box-pack: center !important;
@@ -675,9 +675,10 @@ html {
     justify-content: center !important
 }
 
-@media only screen and (min-width: 992px) {
+@media only screen and (max-width: 768px) {
     .card-img-principal {
-        max-width: 40vh;
+        // max-width: 50vh;
+        width: 45vh;
     }
 }
 
