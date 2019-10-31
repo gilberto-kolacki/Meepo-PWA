@@ -241,7 +241,8 @@ class clienteDB {
                     docDados.cidade = cliente.doc.endereco.cidade
                     docDados.estado = cliente.doc.endereco.estado
                     docDados.clienteErp = cliente.doc.clienteErp
-                    docDados.id = cliente.doc._id
+                    docDados._id = cliente.doc._id
+                    docDados._rev = cliente.doc._rev
                     console.log(docDados)
                     return _.clone(docDados)
                 }))
@@ -262,6 +263,8 @@ class clienteDB {
                         cliente.doc.endereco.cidade = "";
                         cliente.doc.endereco.estado = "";
                     }
+                    console.log(cliente.doc);
+                    
                     return _.clone(cliente.doc);
                 }))
             }).catch((err) => {
@@ -286,8 +289,14 @@ class clienteDB {
     }
 
     deletar(idCliente) {
+        console.log(idCliente);
+        
         return new Promise((resolve, reject) => {
+            console.log(localDB);
+            
             localDB.remove(idCliente).then((result) => {
+                console.log(result);
+                
                 resolve(result);
             }).catch((err) => {
                 console.log(err);

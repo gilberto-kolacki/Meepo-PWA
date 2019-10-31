@@ -490,8 +490,8 @@ export default {
         },
         grupoCliente(val) {
             console.log(val)
-            console.log(_.cloneDeep(val[0].value))
-            this.clienteEdit.grupoCliente = _.cloneDeep(val[0].value);
+            console.log(_.cloneDeep(val.value))
+            this.clienteEdit.grupoCliente = _.cloneDeep(val.value);
         },
         cepCobranca(val) {
             this.clienteEdit.endereco.cep = val;

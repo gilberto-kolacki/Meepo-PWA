@@ -86,6 +86,8 @@ export default {
             })
         },
         deletar: function(parameters) {
+            console.log(parameters);
+            
             clienteDB.deletar(parameters).then(() => {
                 this.listar();
             });
