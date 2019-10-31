@@ -77,6 +77,7 @@
                     </div>
                     <div class="vx-row mt-base-top3">
                         <h6 class="title-ref">Ref A: {{produtoA.referencia}}</h6>
+                        <h6 class="title-ref">{{produtoA.nome}}</h6>
                         <div class="btn-group centex mt-base-top1 w-full">
                             <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-shopping-cart" @click.stop="addProduto(produtoA)"></vs-button>
                             <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" @click.stop="viewPreco(produtoA)"></vs-button>
@@ -878,9 +879,9 @@ html {
 <style lang="scss">
 
 .popup-produto-search .vs-popup {
-    right: 0;
-    height: 100%;
-    width: 60%;        
+    // right: 0;
+    // height: 100%;
+    // width: 60%;        
 }
 
 .popup-produto-search .vs-table--search  {
