@@ -23,21 +23,50 @@ const createDB = () => {
 
 createDB();
 
+const getProdutoToDBFilterCategoria = (rows, idsCategorias) => {
+    return rows.filter((produto) => {
+        return produto.doc.cores.some((cor) => {
+            return cor.categorias.some((categoria) => {
+                return idsCategorias.some((idCategoria) => {
+                    return categoria === idCategoria
+                });
+            });
+        });
+    }).map((row) => { return _.clone(row.doc)});
+}
+
+const getProdutoToDB = (rows) => {
+    return rows.filter((produto) => {
+        return produto.doc['referencia'];
+    }).map((row) => { return _.clone(row.doc)});
+}
+
 class produtoDB {
 
     getAllProdutos() {
         return new Promise((resolve) => {
             localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((produto) => {
-                    if (produto.doc['referencia']) {
-                        delete produto.doc['_rev'];
-                        return _.clone(produto.doc);
-                    }
-                }))
+                resolve(getProdutoToDB(resultDocs.rows))
             }).catch((err) => {
                 console.log(err);
                 resolve(err);
             });
+        });
+    }
+
+    getAllProdutosByCategorias(categorias) {
+        return new Promise((resolve) => {
+            const idCategorias = categorias.filter((categoria) => {return categoria.check}).map((categoria) => { return categoria.id});
+            if (idCategorias.length > 0) {
+                localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                    resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias))
+                }).catch((err) => {
+                    console.log(err);
+                    resolve(err);
+                });
+            } else {
+                resolve([]);
+            }
         });
     }
 
@@ -64,9 +93,9 @@ class produtoDB {
         });
     }
 
-    getProdutosSearch() {
+    getProdutosSearch(categorias) {
         return new Promise((resolve) => {
-            this.getAllProdutos().then((produtos) => {
+            this.getAllProdutosByCategorias(categorias).then((produtos) => {
                 produtos = _.take(produtos, 50);
                 if(produtos.length > 0) {
                     produtos.forEach(produto => {

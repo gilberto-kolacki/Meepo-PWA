@@ -10,6 +10,7 @@ import _ from 'lodash';
 import store from '../../store/store'
 import BasicDB from './basicDB'
 import SegmentoDB from './segmentoDB'
+import Auth from "../../rapidsoft/auth/authService";
 
 let idUsuario = "1";
 let localDB = null;
@@ -66,6 +67,30 @@ class usuarioDB {
                 resolve(user);
             }).catch((err) => {
                 reject(err);
+            });
+        });
+    }
+
+    isAuthenticated() {
+      return new Promise((resolve) => {
+        if(Auth.isAuthenticated()) {
+          console.log('entrou')
+          resolve('/');
+        } else {
+          resolve({authenticated: false, path: '/login'});
+        }
+      });
+    }
+
+    limparBase() {
+        return new Promise((resolve) => {
+            SegmentoDB.limparBase().then(() => {
+                localDB.destroy().then(() => {
+                    createDB();
+                    resolve();
+                }).catch((err) => {
+                    resolve(err);
+                });
             });
         });
     }

@@ -117,31 +117,24 @@
         </vs-col>
         <vs-popup v-bind:class="'popup-produto-search'" title="Pesquisa" :active.sync="popupListaProdutos">
             
-            <!-- <div class="flex flex-wrap-reverse items-center">
-                <div v-for="(categoria, index) in getCategoriasCardPesquisa" :key="index" style="padding: 2px;">
-                    <vs-button v-show="categoria.check"
-                        type="filled"
-                        color="primary" 
-                        icon-pack="feather" 
-                        size="small"
-                        v-on:click.stop="searchProduct(categoria)"
-                        icon="icon-check">
-                        {{categoria.nome}}
-                    </vs-button>
-                    <vs-button v-show="!categoria.check"
-                        type="border"
-                        color="primary" 
-                        icon-pack="feather" 
-                        size="small"
-                        v-on:click.stop="searchProduct(categoria)"
-                        icon="icon-x">
-                        {{categoria.nome}}
-                    </vs-button>
+            <div class="flex flex-wrap-reverse items-center">
+                <div v-for="(categoria, index) in getCategoriasCardPesquisa" :key="index" style="padding: 1.5px;" class="items-center justify-center">
+                    <b-button
+                        squared 
+                        
+                        v-bind:variant="categoria.check ? 'danger' : 'outline-danger'"
+                        class="w-full"
+                        v-on:click="searchProduct(categoria)">
+                        <small class="flex cursor-pointer">
+                            <feather-icon :icon="categoria.check ? 'CheckIcon' : 'XIcon'" svgClasses='h-4 w-4'></feather-icon>
+                            {{categoria.nome}}
+                        </small>
+                    </b-button>
                 </div>
-            </div> -->
+            </div>
             
 
-            <vs-table ref="table" v-model="selectSearchProduto" @selected="selectProduto(selectSearchProduto)" search :data="listaProdutosPesquisa">
+            <vs-table ref="table" v-model="selectSearchProduto" @selected="selectProduto(selectSearchProduto)" :data="listaProdutosPesquisa">
                 <!-- <div slot="header" class="flex flex-wrap-reverse items-center flex-grow justify-between">
                 </div> -->
                 <template slot="thead">
@@ -185,6 +178,7 @@
             </div>        
         </vs-popup>
     </div>
+    <!-- Adicao de itens -->
     <div id="page-catalogo-add" class="page-catalogo-add" v-else>
         <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle.accordion-ref-a>
             <h5><strong>Referencia A:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h5>
@@ -214,7 +208,8 @@
                                         <div class="flex w-full items-center justify-center">
                                             <!-- <vs-checkbox v-model="cor.ativo"></vs-checkbox> -->
                                             <b-form-checkbox :id="'cor-check-'+cor.codigo" v-model="cor.ativo" @input="disabledCorTamanho(produtoAdd.produtoA, cor, 1)"></b-form-checkbox>
-                                            <vs-avatar class="m-0" :src="cor.imagemCor" size="25px"/>
+                                            <!-- <vs-avatar class="m-0" :src="cor.imagemCor" size="25px"/> -->
+                                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor" size="36px" v-if="cor.imagemCor" style="border: 0.9px solid #7b7b7b;"/>
                                             <span class="ml-1">{{cor.codigo}}</span>                                                
                                         </div>
                                     </th>
@@ -294,6 +289,7 @@
 import { Vue2InteractDraggable } from "vue2-interact";
 import _ from 'lodash'
 import produtoDB from '../../rapidsoft/db/produtoDB'
+import CategoriaDB from '../../rapidsoft/db/categoriaDB'
 import produtoUtils from '../../rapidsoft/utils/produtoUtils'
 import { setTimeout } from 'timers';
 
@@ -304,7 +300,7 @@ export default {
             imagemProdutoPrincipal: null,
             produtoA: null,
             produtoB: null,
-            categorias: [],
+            categoriasFiltro: [],
             popupListaProdutos: false,
             selectSearchProduto: null,
             popupAddProduto: false,
@@ -343,7 +339,7 @@ export default {
     },
     computed: {
         getCoresProdutoA() {
-            return this.produtoAdd.produtoA.produtoAddCores;
+            return this.produtoAdd.produtoA.cores;
         },
         getTamanhosProdutoA() {
             return this.produtoAdd.produtoA.produtoAddCores[0].produtoAddTamanhos;
@@ -356,8 +352,8 @@ export default {
         //     });
         // },
         getCategoriasCardPesquisa() {
-            return this.categorias.filter((categoria) => {
-                return categoria.codigo != 0;
+            return this.categoriasFiltro.map((categoria) => {
+                return {id: categoria.id, nome: categoria.nome};
             });
         },
         getImagensCorProduto() {
@@ -459,9 +455,12 @@ export default {
             // this.$set(this.produtoAdd, "produtoA", produto.produtoAddCores);
             console.log(this.produtoAdd.produtoA.produtoAddCores);
         },
-        searchProduct(categoria) {
+        searchProduct(categoria){
             categoria.check = !categoria.check;
-
+            this.$forceUpdate();
+            produtoDB.getProdutosSearch(this.getCategoriasCardPesquisa).then((result) => {
+                this.listaProdutosPesquisa = result;
+            });
         },
         selectCorImagemProduto(indexCor) {
             this.corSelecionada = indexCor;
@@ -493,9 +492,9 @@ export default {
             }, 100);
         },
         prevRef() {
-            let anterior = this.produtos.indexOf(this.produtoA)-1;
+            const anterior = _.findIndex(this.produtos, (produto) => { return produto._id == this.produtoA._id })-1;
             if (anterior >= 0) {
-                this.selectProduto(this.produtos[this.produtos.indexOf(this.produtoA)-1]);
+                this.selectProduto(this.produtos[anterior]);
             } else {
                 this.selectProduto(this.produtos[this.produtos.length-1]);
             }
@@ -504,9 +503,9 @@ export default {
             this.hideCard();
         },
         nextRef() {
-            let proxima = this.produtos.indexOf(this.produtoA)+1;
+            const proxima = _.findIndex(this.produtos, (produto) => { return produto._id == this.produtoA._id })+1;
             if (proxima < this.produtos.length) {
-                this.selectProduto(this.produtos[this.produtos.indexOf(this.produtoA)+1]);
+                this.selectProduto(this.produtos[proxima]);
             } else {
                 this.selectProduto(this.produtos[0]);
             }
@@ -531,13 +530,8 @@ export default {
 			return produto.imagem;
         },
         abrirPesquisaPodutos() {
-            this.$vs.loading();
             this.selectSearchProduto = null;
-            produtoDB.getProdutosSearch().then((result) => {
-                this.listaProdutosPesquisa = result;
-                this.popupListaProdutos=true
-                this.$vs.loading.close();
-            });
+            this.popupListaProdutos=true
         },
         addProduto(produto) {
             this.produtoAdd = {};
@@ -589,19 +583,19 @@ export default {
             //     categoria.check = true;
             // });
             this.selectProduto(this.produtos[0]);
-            // this.$vs.loading.close();
-            appLoading.style.display = "none";
+            CategoriaDB.getAll().then((categorias) => {
+                this.categoriasFiltro = _.cloneDeep(categorias);
+                appLoading.style.display = "none";
+            });
         });
     },
     created() {
-        console.log('created');
+        // console.log('created');
     },
     beforeMount() {
-        console.log('beforeMount');
+        // console.log('beforeMount');
     },
     mounted() {
-        console.log('mounted');
-        
         document.getElementById("page-catalogo").ontouchmove = (e) => {
             if(!(e.target.className == "produto-image-gallery-item" || e.target.className == "mb-4 responsive img-ref")) {
                 e.preventDefault();
@@ -880,7 +874,7 @@ html {
 
 .popup-produto-search .vs-popup {
     // right: 0;
-    // height: 100%;
+    height: 100%;
     // width: 60%;        
 }
 

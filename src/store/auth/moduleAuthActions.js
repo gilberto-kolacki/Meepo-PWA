@@ -24,8 +24,9 @@ export default {
 
         // If user is already logged in notify and exit
         if (state.isUserLoggedIn()) {
+            router.push('/');
             payload.notify({
-                title: 'Login Attempt',
+                title: 'Atenção',
                 text: 'Você já está logado!',
                 fixed: true,
                 iconPack: 'feather',

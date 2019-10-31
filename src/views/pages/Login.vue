@@ -68,6 +68,8 @@
 
 <script>
 
+import UsuarioDB from '../../rapidsoft/db/usuarioDB';
+
 export default {
     data() {
         return {
@@ -119,6 +121,9 @@ export default {
 
     },
     mounted() {
+        UsuarioDB.limparBase().then(() => {
+            
+        })
         
     },
 }

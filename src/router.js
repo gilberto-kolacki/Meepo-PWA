@@ -48,7 +48,8 @@ const router = new Router({
 					meta: {
                         requiresAuth: true,
                         rule: 'editor',
-                    }
+                        navBar: true,
+                    },
 				},
 				{
 					path: '/cliente/cadastro',
@@ -56,8 +57,9 @@ const router = new Router({
 					component: () => import('./views/pages/ClienteCadastro.vue'),
 					meta: {
                         requiresAuth: true,
-                        rule: 'editor'
-                    }
+                        rule: 'editor',
+                        navBar: true,
+                    },
                 },
                 {
 					path: '/cliente/cadastro',
@@ -65,8 +67,9 @@ const router = new Router({
 					component: () => import('./views/pages/ClienteCadastro.vue'),
 					meta: {
                         requiresAuth: true,
-                        rule: 'editor'
-                    }
+                        rule: 'editor',
+                        navBar: true,
+                    },
                 },
                 {
 					path: '/cliente/consulta',
@@ -74,8 +77,9 @@ const router = new Router({
 					component: () => import('./views/pages/ClienteConsulta.vue'),
 					meta: {
                         requiresAuth: true,
-                        rule: 'editor'
-                    }
+                        rule: 'editor',
+                        navBar: true,
+                    },
                 },
                 {
 					path: '/pedido/consulta',
@@ -83,8 +87,9 @@ const router = new Router({
 					component: () => import('./views/pages/PedidoConsulta.vue'),
 					meta: {
                         requiresAuth: true,
-                        rule: 'editor'
-                    }
+                        rule: 'editor',
+                        navBar: true,
+                    },
                 },
             {
 					path: '/pedido/cadastro',
@@ -92,8 +97,9 @@ const router = new Router({
 					component: () => import('./views/pages/PedidoCadastro.vue'),
 					meta: {
                         requiresAuth: true,
-                        rule: 'editor'
-                    }
+                        rule: 'editor',
+                        navBar: true,
+                    },
                 }, 
                 {
 					path: '/catalogo',
@@ -101,17 +107,19 @@ const router = new Router({
 					component: () => import('./views/pages/PedidoCatalogo.vue'),
 					meta: {
                         requiresAuth: true,
-                        rule: 'editor'
-                    }
+                        rule: 'editor',
+                        navBar: true,
+                    },
                 },
                 {
-					path: '/catalogo/segmento',
-					name: 'catalogoSegmento',
-					component: () => import('./views/pages/PedidoCatalogoSegmento.vue'),
+					path: '/catalogo/item',
+					name: 'catalogoItem',
+					component: () => import('./views/pages/PedidoCatalogoItem.vue'),
 					meta: {
                         requiresAuth: true,
-                        rule: 'editor'
-                    }
+                        rule: 'editor',
+                        navBar: false,
+                    },
                 },
                 {
 					path: '/pages/sincronizacao',
@@ -119,8 +127,9 @@ const router = new Router({
 					component: () => import('./views/pages/Sincronizacao.vue'),
 					meta: {
                         requiresAuth: true,
-                        rule: 'editor'
-                    }
+                        rule: 'editor',
+                        navBar: true,
+                    },
                 },
                 {
 					path: '/pages/suporte/atualizacao',
@@ -128,8 +137,9 @@ const router = new Router({
 					component: () => import('./views/pages/suporte/Atualizacao.vue'),
 					meta: {
                         requiresAuth: true,
-                        rule: 'editor'
-                    }
+                        rule: 'editor',
+                        navBar: true,
+                    },
                 },
 			],
 		},

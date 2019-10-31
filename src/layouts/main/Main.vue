@@ -91,7 +91,7 @@ import BackToTop from 'vue-backtotop'
 export default {
     data() {
         return {
-            navbarType: themeConfig.navbarType || 'floating',
+            navbarType: this.$route.meta.navBar ? (themeConfig.navbarType || 'floating') : 'hidden',
             navbarColor: themeConfig.navbarColor || '#fff',
             footerType: themeConfig.footerType || 'static',
             routerTransition: themeConfig.routerTransition || 'none',
@@ -107,6 +107,13 @@ export default {
     watch: {
         '$route'() {
             this.routeTitle = this.$route.meta.pageTitle;
+        },
+        '$route.meta.navBar'() {
+            if (this.$route.name === "catalogoItem") {
+                this.navbarType = 'hidden';
+            } else {
+                this.navbarType = themeConfig.navbarType || 'floating';
+            }
         },
         isThemeDark(val) {
             if(this.navbarColor == "#fff" && val) {
@@ -134,11 +141,6 @@ export default {
             else if(this.sidebarWidth) return "content-area-full"
         },
         navbarClasses() {
-            if (this.$route.name === "catalogoSegmento") {
-                this.navbarType = 'hidden';
-            } else {
-                this.navbarType = themeConfig.navbarType || 'floating';
-            }
             return {
                 'navbar-hidden': this.navbarType == 'hidden',
                 'navbar-sticky': this.navbarType == 'sticky',
@@ -188,7 +190,7 @@ export default {
         },
         backToTop() {
             window.scrollTo(0, 0);
-        },        
+        },
     },
     components: {
         VxSidebar,
@@ -203,7 +205,7 @@ export default {
             this.updateNavbarColor("#10163a")
         }else {
             this.updateNavbarColor(this.navbarColor)
-        }        
+        }
     }
 }
 </script>

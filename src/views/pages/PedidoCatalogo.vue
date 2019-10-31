@@ -1,9 +1,9 @@
 <template>
 		<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
 			<ol class="carousel-indicators-catalog">
-				<li 
-					data-target="#carouselExampleIndicators" 
-					:data-slide-to="index" 
+				<li
+					data-target="#carouselExampleIndicators"
+					:data-slide-to="index"
 					:id="'carousel-slide-'+index"
 					v-for="(catalogo, index) in catalogos" :key="`slide-to-${index}`">
 				</li>
@@ -26,13 +26,13 @@
 
 <script>
 
-import ClienteDB from '../../rapidsoft/db/clienteDB'
+// import ClienteDB from '../../rapidsoft/db/clienteDB'
 import _ from 'lodash'
 
 export default {
 
 	data() {
-		return {						
+		return {
 			catalogos: [
 				{
 					_id: '1',
@@ -55,7 +55,7 @@ export default {
 			]
 		}
 	},
-	components: {		
+	components: {
 	},
 	computed: {
 	},
@@ -64,7 +64,7 @@ export default {
 			return catalogo.imagem;
 		},
 		abrirCatalogo(catalogo) {
-			this.$router.push({ name: 'catalogoSegmento', params: {linha: catalogo.segmento } });
+			this.$router.push({ name: 'catalogoItem', params: {linha: catalogo.segmento } });
 		},
 		setActiveItemCarousel(indexNew) {
 			for (let index = 0; index < this.catalogos.length; index++) {
@@ -109,11 +109,11 @@ export default {
 	mounted() {
 		this.setActiveItemCarousel(0);
 	},
-}		
+}
 </script>
 
 <style lang="scss" scoped>
-  
+
 .carousel-inner {
 	border-radius: .5rem!important;
 }
@@ -166,5 +166,5 @@ export default {
 	max-height: 58rem;
 	// max-width: 50rem;
 }
-  
+
 </style>
