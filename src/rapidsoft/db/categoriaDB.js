@@ -64,6 +64,14 @@ class categoriaDB {
         });
     }
 
+    getAllBySegmento(idSegmento) {
+        return new Promise((resolve) => {
+            this.getAll().then((categorias) => {
+                resolve(categorias.filter((categoria) => { return categoria.idSegmento === idSegmento }));
+            })
+        });
+    }
+
 }
 
 export default new categoriaDB();

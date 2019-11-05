@@ -57,6 +57,9 @@ import PeriodoDB from '../../rapidsoft/db/periodoDB'
 import EmbarqueDB from '../../rapidsoft/db/embarqueDB'
 import FormaPagtoDB from '../../rapidsoft/db/formaPagtoDB'
 import CidadeDB from '../../rapidsoft/db/cidadeDB'
+import CatalogoDB from '../../rapidsoft/db/catalogoDB'
+import RefComercialDB from '../../rapidsoft/db/referenciaComercialDB'
+import catalogoDB from '../../rapidsoft/db/catalogoDB'
 
 export default {
     data() {
@@ -183,7 +186,13 @@ export default {
                                     this.atuaizaParcialSinc(sinc, 1);
                                     FormaPagtoDB.salvarSinc(data.formaPagamento).then(() => {
                                         this.atuaizaParcialSinc(sinc, 1);
-                                        this.closeLoading(sinc);
+                                        CatalogoDB.salvarSinc(data.catalogo).then(() => {
+                                            this.atuaizaParcialSinc(sinc, 1);
+                                            RefComercialDB.salvarSinc(data.referenciaComercial).then(() => {
+                                                this.atuaizaParcialSinc(sinc, 1);
+                                                this.closeLoading(sinc);
+                                            })
+                                        })
                                     })
                                 })
                             })

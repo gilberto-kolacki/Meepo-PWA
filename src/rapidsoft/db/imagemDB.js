@@ -297,7 +297,7 @@ class imagemDB {
     getFotoPrincipal(produto) {
         return new Promise((resolve) => {
             if (produto.cores[0].imagens.length > 0) {
-                this.getById(produto.cores[0].imagens[0].id, imagemFotoDB).then((fotoProduto) => {
+                this.getById(_.orderBy(produto.cores[0].imagens, ['seq'])[0].id, imagemFotoDB).then((fotoProduto) => {
                     if(fotoProduto.existe) {
                         resolve(fotoProduto.result.base64);
                     } else {

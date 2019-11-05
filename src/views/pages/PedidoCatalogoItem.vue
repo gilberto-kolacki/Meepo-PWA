@@ -116,8 +116,41 @@
             </div>
         </vs-col>
         <vs-popup v-bind:class="'popup-produto-search'" title="Pesquisa" :active.sync="popupListaProdutos">
+
             
-            <div class="flex flex-wrap-reverse items-center">
+            <!-- <div class="vx-row">
+                <div class="vx-col sm:w-1/2 w-full mb-2">
+                    <vs-select
+                        class="vx-col w-full mb-2"
+                        label="Segmentos"
+                        v-model="segmentoSelecionado" @change="searchCategorias()">
+                        <vs-select-item :key="index" :value="item.id" :text="item.nome" v-for="(item,index) in getSegmentosSearch" />
+                    </vs-select>
+                </div>
+                <div class="vx-col sm:w-1/2 w-full mb-2">
+                    <vs-select
+                        class="vx-col w-full mb-2"
+                        label="Categorias"
+                        v-model="categoriaSelecionada" >
+                        <vs-select-item :key="index" :value="item.id" :text="item.nome" v-for="(item,index) in getCategoriasSearch" />
+                    </vs-select>
+                </div>
+            </div> -->
+            <div class="vx-row">
+                <div class="vx-col sm:w-1/2 w-full">
+                    <vs-input v-validate="'required'" label="Pesquisar" v-model="textoSearch" class="w-full" />
+                </div>
+                <div class="vx-col sm:w-1/2 w-full mb-2">
+                    <label for="segmentoFiltro" class="vs-input--label">Segmentos</label>
+                    <v-select id="segmentoFiltro" name="segmento" v-model="segmentoSelecionado" label="nome" :options="getSegmentosSearch"/>
+                </div>
+            </div>
+            <div class="vx-col w-full mb-2">
+                <label for="categoriaFiltro" class="vs-input--label">Categorias</label>
+                <v-select multiple id="categoriaFiltro" name="segmento" v-model="categoriasSelecionadas" label="nome" :options="getCategoriasSearch"/>
+            </div>
+            
+            <!-- <div class="flex flex-wrap-reverse items-center">
                 <div v-for="(categoria, index) in getCategoriasCardPesquisa" :key="index" style="padding: 1.5px;" class="items-center justify-center">
                     <b-button
                         squared 
@@ -131,7 +164,7 @@
                         </small>
                     </b-button>
                 </div>
-            </div>
+            </div> -->
             
 
             <vs-table ref="table" v-model="selectSearchProduto" @selected="selectProduto(selectSearchProduto)" :data="listaProdutosPesquisa">
@@ -215,17 +248,19 @@
                                     </th>
                                     <td v-for="(tamanho, indexTamanho) in getTamanhosProdutoA" :key="indexTamanho">
                                         <div v-if="produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho].ativo && tamanho.ativo">
-                                            <input type="number" :class="'input-quantidade-tam-'+tamanho.codigo+ ' input-quantidade-cor-'+cor.codigo " v-model="produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho].quantidade" class="form-control" style="margin-top: 0rem; min-width: 5rem;">
+                                            <input type="number" :class="'input-quantidade-tam-'+tamanho.codigo+ ' input-quantidade-cor-'+cor.codigo" v-model="produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho].quantidade" class="form-control" style="margin-top: 0rem; min-width: 5rem;">
                                             <div class="produto-add-button2">
-                                                <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button-menos2" />
-                                                <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button-mais2" />
+                                                <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button-menos2" @click="menosTamanho(produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho])" />
+                                                <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button-mais2"  @click="maisTamanho(produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho])"/>
                                             </div>
                                         </div>
                                         <div v-else>
                                             <input type="number" class="form-control" placeholder="Inativado" disabled style="margin-top: 0.6rem; min-width: 5rem;">
                                         </div>
                                     </td>
-                                    <td></td>
+                                    <td>
+                                        
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -288,8 +323,11 @@
 
 import { Vue2InteractDraggable } from "vue2-interact";
 import _ from 'lodash'
+import vSelect from 'vue-select';
 import produtoDB from '../../rapidsoft/db/produtoDB'
+import SegmentoDB from '../../rapidsoft/db/segmentoDB'
 import CategoriaDB from '../../rapidsoft/db/categoriaDB'
+import ImagemDB from '../../rapidsoft/db/imagemDB'
 import produtoUtils from '../../rapidsoft/utils/produtoUtils'
 import { setTimeout } from 'timers';
 
@@ -297,14 +335,17 @@ export default {
 
     data() {
         return {
+            clientePedido: null,
             imagemProdutoPrincipal: null,
             produtoA: null,
             produtoB: null,
             categoriasFiltro: [],
+            segmentosFiltro: [],
+            segmentoSelecionado: null,
+            categoriasSelecionadas: [],
             popupListaProdutos: false,
             selectSearchProduto: null,
             popupAddProduto: false,
-            // produtoAdd: null,
             produtoAdd: {
                 produtoA: {
                     cores:[]
@@ -326,16 +367,28 @@ export default {
             popupZoomProduto: false,
             disabledInputCor: [],
             disabledInputTamanho: [],
-            listaProdutosPesquisa: []
+            listaProdutosPesquisa: [],
+            textoSearch: "",
         }
     },
     components: {
         Vue2InteractDraggable,
+        'v-select': vSelect,
     },
     watch: {
-        // 'tamanho.ativo' () {
-        //     console.log(this.produtoAdd.produtoA.produtoAddCores[0]);
-        // }
+        segmentoSelecionado() {
+            this.searchCategorias();
+        },
+        categoriasSelecionadas() {
+            this.searchFindProduto();
+        },
+        textoSearch(newValue, oldValue) {
+            if ((newValue === "" && oldValue.length > 0) || newValue.length >= 3) {
+                console.log('pesquisa');
+                
+                this.searchFindProduto();
+            }
+        }
     },
     computed: {
         getCoresProdutoA() {
@@ -369,7 +422,17 @@ export default {
             } else {
                 return [];
             }
-        },        
+        },
+        getSegmentosSearch() {
+            return this.segmentosFiltro.map((segmento) => {
+                return segmento;
+            })
+        },
+        getCategoriasSearch() {
+            return this.categoriasFiltro.map((categoria) => {
+                return categoria;
+            })
+        } 
     },
     methods: {
         maisQuantidade(tamanho) {
@@ -471,8 +534,6 @@ export default {
         },
         getImagemCorProduto(imagem) {
             var cor = _.cloneDeep(this.produtoA.cores[this.corSelecionada]);
-            console.log(cor.imagens);
-            
             return cor.imagens[imagem].base64;
         },
         scrollUp() {
@@ -520,6 +581,22 @@ export default {
             this.popupZoomProduto = true;
             this.produtoZoom = this.produtoA;
         },
+        searchCategorias() {
+            this.categoriasSelecionadas = [];
+            CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
+                this.categoriasFiltro = _.cloneDeep(categorias);
+            });
+        },
+        searchFindProduto() {
+            if (this.categoriasSelecionadas.length > 0 || this.textoSearch.length >= 3) {
+                const idsCategorias = this.categoriasSelecionadas.map((categoria) => {return categoria.id})
+                produtoDB.getProdutosSearch2(idsCategorias, this.textoSearch).then((result) => {
+                    this.listaProdutosPesquisa = result;
+                });
+            } else {
+                this.listaProdutosPesquisa = [];
+            }
+        },
         showVideo() {
 
         },
@@ -549,6 +626,14 @@ export default {
             this.popupAddProduto = false;
             this.produtoAdd=null;
         },
+        menosTamanho(tamanho) {
+            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade-1);
+            this.$forceUpdate();
+        },
+        maisTamanho(tamanho) {
+            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : tamanho.quantidade+1;
+            this.$forceUpdate();
+        },
         addReferenciaCarrinho() {
             console.log(this.produtoAdd);
         },
@@ -560,14 +645,15 @@ export default {
             produtoDB.getImagensProduto(produto).then((result) => {
                 this.popupListaProdutos = false;
                 this.produtoA = result;
-                this.imagemProdutoPrincipal = this.produtoA.cores[0].imagens.length > 0 ? this.produtoA.cores[0].imagens[0].base64 : null ;
-                this.corSelecionada = 0;
-                if(this.produtoA.tipo === 2) {
-                    this.produtoDown = this.produtos[1];
-                }
-                this.$vs.loading.close();
+                ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
+                    this.imagemProdutoPrincipal = result;
+                    this.corSelecionada = 0;
+                    if(this.produtoA.tipo === 2) {
+                        this.produtoDown = this.produtos[1];
+                    }
+                    this.$vs.loading.close();
+                })
             })
-            
         },
     },
     beforeCreate() {
@@ -578,14 +664,14 @@ export default {
         
         produtoDB.getProdutosCatalogo().then(result => {
             this.produtos = result;
-            // this.categorias = produtoDB.getCategorias()
-            // this.categorias.forEach(categoria => {
-            //     categoria.check = true;
-            // });
             this.selectProduto(this.produtos[0]);
-            CategoriaDB.getAll().then((categorias) => {
-                this.categoriasFiltro = _.cloneDeep(categorias);
-                appLoading.style.display = "none";
+            SegmentoDB.getAll().then((segmentos) => {
+                this.segmentosFiltro = _.cloneDeep(segmentos);
+                this.segmentoSelecionado = this.segmentosFiltro[0];
+                CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
+                    this.categoriasFiltro = _.cloneDeep(categorias);
+                    appLoading.style.display = "none";
+                });
             });
         });
     },
@@ -872,6 +958,10 @@ html {
 </style>
 <style lang="scss">
 
+.con-select .vs-select--input {
+    font-size: 0.9rem;
+}
+
 .popup-produto-search .vs-popup {
     // right: 0;
     height: 100%;
@@ -921,6 +1011,14 @@ html {
     color: #fff;
     border-color: #e41c40;
     background-color: #e41c40;
+}
+
+.vs-input--input.normal {
+    font-size: 0.75rem;
+}
+
+.not-data-table {
+    min-height: 60vh;
 }
 
 </style>

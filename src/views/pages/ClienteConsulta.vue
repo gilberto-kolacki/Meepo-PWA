@@ -67,10 +67,7 @@ export default {
         },
         listar() {
             clienteDB.listarConsulta().then((resposta) => {
-                console.log(resposta);
-                
                 this.clientes = _.clone(resposta);
-                console.log(this.clientes)
             })
         },
         deletarMessage(data) {

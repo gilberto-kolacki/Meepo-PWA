@@ -23,16 +23,21 @@ const createDB = () => {
 
 createDB();
 
-const getProdutoToDBFilterCategoria = (rows, idsCategorias) => {
-    return rows.filter((produto) => {
-        return produto.doc.cores.some((cor) => {
+const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
+    textoSearch = _.toUpper(textoSearch);
+    return rows.map((row) => { 
+        return _.clone(row.doc)
+    }).filter((produto) => {
+        return textoSearch === null || textoSearch === "" || _.toUpper(produto.referencia).includes(textoSearch) || produto.nome.includes(textoSearch);
+    }).filter((produto) => {
+        return idsCategorias.length === 0 || produto.cores.some((cor) => {
             return cor.categorias.some((categoria) => {
                 return idsCategorias.some((idCategoria) => {
                     return categoria === idCategoria
                 });
             });
         });
-    }).map((row) => { return _.clone(row.doc)});
+    })
 }
 
 const getProdutoToDB = (rows) => {
@@ -70,28 +75,36 @@ class produtoDB {
         });
     }
 
+    getAllProdutosByIdCategorias(idCategorias, textoSearch) {
+        return new Promise((resolve) => {
+            if (idCategorias.length > 0 || textoSearch.length > 0) {
+                localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                    resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias, textoSearch))
+                }).catch((err) => {
+                    console.log(err);
+                    resolve(err);
+                });
+            } else {
+                resolve([]);
+            }
+        });
+    }
+
     getProdutosCatalogo() {
         return new Promise((resolve) => {
             this.getAllProdutos().then((produtos) => {
-                // produtos = _.take(produtos, 10);
                 resolve(produtos);
-                // produtos.forEach(produto => {
-                //     this.getImagensProduto(produto).then((result) => {
-                //         produto = result;
-                //         if (_.last(produtos) === produto) resolve(produtos);
-                //     })
-                // });
             });
         });
     }
 
-    filtrarProdutosPesquisa(produtos, filtro) {
-        return this.produtos.filter((produto) => {
-            return this.getCategoriasCardPesquisa.some((categoria) => {
-                return categoria.check && produto.hasOwnProperty('categoria') && produto.categoria.hasOwnProperty('codigo') && produto.categoria.codigo == categoria.codigo;
-            });
-        });
-    }
+    // filtrarProdutosPesquisa(produtos) {
+    //     return this.produtos.filter((produto) => {
+    //         return this.getCategoriasCardPesquisa.some((categoria) => {
+    //             return categoria.check && produto.hasOwnProperty('categoria') && produto.categoria.hasOwnProperty('codigo') && produto.categoria.codigo == categoria.codigo;
+    //         });
+    //     });
+    // }
 
     getProdutosSearch(categorias) {
         return new Promise((resolve) => {
@@ -106,6 +119,26 @@ class produtoDB {
                             })
                         } else {
                             if (_.last(produtos) === produto) resolve(produtos);
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    getProdutosSearch2(categorias, textoSearch) {
+        return new Promise((resolve) => {
+            this.getAllProdutosByIdCategorias(categorias, textoSearch).then((produtos) => {
+                if(produtos.length > 0) {
+                    const done = _.after(produtos.length, () => resolve(produtos));
+                    produtos.forEach(produto => {
+                        if(produto.cores.length > 0) {
+                            imagemDB.getFotoPrincipal(produto).then((result) => {
+                                produto.imagemPrincipal = result;
+                                done();
+                            })
+                        } else {
+                            done();
                         }
                     });
                 }
