@@ -25,7 +25,7 @@ const createDB = (name) => {
         case nameFotoDB:
             BasicDB.createDBLocalBasic(name).then((dataBaseLocal) => {
                 if (dataBaseLocal) {
-                    imagemFotoDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true, size: 10});
+                    imagemFotoDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
                 }
             });
             break;
@@ -296,6 +296,7 @@ class imagemDB {
 
     getFotoPrincipal(produto) {
         return new Promise((resolve) => {
+            console.log(produto)
             if (produto.cores[0].imagens.length > 0) {
                 this.getById(_.orderBy(produto.cores[0].imagens, ['seq'])[0].id, imagemFotoDB).then((fotoProduto) => {
                     if(fotoProduto.existe) {

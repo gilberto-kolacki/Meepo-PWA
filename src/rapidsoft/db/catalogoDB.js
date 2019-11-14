@@ -29,8 +29,7 @@ class catalogoDB {
                 if(catalogos.length > 0) {
                     const done = _.after(catalogos.length, () => resolve());
                     catalogos.forEach(catalogo => {
-                        console.log(catalogo)
-                        catalogo._id = _.toString(catalogo.id);
+                        catalogo._id = _.toString(catalogo.idCatalogo);
                         localDB.put(catalogo).then(() => done()).catch(() => done());
                     });
                 } else {
@@ -50,6 +49,19 @@ class catalogoDB {
             }).catch((err) => {
                 console.log(err);
                 resolve(err);
+            });
+        });
+    }
+
+    getById(id) {
+        return new Promise((resolve) => {
+            localDB.get(_.toString(id)).then((result) => {
+                delete result['capa'];
+                delete result['base64'];
+                delete result['_rev'];
+                resolve(result);  
+            }).catch(() => {
+                resolve();
             });
         });
     }

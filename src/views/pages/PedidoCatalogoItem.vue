@@ -39,11 +39,10 @@
                         </div>
                     </div>
                     <div class="vx-row items-center justify-center mt-base-top2">
-                        <div class="btn-group centex w-full" v-if="this.produtoA.video">
-                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-youtube" @click.stop="showVideo()"></vs-button>
+                        <div class="btn-group centex w-full" >
+                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-youtube" @click.stop="showVideo()" v-if="this.produtoA.video && false"></vs-button>
                             <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-zoom-in" @click.stop="showZoom()"></vs-button>
                         </div>
-                        <vs-button color="rgb(123, 123, 123)" type="filled" icon-pack="feather" v-else class="w-full" icon="icon-zoom-in" @click.stop="showZoom()"></vs-button>
                     </div>
                 </div>
                 <!-- IMAGEM PRINCIPAL -->
@@ -65,7 +64,7 @@
                             <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" v-else>
                         </div>
                     </Vue2InteractDraggable>
-                    <div class="vx-row pt-2 items-center justify-center" style="display: block; z-index: 15;" v-if="produtoB">
+                    <div class="vx-row items-center justify-center" style="z-index: 15; margin-top: 2rem;" v-if="this.produtoB">
                         <h6 class="title-ref">{{produtoB.referencia}} - {{produtoB.nome}}</h6>
                     </div>
                 </div>
@@ -76,22 +75,24 @@
                         </div>
                     </div>
                     <div class="vx-row mt-base-top3">
-                        <h6 class="title-ref">Ref A: {{produtoA.referencia}}</h6>
-                        <h6 class="title-ref">{{produtoA.nome}}</h6>
+                        <h6 class="title-ref" v-if="this.produtoA">Ref A: {{produtoA.referencia}}</h6>
+                        <h6 class="title-ref" v-if="this.produtoB">Ref B: {{produtoB.referencia}}</h6>
+                        <h6 class="title-ref" v-if="this.produtoC">Ref C: {{produtoC.referencia}}</h6>
+                        <h6 class="title-ref" v-if="this.produtoD">Ref D: {{produtoD.referencia}}</h6>
                         <div class="btn-group centex mt-base-top1 w-full">
-                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-shopping-cart" @click.stop="addProduto(produtoA)"></vs-button>
+                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-shopping-cart" @click.stop="addProduto()"></vs-button>
                             <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" @click.stop="viewPreco(produtoA)"></vs-button>
                             <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-book-open" @click.stop="monteSeuLook(produtoA)"></vs-button>
                         </div>
                     </div>
-                    <div class="vx-row mt-base-top3" v-if="produtoB">
+                    <!-- <div class="vx-row mt-base-top3" v-if="produtoB">
                         <h6 class="title-ref">Ref B: {{produtoB.referencia}}</h6>
                         <div class="btn-group centex mt-base-top1 w-full">
                             <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-shopping-cart" @click.stop="addProduto(produtoB)"></vs-button>
                             <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" @click.stop="viewPreco(produtoB)"></vs-button>
                             <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-book-open" @click.stop="monteSeuLook(produtoB)"></vs-button>
                         </div>
-                    </div>                     
+                    </div>                      -->
                     <div class="vx-row mt-base-top2">
                         <!-- <vs-divider position="right" border-style="dashed" color="primary">Categorias</vs-divider> -->
                         <!-- <vx-card>
@@ -167,7 +168,7 @@
             </div> -->
             
 
-            <vs-table ref="table" v-model="selectSearchProduto" @selected="selectProduto(selectSearchProduto)" :data="listaProdutosPesquisa">
+            <vs-table ref="table" v-model="produtoSearch" @selected="selectSearchProduto(produtoSearch)" :data="listaProdutosPesquisa">
                 <!-- <div slot="header" class="flex flex-wrap-reverse items-center flex-grow justify-between">
                 </div> -->
                 <template slot="thead">
@@ -213,106 +214,8 @@
     </div>
     <!-- Adicao de itens -->
     <div id="page-catalogo-add" class="page-catalogo-add" v-else>
-        <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle.accordion-ref-a>
-            <h5><strong>Referencia A:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h5>
-            <h6><strong>Política:</strong></h6>
-        </b-card-header>
-        <b-collapse id="accordion-ref-a" visible accordion="my-accordion" role="tabpanel">
-            <b-card-body>
-                <div class="row">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-bordered" id="table-add-produto-a">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Cor/Tamanho</th>
-                                    <th scope="col" style="text-align: center;" v-for="(tamanho, indexTr) in getTamanhosProdutoA" :key="indexTr">
-                                        <div class="flex w-full items-center justify-center">
-                                            <!-- <vs-checkbox :id="'tamanho-check-2-'+tamanho.codigo" v-model="tamanho.ativo" @input="disabledCorTamanho(produtoAdd.produtoA, tamanho, 2)"></vs-checkbox> -->
-                                            <b-form-checkbox :id="'tamanho-check-'+tamanho.codigo" v-model="tamanho.ativo" @input="disabledCorTamanho(produtoAdd.produtoA, tamanho, 2)"></b-form-checkbox>
-                                            {{tamanho.codigo}}
-                                        </div>
-                                    </th>
-                                    <th scope="col">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(cor, indexCor) in getCoresProdutoA" :key="indexCor">
-                                    <th scope="row">
-                                        <div class="flex w-full items-center justify-center">
-                                            <!-- <vs-checkbox v-model="cor.ativo"></vs-checkbox> -->
-                                            <b-form-checkbox :id="'cor-check-'+cor.codigo" v-model="cor.ativo" @input="disabledCorTamanho(produtoAdd.produtoA, cor, 1)"></b-form-checkbox>
-                                            <!-- <vs-avatar class="m-0" :src="cor.imagemCor" size="25px"/> -->
-                                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor" size="36px" v-if="cor.imagemCor" style="border: 0.9px solid #7b7b7b;"/>
-                                            <span class="ml-1">{{cor.codigo}}</span>                                                
-                                        </div>
-                                    </th>
-                                    <td v-for="(tamanho, indexTamanho) in getTamanhosProdutoA" :key="indexTamanho">
-                                        <div v-if="produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho].ativo && tamanho.ativo">
-                                            <input type="number" :class="'input-quantidade-tam-'+tamanho.codigo+ ' input-quantidade-cor-'+cor.codigo" v-model="produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho].quantidade" class="form-control" style="margin-top: 0rem; min-width: 5rem;">
-                                            <div class="produto-add-button2">
-                                                <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button-menos2" @click="menosTamanho(produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho])" />
-                                                <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button-mais2"  @click="maisTamanho(produtoAdd.produtoA.cores[indexCor].tamanhos[indexTamanho])"/>
-                                            </div>
-                                        </div>
-                                        <div v-else>
-                                            <input type="number" class="form-control" placeholder="Inativado" disabled style="margin-top: 0.6rem; min-width: 5rem;">
-                                        </div>
-                                    </td>
-                                    <td>
-                                        
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </b-card-body>
-        </b-collapse>
-        <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle.accordion-ref-b v-if="produtoAdd.produtoB">
-            <h5><strong>Referencia B:</strong> {{produtoAdd.produtoA.referencia}} - {{produtoAdd.produtoA.nome}}</h5>
-            <h6><strong>Política:</strong></h6>
-        </b-card-header>
-        <b-collapse id="accordion-ref-b" accordion="my-accordion" role="tabpanel">
-            <b-card-body>
-                <div class="row">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-bordered" id="table-add-produto-b">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Cor/Tamanho</th>
-                                    <th scope="col" style="text-align: center;" v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">
-                                        <div class="flex w-full items-center justify-center">
-                                            <vs-checkbox v-model="tamanho.ativo"></vs-checkbox>
-                                            {{tamanho.codigo}}
-                                        </div>
-                                    </th>
-                                    <th scope="col">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(cor, indexCor) in produtoAdd.produtoA.produtoAddCores" :key="indexCor">
-                                    <th scope="row" @click="cor.ativo = !cor.ativo">
-                                        <div class="flex w-full items-center justify-center">
-                                            <vs-checkbox v-model="cor.ativo"></vs-checkbox>
-                                            <vs-avatar class="m-0" :src="cor.imagemCor" size="25px" @click="selectCorImagemProduto(index)" />
-                                            <span class="ml-1">{{cor.codigo}}</span>                                                
-                                        </div>
-                                    </th>
-                                    <td v-for="(tamanho, indextr) in produtoAdd.produtoA.produtoAddTamanhos" :key="indextr">
-                                        <input type="number" class="form-control" style="margin-top: -6px; min-width: 5rem;">
-                                        <div class="produto-add-button2">
-                                            <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button-menos2" />
-                                            <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button-mais2" />
-                                        </div>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </b-card-body>
-        </b-collapse>
+        <add-item-carrinho idColapse="accordion-ref-a" :toggle="true" :title="'Referencia A: '+produtoAdd.produtoA.referencia +''+ produtoAdd.produtoA.nome" :produtoAdd="this.produtoAdd.produtoA"></add-item-carrinho>
+        <add-item-carrinho idColapse="accordion-ref-b" :toggle="false" :title="'Referencia B: '+produtoAdd.produtoB.referencia +''+ produtoAdd.produtoB.nome" :produtoAdd="this.produtoAdd.produtoB"></add-item-carrinho>
         <div style="margin-top: 1rem;">
             <vs-button class="pull-right mr-1"  size="small" color="success" type="border" icon-pack="feather" icon="icon-plus" @click="addReferenciaCarrinho()">Adicionar</vs-button>
             <vs-button class="pull-right mr-1"  size="small" color="danger" type="border" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Cancelar</vs-button>
@@ -324,27 +227,30 @@
 import { Vue2InteractDraggable } from "vue2-interact";
 import _ from 'lodash'
 import vSelect from 'vue-select';
-import produtoDB from '../../rapidsoft/db/produtoDB'
+import ProdutoDB from '../../rapidsoft/db/produtoDB'
 import SegmentoDB from '../../rapidsoft/db/segmentoDB'
 import CategoriaDB from '../../rapidsoft/db/categoriaDB'
 import ImagemDB from '../../rapidsoft/db/imagemDB'
 import produtoUtils from '../../rapidsoft/utils/produtoUtils'
-import { setTimeout } from 'timers';
+import AddItemCarrinho  from '../../rapidsoft/components/AddItemCarrinho'
 
 export default {
 
     data() {
         return {
+            idSegmento: null,
             clientePedido: null,
             imagemProdutoPrincipal: null,
             produtoA: null,
             produtoB: null,
+            produtoC: null,
+            produtoD: null,
             categoriasFiltro: [],
             segmentosFiltro: [],
             segmentoSelecionado: null,
             categoriasSelecionadas: [],
             popupListaProdutos: false,
-            selectSearchProduto: null,
+            produtoSearch: null,
             popupAddProduto: false,
             produtoAdd: {
                 produtoA: {
@@ -360,7 +266,10 @@ export default {
             },
             corSelecionada: 0,
             imagens: [],
-            produtos: [],
+            // produtos: [],
+            paginaAtual: null,
+            paginas: [],
+            paginasProduto: [],
             produtosFiltro: [],
             isShowing: true,
             produtoZoom: null,
@@ -374,6 +283,7 @@ export default {
     components: {
         Vue2InteractDraggable,
         'v-select': vSelect,
+        AddItemCarrinho,
     },
     watch: {
         segmentoSelecionado() {
@@ -391,12 +301,6 @@ export default {
         }
     },
     computed: {
-        getCoresProdutoA() {
-            return this.produtoAdd.produtoA.cores;
-        },
-        getTamanhosProdutoA() {
-            return this.produtoAdd.produtoA.produtoAddCores[0].produtoAddTamanhos;
-        },
         // getProdutosPesquisa() {
         //     return this.produtos.filter((produto) => {
         //         return this.getCategoriasCardPesquisa.some((categoria) => {
@@ -456,72 +360,40 @@ export default {
                 return false;
             }
         },
-        // 1- cor, 2- tamanho
-        disabledCorTamanho(produto, corTamanho, tipo) {
-            console.log('evento');
-            console.log(corTamanho);
-            
-            // let linhas = [];
-            // if (tipo === 1) {
-            //     linhas = document.getElementById("table-add-produto-a").getElementsByClassName("input-cor-"+index);
-            // } else {
-            //     linhas = document.getElementById("table-add-produto-a").getElementsByClassName("input-tamanho-"+index);
-            // }
-            // for (let index = 0; index < linhas.length; index++) {
-            //     const element = linhas[index];
-            //     element.disabled = !corTamanho.ativo;
-            // }
-            // this.produtoAdd.produtoA.produtoAddTamanhos[index] = corTamanho;
-            // produto.produtoAddCores.forEach(cor => {
-            //     if ((tipo === 1 && cor.codigo == corTamanho.codigo) || tipo === 2) {
-            //         if (tipo === 1) cor.ativo = corTamanho.ativo;
-            //         console.log(tipo);                
-            //         console.log(cor);                
-            //         cor.produtoAddTamanhos.forEach(tamanho => {
-            //             if (tipo === 2 && tamanho.codigo === corTamanho.codigo) {
-            //                 tamanho.ativo = corTamanho.ativo;
-            //             } else {
-            //                 tamanho.ativo = corTamanho.ativo;
-            //             }
-            //         });
+        //tipo 1- cor, 2- tamanho
+        // disabledCorTamanho(produto, corTamanho, tipo) {
+        //     let produtoAddCoresNew = _.clone(produto.produtoAddCores);
+        //     for (let indexCor = 0; indexCor < produtoAddCoresNew.length; indexCor++) {
+        //         let cor = produtoAddCoresNew[indexCor];
+        //         if (tipo === 1) cor.ativo = corTamanho.ativo;
 
-            //         produto.produtoAddCores.splice();
-            //     }
-            // });
-
-            let produtoAddCoresNew = _.clone(produto.produtoAddCores);
-            for (let indexCor = 0; indexCor < produtoAddCoresNew.length; indexCor++) {
-                let cor = produtoAddCoresNew[indexCor];
-                if (tipo === 1) cor.ativo = corTamanho.ativo;
-
-                for (let indexTamanho = 0; indexTamanho < cor.produtoAddTamanhos.length; indexTamanho++) {
-                    let tamanho = cor.produtoAddTamanhos[indexTamanho];
-                    if (tipo === 2) {
-                        // if (tamanho.codigo === corTamanho.codigo) produtoAddCoresNew[indexCor].produtoAddTamanhos[indexTamanho].ativo = corTamanho.ativo;
-                        if (tamanho.codigo === corTamanho.codigo) {
-                            // this.$set(this.produtoAdd.produtoA.produtoAddCores[indexCor].produtoAddTamanhos, indexTamanho, corTamanho);
-                            let linhas = document.getElementById("table-add-produto-a").getElementsByClassName("input-quantidade-tam-"+tamanho.codigo);
-                            for (let index = 0; index < linhas.length; index++) {
-                                linhas[index].disabled = !corTamanho.ativo;
-                            }             
-                        } 
-                        else continue;
-                    } else {
-                        // this.$set(this.produtoAdd.produtoA.produtoAddCores[indexCor].produtoAddTamanhos, indexTamanho, corTamanho)
-                        let linhas = document.getElementById("table-add-produto-a").getElementsByClassName("input-quantidade-cor-"+corTamanho.codigo);
-                        for (let index = 0; index < linhas.length; index++) {
-                            linhas[index].disabled = !corTamanho.ativo;
-                        } 
-                    }
-                }
-            }
-            // this.$set(this.produtoAdd, "produtoA", produto.produtoAddCores);
-            console.log(this.produtoAdd.produtoA.produtoAddCores);
-        },
+        //         for (let indexTamanho = 0; indexTamanho < cor.produtoAddTamanhos.length; indexTamanho++) {
+        //             let tamanho = cor.produtoAddTamanhos[indexTamanho];
+        //             if (tipo === 2) {
+        //                 // if (tamanho.codigo === corTamanho.codigo) produtoAddCoresNew[indexCor].produtoAddTamanhos[indexTamanho].ativo = corTamanho.ativo;
+        //                 if (tamanho.codigo === corTamanho.codigo) {
+        //                     // this.$set(this.produtoAdd.produtoA.produtoAddCores[indexCor].produtoAddTamanhos, indexTamanho, corTamanho);
+        //                     let linhas = document.getElementById("table-add-produto-a").getElementsByClassName("input-quantidade-tam-"+tamanho.codigo);
+        //                     for (let index = 0; index < linhas.length; index++) {
+        //                         linhas[index].disabled = !corTamanho.ativo;
+        //                     }             
+        //                 } 
+        //                 else continue;
+        //             } else {
+        //                 // this.$set(this.produtoAdd.produtoA.produtoAddCores[indexCor].produtoAddTamanhos, indexTamanho, corTamanho)
+        //                 let linhas = document.getElementById("table-add-produto-a").getElementsByClassName("input-quantidade-cor-"+corTamanho.codigo);
+        //                 for (let index = 0; index < linhas.length; index++) {
+        //                     linhas[index].disabled = !corTamanho.ativo;
+        //                 } 
+        //             }
+        //         }
+        //     }
+        //     this.$set(this.produtoAdd, "produtoA", produto.produtoAddCores);
+        // },
         searchProduct(categoria){
             categoria.check = !categoria.check;
             this.$forceUpdate();
-            produtoDB.getProdutosSearch(this.getCategoriasCardPesquisa).then((result) => {
+            ProdutoDB.getProdutosSearch(this.getCategoriasCardPesquisa).then((result) => {
                 this.listaProdutosPesquisa = result;
             });
         },
@@ -550,25 +422,26 @@ export default {
             }, 100);
             setTimeout(() => {
                 this.isShowing = true;
-            }, 100);
+            }, 110);
+            this.$forceUpdate();
         },
         prevRef() {
-            const anterior = _.findIndex(this.produtos, (produto) => { return produto._id == this.produtoA._id })-1;
+            const anterior = _.findIndex(this.paginas, (pagina) => { return pagina.pag === this.paginaAtual.pag })-1;
             if (anterior >= 0) {
-                this.selectProduto(this.produtos[anterior]);
+                this.selectProduto(this.paginas[anterior]);
             } else {
-                this.selectProduto(this.produtos[this.produtos.length-1]);
+                this.selectProduto(this.paginas[this.paginas.length-1]);
             }
             document.getElementById("produto-image-gallery").scrollTop = 0;
             this.corSelecionada = 0;
             this.hideCard();
         },
         nextRef() {
-            const proxima = _.findIndex(this.produtos, (produto) => { return produto._id == this.produtoA._id })+1;
-            if (proxima < this.produtos.length) {
-                this.selectProduto(this.produtos[proxima]);
+            const proxima = _.findIndex(this.paginas, (pagina) => { return pagina.pag === this.paginaAtual.pag })+1;
+            if (proxima < this.paginas.length) {
+                this.selectProduto(this.paginas[proxima]);
             } else {
-                this.selectProduto(this.produtos[0]);
+                this.selectProduto(this.paginas[0]);
             }
             document.getElementById("produto-image-gallery").scrollTop = 0;
             this.corSelecionada = 0;
@@ -590,7 +463,7 @@ export default {
         searchFindProduto() {
             if (this.categoriasSelecionadas.length > 0 || this.textoSearch.length >= 3) {
                 const idsCategorias = this.categoriasSelecionadas.map((categoria) => {return categoria.id})
-                produtoDB.getProdutosSearch2(idsCategorias, this.textoSearch).then((result) => {
+                ProdutoDB.getProdutosSearch2(idsCategorias, this.textoSearch).then((result) => {
                     this.listaProdutosPesquisa = result;
                 });
             } else {
@@ -600,39 +473,22 @@ export default {
         showVideo() {
 
         },
-        getProdutoNome(produto) {
-            return produto.referencia +"-"+ produto.nome;
-        },
-		getImage(produto) {
-			return produto.imagem;
-        },
         abrirPesquisaPodutos() {
-            this.selectSearchProduto = null;
+            this.produtoSearch = null;
             this.popupListaProdutos=true
         },
-        addProduto(produto) {
-            this.produtoAdd = {};
-            this.produtoAdd.produtoA = _.cloneDeep(produto);
-            this.produtoAdd.produtoA.produtoAddCores = produtoUtils.getCoresProduto(this.produtoAdd.produtoA);
-            this.produtoAdd.produtoA.produtoAddCores.forEach(cor => {
-                cor.produtoAddTamanhos = produtoUtils.getTamanhosProduto(this.produtoAdd.produtoA);
-            });
-
-            // document.getElementById("popup-produto-add").style.display = null;
+        addProduto() {
+            this.produtoAdd = {
+                produtoA: produtoUtils.createProdutoAdd(this.produtoA)
+            };
+            if(!_.isNil(this.produtoB)) {
+                this.produtoAdd.produtoB = produtoUtils.createProdutoAdd(this.produtoB);
+            }
             this.popupAddProduto = true;
         },
         cancelarAdd() {
-            // _.defer(() => document.getElementById("popup-produto-add").style.display = "none", 'deferred');
             this.popupAddProduto = false;
             this.produtoAdd=null;
-        },
-        menosTamanho(tamanho) {
-            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade-1);
-            this.$forceUpdate();
-        },
-        maisTamanho(tamanho) {
-            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : tamanho.quantidade+1;
-            this.$forceUpdate();
         },
         addReferenciaCarrinho() {
             console.log(this.produtoAdd);
@@ -640,55 +496,59 @@ export default {
         monteSeuLook() {
 
         },
-        selectProduto(produto) {
+        selectProduto(pagina) {
             this.$vs.loading();
-            produtoDB.getImagensProduto(produto).then((result) => {
+            this.paginaAtual = pagina;
+            ProdutoDB.getProdutoPagina(pagina).then((result) => {
                 this.popupListaProdutos = false;
-                this.produtoA = result;
+                this.produtoA = result.produtoA;
+                this.produtoB = result.produtoB;
+
+                console.log("produtoA", this.produtoA);
+                
                 ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
                     this.imagemProdutoPrincipal = result;
                     this.corSelecionada = 0;
-                    if(this.produtoA.tipo === 2) {
-                        this.produtoDown = this.produtos[1];
-                    }
                     this.$vs.loading.close();
                 })
             })
         },
+        selectSearchProduto(produto) {
+            const index = _.findIndex(this.paginas, (pagina) => { return pagina.produtoA.ref === produto.referencia })
+            this.selectProduto(this.paginas[index]);
+        },
     },
     beforeCreate() {
-        // this.$vs.loading();
-
-        const appLoading = document.getElementById('loading-bg');
-        appLoading.style.display = null
-        
-        produtoDB.getProdutosCatalogo().then(result => {
-            this.produtos = result;
-            this.selectProduto(this.produtos[0]);
-            SegmentoDB.getAll().then((segmentos) => {
-                this.segmentosFiltro = _.cloneDeep(segmentos);
-                this.segmentoSelecionado = this.segmentosFiltro[0];
-                CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
-                    this.categoriasFiltro = _.cloneDeep(categorias);
-                    appLoading.style.display = "none";
+        if (this.$route.params.idCatalogo) {
+            document.getElementById('loading-bg').style.display = null;
+            ProdutoDB.getProdutosCatalogo(this.$route.params.idCatalogo).then(result => {
+                this.paginas = result;
+                this.selectProduto(result[0]);
+                SegmentoDB.getAll().then((segmentos) => {
+                    this.segmentosFiltro = _.cloneDeep(segmentos);
+                    this.segmentoSelecionado = this.segmentosFiltro[0];
+                    CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
+                        this.categoriasFiltro = _.cloneDeep(categorias);
+                        document.getElementById('loading-bg').style.display = "none";
+                    });
                 });
             });
-        });
+        } else {
+            this.$router.push('/catalogo');
+        }
     },
     created() {
-        // console.log('created');
+        console.log('created');
     },
     beforeMount() {
-        // console.log('beforeMount');
+        console.log('beforeMount');
     },
     mounted() {
         document.getElementById("page-catalogo").ontouchmove = (e) => {
             if(!(e.target.className == "produto-image-gallery-item" || e.target.className == "mb-4 responsive img-ref")) {
                 e.preventDefault();
             }
-        }
-
-        
+        }        
     },
     
 }
@@ -882,72 +742,6 @@ html {
 .header-colapse-add {
     background-color: #403e3e;
     color: #fff;
-}
-
-.produto-add-button {
-    width: 100% !important;
-    cursor: pointer;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;        
-    -webkit-box-pack: center !important;
-    -ms-flex-pack: center !important;
-    justify-content: center !important;
-    -webkit-box-align: center !important;
-    -ms-flex-align: center !important;
-    align-items: center !important;
-    border-radius: .2rem !important;
-}
-
-.produto-add-button-mais {
-    color: #28a745;
-}
-
-.produto-add-button-menos {
-    color: #dc3545;
-}
-
-.produto-add-button2 {
-    margin-top: 3px;
-    margin-bottom: -10px;
-}
-
-.produto-add-button-mais2 {
-    background-color: #fff;
-    width: 50% !important;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;        
-    -webkit-box-pack: center !important;
-    -ms-flex-pack: center !important;
-    justify-content: center !important;
-    -webkit-box-align: center !important;
-    -ms-flex-align: center !important;
-    align-items: center !important;
-    border-radius: .2rem !important;
-    border: 0.9px solid #808992;
-    // border-right: 1px solid #080808;
-    // border-left: 1px solid #080808;
-    color: #28a745;
-}
-
-.produto-add-button-menos2 {
-    background-color: #fff;
-    width: 50% !important;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;        
-    -webkit-box-pack: center !important;
-    -ms-flex-pack: center !important;
-    justify-content: center !important;
-    -webkit-box-align: center !important;
-    -ms-flex-align: center !important;
-    align-items: center !important;
-    border-radius: .2rem !important;
-    border: 0.9px solid #808992;
-    // border-right: 1px solid #080808;
-    // border-left: 1px solid #080808;
-    color: #dc3545;
 }
 
 .page-catalogo {

@@ -1,58 +1,45 @@
 <template>
-		<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-			<ol class="carousel-indicators-catalog">
-				<li
-					data-target="#carouselExampleIndicators"
-					:data-slide-to="index"
-					:id="'carousel-slide-'+index"
-					v-for="(catalogo, index) in catalogos" :key="`slide-to-${index}`">
-				</li>
-			</ol>
-			<div class="carousel-inner">
-				<div class="carousel-item" :id="'carousel-item-'+index" v-for="(catalogo, index) in catalogos" :key="`catalogo-${index}`" v-on:click.once="abrirCatalogo(catalogo)">
-					<img :src="require(`@/assets/images/rapidsoft/catalogo/`+ getImage(catalogo))" class="d-block w-100 img-catalogo" :alt="catalogo.titulo">
+	<div id="page-catalogo" class="page-catalogo">
+		<vs-button @click.stop="prevSlide" color="primary" type="filled" radius class="btn-left" icon-pack="feather" icon="icon-chevron-left" v-if="isShowing"></vs-button>
+        <vs-button @click.stop="nextSlide" color="primary" type="filled" radius class="btn-right" icon-pack="feather" icon="icon-chevron-right" v-if="isShowing"></vs-button>
+		<div class="vx-col w-full h-12">
+			<div class="flex w-full items-center justify-center">
+				<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" v-if="catalogos.length > 0">
+					<ol class="carousel-indicators-catalog">
+						<li
+							data-target="#carouselExampleIndicators"
+							:data-slide-to="index"
+							:id="'carousel-slide-'+index"
+							v-for="(catalogo, index) in catalogos" :key="`slide-to-${index}`">
+						</li>
+					</ol>
+					<div class="carousel-inner">
+						<div class="carousel-item" :id="'carousel-item-'+index" v-for="(catalogo, index) in catalogos" :key="`catalogo-${index}`" v-on:click.once="abrirCatalogo(catalogo)">
+							<img :src="catalogo.base64" class="img-catalogo responsive img-ref" :alt="catalogo.nome">
+							<div class="carousel-caption">
+								<div class="title-catalog">{{catalogo.nome}}</div>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-			<a class="carousel-control-prev" href="#" role="button" data-slide="prev" v-on:click.stop="prevSlide()">
-				<span class="carousel-control-prev-icon" aria-hidden="true"></span>
-				<span class="sr-only">Previous</span>
-			</a>
-			<a class="carousel-control-next" href="#" role="button" data-slide="next" v-on:click.stop="nextSlide()">
-				<span class="carousel-control-next-icon" aria-hidden="true"></span>
-				<span class="sr-only">Next</span>
-			</a>
 		</div>
+	</div>
 </template>
 
 <script>
 
 // import ClienteDB from '../../rapidsoft/db/clienteDB'
 import _ from 'lodash'
+import CatalogoDB from '../../rapidsoft/db/catalogoDB'
+import { timeout } from 'q';
 
 export default {
 
 	data() {
 		return {
-			catalogos: [
-				{
-					_id: '1',
-					segmento: 'fitness',
-					titulo: 'Fitness',
-					imagem: 'fitness.png'
-				},
-				{
-					_id: '2',
-					segmento: 'beach',
-					titulo: 'Beach',
-					imagem: 'beach.png'
-				},
-				{
-					_id: '3',
-					segmento: 'campanha',
-					titulo: 'Campanha',
-					imagem: 'campanha.png'
-				}
-			]
+			isShowing: false,
+			catalogos: []
 		}
 	},
 	components: {
@@ -60,11 +47,8 @@ export default {
 	computed: {
 	},
 	methods: {
-		getImage(catalogo) {
-			return catalogo.imagem;
-		},
 		abrirCatalogo(catalogo) {
-			this.$router.push({ name: 'catalogoItem', params: {linha: catalogo.segmento } });
+			this.$router.push({ name: 'catalogoItem', params: {idCatalogo: catalogo.idCatalogo}});
 		},
 		setActiveItemCarousel(indexNew) {
 			for (let index = 0; index < this.catalogos.length; index++) {
@@ -103,16 +87,35 @@ export default {
 			}
 		},
 	},
-
+	beforeCreate() {
+		document.getElementById('loading-bg').style.display = null;
+	},
 	created() {
 	},
+	beforeMount() {
+        CatalogoDB.getAll().then((catalogos) => {
+			this.catalogos = _.cloneDeep(catalogos);
+		})
+    },
 	mounted() {
-		this.setActiveItemCarousel(0);
 	},
+	updated() {
+		setTimeout(() => {
+			this.setActiveItemCarousel(0);
+			this.isShowing = true;
+			document.getElementById('loading-bg').style.display = "none";
+		}, 300)
+	}
 }
 </script>
 
 <style lang="scss" scoped>
+
+// html {
+//   position: fixed;
+//   width: 100%; 
+//   height: 100%
+// }
 
 .carousel-inner {
 	border-radius: .5rem!important;
@@ -163,8 +166,43 @@ export default {
 }
 
 .img-catalogo {
-	max-height: 58rem;
-	// max-width: 50rem;
+	max-height:80vh;
+	width: auto;
+}
+
+.btn-left{
+    position: fixed;
+    top:50%;
+    left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    z-index: 1000;
+
+    .vs-icon{
+        animation: spin 1.5s linear infinite;
+    }
+}
+
+.btn-right {
+    position: fixed;
+    top:50%;
+    right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    z-index: 1000;
+
+    .vs-icon{
+        animation: spin 1.5s linear infinite;
+    }
+}
+
+.title-catalog {
+	font-family: inherit;
+    font-weight: 500;
+    line-height: 1.2;
+    color: #ece6e6;
+	font-size: 28px;
+	text-shadow: 1px 0 0 #504f4f;
 }
 
 </style>

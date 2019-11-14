@@ -235,7 +235,6 @@ class clienteDB {
                         cliente.doc.endereco.cidade = "";
                         cliente.doc.endereco.estado = "";
                     }
-                    console.log(cliente.doc);
                     docDados.cpfCnpj = cliente.doc.cpfCnpj;
                     docDados.nome = cliente.doc.nome
                     docDados.cidade = cliente.doc.endereco.cidade
@@ -243,7 +242,6 @@ class clienteDB {
                     docDados.clienteErp = cliente.doc.clienteErp
                     docDados._id = cliente.doc._id
                     docDados._rev = cliente.doc._rev
-                    console.log(docDados)
                     return _.clone(docDados)
                 }))
             }).catch((err) => {

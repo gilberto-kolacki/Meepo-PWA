@@ -6,8 +6,10 @@
 ==========================================================================================*/
 
 import _ from 'lodash';
+import arrayMove from 'array-move';
 import BasicDB from './basicDB'
-import imagemDB from './imagemDB'
+import ImagemDB from './imagemDB'
+import CatalogoDB from './catalogoDB'
 
 import PouchDB from 'pouchdb';
 
@@ -90,12 +92,64 @@ class produtoDB {
         });
     }
 
-    getProdutosCatalogo() {
+    getProdutosCatalogo(idCatalogo) {
         return new Promise((resolve) => {
-            this.getAllProdutos().then((produtos) => {
-                resolve(produtos);
+            CatalogoDB.getById(idCatalogo).then((catalogo) =>{
+                this.getProdutosFromPaginas(_.orderBy(catalogo.paginas, ['pag'], ['asc'])).then((produtos) => {
+                    resolve(produtos);
+                })
+            })
+        });
+    }
+
+    getProdutosFromPaginas(paginas) {
+        return new Promise((resolve) => {
+            const paginasProdutos = paginas.map((pagina) => {
+                const prodOrderSeq = _.orderBy(pagina.produtos, ['seq']);
+                delete pagina['produtos'];
+                pagina.produtoA = prodOrderSeq[0];
+                if (prodOrderSeq[1]) {
+                    pagina.produtoB = prodOrderSeq[1];
+                }
+                if (prodOrderSeq[2]) {
+                    pagina.produtoC = prodOrderSeq[2];
+                }
+                if (prodOrderSeq[3]) {
+                    pagina.produtoD = prodOrderSeq[3];
+                }
+                return pagina;
+            })
+            resolve(paginasProdutos);
+        });
+    }
+
+    getById(id) {
+        return new Promise((resolve) => {
+            localDB.get(_.toString(id)).then((result) => {
+                delete result['_rev'];
+                resolve({existe: true, result: result});  
+            }).catch((error) => {
+                resolve({existe: false, result: error});
             });
         });
+    }
+    
+
+    getByProdPagina(pagina) {
+        return new Promise((resolve) => {
+            if (pagina && pagina.ref) {
+                this.getById(pagina.ref).then((resultProduto) => {
+                    if (resultProduto.existe && resultProduto.result.cores && resultProduto.result.cores.length > 0) {                        
+                        resultProduto.result.cores = arrayMove(resultProduto.result.cores, _.findIndex(resultProduto.result.cores, (cor) => { return cor.idProduto == pagina.id }), 0);
+                        resolve(resultProduto.result)    
+                    } else {
+                        resolve(null)        
+                    }
+                })
+            } else {
+                resolve(null)
+            }
+        });            
     }
 
     // filtrarProdutosPesquisa(produtos) {
@@ -113,7 +167,7 @@ class produtoDB {
                 if(produtos.length > 0) {
                     produtos.forEach(produto => {
                         if(produto.cores.length > 0) {
-                            imagemDB.getFotoPrincipal(produto).then((result) => {
+                            ImagemDB.getFotoPrincipal(produto).then((result) => {
                                 produto.imagemPrincipal = result;
                                 if (_.last(produtos) === produto) resolve(produtos);
                             })
@@ -133,7 +187,7 @@ class produtoDB {
                     const done = _.after(produtos.length, () => resolve(produtos));
                     produtos.forEach(produto => {
                         if(produto.cores.length > 0) {
-                            imagemDB.getFotoPrincipal(produto).then((result) => {
+                            ImagemDB.getFotoPrincipal(produto).then((result) => {
                                 produto.imagemPrincipal = result;
                                 done();
                             })
@@ -148,17 +202,18 @@ class produtoDB {
 
     getImagensProduto(produto) {
         return new Promise((resolve) => {
-            if(produto.cores.length > 0) {
+            if(produto && produto.cores && produto.cores.length > 0) {
+                const done = _.after(produto.cores.length, () => resolve(produto));
                 produto.cores.forEach(cor => {
-                    imagemDB.getCorById(cor).then((resultImagemCor) => {
+                    ImagemDB.getCorById(cor).then((resultImagemCor) => {
                         cor.imagemCor = resultImagemCor
-                        imagemDB.getSelos(cor).then((resultSelos) => {
+                        ImagemDB.getSelos(cor).then((resultSelos) => {
                             cor.selos = resultSelos
-                            imagemDB.getSimbolos(cor).then((resultSimbolos) => {
+                            ImagemDB.getSimbolos(cor).then((resultSimbolos) => {
                                 cor.simbolos = resultSimbolos
-                                imagemDB.getFotosProduto(cor).then((resultFotos) => {
+                                ImagemDB.getFotosProduto(cor).then((resultFotos) => {
                                     cor.imagens = _.orderBy(resultFotos, ['seq'], ['asc']);
-                                    if (_.last(produto.cores) === cor) resolve(produto);
+                                    done();
                                 });
                             });
                         });
@@ -167,6 +222,56 @@ class produtoDB {
             } else {
                 resolve(produto);
             }
+        });
+    }
+
+    getProdutoPagina(pagina) {
+        return new Promise((resolve) => {
+            console.log("pagina", pagina);
+            this.getProdutos(pagina).then((itemProduto) => {                
+                this.getImagens(itemProduto).then((resultImagem) => {
+                    console.log(resultImagem)
+                    resolve(resultImagem);
+                })
+            });
+        });
+    }
+
+    getImagens(item) {
+        return new Promise((resolve) => {
+            this.getImagensProduto(item.produtoA).then((produtoA) => {
+                item.produtoA = produtoA;
+                resolve(item);
+            })
+        });
+    }
+
+    getProdutos(pagina) {
+        return new Promise((resolve) => {
+            let item = {};
+            this.getByProdPagina(pagina.produtoA).then((resultProdutoA) => {
+                item.produtoA = resultProdutoA;
+                this.getByProdPagina(pagina.produtoB).then((resultProdutoB) => {
+                    if (resultProdutoB != null) {
+                        item.produtoB = resultProdutoB;
+                    }
+                    this.getByProdPagina(pagina.produtoC).then((resultProdutoC) => {
+                        if (resultProdutoC != null) {
+                            item.produtoC = resultProdutoC;
+                        }
+                        this.getByProdPagina(pagina.produtoD).then((resultProdutoD) => {
+                            if (resultProdutoD != null) {
+                                item.produtoD = resultProdutoD;
+                            }
+                            if (item.produtoA == null && item.produtoB != null) {
+                                item.produtoA = item.produtoB;
+                                item.produtoB = null;
+                            }
+                            resolve(item)
+                        });
+                    });
+                });
+            });
         });
     }
 

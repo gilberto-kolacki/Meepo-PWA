@@ -29,6 +29,15 @@ class produtoUtils {
         }
         return retorno;
     }
+
+    createProdutoAdd(produto) {
+        produto = _.cloneDeep(produto);
+        produto.produtoAddCores = this.getCoresProduto(produto);
+        produto.produtoAddCores.forEach(cor => {
+            cor.produtoAddTamanhos = this.getTamanhosProduto(produto);
+        });
+        return produto;
+    }
     
 }
 
