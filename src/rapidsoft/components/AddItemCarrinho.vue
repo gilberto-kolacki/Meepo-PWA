@@ -60,6 +60,8 @@
 
 <script>
 
+import _ from 'lodash'
+
 export default {
     name: 'add-item-carrinho',
     props: {

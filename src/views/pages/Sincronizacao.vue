@@ -59,7 +59,6 @@ import FormaPagtoDB from '../../rapidsoft/db/formaPagtoDB'
 import CidadeDB from '../../rapidsoft/db/cidadeDB'
 import CatalogoDB from '../../rapidsoft/db/catalogoDB'
 import RefComercialDB from '../../rapidsoft/db/referenciaComercialDB'
-import catalogoDB from '../../rapidsoft/db/catalogoDB'
 
 export default {
     data() {
