@@ -200,6 +200,28 @@ class produtoDB {
         });
     }
 
+    getImagensCorProduto(produto) {
+        return new Promise((resolve) => {
+            if(produto && produto.cores && produto.cores.length > 0) {
+                const done = _.after(produto.cores.length, () => resolve(produto));
+                produto.cores.forEach(cor => {
+                    ImagemDB.getCorById(cor).then((resultImagemCor) => {
+                        cor.imagemCor = resultImagemCor
+                        ImagemDB.getSelos(cor).then((resultSelos) => {
+                            cor.selos = resultSelos
+                            ImagemDB.getSimbolos(cor).then((resultSimbolos) => {
+                                cor.simbolos = resultSimbolos
+                                done();
+                            });
+                        });
+                    });
+                });
+            } else {
+                resolve(produto);
+            }
+        });
+    }
+
     getImagensProduto(produto) {
         return new Promise((resolve) => {
             if(produto && produto.cores && produto.cores.length > 0) {
@@ -228,26 +250,7 @@ class produtoDB {
     getProdutoPagina(pagina) {
         return new Promise((resolve) => {
             console.log("pagina", pagina);
-            this.getProdutos(pagina).then((itemProduto) => {                
-                this.getImagens(itemProduto).then((resultImagem) => {
-                    console.log(resultImagem)
-                    resolve(resultImagem);
-                })
-            });
-        });
-    }
 
-    getImagens(item) {
-        return new Promise((resolve) => {
-            this.getImagensProduto(item.produtoA).then((produtoA) => {
-                item.produtoA = produtoA;
-                resolve(item);
-            })
-        });
-    }
-
-    getProdutos(pagina) {
-        return new Promise((resolve) => {
             let item = {};
             this.getByProdPagina(pagina.produtoA).then((resultProdutoA) => {
                 item.produtoA = resultProdutoA;
@@ -267,11 +270,25 @@ class produtoDB {
                                 item.produtoA = item.produtoB;
                                 item.produtoB = null;
                             }
-                            resolve(item)
+                            this.getImagens(item).then((resultImagem) => {
+                                resolve(resultImagem);
+                            })
                         });
                     });
                 });
             });
+        });
+    }
+
+    getImagens(item) {
+        return new Promise((resolve) => {
+            this.getImagensProduto(item.produtoA).then((produtoA) => {
+                item.produtoA = produtoA;
+                this.getImagensCorProduto(item.produtoB).then((produtoB) => {
+                    item.produtoB = produtoB;
+                    resolve(item);
+                })
+            })
         });
     }
 
@@ -373,6 +390,18 @@ class produtoDB {
                     })
                 })
             })
+        });
+    }
+
+    getIdsCategoria() {
+        return new Promise((resolve) => {
+            this.getAllProdutos().then((produtos) => {
+                resolve(_.uniq(_.flattenDeep(produtos.map((produto) => {
+                    return produto.cores.map((cor) => {
+                        return cor.categorias;
+                    })
+                }))));
+            });
         });
     }
 

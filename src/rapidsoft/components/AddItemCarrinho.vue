@@ -1,66 +1,19 @@
 <template>
     <div class="parentx">
-        <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="idColapse">
-            <h5>{{ title }}</h5>
-            <h6><strong>Política:</strong></h6>
-        </b-card-header>
-        <b-collapse :id="idColapse" visible accordion="my-accordion" role="tabpanel">
-            <b-card-body>
-                <div class="row">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-bordered" id="table-add-produto-a">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Cor/Tamanho</th>
-                                    <th scope="col" style="text-align: center;" v-for="(tamanho, indexTr) in getTamanhosProduto" :key="indexTr">
-                                        <div class="flex w-full items-center justify-center">
-                                            <vs-checkbox :id="'tamanho-check-2-'+tamanho.codigo" v-model="tamanho.ativo" @input="disabledCorTamanho(produtoAdd.produtoA, tamanho, 2)"></vs-checkbox>
-                                            <!-- <b-form-checkbox :id="'tamanho-check-'+tamanho.codigo" v-model="tamanho.ativo" @input="disabledCorTamanho(produtoAdd.produtoA, tamanho, 2)"></b-form-checkbox> -->
-                                            {{tamanho.codigo}}
-                                        </div>
-                                    </th>
-                                    <th scope="col">Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(cor, indexCor) in getCoresProduto" :key="indexCor">
-                                    <th scope="row">
-                                        <div class="flex w-full items-center justify-center">
-                                            <vs-checkbox v-model="cor.ativo" @input="disabledCorTamanho(produtoAdd, cor, 1)"></vs-checkbox>
-                                            <!-- <b-form-checkbox :id="'cor-check-'+cor.codigo" v-model="cor.ativo" @input="disabledCorTamanho(produtoAdd, cor, 1)"></b-form-checkbox> -->
-                                            <!-- <vs-avatar class="m-0" :src="cor.imagemCor" size="25px"/> -->
-                                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor" size="36px" v-if="cor.imagemCor" style="border: 0.9px solid #7b7b7b;"/>
-                                            <span class="ml-1">{{cor.codigo}}</span>                                                
-                                        </div>
-                                    </th>
-                                    <td v-for="(tamanho, indexTamanho) in getTamanhosProduto" :key="indexTamanho">
-                                        <div v-if="produtoAdd.cores[indexCor].tamanhos[indexTamanho].ativo && tamanho.ativo">
-                                            <input type="number" :class="'input-quantidade-tam-'+tamanho.codigo+ ' input-quantidade-cor-'+cor.codigo" v-model="produtoAdd.cores[indexCor].tamanhos[indexTamanho].quantidade" class="form-control" style="margin-top: 0rem; min-width: 5rem;">
-                                            <div class="produto-add-button">
-                                                <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button-menos" @click="menosTamanho(produtoAdd.cores[indexCor].tamanhos[indexTamanho])" />
-                                                <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button-mais"  @click="maisTamanho(produtoAdd.cores[indexCor].tamanhos[indexTamanho])"/>
-                                            </div>
-                                        </div>
-                                        <div v-else>
-                                            <input type="number" class="form-control" placeholder="Inativado" disabled style="margin-top: 0.6rem; min-width: 5rem;">
-                                        </div>
-                                    </td>
-                                    <td>
-                                        
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </b-card-body>
-        </b-collapse>
+        <add-item-carrinho-item idColapse="accordion-ref-a" :toggle="true" title="Referencia A" :produtoAdd="this.produtoAdd.produtoA"></add-item-carrinho-item>
+        <add-item-carrinho-item idColapse="accordion-ref-b" :toggle="false" title="Referencia B" :produtoAdd="this.produtoAdd.produtoB"></add-item-carrinho-item>
+        <div style="margin-top: 1rem;">
+            <vs-button class="pull-right mr-1"  size="small" color="success" type="border" icon-pack="feather" icon="icon-plus" @click="addReferenciaCarrinho()">Adicionar</vs-button>
+            <vs-button class="pull-right mr-1"  size="small" color="danger" type="border" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Cancelar</vs-button>
+        </div>
     </div>    
 </template>    
-
 <script>
 
 import _ from 'lodash'
+import AddItemCarrinhoItem  from '../../rapidsoft/components/AddItemCarrinhoItem'
+import Storage  from '../../rapidsoft/utils/storage'
+import PedidoUtils  from '../../rapidsoft/utils/pedidoUtils'
 
 export default {
     name: 'add-item-carrinho',
@@ -68,93 +21,39 @@ export default {
         produtoAdd: {
             type: Object,
             required: true,
-        },
-        title: {
-            type: String,
-            required: true,
-        },
-        idColapse: {
-            type: String,
-            required: true,
-        },
-        toggle: {
-            type: Boolean,
-            default: true,
         }
     },
     data: () => ({
         maxHeight: '0px',
-        openItems: false
+        openItems: false,
+        carrinho: {},
     }),
+    components: {
+        AddItemCarrinhoItem,
+    },
     computed: {
-        getCoresProduto() {
-            return this.produtoAdd.cores;
-        },
-        getTamanhosProduto() {
-            return this.produtoAdd.produtoAddCores[0].produtoAddTamanhos;
-        },
+
     },
     methods: {
-        disabledCorTamanho(produto, corTamanho, tipo) {
-            console.log("produto", produto);
-            console.log("corTamanho", corTamanho);
-            this.$forceUpdate();
+        cancelarAdd () {
+            this.$emit('cancelar-add', {});
         },
-        menosTamanho(tamanho) {
-            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade-1);
-            this.$forceUpdate();
-        },
-        maisTamanho(tamanho) {
-            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : tamanho.quantidade+1;
-            this.$forceUpdate();
+        addReferenciaCarrinho() {
+            console.log(this.produtoAdd);
+
         },
     
+    },
+    beforeCreate() {       
+        this.carrinho = Storage.getPedidoCarrinho();
+        
     },
 }
 </script>    
 
 <style lang="scss">
 
-.produto-add-button {
-    margin-top: 3px;
-    margin-bottom: -10px;
-}
 
-.produto-add-button-mais {
-    background-color: #fff;
-    width: 50% !important;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;        
-    -webkit-box-pack: center !important;
-    -ms-flex-pack: center !important;
-    justify-content: center !important;
-    -webkit-box-align: center !important;
-    -ms-flex-align: center !important;
-    align-items: center !important;
-    border-radius: .2rem !important;
-    border: 0.9px solid #808992;
-    // border-right: 1px solid #080808;
-    // border-left: 1px solid #080808;
-    color: #28a745;
-}
-
-.produto-add-button-menos {
-    background-color: #fff;
-    width: 50% !important;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;        
-    -webkit-box-pack: center !important;
-    -ms-flex-pack: center !important;
-    justify-content: center !important;
-    -webkit-box-align: center !important;
-    -ms-flex-align: center !important;
-    align-items: center !important;
-    border-radius: .2rem !important;
-    border: 0.9px solid #808992;
-    // border-right: 1px solid #080808;
-    // border-left: 1px solid #080808;
-    color: #dc3545;
-}
 
     
 </style>

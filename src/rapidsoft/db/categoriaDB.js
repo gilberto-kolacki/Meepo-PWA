@@ -7,6 +7,7 @@
 
 import PouchDB from 'pouchdb';
 import BasicDB from './basicDB'
+import ProdutoDB from './produtoDB'
 import _ from 'lodash';
 
 let localDB = null;
@@ -64,10 +65,22 @@ class categoriaDB {
         });
     }
 
-    getAllBySegmento(idSegmento) {
+    getByIds(idsCategorias) {
         return new Promise((resolve) => {
             this.getAll().then((categorias) => {
-                resolve(categorias.filter((categoria) => { return categoria.idSegmento === idSegmento }));
+                resolve(categorias.filter((categoria) => {
+                    return _.indexOf(idsCategorias, categoria.id) >= 0;
+                }))
+            })
+        });
+    }
+
+    getAllBySegmento(idSegmento) {
+        return new Promise((resolve) => {
+            ProdutoDB.getIdsCategoria().then((idsCategorias) => {
+                this.getByIds(idsCategorias).then((categorias) => {
+                    resolve(categorias.filter((categoria) => { return categoria.idSegmento === idSegmento }));
+                })
             })
         });
     }

@@ -82,119 +82,14 @@
                         <div class="btn-group centex mt-base-top1 w-full">
                             <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-shopping-cart" @click.stop="addProduto()"></vs-button>
                             <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" @click.stop="viewPreco(produtoA)"></vs-button>
-                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-book-open" @click.stop="monteSeuLook(produtoA)"></vs-button>
                         </div>
                     </div>
-                    <!-- <div class="vx-row mt-base-top3" v-if="produtoB">
-                        <h6 class="title-ref">Ref B: {{produtoB.referencia}}</h6>
-                        <div class="btn-group centex mt-base-top1 w-full">
-                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-shopping-cart" @click.stop="addProduto(produtoB)"></vs-button>
-                            <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" @click.stop="viewPreco(produtoB)"></vs-button>
-                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-book-open" @click.stop="monteSeuLook(produtoB)"></vs-button>
-                        </div>
-                    </div>                      -->
                     <div class="vx-row mt-base-top2">
-                        <!-- <vs-divider position="right" border-style="dashed" color="primary">Categorias</vs-divider> -->
-                        <!-- <vx-card>
-                            <ul class="leftx">
-                                <li v-for="(categoria, index) in categorias" :key="index" style="margin-bottom: 0.5rem;">
-                                    <vs-radio v-model="filtro.categoria" :vs-value="categoria.codigo">{{categoria.nome}}</vs-radio>
-                                </li>
-                            </ul> -->
-                            <!-- <div class="flex w-full items-center justify-center">
-                                <vs-button color="primary" type="filled" icon-pack="feather" icon="icon-plus" @click="abrirListaPodutos()">Lista</vs-button>
-                            </div> -->
-                        <!-- </vx-card> -->
                     </div>
-                    <!-- <div class="vx-row">
-                        <vs-divider position="right" border-style="dashed" color="primary"></vs-divider>
-                        <div class="flex w-full items-center justify-center">
-                            <vs-button color="success" radius type="border" icon-pack="feather" icon="icon-shopping-cart"></vs-button>
-                            <vs-button color="success" radius type="border" icon-pack="feather" icon="icon-shopping-cart"></vs-button>
-                        </div>
-                    </div> -->
                 </div>
             </div>
         </vs-col>
-        <vs-popup v-bind:class="'popup-produto-search'" title="Pesquisa" :active.sync="popupListaProdutos">
-
-            
-            <!-- <div class="vx-row">
-                <div class="vx-col sm:w-1/2 w-full mb-2">
-                    <vs-select
-                        class="vx-col w-full mb-2"
-                        label="Segmentos"
-                        v-model="segmentoSelecionado" @change="searchCategorias()">
-                        <vs-select-item :key="index" :value="item.id" :text="item.nome" v-for="(item,index) in getSegmentosSearch" />
-                    </vs-select>
-                </div>
-                <div class="vx-col sm:w-1/2 w-full mb-2">
-                    <vs-select
-                        class="vx-col w-full mb-2"
-                        label="Categorias"
-                        v-model="categoriaSelecionada" >
-                        <vs-select-item :key="index" :value="item.id" :text="item.nome" v-for="(item,index) in getCategoriasSearch" />
-                    </vs-select>
-                </div>
-            </div> -->
-            <div class="vx-row">
-                <div class="vx-col sm:w-1/2 w-full">
-                    <vs-input v-validate="'required'" label="Pesquisar" v-model="textoSearch" class="w-full" />
-                </div>
-                <div class="vx-col sm:w-1/2 w-full mb-2">
-                    <label for="segmentoFiltro" class="vs-input--label">Segmentos</label>
-                    <v-select id="segmentoFiltro" name="segmento" v-model="segmentoSelecionado" label="nome" :options="getSegmentosSearch"/>
-                </div>
-            </div>
-            <div class="vx-col w-full mb-2">
-                <label for="categoriaFiltro" class="vs-input--label">Categorias</label>
-                <v-select multiple id="categoriaFiltro" name="segmento" v-model="categoriasSelecionadas" label="nome" :options="getCategoriasSearch"/>
-            </div>
-            
-            <!-- <div class="flex flex-wrap-reverse items-center">
-                <div v-for="(categoria, index) in getCategoriasCardPesquisa" :key="index" style="padding: 1.5px;" class="items-center justify-center">
-                    <b-button
-                        squared 
-                        
-                        v-bind:variant="categoria.check ? 'danger' : 'outline-danger'"
-                        class="w-full"
-                        v-on:click="searchProduct(categoria)">
-                        <small class="flex cursor-pointer">
-                            <feather-icon :icon="categoria.check ? 'CheckIcon' : 'XIcon'" svgClasses='h-4 w-4'></feather-icon>
-                            {{categoria.nome}}
-                        </small>
-                    </b-button>
-                </div>
-            </div> -->
-            
-
-            <vs-table ref="table" v-model="produtoSearch" @selected="selectSearchProduto(produtoSearch)" :data="listaProdutosPesquisa">
-                <!-- <div slot="header" class="flex flex-wrap-reverse items-center flex-grow justify-between">
-                </div> -->
-                <template slot="thead">
-                    <vs-th>Image</vs-th>
-                    <vs-th sort-key="referencia">Referencia</vs-th>
-                    <vs-th sort-key="nome">Nome</vs-th>
-                </template>
-                <template slot-scope="{data}">
-                    <tbody>
-                        <vs-tr :data="tr" :key="indextr" v-for="(tr, indextr) in data">
-                            <vs-td :data="data[indextr].imagemPrincipal">
-                                <img :src="data[indextr].imagemPrincipal" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-if="data[indextr].imagemPrincipal"/>
-                                <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-else />
-                            </vs-td>
-                            <vs-td :data="data[indextr].referencia">
-                                <p class="product-name font-medium">{{ tr.referencia }}</p>
-                            </vs-td>
-                            <vs-td :data="data[indextr].nome">
-                                <p class="product-category">{{ tr.nome }}</p>
-                            </vs-td>
-                        </vs-tr>
-                    </tbody>
-                </template>
-            </vs-table>
-        </vs-popup>        
-        
+        <search-produto @search-selected="selectSearchProduto" :id="idPopUpSearch"></search-produto>
         <vs-popup class="popup-produto-zoom" fullscreen :title="'Produto: '+ produtoZoom.referencia" :active.sync="popupZoomProduto" v-if="produtoZoom">
             <div class="vx-row">
                 <div class="vx-col w-full lg:w-1/5 sm:w-1/5">
@@ -214,12 +109,7 @@
     </div>
     <!-- Adicao de itens -->
     <div id="page-catalogo-add" class="page-catalogo-add" v-else>
-        <add-item-carrinho idColapse="accordion-ref-a" :toggle="true" :title="'Referencia A: '+produtoAdd.produtoA.referencia +''+ produtoAdd.produtoA.nome" :produtoAdd="this.produtoAdd.produtoA"></add-item-carrinho>
-        <add-item-carrinho idColapse="accordion-ref-b" :toggle="false" :title="'Referencia B: '+produtoAdd.produtoB.referencia +''+ produtoAdd.produtoB.nome" :produtoAdd="this.produtoAdd.produtoB"></add-item-carrinho>
-        <div style="margin-top: 1rem;">
-            <vs-button class="pull-right mr-1"  size="small" color="success" type="border" icon-pack="feather" icon="icon-plus" @click="addReferenciaCarrinho()">Adicionar</vs-button>
-            <vs-button class="pull-right mr-1"  size="small" color="danger" type="border" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Cancelar</vs-button>
-        </div>
+        <add-item-carrinho @cancelar-add="cancelarAdd" :produtoAdd="this.produtoAdd"></add-item-carrinho>
     </div>
 </template>
 <script>
@@ -228,11 +118,12 @@ import { Vue2InteractDraggable } from "vue2-interact";
 import _ from 'lodash'
 import vSelect from 'vue-select';
 import ProdutoDB from '../../rapidsoft/db/produtoDB'
-import SegmentoDB from '../../rapidsoft/db/segmentoDB'
-import CategoriaDB from '../../rapidsoft/db/categoriaDB'
 import ImagemDB from '../../rapidsoft/db/imagemDB'
 import produtoUtils from '../../rapidsoft/utils/produtoUtils'
 import AddItemCarrinho  from '../../rapidsoft/components/AddItemCarrinho'
+import SearchProduto  from '../../rapidsoft/components/SearchProduto'
+import SegmentoDB from '../../rapidsoft/db/segmentoDB'
+import CategoriaDB from '../../rapidsoft/db/categoriaDB'
 
 export default {
 
@@ -245,11 +136,6 @@ export default {
             produtoB: null,
             produtoC: null,
             produtoD: null,
-            categoriasFiltro: [],
-            segmentosFiltro: [],
-            segmentoSelecionado: null,
-            categoriasSelecionadas: [],
-            popupListaProdutos: false,
             produtoSearch: null,
             popupAddProduto: false,
             produtoAdd: {
@@ -266,7 +152,6 @@ export default {
             },
             corSelecionada: 0,
             imagens: [],
-            // produtos: [],
             paginaAtual: null,
             paginas: [],
             paginasProduto: [],
@@ -277,28 +162,15 @@ export default {
             disabledInputCor: [],
             disabledInputTamanho: [],
             listaProdutosPesquisa: [],
-            textoSearch: "",
+            idPopUpSearch: 'popup-produto-search'
         }
     },
     components: {
         Vue2InteractDraggable,
-        'v-select': vSelect,
         AddItemCarrinho,
+        SearchProduto,
     },
     watch: {
-        segmentoSelecionado() {
-            this.searchCategorias();
-        },
-        categoriasSelecionadas() {
-            this.searchFindProduto();
-        },
-        textoSearch(newValue, oldValue) {
-            if ((newValue === "" && oldValue.length > 0) || newValue.length >= 3) {
-                console.log('pesquisa');
-                
-                this.searchFindProduto();
-            }
-        }
     },
     computed: {
         // getProdutosPesquisa() {
@@ -308,10 +180,15 @@ export default {
         //         });
         //     });
         // },
-        getCategoriasCardPesquisa() {
+        getSegmentosSearch() {
+            return this.segmentosFiltro.map((segmento) => {
+                return segmento;
+            })
+        },
+        getCategoriasSearch() {
             return this.categoriasFiltro.map((categoria) => {
-                return {id: categoria.id, nome: categoria.nome};
-            });
+                return categoria;
+            })
         },
         getImagensCorProduto() {
             if (this.produtoA) {
@@ -327,21 +204,9 @@ export default {
                 return [];
             }
         },
-        getSegmentosSearch() {
-            return this.segmentosFiltro.map((segmento) => {
-                return segmento;
-            })
-        },
-        getCategoriasSearch() {
-            return this.categoriasFiltro.map((categoria) => {
-                return categoria;
-            })
-        } 
     },
     methods: {
-        maisQuantidade(tamanho) {
-            tamanho.quantidade = tamanho.quantidade+1;
-        },
+        // tela
         viewPreco(produto) {
             this.$vs.notify({
                 title:'REF: '+produto.referencia,
@@ -351,51 +216,6 @@ export default {
                 iconPack: 'feather',
                 icon:'icon-dollar-sign'
             })
-        },
-        disabledInputCorTamanho(indexCor, indexTamanho) {
-            if (this.disabledInputCor.length == 0 && this.disabledInputTamanho.length == 0) return false;
-            if (this.disabledInputCor[indexCor].disabled || this.disabledInputTamanho[indexTamanho].disabled) {
-                return true;
-            } else {
-                return false;
-            }
-        },
-        //tipo 1- cor, 2- tamanho
-        // disabledCorTamanho(produto, corTamanho, tipo) {
-        //     let produtoAddCoresNew = _.clone(produto.produtoAddCores);
-        //     for (let indexCor = 0; indexCor < produtoAddCoresNew.length; indexCor++) {
-        //         let cor = produtoAddCoresNew[indexCor];
-        //         if (tipo === 1) cor.ativo = corTamanho.ativo;
-
-        //         for (let indexTamanho = 0; indexTamanho < cor.produtoAddTamanhos.length; indexTamanho++) {
-        //             let tamanho = cor.produtoAddTamanhos[indexTamanho];
-        //             if (tipo === 2) {
-        //                 // if (tamanho.codigo === corTamanho.codigo) produtoAddCoresNew[indexCor].produtoAddTamanhos[indexTamanho].ativo = corTamanho.ativo;
-        //                 if (tamanho.codigo === corTamanho.codigo) {
-        //                     // this.$set(this.produtoAdd.produtoA.produtoAddCores[indexCor].produtoAddTamanhos, indexTamanho, corTamanho);
-        //                     let linhas = document.getElementById("table-add-produto-a").getElementsByClassName("input-quantidade-tam-"+tamanho.codigo);
-        //                     for (let index = 0; index < linhas.length; index++) {
-        //                         linhas[index].disabled = !corTamanho.ativo;
-        //                     }             
-        //                 } 
-        //                 else continue;
-        //             } else {
-        //                 // this.$set(this.produtoAdd.produtoA.produtoAddCores[indexCor].produtoAddTamanhos, indexTamanho, corTamanho)
-        //                 let linhas = document.getElementById("table-add-produto-a").getElementsByClassName("input-quantidade-cor-"+corTamanho.codigo);
-        //                 for (let index = 0; index < linhas.length; index++) {
-        //                     linhas[index].disabled = !corTamanho.ativo;
-        //                 } 
-        //             }
-        //         }
-        //     }
-        //     this.$set(this.produtoAdd, "produtoA", produto.produtoAddCores);
-        // },
-        searchProduct(categoria){
-            categoria.check = !categoria.check;
-            this.$forceUpdate();
-            ProdutoDB.getProdutosSearch(this.getCategoriasCardPesquisa).then((result) => {
-                this.listaProdutosPesquisa = result;
-            });
         },
         selectCorImagemProduto(indexCor) {
             this.corSelecionada = indexCor;
@@ -454,28 +274,13 @@ export default {
             this.popupZoomProduto = true;
             this.produtoZoom = this.produtoA;
         },
-        searchCategorias() {
-            this.categoriasSelecionadas = [];
-            CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
-                this.categoriasFiltro = _.cloneDeep(categorias);
-            });
-        },
-        searchFindProduto() {
-            if (this.categoriasSelecionadas.length > 0 || this.textoSearch.length >= 3) {
-                const idsCategorias = this.categoriasSelecionadas.map((categoria) => {return categoria.id})
-                ProdutoDB.getProdutosSearch2(idsCategorias, this.textoSearch).then((result) => {
-                    this.listaProdutosPesquisa = result;
-                });
-            } else {
-                this.listaProdutosPesquisa = [];
-            }
-        },
         showVideo() {
 
         },
         abrirPesquisaPodutos() {
             this.produtoSearch = null;
-            this.popupListaProdutos=true
+            this.popupSearchProdutos=true
+            this.$bvModal.show(this.idPopUpSearch);
         },
         addProduto() {
             this.produtoAdd = {
@@ -490,17 +295,11 @@ export default {
             this.popupAddProduto = false;
             this.produtoAdd=null;
         },
-        addReferenciaCarrinho() {
-            console.log(this.produtoAdd);
-        },
-        monteSeuLook() {
-
-        },
         selectProduto(pagina) {
             this.$vs.loading();
             this.paginaAtual = pagina;
             ProdutoDB.getProdutoPagina(pagina).then((result) => {
-                this.popupListaProdutos = false;
+                this.popupSearchProdutos = false;
                 this.produtoA = result.produtoA;
                 this.produtoB = result.produtoB;
 
@@ -514,6 +313,7 @@ export default {
             })
         },
         selectSearchProduto(produto) {
+            this.$bvModal.hide(this.idPopUpSearch);
             const index = _.findIndex(this.paginas, (pagina) => { return pagina.produtoA.ref === produto.referencia })
             this.selectProduto(this.paginas[index]);
         },
@@ -524,14 +324,7 @@ export default {
             ProdutoDB.getProdutosCatalogo(this.$route.params.idCatalogo).then(result => {
                 this.paginas = result;
                 this.selectProduto(result[0]);
-                SegmentoDB.getAll().then((segmentos) => {
-                    this.segmentosFiltro = _.cloneDeep(segmentos);
-                    this.segmentoSelecionado = this.segmentosFiltro[0];
-                    CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
-                        this.categoriasFiltro = _.cloneDeep(categorias);
-                        document.getElementById('loading-bg').style.display = "none";
-                    });
-                });
+                document.getElementById('loading-bg').style.display = "none";
             });
         } else {
             this.$router.push('/catalogo');
@@ -544,6 +337,7 @@ export default {
         console.log('beforeMount');
     },
     mounted() {
+        // document.getElementById('loading-bg').style.display = "none";
         document.getElementById("page-catalogo").ontouchmove = (e) => {
             if(!(e.target.className == "produto-image-gallery-item" || e.target.className == "mb-4 responsive img-ref")) {
                 e.preventDefault();
@@ -630,11 +424,6 @@ html {
     -webkit-box-pack: center !important;
     -ms-flex-pack: center !important;
     justify-content: center !important
-}
-
-.img-popup {
-    max-height: 7rem;
-    max-width: 4rem;
 }
 
 .btn-left{
@@ -754,23 +543,6 @@ html {
 
 .con-select .vs-select--input {
     font-size: 0.9rem;
-}
-
-.popup-produto-search .vs-popup {
-    // right: 0;
-    height: 100%;
-    // width: 60%;        
-}
-
-.popup-produto-search .vs-table--search  {
-    justify-content: center;
-    max-width: 100%;
-    position: relative;
-    margin-left: auto;
-
-    .input-search {
-        width: 100vw;
-    }
 }
 
 .popup-produto-add {

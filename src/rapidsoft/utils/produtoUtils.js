@@ -3,7 +3,7 @@ import _ from 'lodash'
 class produtoUtils {
 
     getTamanhosProduto(produto) {
-        let tamanhos = [];
+        const tamanhos = [];
         let retorno = [];
         for (let index = 0; index < produto.cores.length; index++) {
             const cor = produto.cores[index];
@@ -20,12 +20,9 @@ class produtoUtils {
     }
 
     getCoresProduto(produto) {
-        let cores = [];
-        let retorno = [];
+        const retorno = [];
         for (let index = 0; index < produto.cores.length; index++) {
-            const cor = produto.cores[index];
-            cores.push(cor.codigo);
-            retorno.push({codigo: cor.codigo, ativo: true});
+            retorno.push({codigo: produto.cores[index].codigo, ativo: true});
         }
         return retorno;
     }
