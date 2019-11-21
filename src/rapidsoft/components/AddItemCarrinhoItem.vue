@@ -1,8 +1,15 @@
 <template>
     <div class="parentx">
         <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="idColapse">
-            <h5><strong>{{ title }} : </strong>  {{produtoAdd.referencia +' - '+ produtoAdd.nome}}</h5>
-            <h6><strong>Política:</strong></h6>
+            <div class="vx-row">
+                <div class="vx-col w-2/3">
+                    <h5><strong>{{ title }} : </strong>  {{produtoAdd.referencia +' - '+ produtoAdd.nome}}</h5>
+                    <h6><strong>Política:</strong></h6>
+                    <h6><strong>Preço :</strong></h6>
+                </div>
+                <div class="vx-col w-1/3">
+                </div>
+            </div>
         </b-card-header>
         <b-collapse :id="idColapse" visible accordion="my-accordion" role="tabpanel">
             <b-card-body>
@@ -25,22 +32,22 @@
                                 <tr v-for="(cor, indexCor) in getCoresProduto" :key="indexCor">
                                     <th scope="row">
                                         <div class="flex w-full items-center justify-center">
-                                            <vs-checkbox :id="'cor-check-'+cor.codigo" v-model="cor.ativo" @input="disabledCorTamanho(produtoAdd, cor, 1)"></vs-checkbox>
+                                            <vs-checkbox :id="'cor-check-'+cor.codigo" v-model="produtoAdd.produtoAddCores[indexCor].ativo" @input="disabledCorTamanho(produtoAdd, cor, 1)"></vs-checkbox>
                                             <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor" size="36px" v-if="cor.imagemCor" style="border: 0.9px solid #7b7b7b;"/>
                                             <span class="ml-1">{{cor.codigo}}</span>                                                
                                         </div>
                                     </th>
                                     <td v-for="(tamanho, indexTamanho) in getTamanhosProduto" :key="indexTamanho" style="padding: 0.3rem;">
-                                        <div v-if="produtoAdd.cores[indexCor].tamanhos[indexTamanho].ativo && tamanho.ativo && cor.ativo">
+                                        <div v-if="produtoAdd.cores[indexCor].tamanhos[indexTamanho].ativo && tamanho.ativo &&  produtoAdd.produtoAddCores[indexCor].ativo">
                                             <input 
                                                 type="number" 
                                                 :class="'input-quantidade-tam-'+tamanho.codigo+ ' input-quantidade-cor-'+cor.codigo" 
-                                                v-model="produtoAdd.cores[indexCor].tamanhos[indexTamanho].quantidade" 
+                                                v-model="produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho].quantidade" 
                                                 class="form-control" 
                                                 style="margin-top: 0rem;min-width: 5rem;padding: 1px 4px;"/>
                                             <div class="produto-add-button">
-                                                <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button-menos" @click="menosTamanho(produtoAdd.cores[indexCor].tamanhos[indexTamanho])" />
-                                                <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button-mais"  @click="maisTamanho(produtoAdd.cores[indexCor].tamanhos[indexTamanho])"/>
+                                                <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button-menos" @click="menosTamanho(produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho])" />
+                                                <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button-mais"  @click="maisTamanho(produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho])"/>
                                             </div>
                                         </div>
                                         <div v-else>
@@ -48,10 +55,27 @@
                                         </div>
                                     </td>
                                     <td>
-                                        
+                                        <div class="flex w-full items-center justify-center">
+                                            <strong>{{getTotalPecasCor(produtoAdd.produtoAddCores[indexCor])}}</strong>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th><strong>Totais</strong></th>
+                                    <th v-for="(tamanho, indexTamanho) in getTamanhosProduto" :key="indexTamanho">
+                                        <div class="flex w-full items-center justify-center">
+                                            <strong>{{getTotalPecasTamanho(tamanho)}}</strong>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="flex w-full items-center justify-center">
+                                            <strong>{{getTotalPecas()}}</strong>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -89,7 +113,7 @@ export default {
     }),
     computed: {
         getCoresProduto() {
-            return _.orderBy(this.produtoAdd.cores, ['codigo']);
+            return this.produtoAdd.cores;
         },
         getTamanhosProduto() {
             return this.produtoAdd.produtoAddCores[0].produtoAddTamanhos;
@@ -98,6 +122,17 @@ export default {
     methods: {
         // 2-tamanho, 1-cor
         disabledCorTamanho(produto, corTamanho, tipo) {
+            if(tipo === 2) {
+                for (let index = 0; index < this.produtoAdd.produtoAddCores.length; index++) {
+                    const cor = this.produtoAdd.produtoAddCores[index];
+                    for (let index = 0; index < cor.produtoAddTamanhos.length; index++) {
+                        const tamanho = cor.produtoAddTamanhos[index];
+                        if (tamanho.codigo === corTamanho.codigo) {
+                            tamanho.ativo = corTamanho.ativo;
+                        }
+                    }
+                }
+            }
             this.$forceUpdate();
         },
         menosTamanho(tamanho) {
@@ -108,7 +143,54 @@ export default {
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : tamanho.quantidade+1;
             this.$forceUpdate();
         },
-    
+        getTotalPecasCor(cor) {
+            let totalCor = 0;
+            if (cor.ativo) {
+                for (let index = 0; index < cor.produtoAddTamanhos.length; index++) {
+                    const tamanho = cor.produtoAddTamanhos[index];
+                    if (tamanho.ativo && tamanho.quantidade) {
+                        totalCor = totalCor + tamanho.quantidade;
+                    }
+                }
+                return totalCor;
+            } else {
+                return 0
+            }
+        },
+        getTotalPecasTamanho(tamanho) {
+            let totalTamanho = 0;
+            if (tamanho.ativo) {
+                for (let index = 0; index < this.produtoAdd.produtoAddCores.length; index++) {
+                    const cor = this.produtoAdd.produtoAddCores[index];
+                    if (cor.ativo) {
+                        for (let index = 0; index < cor.produtoAddTamanhos.length; index++) {
+                            const tamanhoCor = cor.produtoAddTamanhos[index];
+                            if (tamanho.codigo === tamanhoCor.codigo && tamanhoCor.quantidade) {
+                                totalTamanho = totalTamanho + tamanhoCor.quantidade;
+                            }
+                        }
+                    }
+                }
+                return totalTamanho;
+            } else {
+                return 0;
+            }
+        },
+        getTotalPecas() {
+            let totalCorTamanho = 0;
+            for (let index = 0; index < this.produtoAdd.produtoAddCores.length; index++) {
+                const cor = this.produtoAdd.produtoAddCores[index];
+                if (cor.ativo) {
+                    for (let index = 0; index < cor.produtoAddTamanhos.length; index++) {
+                        const tamanho = cor.produtoAddTamanhos[index];
+                        if (tamanho.ativo && tamanho.quantidade) {
+                            totalCorTamanho = totalCorTamanho + tamanho.quantidade;
+                        }
+                    }
+                }
+            }
+            return totalCorTamanho;
+        }
     },
 }
 </script>    

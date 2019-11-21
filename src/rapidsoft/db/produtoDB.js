@@ -92,7 +92,7 @@ class produtoDB {
         });
     }
 
-    getProdutosCatalogo(idCatalogo) {
+    getPaginasCatalogo(idCatalogo) {
         return new Promise((resolve) => {
             CatalogoDB.getById(idCatalogo).then((catalogo) =>{
                 this.getProdutosFromPaginas(_.orderBy(catalogo.paginas, ['pag'], ['asc'])).then((produtos) => {
@@ -135,11 +135,12 @@ class produtoDB {
     }
     
 
-    getByProdPagina(pagina) {
+    getByProdPaginaCatalogo(pagina) {
         return new Promise((resolve) => {
             if (pagina && pagina.ref) {
                 this.getById(pagina.ref).then((resultProduto) => {
                     if (resultProduto.existe && resultProduto.result.cores && resultProduto.result.cores.length > 0) {                        
+                        resultProduto.result.cores = _.filter(resultProduto.result.cores, (cor) => { return cor.prontaEntrega === false });
                         resultProduto.result.cores = arrayMove(resultProduto.result.cores, _.findIndex(resultProduto.result.cores, (cor) => { return cor.idProduto == pagina.id }), 0);
                         resolve(resultProduto.result)    
                     } else {
@@ -200,9 +201,13 @@ class produtoDB {
         });
     }
 
+    possuiCores(produto) {
+        return produto && produto.cores && produto.cores.length > 0 && _.isObject(produto.cores[0]);
+    }
+
     getImagensCorProduto(produto) {
         return new Promise((resolve) => {
-            if(produto && produto.cores && produto.cores.length > 0) {
+            if(this.possuiCores(produto)) {
                 const done = _.after(produto.cores.length, () => resolve(produto));
                 produto.cores.forEach(cor => {
                     ImagemDB.getCorById(cor).then((resultImagemCor) => {
@@ -224,7 +229,7 @@ class produtoDB {
 
     getImagensProduto(produto) {
         return new Promise((resolve) => {
-            if(produto && produto.cores && produto.cores.length > 0) {
+            if(this.possuiCores(produto)) {
                 const done = _.after(produto.cores.length, () => resolve(produto));
                 produto.cores.forEach(cor => {
                     ImagemDB.getCorById(cor).then((resultImagemCor) => {
@@ -247,22 +252,20 @@ class produtoDB {
         });
     }
 
-    getProdutoPagina(pagina) {
+    getProdutoPaginaCatalogo(pagina) {
         return new Promise((resolve) => {
-            console.log("pagina", pagina);
-
             let item = {};
-            this.getByProdPagina(pagina.produtoA).then((resultProdutoA) => {
+            this.getByProdPaginaCatalogo(pagina.produtoA).then((resultProdutoA) => {
                 item.produtoA = resultProdutoA;
-                this.getByProdPagina(pagina.produtoB).then((resultProdutoB) => {
+                this.getByProdPaginaCatalogo(pagina.produtoB).then((resultProdutoB) => {
                     if (resultProdutoB != null) {
                         item.produtoB = resultProdutoB;
                     }
-                    this.getByProdPagina(pagina.produtoC).then((resultProdutoC) => {
+                    this.getByProdPaginaCatalogo(pagina.produtoC).then((resultProdutoC) => {
                         if (resultProdutoC != null) {
                             item.produtoC = resultProdutoC;
                         }
-                        this.getByProdPagina(pagina.produtoD).then((resultProdutoD) => {
+                        this.getByProdPaginaCatalogo(pagina.produtoD).then((resultProdutoD) => {
                             if (resultProdutoD != null) {
                                 item.produtoD = resultProdutoD;
                             }

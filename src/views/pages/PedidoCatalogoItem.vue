@@ -90,22 +90,9 @@
             </div>
         </vs-col>
         <search-produto @search-selected="selectSearchProduto" :id="idPopUpSearch"></search-produto>
-        <vs-popup class="popup-produto-zoom" fullscreen :title="'Produto: '+ produtoZoom.referencia" :active.sync="popupZoomProduto" v-if="produtoZoom">
-            <div class="vx-row">
-                <div class="vx-col w-full lg:w-1/5 sm:w-1/5">
-                    <div id="produto-image-gallery-zoom" class="produto-image-gallery produto-image-gallery-zoom">
-                        <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(index)">
-                            <img :src="imagem.base64" :id="'produto-image-gallery-item-'+imagem.id" class="mb-4 responsive img-ref">
-                        </div>
-                    </div>
-                </div>
-                <div class="vx-col w-full lg:w-4/5 sm:w-4/5">
-                    <div class="vx-row items-center justify-center">
-                        <img :src="imagemProdutoPrincipal" class="card-img-zoom" id="produto-swipe-area"/>
-                    </div>
-                </div>
-            </div>        
-        </vs-popup>
+        <div id="zoom-produto" v-if="this.produtoZoomShow">
+            <zoom-produto @zoom-closed="hideZoom" :produtoZoom="this.produtoZoom" :produtoImagens="this.produtoZoom.cores[this.corSelecionada].imagens" :id="idPopUpZoom"></zoom-produto>
+        </div>
     </div>
     <!-- Adicao de itens -->
     <div id="page-catalogo-add" class="page-catalogo-add" v-else>
@@ -122,8 +109,10 @@ import ImagemDB from '../../rapidsoft/db/imagemDB'
 import produtoUtils from '../../rapidsoft/utils/produtoUtils'
 import AddItemCarrinho  from '../../rapidsoft/components/AddItemCarrinho'
 import SearchProduto  from '../../rapidsoft/components/SearchProduto'
+import ZoomProduto  from '../../rapidsoft/components/ZoomProduto'
 import SegmentoDB from '../../rapidsoft/db/segmentoDB'
 import CategoriaDB from '../../rapidsoft/db/categoriaDB'
+import ErrorDB from '../../rapidsoft/db/errorDB'
 
 export default {
 
@@ -162,13 +151,16 @@ export default {
             disabledInputCor: [],
             disabledInputTamanho: [],
             listaProdutosPesquisa: [],
-            idPopUpSearch: 'popup-produto-search'
+            idPopUpSearch: 'popup-produto-search',
+            idPopUpZoom: 'popup-produto-zoom',
+            produtoZoomShow: false,
         }
     },
     components: {
         Vue2InteractDraggable,
         AddItemCarrinho,
         SearchProduto,
+        ZoomProduto,
     },
     watch: {
     },
@@ -183,19 +175,19 @@ export default {
         getSegmentosSearch() {
             return this.segmentosFiltro.map((segmento) => {
                 return segmento;
-            })
+            });
         },
         getCategoriasSearch() {
             return this.categoriasFiltro.map((categoria) => {
                 return categoria;
-            })
+            });
         },
         getImagensCorProduto() {
             if (this.produtoA) {
                 return this.produtoA.cores[this.corSelecionada].imagens
             } else {
                 return [];
-            }
+            };
         },        
         getCoresProduto() {
             if (this.produtoA) {
@@ -271,8 +263,13 @@ export default {
             return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
         },
         showZoom() {
-            this.popupZoomProduto = true;
-            this.produtoZoom = this.produtoA;
+            this.produtoZoom = _.cloneDeep(this.produtoA);
+            // this.produtoZoom.cor = this.produtoZoom.cores[this.corSelecionada];
+            this.produtoZoomShow = true;
+            _.delay((text) => { this.$bvModal.show(this.idPopUpZoom) }, 100, 'later');
+        },
+        hideZoom() {
+            this.produtoZoomShow = false;
         },
         showVideo() {
 
@@ -298,13 +295,10 @@ export default {
         selectProduto(pagina) {
             this.$vs.loading();
             this.paginaAtual = pagina;
-            ProdutoDB.getProdutoPagina(pagina).then((result) => {
+            ProdutoDB.getProdutoPaginaCatalogo(pagina).then((result) => {
                 this.popupSearchProdutos = false;
                 this.produtoA = result.produtoA;
                 this.produtoB = result.produtoB;
-
-                console.log("produtoA", this.produtoA);
-                
                 ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
                     this.imagemProdutoPrincipal = result;
                     this.corSelecionada = 0;
@@ -314,16 +308,22 @@ export default {
         },
         selectSearchProduto(produto) {
             this.$bvModal.hide(this.idPopUpSearch);
-            const index = _.findIndex(this.paginas, (pagina) => { return pagina.produtoA.ref === produto.referencia })
+            const index = _.findIndex(this.paginas, (pagina) => { 
+                if (_.isObject(pagina.produtoA) && _.isObject(pagina.produtoB)) {
+                    return pagina.produtoA.ref === produto.referencia || pagina.produtoB.ref === produto.referencia 
+                } else {
+                    return pagina.produtoA.ref === produto.referencia 
+                }
+            });
             this.selectProduto(this.paginas[index]);
         },
     },
     beforeCreate() {
         if (this.$route.params.idCatalogo) {
             document.getElementById('loading-bg').style.display = null;
-            ProdutoDB.getProdutosCatalogo(this.$route.params.idCatalogo).then(result => {
-                this.paginas = result;
-                this.selectProduto(result[0]);
+            ProdutoDB.getPaginasCatalogo(this.$route.params.idCatalogo).then(paginas => {
+                this.paginas = paginas;
+                this.selectProduto(paginas[0]);
                 document.getElementById('loading-bg').style.display = "none";
             });
         } else {
@@ -342,9 +342,13 @@ export default {
             if(!(e.target.className == "produto-image-gallery-item" || e.target.className == "mb-4 responsive img-ref")) {
                 e.preventDefault();
             }
-        }        
+        }       
     },
-    
+
+    errorCaptured(err, vm, info) {
+        ErrorDB.criarLog({err, vm, info});
+        return true;
+    }
 }
 </script>
 
@@ -417,26 +421,22 @@ html {
     }
 }
 
-.card-img-zoom {
-    width: 100%;
-    -webkit-animation: rebound .4s;
-    animation: rebound .4s;
-    -webkit-box-pack: center !important;
-    -ms-flex-pack: center !important;
-    justify-content: center !important
-}
+// .card-img-zoom {
+//     width: 100%;
+//     -webkit-animation: rebound .4s;
+//     animation: rebound .4s;
+//     -webkit-box-pack: center !important;
+//     -ms-flex-pack: center !important;
+//     justify-content: center !important
+// }
 
-.btn-left{
+.btn-left {
     position: fixed;
     top:50%;
     left: 0;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     z-index: 1000;
-
-    .vs-icon{
-        animation: spin 1.5s linear infinite;
-    }
 }
 
 .btn-right {
@@ -446,15 +446,12 @@ html {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     z-index: 1000;
-
-    .vs-icon{
-        animation: spin 1.5s linear infinite;
-    }
 }
 
 .title-ref {
     text-transform: uppercase;
 }
+
 .produto-image-gallery {
     height: 32vh;
     overflow-x: hidden;
@@ -520,12 +517,6 @@ html {
 
 .produto-image-gallery-button-up {
     margin-bottom: 10px;
-}
-
-.produto-image-gallery-zoom {
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: scroll;    
 }
 
 .header-colapse-add {

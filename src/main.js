@@ -94,6 +94,7 @@ import './rapidsoft/filter/rapidSoftFilter'
 
 Vue.config.productionTip = false
 
+
 new Vue({
     router,
     store,

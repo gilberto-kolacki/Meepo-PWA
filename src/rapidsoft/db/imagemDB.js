@@ -114,7 +114,6 @@ class imagemDB {
             let imagens = []
             codigosImagens.forEach(codigo => {
                 imagemFotoDB.get(codigo).then((result) => {
-                    console.log(result);
                     imagens.push(result)
                 });
             });
@@ -218,7 +217,7 @@ class imagemDB {
 
     getCorById(cor) {
         return new Promise((resolve) => {
-            if (cor.idCor && cor.idCor > 0) {
+            if (cor && cor.idCor && cor.idCor > 0) {
                 this.getById(cor.idCor, imagemCorDB).then((corProduto) => {
                     if(corProduto.existe) {
                         resolve(corProduto.result.base64);
@@ -296,8 +295,7 @@ class imagemDB {
 
     getFotoPrincipal(produto) {
         return new Promise((resolve) => {
-            console.log(produto)
-            if (produto.cores[0].imagens.length > 0) {
+            if (_.isObject(produto.cores[0]) && produto.cores[0].imagens.length > 0 && _.isArray(produto.cores[0].imagens)) {
                 this.getById(_.orderBy(produto.cores[0].imagens, ['seq'])[0].id, imagemFotoDB).then((fotoProduto) => {
                     if(fotoProduto.existe) {
                         resolve(fotoProduto.result.base64);

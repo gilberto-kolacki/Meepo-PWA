@@ -48,7 +48,7 @@ export default {
 	},
 	methods: {
 		abrirCatalogo(catalogo) {
-			this.$router.push({ name: 'catalogoItem', params: {idCatalogo: catalogo.idCatalogo}});
+			this.$router.push({ name: 'catalogoItem', params: {idCatalogo: catalogo.idCatalogo, idSegmento: catalogo.idSegmento}});
 		},
 		setActiveItemCarousel(indexNew) {
 			for (let index = 0; index < this.catalogos.length; index++) {

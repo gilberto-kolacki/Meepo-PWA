@@ -1,10 +1,9 @@
 <template>
-    <!-- <vs-popup v-bind:class="'popup-produto-search'" title="Pesquisa" :active.sync="popUp"> -->
-    <b-modal :id="id" title="Pesquisa" size="xl" scrollable  hide-footer>
+    <b-modal :id="id" size="xl" scrollable  hide-footer>
         <template v-slot:modal-header="{ close }">
             <header class="vs-popup--header">
                 <div class="vs-popup--title">
-                    <h3>Produto: P5165</h3>
+                    <h3>Pesquisa</h3>
                 </div>
                 <i class="vs-icon notranslate icon-scale vs-popup--close vs-popup--close--icon material-icons null" style="background: rgb(255, 255, 255);" @click.stop="close()">close</i>
             </header>
@@ -83,7 +82,6 @@
             </template>
         </vs-table>
     </b-modal>
-    <!-- </vs-popup>       -->
 </template>    
 <script>
 
@@ -106,16 +104,20 @@ export default {
         segmentosFiltro: [],
         listaProdutosPesquisa: [],
         segmentoSelecionado: null,
-        categoriasSelecionadas: [],
+        categoriasSelecionadas: null,
         textoSearch: "",
         produtoSearch: null,
     }),
     watch: {
-        segmentoSelecionado() {
-            this.searchCategorias();
+        segmentoSelecionado(newValue, oldValue) {
+            if (newValue !== null || oldValue !== null) {
+                this.searchCategorias();
+            }
         },
-        categoriasSelecionadas() {
-            this.searchFindProduto();
+        categoriasSelecionadas(newValue, oldValue) {
+            if (newValue !== null || oldValue !== null) {
+                this.searchFindProduto();
+            }
         },
         textoSearch(newValue, oldValue) {
             if ((newValue === "" && oldValue.length > 0) || newValue.length >= 3) {
@@ -144,11 +146,6 @@ export default {
             this.$emit('search-selected', produto);
         },
         searchCategorias() {
-            this.$vs.loading({
-                container: '#div-with-loading-search',
-                scale: 0.6
-            })
-
             this.categoriasSelecionadas = [];
             CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
                 this.categoriasFiltro = _.cloneDeep(categorias);
@@ -156,12 +153,9 @@ export default {
             });
         },
         searchFindProduto() {
-            this.$vs.loading({
-                container: '#div-with-loading-search',
-                scale: 0.6
-            })
-
             if ((this.categoriasSelecionadas && this.categoriasSelecionadas.length > 0) || (this.textoSearch && this.textoSearch.length >= 3)) {
+                this.$vs.loading({ container: '#div-with-loading-search', scale: 0.6 });
+
                 const idsCategorias = this.categoriasSelecionadas.map((categoria) => {return categoria.id})
                 ProdutoDB.getProdutosSearch2(idsCategorias, this.textoSearch).then((result) => {
                     this.listaProdutosPesquisa = result;
@@ -172,23 +166,18 @@ export default {
                 this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
             }
         },
-        searchProduct(categoria) {
-            ProdutoDB.getProdutosSearch(this.getCategoriasCardPesquisa).then((result) => {
-                this.listaProdutosPesquisa = result;
-            });
-        },
     
     },
     beforeCreate() {              
+    },
+    created() {
         SegmentoDB.getAll().then((segmentos) => {
             this.segmentosFiltro = _.cloneDeep(segmentos);
-            this.segmentoSelecionado = this.segmentosFiltro[0];
+            this.segmentoSelecionado = _.find(segmentos, (segmento) => { return segmento.id === this.$route.params.idSegmento });
             CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
                 this.categoriasFiltro = _.cloneDeep(categorias);
             });
         });
-    },
-    created() {
     },
     mounted() {
     },

@@ -199,7 +199,6 @@ const validarObjetoDB = (cliente) => {
 class clienteDB {
 
     salvar(cliente) {
-        console.log(cliente)
         return new Promise((resolve, reject) => {
             validarObjetoDB(cliente).then((resultCliente) => {
                 resultCliente._id = resultCliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
