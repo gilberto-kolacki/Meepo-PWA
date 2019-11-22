@@ -1,121 +1,174 @@
 <template>
 	<div id="page-catalogo" class="page-catalogo">
-		<vs-button @click.stop="prevSlide" color="primary" type="filled" radius class="btn-left" icon-pack="feather" icon="icon-chevron-left" v-if="isShowing"></vs-button>
-        <vs-button @click.stop="nextSlide" color="primary" type="filled" radius class="btn-right" icon-pack="feather" icon="icon-chevron-right" v-if="isShowing"></vs-button>
+		<div v-if="this.isShowing">
+			<vs-button @click.stop="prevSlide" color="primary" type="filled" radius class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
+        	<vs-button @click.stop="nextSlide" color="primary" type="filled" radius class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
+		</div>
+		<vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12" style="margin-bottom: 2rem;">
+            <div class="vx-row">                
+                <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 50;">
+					<div class="vx-row">
+						<div class="flex w-full items-center justify-center">
+							<vs-button color="dark" type="filled" icon-pack="feather" class="w-full" icon="icon-menu" @click.stop="showSidebar"></vs-button>
+						</div>
+					</div>
+				</div>	
+				<div class="vx-col w-full lg:w-3/5 sm:w-3/5 h-12">
+					<div class="vx-row items-center justify-center" style="margin-bottom: 2rem;" v-if="this.isShowing">
+                        <h1>{{this.catalogo.nome}}</h1>
+                    </div>
+				</div>
+				<div class="vx-col w-full md:w-1/5 h-12">
+                    <div class="vx-row">
+                        <div class="flex w-full items-center justify-center">
+                            <vs-button color="primary" type="filled" icon-pack="feather" class="w-full" icon="icon-search" @click.stop="abrirPesquisaCliente()"></vs-button>
+                        </div>
+                    </div>
+				</div>
+			</div>
+		</vs-col>
 		<div class="vx-col w-full h-12">
-			<div class="flex w-full items-center justify-center">
-				<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" v-if="catalogos.length > 0">
-					<ol class="carousel-indicators-catalog">
-						<li
-							data-target="#carouselExampleIndicators"
-							:data-slide-to="index"
-							:id="'carousel-slide-'+index"
-							v-for="(catalogo, index) in catalogos" :key="`slide-to-${index}`">
-						</li>
-					</ol>
-					<div class="carousel-inner">
-						<div class="carousel-item" :id="'carousel-item-'+index" v-for="(catalogo, index) in catalogos" :key="`catalogo-${index}`" v-on:click.once="abrirCatalogo(catalogo)">
-							<img :src="catalogo.base64" class="img-catalogo responsive img-ref" :alt="catalogo.nome">
-							<div class="carousel-caption">
-								<div class="title-catalog">{{catalogo.nome}}</div>
+			<div class="vx-row">
+				<div class="flex w-full items-center justify-center">
+					<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" v-if="catalogos.length > 0">
+						<ol class="carousel-indicators-catalog">
+							<li
+								data-target="#carouselExampleIndicators"
+								:data-slide-to="index"
+								:id="'carousel-slide-'+index"
+								v-for="(catalogo, index) in catalogos" :key="`slide-to-${index}`">
+							</li>
+						</ol>
+						<div class="carousel-inner">
+							<div class="carousel-item" :id="'carousel-item-'+index" v-for="(catalogo, index) in catalogos" :key="`catalogo-${index}`" v-on:click.once="selecionarCatalogo(catalogo)">
+								<img :src="catalogo.base64" class="img-catalogo responsive img-ref" :alt="catalogo.nome">
+								<!-- <div class="carousel-caption">
+									<div class="title-catalog">{{catalogo.nome}}</div>
+								</div> -->
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+		<search-cliente @search-selected="selectSearchCliente" :id="idPopUpSearch"></search-cliente>
 	</div>
 </template>
 
 <script>
 
-// import ClienteDB from '../../rapidsoft/db/clienteDB'
 import _ from 'lodash'
+import SearchCliente  from '../../rapidsoft/components/SearchCliente'
 import CatalogoDB from '../../rapidsoft/db/catalogoDB'
-import { timeout } from 'q';
+import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
+import Storage from '../../rapidsoft/utils/storage'
 
 export default {
 
 	data() {
 		return {
+			titulo: '',
 			isShowing: false,
-			catalogos: []
+			idPopUpSearch: 'popup-cliente-search',
+			catalogos: [],
+			catalogo: null,
+			grupoClientePadrao: null,
 		}
 	},
 	components: {
+		SearchCliente,
 	},
 	computed: {
 	},
 	methods: {
-		abrirCatalogo(catalogo) {
-			this.$router.push({ name: 'catalogoItem', params: {idCatalogo: catalogo.idCatalogo, idSegmento: catalogo.idSegmento}});
-		},
-		setActiveItemCarousel(indexNew) {
-			for (let index = 0; index < this.catalogos.length; index++) {
-				document.getElementById("carousel-item-"+index).classList.remove("active");
-				document.getElementById("carousel-slide-"+index).classList.remove("active");
+		selecionarCatalogo(catalogo) {
+			this.isShowing = false;
+			const clientePedido = Storage.getClienteCarrinho();
+			if (clientePedido && clientePedido.grupoCliente) {
+				GrupoClienteDB.getById(clientePedido.grupoCliente).then((grupoCliente) => {
+					Storage.setGrupoCarrinho(grupoCliente);
+					this.carregarCatalogo(catalogo);
+				});
+			} else {
+				Storage.setGrupoCarrinho(this.grupoClientePadrao);
+				this.carregarCatalogo(catalogo);
 			}
-			document.getElementById("carousel-item-"+indexNew).classList.add("active");
-			document.getElementById("carousel-slide-"+indexNew).classList.add("active");
 		},
-		prevSlide() {
-			for (let index = 0; index < this.catalogos.length; index++) {
-				if (document.getElementById("carousel-item-"+index).classList.contains("active")) {
-					const element = this.catalogos[index];
-					if (index === 0) {
-						this.setActiveItemCarousel(this.catalogos.length-1);
-						break;
-					} else {
-						this.setActiveItemCarousel(index-1);
-						break;
+		carregarCatalogo(catalogo) {
+			setTimeout(() => {
+				this.$router.push({ name: 'catalogoItem', params: {idCatalogo: catalogo.idCatalogo, idSegmento: catalogo.idSegmento }});
+			}, 100);
+		},
+		setActiveItemCarousel(proximo) {
+			if (this.catalogos.length > 0) {
+				this.catalogo = this.catalogos[proximo];
+				if (document.getElementById("carousel-item-"+proximo)) {
+					for (let index = 0; index < this.catalogos.length; index++) {
+						document.getElementById("carousel-item-"+index).classList.remove("active");
+						document.getElementById("carousel-slide-"+index).classList.remove("active");
 					}
+					document.getElementById("carousel-item-"+proximo).classList.add("active");
+					document.getElementById("carousel-slide-"+proximo).classList.add("active");
 				}
 			}
+		},
+		showSidebar() {
+            return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
+        },
+		prevSlide() {
+			const anterior = _.findIndex(this.catalogos, (catalogo) => { return catalogo.idCatalogo === this.catalogo.idCatalogo })-1;
+			if (anterior >= 0) {
+                this.setActiveItemCarousel(anterior);
+            } else {
+				this.setActiveItemCarousel(this.catalogos.length-1);
+            }
 		},
 		nextSlide() {
-			for (let index = 0; index < this.catalogos.length; index++) {
-				if (document.getElementById("carousel-item-"+index).classList.contains("active")) {
-					const element = this.catalogos[index];
-					if (index === this.catalogos.length-1) {
-						this.setActiveItemCarousel(0);
-						break;
-					} else {
-						this.setActiveItemCarousel(index+1);
-						break;
-					}
-				}
-			}
+			const proximo = _.findIndex(this.catalogos, (catalogo) => { return catalogo.idCatalogo === this.catalogo.idCatalogo })+1;
+			if (proximo < this.catalogos.length) {
+				this.setActiveItemCarousel(proximo);
+            } else {				
+				this.setActiveItemCarousel(0);
+            }
 		},
+		abrirPesquisaCliente() {
+			this.$bvModal.show(this.idPopUpSearch);
+		},
+		selectSearchCliente(cliente) {
+			Storage.setClienteCarrinho(cliente);
+			this.$bvModal.hide(this.idPopUpSearch);
+		}
 	},
 	beforeCreate() {
 		document.getElementById('loading-bg').style.display = null;
 	},
 	created() {
+		Storage.deleteClienteCarrinho();
 	},
 	beforeMount() {
         CatalogoDB.getAll().then((catalogos) => {
 			this.catalogos = _.cloneDeep(catalogos);
+			GrupoClienteDB.getGrupoPadrao().then((grupoClientePadrao) => {
+				this.grupoClientePadrao = grupoClientePadrao;
+			});
 		})
     },
 	mounted() {
+		this.abrirPesquisaCliente();
 	},
 	updated() {
-		setTimeout(() => {
-			this.setActiveItemCarousel(0);
-			this.isShowing = true;
-			document.getElementById('loading-bg').style.display = "none";
-		}, 300)
+		if (!this.isShowing) {
+			setTimeout(() => {
+				this.setActiveItemCarousel(0);
+				this.isShowing = true;
+				document.getElementById('loading-bg').style.display = "none";
+			}, 300)
+		}
 	}
 }
 </script>
 
 <style lang="scss" scoped>
-
-// html {
-//   position: fixed;
-//   width: 100%; 
-//   height: 100%
-// }
 
 .carousel-inner {
 	border-radius: .5rem!important;

@@ -64,6 +64,29 @@ class grupoClienteDB {
         });
     }
 
+    getGrupoPadrao() {
+        return new Promise((resolve) => {
+            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                const grupo = _.find(resultDocs.rows, (grupo) => { return grupo.doc.padrao; });
+                delete grupo.doc['_rev'];
+                resolve(grupo.doc)
+            }).catch((err) => {
+                resolve(err);
+            });
+        });
+    }
+
+    getById(idGrupoCliente) {
+        return new Promise((resolve) => {
+            localDB.get(_.toString(idGrupoCliente)).then((result) => {
+                resolve(result);
+            }).catch((err) => {
+                console.log(err);
+                resolve(null);
+            });
+        });
+    }
+
 }
 
 export default new grupoClienteDB();

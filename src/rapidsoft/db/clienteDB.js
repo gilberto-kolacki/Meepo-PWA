@@ -370,6 +370,49 @@ class clienteDB {
         });
     }
 
+    filter(uf, idCidade, cnpjCpf, nome, cliente) {
+        let existe = false;
+        if (!_.isNil(uf) &&  uf === cliente.endereco.estado) {
+            existe = true;
+        }
+        if (!_.isNil(idCidade)) {
+            if(idCidade === cliente.endereco.estado) {
+                existe = true;
+            } else {
+                existe = false;
+            }
+        }
+        if (!_.isNil(cnpjCpf)) {
+            if(cliente.cpfCnpj.indexOf(cnpjCpf) >= 0) {
+                existe = true;
+            } else {
+                existe = false;
+            }
+        }
+        if (!_.isNil(nome)) {
+            if(cliente.nome.includes(nome) >= 0) {
+                existe = true;
+            } else {
+                existe = false;
+            }
+        }
+        return existe;
+    }
+
+    getClientesSearch(uf, idCidade, cnpjCpf, nome) {
+        cnpjCpf = cnpjCpf.replace(/[^a-z0-9]/gi, "");
+        return new Promise((resolve) => {
+            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                const clientes = _.filter(resultDocs.rows, (cliente) => {
+                    return this.filter(uf, idCidade, cnpjCpf, nome, cliente.doc);
+                });
+                resolve(clientes.map((cliente) => { return cliente.doc }))
+            }).catch((err) => {
+                resolve(err);
+            });
+        });
+    }
+
 }
 
 export default new clienteDB();

@@ -1,5 +1,9 @@
 <template>
-    <div id="page-catalogo" class="page-catalogo" v-if="!popupAddProduto">
+    <!-- Adicao de itens -->
+    <div id="page-catalogo-add" class="page-catalogo-add" v-if="popupAddProduto">
+        <add-item-carrinho @cancelar-add="cancelarAdd" :produtoAdd="this.produtoAdd"></add-item-carrinho>
+    </div>
+    <div id="page-catalogo" class="page-catalogo" v-else>
         <div v-if="this.produtoA">
             <vs-button @click.stop="prevRef" color="primary" type="filled" radius class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
             <vs-button @click.stop="nextRef" color="primary" type="filled" radius class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
@@ -88,16 +92,13 @@
                     </div>
                 </div>
             </div>
+
         </vs-col>
         <search-produto @search-selected="selectSearchProduto" :id="idPopUpSearch"></search-produto>
         <div id="zoom-produto" v-if="this.produtoZoomShow">
             <zoom-produto @zoom-closed="hideZoom" :produtoZoom="this.produtoZoom" :produtoImagens="this.produtoZoom.cores[this.corSelecionada].imagens" :id="idPopUpZoom"></zoom-produto>
         </div>
-    </div>
-    <!-- Adicao de itens -->
-    <div id="page-catalogo-add" class="page-catalogo-add" v-else>
-        <add-item-carrinho @cancelar-add="cancelarAdd" :produtoAdd="this.produtoAdd"></add-item-carrinho>
-    </div>
+    </div>    
 </template>
 <script>
 
@@ -106,7 +107,7 @@ import _ from 'lodash'
 import vSelect from 'vue-select';
 import ProdutoDB from '../../rapidsoft/db/produtoDB'
 import ImagemDB from '../../rapidsoft/db/imagemDB'
-import produtoUtils from '../../rapidsoft/utils/produtoUtils'
+import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
 import AddItemCarrinho  from '../../rapidsoft/components/AddItemCarrinho'
 import SearchProduto  from '../../rapidsoft/components/SearchProduto'
 import ZoomProduto  from '../../rapidsoft/components/ZoomProduto'
@@ -264,9 +265,10 @@ export default {
         },
         showZoom() {
             this.produtoZoom = _.cloneDeep(this.produtoA);
-            // this.produtoZoom.cor = this.produtoZoom.cores[this.corSelecionada];
             this.produtoZoomShow = true;
-            _.delay((text) => { this.$bvModal.show(this.idPopUpZoom) }, 100, 'later');
+            setTimeout(() => {
+                this.$bvModal.show(this.idPopUpZoom)
+            }, 150);
         },
         hideZoom() {
             this.produtoZoomShow = false;
@@ -281,10 +283,10 @@ export default {
         },
         addProduto() {
             this.produtoAdd = {
-                produtoA: produtoUtils.createProdutoAdd(this.produtoA)
+                produtoA: ProdutoUtils.createProdutoAdd(this.produtoA)
             };
             if(!_.isNil(this.produtoB)) {
-                this.produtoAdd.produtoB = produtoUtils.createProdutoAdd(this.produtoB);
+                this.produtoAdd.produtoB = ProdutoUtils.createProdutoAdd(this.produtoB);
             }
             this.popupAddProduto = true;
         },
@@ -307,15 +309,11 @@ export default {
             })
         },
         selectSearchProduto(produto) {
-            this.$bvModal.hide(this.idPopUpSearch);
-            const index = _.findIndex(this.paginas, (pagina) => { 
-                if (_.isObject(pagina.produtoA) && _.isObject(pagina.produtoB)) {
-                    return pagina.produtoA.ref === produto.referencia || pagina.produtoB.ref === produto.referencia 
-                } else {
-                    return pagina.produtoA.ref === produto.referencia 
-                }
-            });
-            this.selectProduto(this.paginas[index]);
+            ProdutoUtils.addProdutoSearchFromPages(this.paginas, produto).then((paginas) => {
+                this.$bvModal.hide(this.idPopUpSearch);
+                this.paginas = paginas;
+                this.selectProduto(this.paginas[this.paginas.length-1]);
+            })
         },
     },
     beforeCreate() {

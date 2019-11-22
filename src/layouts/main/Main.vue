@@ -109,7 +109,7 @@ export default {
             this.routeTitle = this.$route.meta.pageTitle;
         },
         '$route.meta.navBar'() {
-            if (this.$route.name === "catalogoItem") {
+            if (this.$route.name === "catalogo" || this.$route.name === "catalogoItem") {
                 this.navbarType = 'hidden';
             } else {
                 this.navbarType = themeConfig.navbarType || 'floating';

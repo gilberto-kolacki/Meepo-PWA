@@ -108,7 +108,7 @@ const router = new Router({
 					meta: {
                         requiresAuth: true,
                         rule: 'editor',
-                        navBar: true,
+                        navBar: false,
                     },
                 },
                 {

@@ -35,6 +35,28 @@ class produtoUtils {
         });
         return produto;
     }
+
+    criaPaginaProdutoSearch(produto) {
+        return new Promise((resolve) => {
+            const novaPagina = {};
+            novaPagina.pag = 0;
+            novaPagina.produtoA = {
+                id: produto.cores[0].idProduto,
+                ref: produto.referencia,
+                seq: 1
+            };
+            resolve(novaPagina);
+        });
+    }
+
+    addProdutoSearchFromPages(paginas, produto) {
+        return new Promise((resolve) => {
+            this.criaPaginaProdutoSearch(produto).then((pagina) => {
+                paginas.push(pagina);
+                resolve(paginas);
+            });
+        });
+    }
     
 }
 

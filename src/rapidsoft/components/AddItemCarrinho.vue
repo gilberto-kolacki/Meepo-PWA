@@ -13,7 +13,7 @@
 import _ from 'lodash'
 import AddItemCarrinhoItem  from '../../rapidsoft/components/AddItemCarrinhoItem'
 import Storage  from '../../rapidsoft/utils/storage'
-import PedidoUtils  from '../../rapidsoft/utils/pedidoUtils'
+// import PedidoUtils  from '../../rapidsoft/utils/pedidoUtils'
 
 export default {
     name: 'add-item-carrinho',

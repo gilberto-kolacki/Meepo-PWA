@@ -488,8 +488,6 @@ export default {
             this.clienteEdit.tipoPessoa = val;
         },
         grupoCliente(val) {
-            console.log(val)
-            console.log(_.cloneDeep(val.value))
             this.clienteEdit.grupoCliente = _.cloneDeep(val.value);
         },
         cepCobranca(val) {
