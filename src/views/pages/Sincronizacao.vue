@@ -75,7 +75,7 @@ export default {
     components: {
     },
     methods: {
-        carregarSinc(){
+        carregarSinc() {
             this.$vs.loading({
                 background: this.backgroundLoading,
                 color: 'danger',
@@ -105,7 +105,7 @@ export default {
             this.sincronizacao.forEach(sinc => {
                 if(sinc.methodo !== 'sincImagem'){
                     this.sincronizar(sinc,true);
-                    this.carregarSinc();
+                    // this.carregarSinc();
                 }
             });
         },
@@ -127,9 +127,9 @@ export default {
                         _.defer(() => this[sinc.methodo](sinc, all));
                     }else{
                         if (this.sincronizacao[3].percent === 100) {
-                            _.defer(() => this[sinc.methodo](sinc));
+                            _.defer(() => this[sinc.methodo](sinc, all));
                         }else{
-                            _.defer(() => this.closeLoading(sinc));
+                            _.defer(() => this.closeLoading(sinc, all));
                             setTimeout(()=> {
                               _.defer(() => this.openErroSincronizarImgAlert());
                             }, 1000);
@@ -140,7 +140,7 @@ export default {
                 }
             }
         },
-        closeLoading(sinc) {
+        closeLoading(sinc,all) {
             sinc.erro = false;
             SincDataDB.finalizaSinc(_.clone(sinc)).then((sincResult) => {
                 sinc.dataSincronizacao = sincResult.dataSincronizacao;
@@ -148,6 +148,7 @@ export default {
 
                 setTimeout(()=> {
                      this.$vs.loading.close("#button-with-loading-"+sinc.type+" > .con-vs-loading");
+                     !all ? this.$vs.loading.close() : undefined;   
                      if (sinc.percent >= 99) sinc.percent = 100;
                      sinc.ativo = false;
                 }, 1000);
@@ -170,17 +171,19 @@ export default {
             sinc.percent = _.round((sinc.parcial)/sinc.total * 100, 1);
         },
         sincProduto(sinc, all) {
+            // !all ? this.carregarSinc() :undefined;
+            this.carregarSinc();
             ProdutoService.sincProduto().then((produtos) => {
                 sinc.total = produtos.length;
                 ProdutoDB.limparBase().then(() => {
-                    const done = _.after(produtos.length, () => this.closeLoading(sinc));
+                    const done = _.after(produtos.length, () => this.closeLoading(sinc,all));
                     produtos.forEach(produto => {
                         ProdutoDB.salvar(produto).then(() => {
                             this.atuaizaParcialSinc(sinc, 1);
                             if(sinc.percent >= 100 && all === true){
                                 this.sincronizacao.forEach(sinc => {
                                     if(sinc.methodo === 'sincImagem'){
-                                        this.sincronizar(sinc);
+                                        this.sincronizar(sinc,all);
                                     }
                                 });
                             }
@@ -192,13 +195,15 @@ export default {
                 this.errorSinc(sinc, error);
             });
         },
-        sincImagem(sinc) {
+        sincImagem(sinc, all) {
+            // !all ?this.carregarSinc() :undefined;
+            this.carregarSinc()
             ProdutoDB.getIdsImagens().then((retorno) => {
                 sinc.parcial = 0;
                 sinc.total = retorno.quantidade;
                 ImagemDB.limparBase().then(() => {
                     this.downloadImagensFromData(sinc, retorno.data).then(() => {
-                        this.closeLoading(sinc);
+                        this.closeLoading(sinc,all);
                         if (sinc.percent >= 100) {
                             this.$vs.loading.close();   
                         }
@@ -206,12 +211,14 @@ export default {
                 })
             });
         },
-        sincCliente(sinc) {
+        sincCliente(sinc,all) {
+            // !all ?this.carregarSinc() :undefined;
+            this.carregarSinc()
             ClienteDB.buscaClientesSinc().then((clientesSinc) => {
                 ClienteService.sincCliente(clientesSinc).then((clientes) => {
                     sinc.total = clientes.length;
                     ClienteDB.limparBase().then(() => {
-                        const done = _.after(clientes.length, () => this.closeLoading(sinc));
+                        const done = _.after(clientes.length, () => this.closeLoading(sinc,all));
                         clientes.forEach(cliente => {
                             ClienteDB.salvarSinc(cliente).then(() => {
                                 this.atuaizaParcialSinc(sinc, 1);
@@ -224,7 +231,8 @@ export default {
                 });
             })
         },
-        sincParametro(sinc) {
+        sincParametro(sinc,all) {
+            this.carregarSinc()
             ParametroService.sincParametro().then((data) => {
                 sinc.total = Object.keys(data).length;
                 GrupoClienteDB.salvarSinc(data.grupoCliente).then(() => {
@@ -243,7 +251,7 @@ export default {
                                             this.atuaizaParcialSinc(sinc, 1);
                                             RefComercialDB.salvarSinc(data.referenciaComercial).then(() => {
                                                 this.atuaizaParcialSinc(sinc, 1);
-                                                this.closeLoading(sinc);
+                                                this.closeLoading(sinc,all);
                                             })
                                         })
                                     })
@@ -256,7 +264,8 @@ export default {
                 this.errorSinc(sinc, error);
             });
         },
-        sincCidade(sinc) {
+        sincCidade(sinc,all) {
+            !all ? this.carregarSinc() : undefined;
             const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
             sinc.total = siglasEstados.length;
             CidadeDB.limparBase().then(() => {
