@@ -97,7 +97,7 @@ export default {
             this.$vs.dialog({
                 color:'warning',
                 title: `Atenção`,
-                text: 'Não foi permitido a sincronização de imagens. Sincronize primeiro os Produtos !',
+                text: 'Não foi permitido a sincronização de imagens. Sincronize primeiro os produtos !',
                 acceptText: 'Entendi',
             })
         },
@@ -148,7 +148,7 @@ export default {
 
                 setTimeout(()=> {
                      this.$vs.loading.close("#button-with-loading-"+sinc.type+" > .con-vs-loading");
-                     !all ? this.$vs.loading.close() : undefined;   
+                     !all ? this.$vs.loading.close() : all === 'img' ? this.$vs.loading.close() : undefined;   
                      if (sinc.percent >= 99) sinc.percent = 100;
                      sinc.ativo = false;
                 }, 1000);
@@ -196,23 +196,18 @@ export default {
             });
         },
         sincImagem(sinc, all) {
-            // !all ?this.carregarSinc() :undefined;
             this.carregarSinc()
             ProdutoDB.getIdsImagens().then((retorno) => {
                 sinc.parcial = 0;
                 sinc.total = retorno.quantidade;
                 ImagemDB.limparBase().then(() => {
                     this.downloadImagensFromData(sinc, retorno.data).then(() => {
-                        this.closeLoading(sinc,all);
-                        if (sinc.percent >= 100) {
-                            this.$vs.loading.close();   
-                        }
+                        all ? this.closeLoading(sinc,all) : this.closeLoading(sinc,'img') ;
                     })
                 })
             });
         },
         sincCliente(sinc,all) {
-            // !all ?this.carregarSinc() :undefined;
             this.carregarSinc()
             ClienteDB.buscaClientesSinc().then((clientesSinc) => {
                 ClienteService.sincCliente(clientesSinc).then((clientes) => {
