@@ -241,6 +241,7 @@ class clienteDB {
                     docDados.ativo = cliente.doc.ativo
                     docDados._id = cliente.doc._id
                     docDados._rev = cliente.doc._rev
+                    
                     return _.clone(docDados)
                 }))
             }).catch((err) => {
