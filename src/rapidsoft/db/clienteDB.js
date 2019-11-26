@@ -231,7 +231,7 @@ class clienteDB {
                         cliente.doc.endereco = {};
                         cliente.doc.endereco.cidade = "";
                         cliente.doc.endereco.estado = "";
-                    }
+                    } 
                     docDados.cpfCnpj = cliente.doc.cpfCnpj;
                     docDados.nome = cliente.doc.nome
                     docDados.cidade = cliente.doc.endereco.cidade
