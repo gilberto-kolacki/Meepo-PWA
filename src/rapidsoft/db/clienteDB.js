@@ -95,7 +95,7 @@ const validarObjetoDB = (cliente) => {
         let retorno = {
             mensagem : "Campo obrigatório!"
         }
-        let validarEndereco = validarEnderecoDB(cliente.endereco, 1);
+        // let validarEndereco = validarEnderecoDB(cliente.endereco, 1);
         if (cliente.cpfCnpj === undefined || cliente.cpfCnpj.length < 14 || cliente.cpfCnpj === "") {
             retorno.campo = "cpfCnpj"            
             reject(retorno);
@@ -175,7 +175,6 @@ const validarObjetoDB = (cliente) => {
             retorno.campo = "grupoCliente"
             reject(retorno);
         }
-        
         // else if (!_.isEmpty(validarEndereco)){
         //     reject(validarEndereco);
         // }
@@ -229,6 +228,7 @@ class clienteDB {
             localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 console.log(resultDocs.rows.map);  
                 resolve(resultDocs.rows.map((cliente) => {
+                    console.log('cliente = ', cliente);
                     if (_.isUndefined(cliente.doc.endereco) || (_.isObject(cliente.doc.endereco) && _.isUndefined(cliente.doc.endereco.cep))) {
                         cliente.doc.endereco = {};
                         cliente.doc.endereco.cidade = "";
@@ -239,6 +239,8 @@ class clienteDB {
                     docDados.cidade = cliente.doc.endereco.cidade
                     docDados.estado = cliente.doc.endereco.estado
                     docDados.clienteErp = cliente.doc.clienteErp
+                    docDados.inadimplente = cliente.doc.inadimplente
+                    docDados.ativo = cliente.doc.ativo
                     docDados._id = cliente.doc._id
                     docDados._rev = cliente.doc._rev
                     return _.clone(docDados)
