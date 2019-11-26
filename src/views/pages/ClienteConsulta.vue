@@ -11,9 +11,10 @@
                     <vs-th sort-key="cidade">Cidade</vs-th>
                     <vs-th sort-key="estado">UF</vs-th>
                     <vs-th>Ações</vs-th>
-                </template>
+                </template> 
                 <template slot-scope="{data}">
-                    <vs-tr :key="indextr" v-for="(tr, indextr) in data">
+                    <vs-tr :state="data[indextr].ativo === 0 ? 'danger':data[indextr].inadimplente !== 0 ? 'warning':null" :key="indextr" v-for="(tr, indextr) in data">
+                        
                         <vs-td :data="data[indextr].cpfCnpj">
                             {{ data[indextr].cpfCnpj }}
                         </vs-td>
@@ -36,6 +37,7 @@
                                 </div>
                             </div>
                         </vs-td>
+
                     </vs-tr>
                 </template>
             </vs-table>
@@ -60,7 +62,7 @@ export default {
         editar(cliente) {
             console.log(cliente);
             if (cliente) {
-                this.$router.push({ name: 'clienteEditar', params: {clienteId: cliente.id } });
+                this.$router.push({ name: 'clienteEditar', params: {clienteId: cliente._id } });
             } else {
                 this.$router.push('/cliente/cadastro');
             }
