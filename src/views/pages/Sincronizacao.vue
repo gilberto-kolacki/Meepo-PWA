@@ -120,7 +120,7 @@ export default {
                     background: this.backgroundLoading,
                     color: this.colorLoading,
                     container: "#button-with-loading-"+sinc.type,
-                    scale: 0.7
+                    scale: 0.6
                 });
                 if (sinc.methodo && sinc.methodo != "") {
                     if (sinc.methodo !== 'sincImagem') {
@@ -156,14 +156,18 @@ export default {
         },
         errorSinc(sinc, error) {
             sinc.erro = true;
-            const mensagem = error.response.data.mensagem ? error.response.status +" "+ error.response.data.mensagem : error.response.status +" "+ error.response.statusText;
-            this.$vs.notify({
-                title: 'Erro!',
-                text: mensagem,
-                color: 'danger',
-                iconPack: 'feather',
-                icon: 'icon-alert-circle'
-            })
+
+            if (error.response) {
+                const mensagem = error.response && error.response.data.mensagem ? error.response.status +" "+ error.response.data.mensagem : error.response.status +" "+ error.response.statusText;
+                this.$vs.notify({
+                    title: 'Erro!',
+                    text: mensagem,
+                    color: 'danger',
+                    iconPack: 'feather',
+                    icon: 'icon-alert-circle'
+                })
+            }
+
             _.defer(() => this.closeLoading(sinc));
         },
         atuaizaParcialSinc(sinc, imagensSalvas) {

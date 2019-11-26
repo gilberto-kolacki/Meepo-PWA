@@ -5,208 +5,49 @@
   Author: Giba
 ==========================================================================================*/
 
-import BasicDB from './basicDB'
 import _ from 'lodash';
-import PouchDB from 'pouchdb';
-
-
-let nameFotoDB = "foto";
-let nameCorDB = "cor";
-let nameSeloDB = "selo";
-let nameSimboloDB = "simbolo";
-
-let imagemFotoDB = null;
-let imagemCorDB = null;
-let imagemSeloDB = null;
-let imagemSimboloDB = null;
-
-const createDB = (name) => {
-    switch(name) {
-        case nameFotoDB:
-            BasicDB.createDBLocalBasic(name).then((dataBaseLocal) => {
-                if (dataBaseLocal) {
-                    imagemFotoDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-                }
-            });
-            break;
-        
-        case nameCorDB:
-            BasicDB.createDBLocalBasic(name).then((dataBaseLocal) => {
-                if (dataBaseLocal) {
-                    imagemCorDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-                }
-            });
-            break;
-        
-        case nameSeloDB:
-            BasicDB.createDBLocalBasic(name).then((dataBaseLocal) => {
-                if (dataBaseLocal) {
-                    imagemSeloDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-                }
-            });
-            break;
-        
-        case nameSimboloDB:
-            BasicDB.createDBLocalBasic(name).then((dataBaseLocal) => {
-                if (dataBaseLocal) {
-                    imagemSimboloDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-                }
-            });
-            break;
-    }
-};
-
-createDB(nameFotoDB);
-createDB(nameCorDB);
-createDB(nameSeloDB);
-createDB(nameSimboloDB);
+import ImagemFotoDB from './imagemFotoDB'
+import ImagemCorDB from './imagemCorDB'
+import ImagemSeloDB from './imagemSeloDB'
+import ImagemSimboloDB from './imagemSimboloDB'
 
 class imagemDB {
 
-    salvar(imagem, localDB) {
-        return new Promise((resolve) => {
-            localDB.get(imagem._id).then((result) => {
-                imagem._rev = result._rev;
-                localDB.put(imagem).then(() => {
-                    resolve();
-                });
-            }).catch((error) => {
-                if (error.status === 404) {
-                    localDB.put(imagem).then(() => {
-                        resolve();
-                    });
-                } else {
-                    console.log(error);
-                    resolve();
-                }
-            });
-        });
-    }    
-
-    listarFotos() {
-        return new Promise((resolve, reject) => {
-            let imagens = []
-            imagemFotoDB.allDocs({include_docs: true}).then((result) => {
-                for (let index = 0; index < result.rows.length; index++) {
-                    imagens.push(_.cloneDeep(result.rows[index].doc));
-                    if (index+1 == result.rows.length) {
-                        resolve(imagens);
-                    }
-                }
-            }).catch((erro) => {
-                console.log(erro);
-                reject(erro);
-            });
-        });
-    }
-
     getImagemCor(id) {
         return new Promise((resolve) => {
-            this.getById(id, imagemCorDB).then((cor) => {
+            ImagemCorDB._getById(id).then((cor) => {
                 if (cor.existe) resolve(cor.result)
                 else resolve(null)
             });
         });
     }
 
-    getImagemFotos(codigosImagens) {
-        return new Promise((resolve) => {
-            let imagens = []
-            codigosImagens.forEach(codigo => {
-                imagemFotoDB.get(codigo).then((result) => {
-                    imagens.push(result)
-                });
-            });
-            resolve(imagens);
-        });
-    }
-
-    getById(id, localDB) {
-        return new Promise((resolve) => {
-            localDB.get(_.toString(id)).then((result) => {
-                delete result['_rev'];
-                resolve({existe: true, result: result});  
-            }).catch((error) => {
-                resolve({existe: false, result: error});
-            });
-        });
-    }
-
     salvarFotos(fotos) {
-        return new Promise((resolve) => {
-            if (_.isArray(fotos) && fotos.length > 0) {
-                const done = _.after(fotos.length, () => resolve(fotos.length));
-                fotos.forEach(imagem => {
-                    imagem._id = _.toString(imagem.id);
-                    imagemFotoDB.put(imagem).then(() => done()).catch(() => done());
-                });
-            } else {
-                resolve(0)
-            }
-        })
+        return ImagemFotoDB.salvarFotos(fotos);
     }
 
     salvarCores(cores) {
-        return new Promise((resolve) => {
-            if (_.isArray(cores) && cores.length > 0) {
-                const done = _.after(cores.length, () => resolve(cores.length));
-                cores.forEach(imagem => {
-                    imagem._id = _.toString(imagem.id);
-                    imagemCorDB.put(imagem).then(() => done()).catch(() => done());
-                });
-            } else {
-                resolve(0)
-            }
-        })
+        return ImagemCorDB.salvarCores(cores);
     }
 
     salvarSelos(selos) {
-        return new Promise((resolve) => {
-            if (_.isArray(selos) && selos.length > 0) {
-                const done = _.after(selos.length, () => resolve(selos.length));
-                selos.forEach(imagem => {
-                    imagem._id = _.toString(imagem.id);
-                    imagemSeloDB.put(imagem).then(() => done()).catch(() => done());
-                });
-            } else {
-                resolve(0);
-            }
-        })
+        return ImagemSeloDB.salvarSelos(selos);
     }
 
     salvarSimbolos(simbolos) {
-        return new Promise((resolve) => {
-            if (_.isArray(simbolos) && simbolos.length > 0) {
-                const done = _.after(simbolos.length, () => resolve(simbolos.length));
-                simbolos.forEach(imagem => {
-                    imagem._id = _.toString(imagem.id);
-                    imagemSimboloDB.put(imagem).then(() => done()).catch(() => done());
-                });
-            } else {
-                resolve(0)
-            }
-        })
+        return ImagemSimboloDB.salvarSimbolos(simbolos);
     }       
-
-    // downloadSelo(cor) {
-    
-    // }
-
-    // downloadSimbolo(cor) {
-    
-    // }
-    
 
     limparBase() {
         return new Promise((resolve) => {
-            imagemFotoDB.destroy().then(() => {
-                createDB(nameFotoDB);
-                imagemCorDB.destroy().then(() => {
-                    createDB(nameCorDB);
-                    imagemSeloDB.destroy().then(() => {
-                        createDB(nameSeloDB);
-                        imagemSimboloDB.destroy().then(() => {
-                            createDB(nameSimboloDB);
+            ImagemFotoDB.destroy().then(() => {
+                new ImagemFotoDB();
+                ImagemCorDB.destroy().then(() => {
+                    new ImagemCorDB();
+                    ImagemSeloDB.destroy().then(() => {
+                        new ImagemSeloDB();
+                        ImagemSimboloDB.destroy().then(() => {
+                            new ImagemSimboloDB();
                             resolve();
                         });
                     });
@@ -218,7 +59,7 @@ class imagemDB {
     getCorById(cor) {
         return new Promise((resolve) => {
             if (cor && cor.idCor && cor.idCor > 0) {
-                this.getById(cor.idCor, imagemCorDB).then((corProduto) => {
+                ImagemCorDB._getById(cor.idCor).then((corProduto) => {
                     if(corProduto.existe) {
                         resolve(corProduto.result.base64);
                     } else {
@@ -234,7 +75,7 @@ class imagemDB {
     getFotoById(idFoto) {
         return new Promise((resolve) => {
             if (idFoto > 0) {
-                this.getById(idFoto, imagemFotoDB).then((fotoProduto) => {
+                ImagemFotoDB._getById(idFoto).then((fotoProduto) => {
                     if(fotoProduto.existe) {
                         resolve(fotoProduto.result.base64);
                     } else {
@@ -248,7 +89,7 @@ class imagemDB {
     }
 
     existFoto(idFoto) {
-        this.getById(idFoto, imagemFotoDB).then((fotoProduto) => {
+        ImagemFotoDB._getById(idFoto).then((fotoProduto) => {
             if(fotoProduto.existe) {
                 return true;
             } else {
@@ -273,7 +114,7 @@ class imagemDB {
         return new Promise((resolve) => {
             if (cor.imagens && cor.imagens.length > 0) {
                 cor.imagens.forEach(imagem => {
-                    this.getById(imagem.id, imagemFotoDB).then((fotoProduto) => {
+                    ImagemFotoDB._getById(imagem.id).then((fotoProduto) => {
                         if(fotoProduto.existe) {
                             imagem.base64 = fotoProduto.result.base64
                             if(_.last(cor.imagens) === imagem) {
@@ -296,7 +137,7 @@ class imagemDB {
     getFotoPrincipal(produto) {
         return new Promise((resolve) => {
             if (_.isObject(produto.cores[0]) && produto.cores[0].imagens.length > 0 && _.isArray(produto.cores[0].imagens)) {
-                this.getById(_.orderBy(produto.cores[0].imagens, ['seq'])[0].id, imagemFotoDB).then((fotoProduto) => {
+                ImagemFotoDB._getById(_.orderBy(produto.cores[0].imagens, ['seq'])[0].id).then((fotoProduto) => {
                     if(fotoProduto.existe) {
                         resolve(fotoProduto.result.base64);
                     } else {

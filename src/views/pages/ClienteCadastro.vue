@@ -777,13 +777,13 @@ export default {
         },
 
         buscaGrupos(callback) {
-            GrupoClienteDB.getAll().then((grupos) => {
+            GrupoClienteDB._getAll().then((grupos) => {
                 this.grupoClientes = grupos;
                 callback();
             });
         },
         buscaSegmentos(callback) {
-            SegmentoDB.getAll().then((segmentos) => {
+            SegmentoDB._getAll().then((segmentos) => {
                 this.segmentos = segmentos;
                 callback();
             })

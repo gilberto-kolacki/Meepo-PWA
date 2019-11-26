@@ -11,20 +11,6 @@ import BasicDB from './basicDB'
 import ImagemDB from './imagemDB'
 import CatalogoDB from './catalogoDB'
 
-import PouchDB from 'pouchdb';
-
-let localDB = null;
-
-const createDB = () => {
-    BasicDB.createDBLocalBasic("produto").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-        }
-    })
-};
-
-createDB();
-
 const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
     textoSearch = _.toUpper(textoSearch);
     return rows.map((row) => { 
@@ -48,11 +34,15 @@ const getProdutoToDB = (rows) => {
     }).map((row) => { return _.clone(row.doc)});
 }
 
-class produtoDB {
+class produtoDB extends BasicDB {
+
+    constructor() {
+        super("produto");
+    }
 
     getAllProdutos() {
         return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 resolve(getProdutoToDB(resultDocs.rows))
             }).catch((err) => {
                 console.log(err);
@@ -65,7 +55,7 @@ class produtoDB {
         return new Promise((resolve) => {
             const idCategorias = categorias.filter((categoria) => {return categoria.check}).map((categoria) => { return categoria.id});
             if (idCategorias.length > 0) {
-                localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                     resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias))
                 }).catch((err) => {
                     console.log(err);
@@ -80,7 +70,7 @@ class produtoDB {
     getAllProdutosByIdCategorias(idCategorias, textoSearch) {
         return new Promise((resolve) => {
             if (idCategorias.length > 0 || textoSearch.length > 0) {
-                localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                     resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias, textoSearch))
                 }).catch((err) => {
                     console.log(err);
@@ -125,7 +115,7 @@ class produtoDB {
 
     getById(id) {
         return new Promise((resolve) => {
-            localDB.get(_.toString(id)).then((result) => {
+            this._localDB.get(_.toString(id)).then((result) => {
                 delete result['_rev'];
                 resolve({existe: true, result: result});  
             }).catch((error) => {
@@ -298,27 +288,11 @@ class produtoDB {
     salvar(produto) {
         return new Promise((resolve) => {
             produto._id = produto.referencia;
-            localDB.put(produto).then(() => {
+            this._salvar(produto).then(() => {
                 resolve();
-            });
+            })
         });
-    }
-
-    //demorado no ipad
-    salvarLista(produtos) {
-        return new Promise((resolve) => {
-            this.limparBase().then(() => {
-                produtos.forEach(produto => {
-                    produto._id = produto.referencia;
-                    if (_.last(produtos) === produto) {
-                        localDB.bulkDocs(produtos).then((result) => {
-                            resolve(result.length);
-                        });
-                    }
-                });        
-            });
-        });
-    }    
+    }   
 
     getIdsFotos() {
         return new Promise((resolve) => {
@@ -409,14 +383,7 @@ class produtoDB {
     }
 
     limparBase() {
-        return new Promise((resolve) => {
-            localDB.destroy().then(() => {
-                createDB();
-                resolve();
-            }).catch((err) => {
-                resolve(err);
-            });
-        });
+        return this._limparBase()
     }
 
 }

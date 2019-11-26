@@ -5,23 +5,18 @@
   Author: Giba
 ==========================================================================================*/
 
-import PouchDB from 'pouchdb';
 import _ from 'lodash';
 import BasicDB from './basicDB'
 
-let localDB = null;
+class catalogoDB extends BasicDB {
 
-const createDB = () => {
-    BasicDB.createDBLocalBasic("catalogo").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-        }
-    })
-};
+    constructor() {
+        super("catalogo");
+    }
 
-createDB();
-
-class catalogoDB {
+    limparBase() {
+        return this._limparBase();
+    }
 
     salvarSinc(catalogos) {
         return new Promise((resolve) => {
@@ -30,7 +25,7 @@ class catalogoDB {
                     const done = _.after(catalogos.length, () => resolve());
                     catalogos.forEach(catalogo => {
                         catalogo._id = _.toString(catalogo.idCatalogo);
-                        localDB.put(catalogo).then(() => done()).catch(() => done());
+                        this._localDB.put(catalogo).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
@@ -39,23 +34,9 @@ class catalogoDB {
         });
     }
 
-    getAll() {
-        return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((catalogo) => {
-                    delete catalogo.doc['_rev'];
-                    return _.clone(catalogo.doc);
-                }))
-            }).catch((err) => {
-                console.log(err);
-                resolve(err);
-            });
-        });
-    }
-
     getById(id) {
         return new Promise((resolve) => {
-            localDB.get(_.toString(id)).then((result) => {
+            this._localDB.get(_.toString(id)).then((result) => {
                 delete result['capa'];
                 delete result['base64'];
                 delete result['_rev'];
@@ -65,17 +46,6 @@ class catalogoDB {
             });
         });
     }
-
-    limparBase() {
-        return new Promise((resolve) => {
-            localDB.destroy().then(() => {
-                resolve(createDB());
-            }).catch((err) => {
-                resolve(err);
-            });
-        });
-    }
-
     
 
 }

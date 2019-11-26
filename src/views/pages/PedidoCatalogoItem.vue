@@ -108,6 +108,8 @@ import vSelect from 'vue-select';
 import ProdutoDB from '../../rapidsoft/db/produtoDB'
 import ImagemDB from '../../rapidsoft/db/imagemDB'
 import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
+import Storage from '../../rapidsoft/utils/storage'
+import UtilMask from '../../rapidsoft/utils/utilMask'
 import AddItemCarrinho  from '../../rapidsoft/components/AddItemCarrinho'
 import SearchProduto  from '../../rapidsoft/components/SearchProduto'
 import ZoomProduto  from '../../rapidsoft/components/ZoomProduto'
@@ -155,6 +157,7 @@ export default {
             idPopUpSearch: 'popup-produto-search',
             idPopUpZoom: 'popup-produto-zoom',
             produtoZoomShow: false,
+            grupoCliente: null,
         }
     },
     components: {
@@ -201,14 +204,26 @@ export default {
     methods: {
         // tela
         viewPreco(produto) {
+            let texto = 'REF A: ' +this.calcularPrecoProduto(this.produtoA);
+            if (this.produtoB) {
+                texto += '<br> REF B: ' +this.calcularPrecoProduto(this.produtoB);
+            }
+
             this.$vs.notify({
-                title:'REF: '+produto.referencia,
-                text:'R$ '+ produto.preco,
+                title: 'Preço Referência',
+                text: texto,
                 color:'dark',
                 time: 4000,
                 iconPack: 'feather',
                 icon:'icon-dollar-sign'
             })
+        },
+        calcularPrecoProduto(produto) {
+            const percentual = _.toNumber(this.grupoCliente.porcentagem);
+            const precoProduto = produto.cores[this.corSelecionada].precoVenda;
+            const preco = _.round(precoProduto + ((percentual/100) * precoProduto), 2)
+            return UtilMask.getMoney(preco, true);
+
         },
         selectCorImagemProduto(indexCor) {
             this.corSelecionada = indexCor;
@@ -332,6 +347,7 @@ export default {
         console.log('created');
     },
     beforeMount() {
+        this.grupoCliente = _.clone(Storage.getGrupoCarrinho());
         console.log('beforeMount');
     },
     mounted() {

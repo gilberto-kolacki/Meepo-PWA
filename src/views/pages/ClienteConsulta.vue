@@ -60,7 +60,7 @@ export default {
         editar(cliente) {
             console.log(cliente);
             if (cliente) {
-                this.$router.push({ name: 'clienteEditar', params: {clienteId: cliente.id } });
+                this.$router.push({ name: 'clienteEditar', params: {clienteId: cliente._id } });
             } else {
                 this.$router.push('/cliente/cadastro');
             }

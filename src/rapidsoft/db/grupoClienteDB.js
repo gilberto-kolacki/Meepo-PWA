@@ -5,32 +5,17 @@
   Author: Giba
 ==========================================================================================*/
 
-import PouchDB from 'pouchdb';
 import BasicDB from './basicDB'
 import _ from 'lodash';
 
-let localDB = null;
+class grupoClienteDB extends BasicDB {
 
-const createDB = () => {
-    BasicDB.createDBLocalBasic("grupo_cliente").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-        }
-    })
-};
-
-createDB();
-
-class grupoClienteDB {
+    constructor() {
+        super("grupo_cliente");
+    }
 
     limparBase() {
-        return new Promise((resolve) => {
-            localDB.destroy().then(() => {
-                resolve(createDB());
-            }).catch((err) => {
-                resolve(err);
-            });
-        });
+        return this._limparBase();
     }
 
     salvarSinc(gruposCliente) {
@@ -40,7 +25,7 @@ class grupoClienteDB {
                     const done = _.after(gruposCliente.length, () => resolve());
                     gruposCliente.forEach(grupo => {
                         grupo._id = _.toString(grupo.id);
-                        localDB.put(grupo).then(() => done()).catch(() => done());
+                        this._localDB.put(grupo).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
@@ -49,24 +34,9 @@ class grupoClienteDB {
         });
     }
 
-    getAll() {
-        return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((grupo) => {
-                    if (grupo.doc['nome']) {
-                        delete grupo.doc['_rev'];
-                        return _.clone(grupo.doc);
-                    }
-                }))
-            }).catch((err) => {
-                resolve(err);
-            });
-        });
-    }
-
     getGrupoPadrao() {
         return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 const grupo = _.find(resultDocs.rows, (grupo) => { return grupo.doc.padrao; });
                 delete grupo.doc['_rev'];
                 resolve(grupo.doc)
@@ -78,7 +48,7 @@ class grupoClienteDB {
 
     getById(idGrupoCliente) {
         return new Promise((resolve) => {
-            localDB.get(_.toString(idGrupoCliente)).then((result) => {
+            this._localDB.get(_.toString(idGrupoCliente)).then((result) => {
                 resolve(result);
             }).catch((err) => {
                 console.log(err);

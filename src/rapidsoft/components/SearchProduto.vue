@@ -171,7 +171,7 @@ export default {
     beforeCreate() {              
     },
     created() {
-        SegmentoDB.getAll().then((segmentos) => {
+        SegmentoDB._getAll().then((segmentos) => {
             this.segmentosFiltro = _.cloneDeep(segmentos);
             this.segmentoSelecionado = _.find(segmentos, (segmento) => { return segmento.id === this.$route.params.idSegmento });
             CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {

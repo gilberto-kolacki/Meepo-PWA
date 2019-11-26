@@ -5,7 +5,6 @@
   Author: Giba
 ==========================================================================================*/
 
-import PouchDB from 'pouchdb';
 import _ from 'lodash';
 import store from '../../store/store'
 import BasicDB from './basicDB'
@@ -13,19 +12,13 @@ import SegmentoDB from './segmentoDB'
 import Auth from "../../rapidsoft/auth/authService";
 
 let idUsuario = "1";
-let localDB = null;
+const nameDB = "usuario"
 
-const createDB = () => {
-    BasicDB.createDBLocalBasic("usuario").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-        }
-    })
-};
+class usuarioDB extends BasicDB {
 
-createDB();
-
-class usuarioDB {
+    constructor() {
+        super(nameDB);
+    }
 
     signIn(usuario) {
         return new Promise((resolve, reject) => {
@@ -34,7 +27,11 @@ class usuarioDB {
                 usuario.img = usuario.img || 'user.png';
                 usuario.displayName = usuario.nome;
                 delete usuario["segmento"];
-                localDB.put(_.cloneDeep(usuario)).then((result) => {
+
+                console.log(this._localDB.info());
+                
+
+                this._localDB.put(usuario).then((result) => {
                     usuario._id = result.id;
                     resolve(usuario);
                 }).catch((erro) => {
@@ -47,12 +44,12 @@ class usuarioDB {
     signOut() {
         return new Promise((resolve, reject) => {
             SegmentoDB.limparBase().then(() => {
-                localDB.destroy().then(() => {
+                this._localDB.destroy().then(() => {
                     localStorage.removeItem('userInfo')
                     localStorage.removeItem('token');
                     localStorage.removeItem('tokenExpiry');
                     localStorage.removeItem('userRole');
-                    resolve(createDB());
+                    resolve(new usuarioDB());
                 }).catch((err) => {
                     reject(err);
                 });
@@ -62,7 +59,7 @@ class usuarioDB {
 
     onAuthStateChanged() {
         return new Promise((resolve, reject) => {
-            localDB.get(idUsuario).then((user) => {
+            this._localDB.get(idUsuario).then((user) => {
                 store.dispatch('updateUserActive', user);
                 resolve(user);
             }).catch((err) => {
@@ -85,8 +82,8 @@ class usuarioDB {
     limparBase() {
         return new Promise((resolve) => {
             SegmentoDB.limparBase().then(() => {
-                localDB.destroy().then(() => {
-                    createDB();
+                this._localDB.destroy().then(() => {
+                    new usuarioDB();
                     resolve();
                 }).catch((err) => {
                     resolve(err);

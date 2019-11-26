@@ -5,25 +5,25 @@
   Author: Giba
 ==========================================================================================*/
 
-import PouchDB from 'pouchdb';
+// import PouchDB from 'pouchdb';
 import BasicDB from './basicDB'
 import _ from 'lodash';
 
-let localDB = null;
-let remoteDB = null;
+// let localDB = null;
+// let remoteDB = null;
 
-const createDB = () => {
-    BasicDB.createDBLocal("cliente").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 1, auto_compaction: true});
-            BasicDB.createDBRemote(dataBaseLocal).then((dataBaseRemote) => {
-                remoteDB = new PouchDB(dataBaseRemote, {ajax: {cache: false, timeout: 10000 }});
-            })
-        }
-    })
-};
+// const createDB = () => {
+//     BasicDB.createDBLocal("cliente").then((dataBaseLocal) => {
+//         if (dataBaseLocal) {
+//             localDB = new PouchDB(dataBaseLocal, {revs_limit: 1, auto_compaction: true});
+//             BasicDB.createDBRemote(dataBaseLocal).then((dataBaseRemote) => {
+//                 remoteDB = new PouchDB(dataBaseRemote, {ajax: {cache: false, timeout: 10000 }});
+//             })
+//         }
+//     })
+// };
 
-createDB();
+// createDB();
 
 const validarContatoDB = (contato) => {
     return new Promise((resolve, reject) => {
@@ -196,13 +196,21 @@ const validarObjetoDB = (cliente) => {
     });
 }
 
-class clienteDB {
+class clienteDB extends BasicDB {
+
+    constructor() {
+        super("cliente", true);
+    }
+
+    limparBase() {
+        return this._limparBase();
+    }
 
     salvar(cliente) {
         return new Promise((resolve, reject) => {
             validarObjetoDB(cliente).then((resultCliente) => {
                 resultCliente._id = resultCliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
-                localDB.put(resultCliente).then((result) => {
+                this._localDB.put(resultCliente).then((result) => {
                     resolve(result);
                 }).catch((erro) => {
                     console.log(erro);
@@ -218,7 +226,9 @@ class clienteDB {
         return new Promise((resolve) => {
             cliente._id = cliente.cpfCnpj;
             cliente.clienteErp = true
-            localDB.put(cliente).then(() => {
+            this._salvar(cliente).then(() => {
+                resolve();
+            }).catch(() => {
                 resolve();
             });
         });
@@ -226,8 +236,7 @@ class clienteDB {
     listarConsulta() {
         let docDados = {}
         return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                console.log(resultDocs.rows.map);  
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 resolve(resultDocs.rows.map((cliente) => {
                     if (_.isUndefined(cliente.doc.endereco) || (_.isObject(cliente.doc.endereco) && _.isUndefined(cliente.doc.endereco.cep))) {
                         cliente.doc.endereco = {};
@@ -253,7 +262,7 @@ class clienteDB {
 
     listar() {
         return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 resolve(resultDocs.rows.map((cliente) => {
                     if (_.isUndefined(cliente.doc.endereco) || (_.isObject(cliente.doc.endereco) && _.isUndefined(cliente.doc.endereco.cep))) {
                         cliente.doc.endereco = {};
@@ -273,7 +282,7 @@ class clienteDB {
 
     findById(idCliente) {
         return new Promise((resolve, reject) => {
-            localDB.get(idCliente).then((result) => {
+            this._localDB.get(idCliente).then((result) => {
                 result.dataAniversario = new Date(_.toNumber(result.dataAniversario));
                 result.dataFundacao = new Date(_.toNumber(result.dataFundacao));
                 result.inscricaoEstadual = result.inscricaoEstadual == "" ? "ISENTO" : result.inscricaoEstadual;
@@ -289,9 +298,9 @@ class clienteDB {
         console.log(idCliente);
         
         return new Promise((resolve, reject) => {
-            console.log(localDB);
+            console.log(this._localDB);
             
-            localDB.remove(idCliente).then((result) => {
+            this._localDB.remove(idCliente).then((result) => {
                 console.log(result);
                 
                 resolve(result);
@@ -326,7 +335,7 @@ class clienteDB {
 
     sincNuvem() {
         return new Promise((resolve) => {
-            if (localDB && remoteDB) {
+            if (this._localDB && this._remoteDB) {
                 resolve();
                 // localDB.sync(remoteDB).then((result) => {
                 //     resolve(result);
@@ -337,26 +346,9 @@ class clienteDB {
         });
     }
 
-    createDB(user) {
-        return new Promise((resolve) => {
-            resolve(createDB(user));
-        });
-    }
-
-    limparBase() {
-        return new Promise((resolve) => {
-            localDB.destroy().then(() => {
-                createDB();
-                resolve();
-            }).catch((err) => {
-                resolve(err);
-            });
-        });
-    }
-
     buscaClientesSinc() {
         return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 const clientes = _.filter(resultDocs.rows, (cliente) => {
                     return cliente.doc.clienteErp === false
                 });
@@ -402,7 +394,7 @@ class clienteDB {
     getClientesSearch(uf, idCidade, cnpjCpf, nome) {
         cnpjCpf = cnpjCpf.replace(/[^a-z0-9]/gi, "");
         return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 const clientes = _.filter(resultDocs.rows, (cliente) => {
                     return this.filter(uf, idCidade, cnpjCpf, nome, cliente.doc);
                 });

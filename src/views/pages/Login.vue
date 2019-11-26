@@ -121,9 +121,6 @@ export default {
 
     },
     mounted() {
-        UsuarioDB.limparBase().then(() => {
-            
-        })
         
     },
 }

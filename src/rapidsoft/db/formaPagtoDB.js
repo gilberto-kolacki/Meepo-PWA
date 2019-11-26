@@ -5,32 +5,17 @@
   Author: Giba
 ==========================================================================================*/
 
-import PouchDB from 'pouchdb';
-import BasicDB from './basicDB'
 import _ from 'lodash';
+import BasicDB from './basicDB'
 
-let localDB = null;
+class formaPagtoDB extends BasicDB {
 
-const createDB = () => {
-    BasicDB.createDBLocalBasic("forma_pagto").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-        }
-    })
-};
-
-createDB();
-
-class formaPagtoDB {
+    constructor() {
+        super("forma_pagto");
+    }
 
     limparBase() {
-        return new Promise((resolve) => {
-            localDB.destroy().then(() => {
-                resolve(createDB());
-            }).catch((err) => {
-                resolve(err);
-            });
-        });
+        return this._limparBase(new formaPagtoDB())
     }
 
     salvarSinc(formasPagto) {
@@ -40,7 +25,7 @@ class formaPagtoDB {
                     const done = _.after(formasPagto.length, () => resolve());
                     formasPagto.forEach(formPagto => {
                         formPagto._id = _.toString(formPagto.id);
-                        localDB.put(formPagto).then(() => done()).catch(() => done());
+                        this._localDB.put(formPagto).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
@@ -51,7 +36,7 @@ class formaPagtoDB {
 
     getAll() {
         return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 resolve(resultDocs.rows.map((grupo) => {
                     if (grupo.doc['id']) {
                         delete grupo.doc['_rev'];

@@ -78,8 +78,7 @@ export default {
 	components: {
 		SearchCliente,
 	},
-	computed: {
-	},
+	computed: {},
 	methods: {
 		selecionarCatalogo(catalogo) {
 			this.isShowing = false;
@@ -146,7 +145,7 @@ export default {
 		Storage.deleteClienteCarrinho();
 	},
 	beforeMount() {
-        CatalogoDB.getAll().then((catalogos) => {
+        CatalogoDB._getAll().then((catalogos) => {
 			this.catalogos = _.cloneDeep(catalogos);
 			GrupoClienteDB.getGrupoPadrao().then((grupoClientePadrao) => {
 				this.grupoClientePadrao = grupoClientePadrao;

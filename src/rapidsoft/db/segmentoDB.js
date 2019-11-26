@@ -5,56 +5,41 @@
   Author: Giba
 ==========================================================================================*/
 
-import PouchDB from 'pouchdb';
 import _ from 'lodash';
 import BasicDB from './basicDB'
 
-let localDB = null;
+// let localDB = null;
 
-const createDB = () => {
-    BasicDB.createDBLocalBasic("segmento").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-        }
-    })
-};
+// const createDB = () => {
+//     BasicDB.createDBLocalBasic("segmento").then((dataBaseLocal) => {
+//         if (dataBaseLocal) {
+//             localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
+//         }
+//     })
+// };
 
-createDB();
+// createDB();
 
-class segmentoDB {
+class segmentoDB extends BasicDB {
+
+    constructor() {
+        super("segmento");
+    }
 
     salva(segmentos) {
         return new Promise((resolve) => {
+            const done = _.after(segmentos.length, () => resolve());
             segmentos.forEach(segmento => {
                 segmento._id = _.toString(segmento.id);
-                localDB.put(_.clone(segmento)).then(() => {
-                    resolve();
-                }).catch((erro) => {
-                    console.log(erro);
-                    resolve();
-                });
-            });
-        });
-    }
-
-    getAll() {
-        return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((segmento) => {
-                    delete segmento.doc['_rev'];
-                    return _.clone(segmento.doc);
-                }))
-            }).catch((err) => {
-                console.log(err);
-                resolve(err);
+                this._localDB.put(segmento).then(() => done()).catch(() => done());
             });
         });
     }
 
     limparBase() {
         return new Promise((resolve) => {
-            localDB.destroy().then(() => {
-                resolve(createDB());
+            this._localDB.destroy().then(() => {
+                resolve(new segmentoDB());
             }).catch((err) => {
                 resolve(err);
             });

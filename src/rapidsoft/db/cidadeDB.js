@@ -5,32 +5,17 @@
   Author: Giba
 ==========================================================================================*/
 
-import PouchDB from 'pouchdb';
 import BasicDB from './basicDB'
 import _ from 'lodash';
 
-let localDB = null;
+class cidadeDB extends BasicDB {
 
-const createDB = () => {
-    BasicDB.createDBLocalBasic("cidade").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-        }
-    })
-};
-
-createDB();
-
-class cidadeDB {
+    constructor() {
+        super("cidade");
+    }
 
     limparBase() {
-        return new Promise((resolve) => {
-            localDB.destroy().then(() => {
-                resolve(createDB());
-            }).catch((err) => {
-                resolve(err);
-            });
-        });
+        return this._limparBase();
     }
 
     criaCidades(estado) {
@@ -82,7 +67,7 @@ class cidadeDB {
 
     salvarSinc(cidades) {
         return new Promise((resolve) => {
-            localDB.bulkDocs(cidades).then(() => {
+            this._localDB.bulkDocs(cidades).then(() => {
                 resolve();
             }).catch((error) => {
                 console.log(error);
@@ -94,7 +79,7 @@ class cidadeDB {
     buscaCidade(idCidade) {
         return new Promise((resolve) => {
             idCidade = _.toString(idCidade);
-            localDB.get(idCidade).then((result) => {
+            this._localDB.get(idCidade).then((result) => {
                 delete result['_rev'];
                 resolve({existe: true, result: result});  
             }).catch((error) => {
@@ -109,7 +94,7 @@ class cidadeDB {
                 if(cidades.length > 0) {
                     const done = _.after(cidades.length, () => resolve());
                     cidades.forEach(cidade => {
-                        localDB.put(cidade).then(() => done()).catch(() => done());
+                        this._localDB.put(cidade).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
@@ -118,23 +103,9 @@ class cidadeDB {
         });
     }
 
-    getAll() {
-        return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((cidade) => {
-                    delete cidade.doc['_rev'];
-                    return _.clone(cidade.doc);
-                }));
-            }).catch((err) => {
-                console.log(err);
-                resolve(err);
-            });
-        });
-    }
-
     getCidadesFromEstado(estado) {
         return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 const cidadesEstado = _.filter(resultDocs.rows, (cidade) => { return cidade.doc.uf === estado; });
                 resolve(cidadesEstado.map((cidade) => {
                     delete cidade.doc['_rev'];
