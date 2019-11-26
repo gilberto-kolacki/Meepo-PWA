@@ -15,7 +15,6 @@
                 <template slot-scope="{data}">
                     {{test(data)}}
                     <vs-tr :state="data[indextr].ativo === 0 ? 'danger':data[indextr].inadimplente !== 0 ? 'warning':null" :key="indextr" v-for="(tr, indextr) in data">
-                        
                         <vs-td :data="data[indextr].cpfCnpj">
                             {{ data[indextr].cpfCnpj }}
                         </vs-td>
@@ -28,7 +27,6 @@
                         <vs-td :data="data[indextr].estado">
                             {{ data[indextr].estado }}
                         </vs-td>
-                        
                         <vs-td>
                             <div class="flex">
                                 <div class="p-1">

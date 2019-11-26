@@ -226,9 +226,7 @@ class clienteDB {
         let docDados = {}
         return new Promise((resolve) => {
             localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                console.log(resultDocs.rows.map);  
                 resolve(resultDocs.rows.map((cliente) => {
-                    console.log('cliente = ', cliente);
                     if (_.isUndefined(cliente.doc.endereco) || (_.isObject(cliente.doc.endereco) && _.isUndefined(cliente.doc.endereco.cep))) {
                         cliente.doc.endereco = {};
                         cliente.doc.endereco.cidade = "";
