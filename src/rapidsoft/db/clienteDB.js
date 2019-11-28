@@ -231,7 +231,7 @@ class clienteDB {
                         cliente.doc.endereco = {};
                         cliente.doc.endereco.cidade = "";
                         cliente.doc.endereco.estado = "";
-                    } 
+                    }
                     docDados.cpfCnpj = cliente.doc.cpfCnpj;
                     docDados.nome = cliente.doc.nome
                     docDados.cidade = cliente.doc.endereco.cidade
@@ -382,16 +382,20 @@ class clienteDB {
             } else {
                 existe = false;
             }
+        }else{
+            existe = true;
         }
+     
         if (!_.isNil(cnpjCpf)) {
-            if(cliente.cpfCnpj.indexOf(cnpjCpf) >= 0) {
+            if(cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "").substr(0, cnpjCpf.length) === cnpjCpf) {
                 existe = true;
-            } else {
+            }else{
                 existe = false;
             }
         }
-        if (!_.isNil(nome)) {
-            if(cliente.nome.includes(nome) >= 0) {
+
+        if (!_.isNil(nome) && nome.length > 0) {
+            if(cliente.nome.includes(nome)) {
                 existe = true;
             } else {
                 existe = false;
