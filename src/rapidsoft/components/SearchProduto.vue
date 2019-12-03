@@ -1,5 +1,5 @@
 <template>
-    <b-modal :id="id" size="xl" scrollable  hide-footer>
+    <b-modal :id="id" size="xl" class="w-full" hide-footer style="height:100vh">
         <template v-slot:modal-header="{ close }">
             <header class="vs-popup--header">
                 <div class="vs-popup--title">
@@ -55,10 +55,28 @@
                 </b-button>
             </div>
         </div> -->
-        
-        <vs-table ref="table" v-model="produtoSearch" @selected="selectSearchProduto(produtoSearch)" :data="listaProdutosPesquisa">
-            <!-- <div slot="header" class="flex flex-wrap-reverse items-center flex-grow justify-between">
-            </div> -->
+        <div style="height: 65vh;overflow:scroll;overflow-x: hidden;">
+        <template>
+            <div id="div-with-loading-search" class="vx-row vs-con-loading__container vs-con-loading-search">
+                <div class="vx-col px-2 lg:w-1/4 md:w-1/4 sm:w-1/3 mb-4" :key="indextr" v-for="(produto, indextr) in listaProdutosPesquisa" @click="selectSearchProduto(produto)">
+                    <vx-card class="text-center cursor-pointer" style="box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);height:100%;">
+                        <b-card-text style="display:flex;align-items:center;justify-content:center;">
+                            <img :src="produto.imagemPrincipal" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-if="produto.imagemPrincipal"/>
+                            <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-else />
+                        </b-card-text >
+                        <b-card-text style="padding:10px">
+                            <span class="vx-row" style="font-weight:bold">{{'Ref: ' + produto.referencia}}</span>
+                            <span class="vx-row" style="max-width: 15ch; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{{produto.nome}}</span>
+                        </b-card-text>
+                    </vx-card>
+                </div>
+            </div>
+        </template>
+        </div>
+
+        <!-- <vs-table ref="table" v-model="produtoSearch" @selected="selectSearchProduto(produtoSearch)" :data="listaProdutosPesquisa">
+            <div slot="header" class="flex flex-wrap-reverse items-center flex-grow justify-between">
+            </div>
             <template slot="thead">
                 <vs-th>Image</vs-th>
                 <vs-th sort-key="referencia">Referencia</vs-th>
@@ -80,7 +98,7 @@
                     </vs-tr>
                 </tbody>
             </template>
-        </vs-table>
+        </vs-table> -->
     </b-modal>
 </template>    
 <script>
