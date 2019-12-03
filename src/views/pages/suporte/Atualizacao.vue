@@ -123,17 +123,7 @@ export default {
         },
         armazenamentoImagem() {
             return new Promise((resolve) => {
-                ImagemDB.listarFotos().then(imagens => {
-                    if (imagens.length <= 0) resolve(0);
-                    let pounchDB = 0
-                    imagens.forEach(imagem => {
-                        pounchDB += sizeOf(_.clone(imagem));
-                        if(_.last(imagens)._id == imagem._id) {
-                            let armazenamento = _.round(pounchDB / 1024 / 1024, 2);
-                            resolve(armazenamento);
-                        }
-                    });
-                });
+                resolve()
             });
         },
         armazenamentoProduto() {

@@ -5,32 +5,17 @@
   Author: Giba
 ==========================================================================================*/
 
-import PouchDB from 'pouchdb';
-import BasicDB from './basicDB'
 import _ from 'lodash';
+import BasicDB from './basicDB'
 
-let localDB = null;
+class prontaEntregaDB extends BasicDB {
 
-const createDB = () => {
-    BasicDB.createDBLocalBasic("pronta_entrega").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-        }
-    })
-};
-
-createDB();
-
-class prontaEntregaDB {
+    constructor() {
+        super("pronta_entrega");
+    }
 
     limparBase() {
-        return new Promise((resolve) => {
-            localDB.destroy().then(() => {
-                resolve(createDB());
-            }).catch((err) => {
-                resolve(err);
-            });
-        });
+        return this._limparBase();
     }
 
     salvarSinc(prontasEntregas) {
@@ -40,27 +25,12 @@ class prontaEntregaDB {
                     const done = _.after(prontasEntregas.length, () => resolve());
                     prontasEntregas.forEach(prontaEntrega => {
                         prontaEntrega._id = _.toString(prontaEntrega.id);
-                        localDB.put(prontaEntrega).then(() => done()).catch(() => done());
+                        this._localDB.put(prontaEntrega).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
                 }
             })
-        });
-    }
-
-    getAll() {
-        return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((prontaEntrega) => {
-                    if (prontaEntrega.doc['nome']) {
-                        delete prontaEntrega.doc['_rev'];
-                        return _.clone(prontaEntrega.doc);
-                    }
-                }))
-            }).catch((err) => {
-                resolve(err);
-            });
         });
     }
 

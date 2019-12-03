@@ -210,7 +210,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 
 html, body {
     -webkit-user-select: none;
@@ -220,6 +220,68 @@ html, body {
     user-select: none;
     /* overflow: auto; */
     background-color: #fff;
+}
+
+.btn-left {
+    position: fixed;
+    top:50%;
+    left: 0;    
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-top-right-radius: 50% !important;
+    border-bottom-right-radius: 50% !important;
+    z-index: 1000;
+    height: 6vw !important;
+}
+
+.btn-right {
+    position: fixed;
+    top:50%;
+    right: 0;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-top-left-radius: 50% !important;
+    border-bottom-left-radius: 50% !important;
+    z-index: 1000;
+    height: 6vw !important;
+}
+
+.btn-confirm {
+    position: fixed;
+    top: 50%;
+    right: -50px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    z-index: 1000;
+    width: 10rem;
+    transform: rotate(-90deg);
+}
+
+.btn-cancel {
+    position: fixed;
+    top: 50%;
+    left: -50px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    z-index: 1000;
+    width: 10rem;
+    transform: rotate(90deg);
+}
+
+.btn-carrinho {
+    position: fixed;
+    bottom: 5%;
+    right: 8vw;
+    z-index: 1000;
+    width: 7vw !important;
+    height: 7vw !important;
+    border-radius: 50%;
+    
+    .vs-icon{        
+        color: inherit;
+        text-align: center;
+        font-size: 1.8rem;
+    }
 }
 
 </style>

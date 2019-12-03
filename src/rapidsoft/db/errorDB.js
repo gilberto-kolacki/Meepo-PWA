@@ -5,75 +5,49 @@
   Author: Giba
 ==========================================================================================*/
 
-import PouchDB from 'pouchdb';
 import _ from 'lodash';
 import BasicDB from './basicDB'
 
-let localDB = null;
-let remoteDB = null;
+class errorDB extends BasicDB {
 
-const createDB = () => {
-    BasicDB.createDBLocal("erros").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 1, auto_compaction: true});
-            BasicDB.createDBRemote(dataBaseLocal).then((dataBaseRemote) => {
-                remoteDB = new PouchDB(dataBaseRemote, {ajax: {cache: false, timeout: 10000 }});
-            })
-        }
-    })
-};
+    constructor() {
+        super("erros", true);
+    }
 
-createDB();
-
-class errorDB {
+    newLog(tipo, compnente, caminho, erro, messagem) {
+        const logger = {};
+        logger._id = _.toString(new Date().getTime());
+        logger.type = tipo;
+        logger.compnente = compnente;
+        logger.caminho = caminho;
+        logger.erro = erro;
+        logger.messagem = messagem;
+        return _.cloneDeep(logger); 
+    }
 
     criarLog(erro) {
         return new Promise((resolve) => {
-
             console.log(erro);
             
-            const logger = {};
-            logger._id = _.toString(new Date().getTime());
-            logger.compnente = erro.vm.id;
-            logger.caminho = erro.vm.$el.baseURI;
-            logger.erro = erro.info;
-            logger.messagem = erro.err.message;
-            this.salvar(logger).then((result) => {
+            const logger = this.newLog('tela', erro.vm.id, erro.vm.$el.baseURI, erro.info, erro.err.message);
+            this._salvar(logger).then((result) => {
                 resolve(result);
             })
         });
     }
 
-    salvar(logger) {
+    criarLogErroSinc(sinc, erro, mensagem) {
         return new Promise((resolve) => {
-            localDB.put(logger).then((result) => {
+            erro = _.cloneDeep(erro.config);
+            delete erro['transformRequest'];
+            delete erro['transformResponse'];
+            delete erro['validateStatus'];
+            delete erro['xsrfCookieName'];
+            delete erro['xsrfHeaderName'];
+            delete erro['adapter'];
+            const logger = this.newLog('sincronizacao', sinc.methodo, erro.url, erro, mensagem);
+            this._salvar(logger).then((result) => {
                 resolve(result);
-            }).catch((erro) => {
-                console.log(erro);
-                resolve(erro);
-            });
-        });
-    }
-
-    getAll() {
-        return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((erro) => {
-                    delete erro.doc['_rev'];
-                    return _.clone(erro.doc);
-                }))
-            }).catch((err) => {
-                console.log(err);
-                resolve(err);
-            });
-        });
-    }
-
-    getById(id) {
-        return new Promise((resolve) => {
-            localDB.get(_.toString(id)).then((result) => {
-                delete result['_rev'];
-                resolve(result);  
             }).catch(() => {
                 resolve();
             });
@@ -81,16 +55,8 @@ class errorDB {
     }
 
     limparBase() {
-        return new Promise((resolve) => {
-            localDB.destroy().then(() => {
-                resolve(createDB());
-            }).catch((err) => {
-                resolve(err);
-            });
-        });
+        return this._limparBase();
     }
-
-    
 
 }
 export default new errorDB();

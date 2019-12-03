@@ -2,12 +2,16 @@
     <div class="parentx">
         <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="idColapse">
             <div class="vx-row">
-                <div class="vx-col w-2/3">
+                <div class="vx-col w-full">
                     <h5><strong>{{ title }} : </strong>  {{produtoAdd.referencia +' - '+ produtoAdd.nome}}</h5>
-                    <h6><strong>Política:</strong></h6>
-                    <h6><strong>Preço :</strong></h6>
+                </div>
+            </div>
+            <div class="vx-row">
+                <div class="vx-col w-2/3">
+                    <h6><strong>Política:</strong> {{this.grupoCliente.nome}}</h6>
                 </div>
                 <div class="vx-col w-1/3">
+                    <h6><strong>Preço :</strong> {{getPreco}}</h6>
                 </div>
             </div>
         </b-card-header>
@@ -25,7 +29,7 @@
                                             {{tamanho.codigo}}
                                         </div>
                                     </th>
-                                    <th scope="col">Total</th>
+                                    <th scope="col">Totais</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -86,6 +90,8 @@
 <script>
 
 import _ from 'lodash'
+import Storage from '../utils/storage'
+import UtilMask from '../utils/utilMask'
 
 export default {
     name: 'add-item-carrinho-tem',
@@ -109,15 +115,22 @@ export default {
     },
     data: () => ({
         maxHeight: '0px',
-        openItems: false
+        openItems: false,
+        grupoCliente: null,
     }),
     computed: {
         getCoresProduto() {
             return this.produtoAdd.cores;
         },
         getTamanhosProduto() {
-            return this.produtoAdd.produtoAddCores[0].produtoAddTamanhos;
+            return this.produtoAdd.produtoLabelTamanhos;
         },
+        getPreco() {
+            const percentual = _.toNumber(this.grupoCliente.porcentagem);
+            const precoProduto = this.produtoAdd.cores[0].precoVenda;
+            const preco = _.round(precoProduto + ((percentual/100) * precoProduto), 2)
+            return UtilMask.getMoney(preco);
+        }
     },
     methods: {
         // 2-tamanho, 1-cor
@@ -129,6 +142,7 @@ export default {
                         const tamanho = cor.produtoAddTamanhos[index];
                         if (tamanho.codigo === corTamanho.codigo) {
                             tamanho.ativo = corTamanho.ativo;
+                            this.menosTamanho(tamanho);
                         }
                     }
                 }
@@ -137,10 +151,12 @@ export default {
         },
         menosTamanho(tamanho) {
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade-1);
+            this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
         maisTamanho(tamanho) {
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : tamanho.quantidade+1;
+            this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
         getTotalPecasCor(cor) {
@@ -191,6 +207,9 @@ export default {
             }
             return totalCorTamanho;
         }
+    },
+    created() {
+        this.grupoCliente = Storage.getGrupoCarrinho();
     },
 }
 </script>    

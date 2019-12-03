@@ -11,20 +11,6 @@ import BasicDB from './basicDB'
 import ImagemDB from './imagemDB'
 import CatalogoDB from './catalogoDB'
 
-import PouchDB from 'pouchdb';
-
-let localDB = null;
-
-const createDB = () => {
-    BasicDB.createDBLocalBasic("produto").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-        }
-    })
-};
-
-createDB();
-
 const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
     textoSearch = _.toUpper(textoSearch);
     return rows.map((row) => { 
@@ -44,15 +30,25 @@ const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
 
 const getProdutoToDB = (rows) => {
     return rows.filter((produto) => {
-        return produto.doc['referencia'];
-    }).map((row) => { return _.clone(row.doc)});
+        return produto.doc['referencia'] ;
+    }).map((row) => row.doc);
 }
 
-class produtoDB {
+const getCoresAtivas = (cores) => {
+    return cores.filter((cor) => {
+        return cor.ativo;
+    });
+}
+
+class produtoDB extends BasicDB {
+
+    constructor() {
+        super("produto");
+    }
 
     getAllProdutos() {
         return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 resolve(getProdutoToDB(resultDocs.rows))
             }).catch((err) => {
                 console.log(err);
@@ -65,7 +61,7 @@ class produtoDB {
         return new Promise((resolve) => {
             const idCategorias = categorias.filter((categoria) => {return categoria.check}).map((categoria) => { return categoria.id});
             if (idCategorias.length > 0) {
-                localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                     resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias))
                 }).catch((err) => {
                     console.log(err);
@@ -80,7 +76,7 @@ class produtoDB {
     getAllProdutosByIdCategorias(idCategorias, textoSearch) {
         return new Promise((resolve) => {
             if (idCategorias.length > 0 || textoSearch.length > 0) {
-                localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                     resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias, textoSearch))
                 }).catch((err) => {
                     console.log(err);
@@ -125,7 +121,7 @@ class produtoDB {
 
     getById(id) {
         return new Promise((resolve) => {
-            localDB.get(_.toString(id)).then((result) => {
+            this._localDB.get(_.toString(id)).then((result) => {
                 delete result['_rev'];
                 resolve({existe: true, result: result});  
             }).catch((error) => {
@@ -298,34 +294,18 @@ class produtoDB {
     salvar(produto) {
         return new Promise((resolve) => {
             produto._id = produto.referencia;
-            localDB.put(produto).then(() => {
+            this._salvar(produto).then(() => {
                 resolve();
-            });
+            })
         });
-    }
-
-    //demorado no ipad
-    salvarLista(produtos) {
-        return new Promise((resolve) => {
-            this.limparBase().then(() => {
-                produtos.forEach(produto => {
-                    produto._id = produto.referencia;
-                    if (_.last(produtos) === produto) {
-                        localDB.bulkDocs(produtos).then((result) => {
-                            resolve(result.length);
-                        });
-                    }
-                });        
-            });
-        });
-    }    
+    }   
 
     getIdsFotos() {
         return new Promise((resolve) => {
             this.getAllProdutos().then((produtos) => {
                 resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    return cores.map((cor) => {
+                    return getCoresAtivas(cores).map((cor) => {
                         return cor.imagens.map((imagem) => {
                             return imagem.id;
                         })
@@ -340,7 +320,7 @@ class produtoDB {
             this.getAllProdutos().then((produtos) => {
                 resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    return cores.map((cor) => {
+                    return getCoresAtivas(cores).map((cor) => {
                         if(cor != undefined && cor.idCor) return cor.idCor;
                     });
                 })));
@@ -353,7 +333,7 @@ class produtoDB {
             this.getAllProdutos().then((produtos) => {
                 resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    return cores.map((cor) => {
+                    return getCoresAtivas(cores).map((cor) => {
                         if(cor != undefined && _.isArray(cor.selos)) return cor.selos;
                     })
                 })));
@@ -366,7 +346,7 @@ class produtoDB {
             this.getAllProdutos().then((produtos) => {
                 resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    return cores.map((cor) => {
+                    return getCoresAtivas(cores).map((cor) => {
                         if(cor != undefined && _.isArray(cor.simbolos)) return cor.simbolos;
                     })
                 })));
@@ -385,8 +365,6 @@ class produtoDB {
                         dataResult.selos = _.uniq(idsSelos);
                         this.getIdsSimbolos().then((idsSimbolos) => {
                             dataResult.simbolos = _.uniq(idsSimbolos);
-                            console.log(dataResult);
-                            
                             const qtdeImagens = dataResult.fotos.length + dataResult.cores.length + dataResult.selos.length + dataResult.simbolos.length;
                             resolve({quantidade: qtdeImagens, data: dataResult});
                         })
@@ -409,14 +387,7 @@ class produtoDB {
     }
 
     limparBase() {
-        return new Promise((resolve) => {
-            localDB.destroy().then(() => {
-                createDB();
-                resolve();
-            }).catch((err) => {
-                resolve(err);
-            });
-        });
+        return this._limparBase()
     }
 
 }

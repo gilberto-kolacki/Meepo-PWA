@@ -1,25 +1,23 @@
-import PouchDB from 'pouchdb';
-import BasicDB from './basicDB'
+/*=========================================================================================
+  File Name: embarqueDB.js
+  Description: Classe de banco de embarques
+  ----------------------------------------------------------------------------------------
+  Author: Giba
+==========================================================================================*/
+
 import _ from 'lodash';
+import BasicDB from './basicDB'
 
-let localDB = null;
+class embarqueDB extends BasicDB {
 
-const createDB = () => {
-    BasicDB.createDBLocalBasic("embarque").then((dataBaseLocal) => {
-        if (dataBaseLocal) {
-            localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-        }
-    })
-};
-
-createDB();
-
-class embarqueDB {
+    constructor() {
+        super("embarque");
+    }
 
     limparBase() {
         return new Promise((resolve) => {
-            localDB.destroy().then(() => {
-                resolve(createDB());
+            this._localDB.destroy().then(() => {
+                resolve(new embarqueDB());
             }).catch((err) => {
                 resolve(err);
             });
@@ -33,7 +31,7 @@ class embarqueDB {
                     const done = _.after(embarques.length, () => resolve());
                     embarques.forEach(embarque => {
                         embarque._id = _.toString(embarque.id);
-                        localDB.put(embarque).then(() => done()).catch(() => done());
+                        this._localDB.put(embarque).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
@@ -44,7 +42,7 @@ class embarqueDB {
 
     getAll() {
         return new Promise((resolve) => {
-            localDB.allDocs({include_docs: true}).then((resultDocs) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 resolve(resultDocs.rows.map((embarque) => {
                     if (embarque.doc['nome']) {
                         delete embarque.doc['_rev'];
