@@ -1,3 +1,4 @@
+
 <template>
     <b-modal 
         :id="id" 
@@ -24,8 +25,14 @@
             </div>
             <div class="vx-col w-full lg:w-4/5 sm:w-4/5">
                 <div class="vx-row items-center justify-center">
-                    <img :src="imagemProdutoPrincipal" class="card-img-zoom" id="produto-swipe-area"/>
+                        <!-- <img :src="imagemProdutoPrincipal" class="card-img-zoom" id="produto-swipe-area"/> -->
+                        <v-zoomer style="width: 500px; height: 100%; border: solid 1px silver;" maxScale="3">
+                            <img :src="imagemProdutoPrincipal" style="border:none" class="card-img-zoom items-center justify-center" id="produto-swipe-area"/>
+                        </v-zoomer>   
                 </div>
+                    
+                 
+
             </div>
         </div>
     </b-modal>
@@ -33,6 +40,10 @@
 <script>
 
 import _ from 'lodash'
+import Vue from 'vue'
+import VueZoomer from 'vue-zoomer'
+
+Vue.use(VueZoomer)
 
 export default {
     name: 'zoom-produto',

@@ -153,12 +153,13 @@
                             <span class="text-danger text-sm">{{ errors.first('cidade') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/6 w-full mb-2" v-on:keyup.enter="proximoCampo('referenciaComercial')">
-                            <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" class="w-full"/>
+                            <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" @change="getGroupClient(clienteEdit.endereco.estado)" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2">
                             <label for="" class="vs-input--label">Grupo de Clientes*</label>
                             <v-select v-validate="'required'" id="grupoCliente" name="grupoCliente" v-model="grupoCliente" :options="getGrupoClientesSelect"></v-select>
+                            
                             <span class="text-danger text-sm">{{ errors.first('grupoCliente') }}</span>
                         </div>
                     </div>
@@ -197,8 +198,11 @@
                     </div>
                     <div class="vx-row">
                         <div class="vx-col my-5-top w-full">
-                            <vs-button color="success" class="mr-3 mb-2 pull-right" v-if="!clienteEdit.clienteErp" @click="salvarCliente">Salvar</vs-button>
-                            <vs-button color="danger" type="border" class="mr-2 mb-2 pull-right"  @click="cancelarCliente">Voltar</vs-button>
+                            <!-- <vs-button color="success" class="mr-3 mb-2 pull-right" v-if="!clienteEdit.clienteErp" @click="salvarCliente">Salvar</vs-button> -->
+                            <!-- <vs-button color="danger" type="border" class="mr-2 mb-2 pull-right"  @click="cancelarCliente">Voltar</vs-button> -->
+                            <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" v-if="!clienteEdit.clienteErp" icon="icon-plus" @click="salvarCliente">Adicionar</vs-button>
+                            <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" icon="icon-x" @click="cancelarCliente">Voltar</vs-button>
+  
                         </div>
                     </div>
                 </div>
@@ -523,6 +527,15 @@ export default {
         }
     },
     methods: {
+        getGroupClient(uf){
+            return this.grupoClientes.map((item) => {
+                    item.estados.map((estado) => {
+                        if (estado === uf) {
+                            return this.grupoCliente = {value: item.id, label: item.nome, padrao: item.padrao} 
+                        }
+                    })
+            })
+        },
         scrollMeTo(refName) {
             var element = this.$refs[refName];
             var top = element.offsetTop;
@@ -726,7 +739,7 @@ export default {
                 cliente.dataAniversario = aniversarioTime
             }
             setTimeout(() => {  
-                ClienteDB.salvar(cliente).then((result) => {
+                ClienteDB.salvar(cliente).then(() => {
                     this.$vs.notify({
                         title: 'Sucesso',
                         text: 'Cliente Salvo!',
@@ -820,6 +833,28 @@ export default {
 </script>
 
 <style>
+
+.btn-confirm {
+    position: fixed;
+    top: 50%;
+    right: -50px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    z-index: 1000;
+    width: 10rem;
+    transform: rotate(-90deg);
+}
+
+.btn-cancel {
+    position: fixed;
+    top: 50%;
+    left: -50px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    z-index: 1000;
+    width: 10rem;
+    transform: rotate(90deg);
+}
 
 .mb-base-button {
     margin-bottom: 0.8rem !important;

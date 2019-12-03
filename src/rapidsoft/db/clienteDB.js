@@ -95,7 +95,7 @@ const validarObjetoDB = (cliente) => {
         let retorno = {
             mensagem : "Campo obrigatório!"
         }
-        let validarEndereco = validarEnderecoDB(cliente.endereco, 1);
+        // let validarEndereco = validarEnderecoDB(cliente.endereco, 1);
         if (cliente.cpfCnpj === undefined || cliente.cpfCnpj.length < 14 || cliente.cpfCnpj === "") {
             retorno.campo = "cpfCnpj"            
             reject(retorno);
@@ -175,7 +175,6 @@ const validarObjetoDB = (cliente) => {
             retorno.campo = "grupoCliente"
             reject(retorno);
         }
-        
         // else if (!_.isEmpty(validarEndereco)){
         //     reject(validarEndereco);
         // }
@@ -248,8 +247,11 @@ class clienteDB extends BasicDB {
                     docDados.cidade = cliente.doc.endereco.cidade
                     docDados.estado = cliente.doc.endereco.estado
                     docDados.clienteErp = cliente.doc.clienteErp
+                    docDados.inadimplente = cliente.doc.inadimplente
+                    docDados.ativo = cliente.doc.ativo
                     docDados._id = cliente.doc._id
                     docDados._rev = cliente.doc._rev
+                    
                     return _.clone(docDados)
                 }))
             }).catch((err) => {
@@ -373,16 +375,20 @@ class clienteDB extends BasicDB {
             } else {
                 existe = false;
             }
+        }else{
+            existe = true;
         }
+     
         if (!_.isNil(cnpjCpf)) {
-            if(cliente.cpfCnpj.indexOf(cnpjCpf) >= 0) {
+            if(cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "").substr(0, cnpjCpf.length) === cnpjCpf) {
                 existe = true;
-            } else {
+            }else{
                 existe = false;
             }
         }
-        if (!_.isNil(nome)) {
-            if(cliente.nome.includes(nome) >= 0) {
+
+        if (!_.isNil(nome) && nome.length > 0) {
+            if(cliente.nome.includes(nome)) {
                 existe = true;
             } else {
                 existe = false;
