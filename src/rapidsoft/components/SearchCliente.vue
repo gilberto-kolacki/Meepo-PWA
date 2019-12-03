@@ -35,24 +35,38 @@
                 <vs-input v-validate="'required'" label="Nome" v-model="nomeSearch" class="w-full" />
             </div>
         </div>
+        <div>
         <vs-table ref="table" v-model="clienteSearch" @selected="selectSearchProduto(clienteSearch)" :data="listaPesquisa">
             <template slot="thead">
                 <vs-th sort-key="referencia">Cpf/Cnpj</vs-th>
                 <vs-th sort-key="nome">Nome</vs-th>
+                <vs-th sort-key="nome">Endereço</vs-th>
+                <vs-th sort-key="nome">Cidade</vs-th>
+                <vs-th sort-key="nome">Estado</vs-th>
             </template>
             <template slot-scope="{data}">
                 <tbody id="div-with-loading-search" class="vs-con-loading__container vs-con-loading-search">
-                    <vs-tr :data="tr" :key="indextr" v-for="(tr, indextr) in data">
+                    <vs-tr :state="data[indextr].ativo === 0 ? 'danger':data[indextr].inadimplente !== 0 ? 'warning':null" :data="tr" :key="indextr" v-for="(tr, indextr) in data">
                         <vs-td :data="data[indextr].cpfCnpj">
                             <p class="product-name font-medium">{{ tr.cpfCnpj }}</p>
                         </vs-td>
                         <vs-td :data="data[indextr].nome">
-                            <p class="product-category">{{ tr.nome }}</p>
+                            <p class="product-name font-medium">{{ tr.nome }}</p>
+                        </vs-td>
+                        <vs-td :data="data[indextr].endereco">
+                            <p class="product-name font-medium">{{ tr.endereco.endereco +', '+tr.endereco.numero+', '+tr.endereco.bairro }}</p>
+                        </vs-td>
+                        <vs-td :data="data[indextr].endereco">
+                            <p class="product-name font-medium">{{ tr.endereco.cidade }}</p>
+                        </vs-td>
+                        <vs-td :data="data[indextr].endereco">
+                            <p class="product-name font-medium">{{ tr.endereco.estado }}</p>
                         </vs-td>
                     </vs-tr>
                 </tbody>
             </template>
         </vs-table>
+        </div>
     </b-modal>
 </template>    
 <script>
@@ -132,6 +146,7 @@ export default {
             })
         },
         searchFindCliente() {
+
             if ((this.cidadeSelecionada && this.cidadeSelecionada.value != null) || (this.cnpjCpfSearch && this.cnpjCpfSearch.length >= 3) || (this.nomeSearch && this.nomeSearch.length >= 3)) {
                 this.$vs.loading({ container: '#div-with-loading-search', scale: 0.6 });
                 const uf = this.estadoSelecionado.uf;
@@ -148,6 +163,7 @@ export default {
             }
             
         },
+
         createEstadoSelect(estado) {
             return {value: estado.id, label: estado.nome, uf: estado.sigla};
         }
@@ -181,7 +197,9 @@ export default {
     z-index: 42000;
 }
 
-
+.vs-table--content{
+    max-height: 580px;
+}
 
 .img-popup {
     max-height: 7rem;
