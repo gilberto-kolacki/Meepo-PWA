@@ -7,7 +7,7 @@
             </div>
         </div>
         <div class="vx-row">
-            <div class="w-full sm:w-1/2 mb-2" :key="indextr" v-for="(sinc, indextr) in sincronizacao">
+            <div class="w-full sm:w-1/2 mb-2" :key="indextr" v-for="(sinc, indextr) in tabelasSincronizacao">
                 <vx-card class="vx-card-sinc" v-bind:style="{marginBottom: '-36px'}">
                     <template slot="no-body">
                         <div class="my-5">
@@ -62,14 +62,16 @@ import FormaPagtoDB from '../../rapidsoft/db/formaPagtoDB'
 import CidadeDB from '../../rapidsoft/db/cidadeDB'
 import CatalogoDB from '../../rapidsoft/db/catalogoDB'
 import RefComercialDB from '../../rapidsoft/db/referenciaComercialDB'
+import ErrorDB from '../../rapidsoft/db/errorDB'
 
 export default {
     data() {
         return {
             backgroundLoading:'rgba(0, 0, 0, 0.03',
             colorLoading:'#fff',
-            sincronizacao: [],
             activeConfirm: false,
+            tabelasSincronizacao: [],
+            tabelasSincronizadas: []
         }
     },
     components: {
@@ -102,14 +104,17 @@ export default {
             })
         },
         sincronizarTodos() {
-            this.sincronizacao.forEach(sinc => {
+            this.tabelasSincronizadas = [];
+
+
+            this.tabelasSincronizacao.forEach(sinc => {
                 if(sinc.methodo !== 'sincImagem'){
-                    this.sincronizar(sinc,true);
+                    this.sincronizar(sinc, true);
                     // this.carregarSinc();
                 }
             });
         },
-        sincronizar(sinc, all) {
+        sincronizar(sinc, all = false) {
             if(!sinc.ativo) {
                 sinc.ativo = true;
                 sinc.parcial = 0;
@@ -125,8 +130,8 @@ export default {
                 if (sinc.methodo && sinc.methodo != "") {
                     if (sinc.methodo !== 'sincImagem') {
                         _.defer(() => this[sinc.methodo](sinc, all));
-                    }else{
-                        if (this.sincronizacao[3].percent === 100) {
+                    }else{                        
+                        if (_.find(this.tabelasSincronizacao, (sinc) => sinc.methodo === "sincProduto").total  >= 0  ) {
                             _.defer(() => this[sinc.methodo](sinc, all));
                         }else{
                             _.defer(() => this.closeLoading(sinc, all));
@@ -156,9 +161,16 @@ export default {
         },
         errorSinc(sinc, error) {
             sinc.erro = true;
+            let mensagem = "Problemas com a Internet!"
+            if (error && error.response) {
+                if (error.response && error.response.data.mensagem) {
+                    mensagem = error.response.status +" "+ error.response.data.mensagem;
+                } else {
+                    mensagem = error.response.status +" "+ error.response.statusText;
+                }
+            }
 
-            if (error.response) {
-                const mensagem = error.response && error.response.data.mensagem ? error.response.status +" "+ error.response.data.mensagem : error.response.status +" "+ error.response.statusText;
+            ErrorDB.criarLogErroSinc(sinc, error, mensagem).then(() => {
                 this.$vs.notify({
                     title: 'Erro!',
                     text: mensagem,
@@ -166,9 +178,8 @@ export default {
                     iconPack: 'feather',
                     icon: 'icon-alert-circle'
                 })
-            }
-
-            _.defer(() => this.closeLoading(sinc));
+                _.defer(() => this.closeLoading(sinc));
+            });
         },
         atuaizaParcialSinc(sinc, imagensSalvas) {
             sinc.parcial = (sinc.parcial + imagensSalvas);
@@ -185,7 +196,7 @@ export default {
                         ProdutoDB.salvar(produto).then(() => {
                             this.atuaizaParcialSinc(sinc, 1);
                             if(sinc.percent >= 100 && all === true){
-                                this.sincronizacao.forEach(sinc => {
+                                this.tabelasSincronizacao.forEach(sinc => {
                                     if(sinc.methodo === 'sincImagem'){
                                         this.sincronizar(sinc,all);
                                     }
@@ -339,10 +350,15 @@ export default {
     beforeMount() {
         this.$vs.loading();
         SincDataDB.getAll().then((sinData) => {
-            this.sincronizacao = _.orderBy(sinData, ['order']);
+            this.tabelasSincronizacao = _.orderBy(sinData, ['order']);
             this.$vs.loading.close();
         });
     },
+
+    errorCaptured(err, vm, info) {
+        ErrorDB.criarLog({err, vm, info});
+        return true;
+    }
 }
 
 </script>

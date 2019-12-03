@@ -29,7 +29,7 @@
                                             {{tamanho.codigo}}
                                         </div>
                                     </th>
-                                    <th scope="col">Total</th>
+                                    <th scope="col">Totais</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -123,7 +123,7 @@ export default {
             return this.produtoAdd.cores;
         },
         getTamanhosProduto() {
-            return this.produtoAdd.produtoAddCores[0].produtoAddTamanhos;
+            return this.produtoAdd.produtoLabelTamanhos;
         },
         getPreco() {
             const percentual = _.toNumber(this.grupoCliente.porcentagem);
@@ -142,6 +142,7 @@ export default {
                         const tamanho = cor.produtoAddTamanhos[index];
                         if (tamanho.codigo === corTamanho.codigo) {
                             tamanho.ativo = corTamanho.ativo;
+                            this.menosTamanho(tamanho);
                         }
                     }
                 }
@@ -150,10 +151,12 @@ export default {
         },
         menosTamanho(tamanho) {
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade-1);
+            this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
         maisTamanho(tamanho) {
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : tamanho.quantidade+1;
+            this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
         getTotalPecasCor(cor) {
@@ -206,7 +209,6 @@ export default {
         }
     },
     created() {
-        console.log('created');
         this.grupoCliente = Storage.getGrupoCarrinho();
     },
 }

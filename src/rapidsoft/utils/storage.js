@@ -15,12 +15,16 @@ class storage {
         localStorage.removeItem(chave);
     }
 
-    getPedidoCarrinho() {
-        if (localStorage.getItem('pedidoCarrinho')) {
-            return JSON.parse(localStorage.getItem('pedidoCarrinho'));
+    getCarrinho() {
+        if (localStorage.getItem('carrinho')) {
+            return JSON.parse(localStorage.getItem('carrinho'));
         } else {
-            return PedidoUtils.newPedido();
+            return PedidoUtils.newCarrinho();
         }
+    }
+
+    setCarrinho(carrinho) {
+        localStorage.setItem('carrinho', JSON.stringify(carrinho));
     }
 
     getGrupoCarrinho() {

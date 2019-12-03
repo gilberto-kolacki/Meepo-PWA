@@ -1,8 +1,8 @@
 <template>
 	<div id="page-catalogo" class="page-catalogo">
 		<div v-if="this.isShowing">
-			<vs-button @click.stop="prevSlide" color="primary" type="filled" radius class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
-        	<vs-button @click.stop="nextSlide" color="primary" type="filled" radius class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
+			<vs-button @click.stop="prevSlide" color="primary" type="filled" class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
+        	<vs-button @click.stop="nextSlide" color="primary" type="filled" class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
 		</div>
 		<vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12" style="margin-bottom: 2rem;">
             <div class="vx-row">                
@@ -145,23 +145,24 @@ export default {
 		Storage.deleteClienteCarrinho();
 	},
 	beforeMount() {
-        CatalogoDB._getAll().then((catalogos) => {
+        
+    },
+	mounted() {
+		CatalogoDB._getAll().then((catalogos) => {
 			this.catalogos = _.cloneDeep(catalogos);
 			GrupoClienteDB.getGrupoPadrao().then((grupoClientePadrao) => {
 				this.grupoClientePadrao = grupoClientePadrao;
+				this.abrirPesquisaCliente();
 			});
 		})
-    },
-	mounted() {
-		this.abrirPesquisaCliente();
 	},
 	updated() {
 		if (!this.isShowing) {
-			setTimeout(() => {
+			setTimeout(() => {				
 				this.setActiveItemCarousel(0);
 				this.isShowing = true;
 				document.getElementById('loading-bg').style.display = "none";
-			}, 300)
+			}, 3000)
 		}
 	}
 }
@@ -220,32 +221,6 @@ export default {
 .img-catalogo {
 	max-height:80vh;
 	width: auto;
-}
-
-.btn-left{
-    position: fixed;
-    top:50%;
-    left: 0;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    z-index: 1000;
-
-    .vs-icon{
-        animation: spin 1.5s linear infinite;
-    }
-}
-
-.btn-right {
-    position: fixed;
-    top:50%;
-    right: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    z-index: 1000;
-
-    .vs-icon{
-        animation: spin 1.5s linear infinite;
-    }
 }
 
 .title-catalog {

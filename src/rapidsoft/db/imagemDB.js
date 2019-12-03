@@ -40,14 +40,10 @@ class imagemDB {
 
     limparBase() {
         return new Promise((resolve) => {
-            ImagemFotoDB.destroy().then(() => {
-                new ImagemFotoDB();
-                ImagemCorDB.destroy().then(() => {
-                    new ImagemCorDB();
-                    ImagemSeloDB.destroy().then(() => {
-                        new ImagemSeloDB();
-                        ImagemSimboloDB.destroy().then(() => {
-                            new ImagemSimboloDB();
+            ImagemFotoDB._limparBase().then(() => {
+                ImagemCorDB._limparBase().then(() => {
+                    ImagemSeloDB._limparBase().then(() => {
+                        ImagemSimboloDB._limparBase().then(() => {
                             resolve();
                         });
                     });
@@ -98,13 +94,13 @@ class imagemDB {
         });
     }
 
-    getSelos(cor) {
+    getSelos() {
         return new Promise((resolve) => {
             resolve([]);
         });
     }
 
-    getSimbolos(cor) {
+    getSimbolos() {
         return new Promise((resolve) => {
             resolve([]);
         });

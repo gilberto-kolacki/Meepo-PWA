@@ -19,7 +19,7 @@ class imagemCorDB extends BasicDB {
             if (_.isArray(cores) && cores.length > 0) {
                 const done = _.after(cores.length, () => resolve(cores.length));
                 cores.forEach(imagem => {
-                    this.salvar(imagem).then(() => done()).catch(() => done());
+                    this._salvar(imagem).then(() => done()).catch(() => done());
                 });
             } else {
                 resolve(0)

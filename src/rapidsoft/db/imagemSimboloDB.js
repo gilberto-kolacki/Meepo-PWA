@@ -19,7 +19,7 @@ class imagemSimboloDB extends BasicDB {
             if (_.isArray(simbolos) && simbolos.length > 0) {
                 const done = _.after(simbolos.length, () => resolve(simbolos.length));
                 simbolos.forEach(imagem => {
-                    this.salvar(imagem).then(() => done()).catch(() => done());
+                    this._salvar(imagem).then(() => done()).catch(() => done());
                 });
             } else {
                 resolve(0)

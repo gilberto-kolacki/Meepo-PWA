@@ -30,8 +30,14 @@ const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
 
 const getProdutoToDB = (rows) => {
     return rows.filter((produto) => {
-        return produto.doc['referencia'];
-    }).map((row) => { return _.clone(row.doc)});
+        return produto.doc['referencia'] ;
+    }).map((row) => row.doc);
+}
+
+const getCoresAtivas = (cores) => {
+    return cores.filter((cor) => {
+        return cor.ativo;
+    });
 }
 
 class produtoDB extends BasicDB {
@@ -299,7 +305,7 @@ class produtoDB extends BasicDB {
             this.getAllProdutos().then((produtos) => {
                 resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    return cores.map((cor) => {
+                    return getCoresAtivas(cores).map((cor) => {
                         return cor.imagens.map((imagem) => {
                             return imagem.id;
                         })
@@ -314,7 +320,7 @@ class produtoDB extends BasicDB {
             this.getAllProdutos().then((produtos) => {
                 resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    return cores.map((cor) => {
+                    return getCoresAtivas(cores).map((cor) => {
                         if(cor != undefined && cor.idCor) return cor.idCor;
                     });
                 })));
@@ -327,7 +333,7 @@ class produtoDB extends BasicDB {
             this.getAllProdutos().then((produtos) => {
                 resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    return cores.map((cor) => {
+                    return getCoresAtivas(cores).map((cor) => {
                         if(cor != undefined && _.isArray(cor.selos)) return cor.selos;
                     })
                 })));
@@ -340,7 +346,7 @@ class produtoDB extends BasicDB {
             this.getAllProdutos().then((produtos) => {
                 resolve(_.flattenDeep(produtos.map((produto) => {
                     let cores = _.clone(produto['cores']);
-                    return cores.map((cor) => {
+                    return getCoresAtivas(cores).map((cor) => {
                         if(cor != undefined && _.isArray(cor.simbolos)) return cor.simbolos;
                     })
                 })));
@@ -359,8 +365,6 @@ class produtoDB extends BasicDB {
                         dataResult.selos = _.uniq(idsSelos);
                         this.getIdsSimbolos().then((idsSimbolos) => {
                             dataResult.simbolos = _.uniq(idsSimbolos);
-                            console.log(dataResult);
-                            
                             const qtdeImagens = dataResult.fotos.length + dataResult.cores.length + dataResult.selos.length + dataResult.simbolos.length;
                             resolve({quantidade: qtdeImagens, data: dataResult});
                         })

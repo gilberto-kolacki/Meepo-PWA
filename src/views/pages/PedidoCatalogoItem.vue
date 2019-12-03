@@ -1,12 +1,13 @@
 <template>
     <!-- Adicao de itens -->
     <div id="page-catalogo-add" class="page-catalogo-add" v-if="popupAddProduto">
-        <add-item-carrinho @cancelar-add="cancelarAdd" :produtoAdd="this.produtoAdd"></add-item-carrinho>
+        <add-item-carrinho @show-add-carrinho="showAddCarrinho(false)" :produtoAdd="this.produtoAdd"></add-item-carrinho>
     </div>
     <div id="page-catalogo" class="page-catalogo" v-else>
         <div v-if="this.produtoA">
-            <vs-button @click.stop="prevRef" color="primary" type="filled" radius class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
-            <vs-button @click.stop="nextRef" color="primary" type="filled" radius class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
+            <vs-button @click.stop="prevRef" color="primary" type="filled" class="btn-left" icon="chevron_left"></vs-button>
+            <vs-button @click.stop="nextRef" color="primary" type="filled" class="btn-right" icon="chevron_right"></vs-button>
+            <vs-button @click.stop="abrirCarrinho" color="warning" type="filled" class="btn-carrinho" icon="card_travel"></vs-button>
         </div>
         <vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12">
             <div class="vx-row">
@@ -84,8 +85,8 @@
                         <h6 class="title-ref" v-if="this.produtoC">Ref C: {{produtoC.referencia}}</h6>
                         <h6 class="title-ref" v-if="this.produtoD">Ref D: {{produtoD.referencia}}</h6>
                         <div class="btn-group centex mt-base-top1 w-full">
-                            <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-shopping-cart" @click.stop="addProduto()"></vs-button>
-                            <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" @click.stop="viewPreco(produtoA)"></vs-button>
+                            <vs-button class="w-full" color="primary" icon="add_circle" @click.stop="addProduto()"></vs-button>
+                            <vs-button class="w-full" color="rgb(123, 123, 123)" size="36px" icon="attach_money" @click.stop="viewPreco()"></vs-button>
                         </div>
                     </div>
                     <div class="vx-row mt-base-top2">
@@ -104,7 +105,6 @@
 
 import { Vue2InteractDraggable } from "vue2-interact";
 import _ from 'lodash'
-import vSelect from 'vue-select';
 import ProdutoDB from '../../rapidsoft/db/produtoDB'
 import ImagemDB from '../../rapidsoft/db/imagemDB'
 import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
@@ -113,8 +113,6 @@ import UtilMask from '../../rapidsoft/utils/utilMask'
 import AddItemCarrinho  from '../../rapidsoft/components/AddItemCarrinho'
 import SearchProduto  from '../../rapidsoft/components/SearchProduto'
 import ZoomProduto  from '../../rapidsoft/components/ZoomProduto'
-import SegmentoDB from '../../rapidsoft/db/segmentoDB'
-import CategoriaDB from '../../rapidsoft/db/categoriaDB'
 import ErrorDB from '../../rapidsoft/db/errorDB'
 
 export default {
@@ -191,7 +189,7 @@ export default {
                 return this.produtoA.cores[this.corSelecionada].imagens
             } else {
                 return [];
-            };
+            }
         },        
         getCoresProduto() {
             if (this.produtoA) {
@@ -203,7 +201,7 @@ export default {
     },
     methods: {
         // tela
-        viewPreco(produto) {
+        viewPreco() {
             let texto = 'REF A: ' +this.calcularPrecoProduto(this.produtoA);
             if (this.produtoB) {
                 texto += '<br> REF B: ' +this.calcularPrecoProduto(this.produtoB);
@@ -298,15 +296,13 @@ export default {
         },
         addProduto() {
             this.produtoAdd = {
-                produtoA: ProdutoUtils.createProdutoAdd(this.produtoA)
+                produtoA: this.produtoA,
+                produtoB: this.produtoB
             };
-            if(!_.isNil(this.produtoB)) {
-                this.produtoAdd.produtoB = ProdutoUtils.createProdutoAdd(this.produtoB);
-            }
             this.popupAddProduto = true;
         },
-        cancelarAdd() {
-            this.popupAddProduto = false;
+        showAddCarrinho(show) {
+            this.popupAddProduto = show;
             this.produtoAdd=null;
         },
         selectProduto(pagina) {
@@ -326,9 +322,12 @@ export default {
         selectSearchProduto(produto) {
             ProdutoUtils.addProdutoSearchFromPages(this.paginas, produto).then((paginas) => {
                 this.$bvModal.hide(this.idPopUpSearch);
-                this.paginas = paginas;
+                this.paginas = paginas;                
                 this.selectProduto(this.paginas[this.paginas.length-1]);
             })
+        },
+        abrirCarrinho() {
+            this.$router.push({ name: 'carrinho'});
         },
     },
     beforeCreate() {
@@ -435,33 +434,6 @@ html {
     }
 }
 
-// .card-img-zoom {
-//     width: 100%;
-//     -webkit-animation: rebound .4s;
-//     animation: rebound .4s;
-//     -webkit-box-pack: center !important;
-//     -ms-flex-pack: center !important;
-//     justify-content: center !important
-// }
-
-.btn-left {
-    position: fixed;
-    top:50%;
-    left: 0;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    z-index: 1000;
-}
-
-.btn-right {
-    position: fixed;
-    top:50%;
-    right: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    z-index: 1000;
-}
-
 .title-ref {
     text-transform: uppercase;
 }
@@ -533,63 +505,9 @@ html {
     margin-bottom: 10px;
 }
 
-.header-colapse-add {
-    background-color: #403e3e;
-    color: #fff;
-}
-
 .page-catalogo {
     top: 2rem;
 }
 
-
-</style>
-<style lang="scss">
-
-.con-select .vs-select--input {
-    font-size: 0.9rem;
-}
-
-.popup-produto-add {
-    z-index: 60000;
-}
-
-.modal-xl {
-    max-width: 1024px;
-    width: 100%;
-    margin: 0.3rem 0.0rem 0.3rem 0.0rem;
-    z-index: 60000;
-}
-
-.modal-content {
-    border-radius: 10px;
-    align-content: center;
-    justify-content: center;
-}
-
-.modal {
-    z-index: 53000;
-}
-
-.card-body {
-    padding-left: 1.2rem;
-    padding-right: 1.2rem;
-    padding-top: 0.1rem;
-    padding-bottom: 0.0rem;
-}
-
-.custom-control-input:checked ~ .custom-control-label::before {
-    color: #fff;
-    border-color: #e41c40;
-    background-color: #e41c40;
-}
-
-.vs-input--input.normal {
-    font-size: 0.75rem;
-}
-
-.not-data-table {
-    min-height: 60vh;
-}
 
 </style>

@@ -27,12 +27,8 @@ class usuarioDB extends BasicDB {
                 usuario.img = usuario.img || 'user.png';
                 usuario.displayName = usuario.nome;
                 delete usuario["segmento"];
-
-                console.log(this._localDB.info());
-                
-
-                this._localDB.put(usuario).then((result) => {
-                    usuario._id = result.id;
+                this._salvar(usuario).then((user) => {
+                    usuario._id = user.id;
                     resolve(usuario);
                 }).catch((erro) => {
                     reject(erro);

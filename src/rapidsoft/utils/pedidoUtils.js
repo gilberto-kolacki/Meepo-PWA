@@ -1,7 +1,7 @@
 
 class pedidoUtils {
 
-    newPedido() {
+    newCarrinho() {
         return {
             numero: 0,
             numeroERP: 0,

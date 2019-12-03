@@ -14,18 +14,14 @@ class catalogoDB extends BasicDB {
         super("catalogo");
     }
 
-    limparBase() {
-        return this._limparBase();
-    }
-
     salvarSinc(catalogos) {
         return new Promise((resolve) => {
-            this.limparBase().then(() => {
+            this._limparBase().then(() => {
                 if(catalogos.length > 0) {
                     const done = _.after(catalogos.length, () => resolve());
                     catalogos.forEach(catalogo => {
                         catalogo._id = _.toString(catalogo.idCatalogo);
-                        this._localDB.put(catalogo).then(() => done()).catch(() => done());
+                        this._salvar(catalogo).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
@@ -36,17 +32,16 @@ class catalogoDB extends BasicDB {
 
     getById(id) {
         return new Promise((resolve) => {
-            this._localDB.get(_.toString(id)).then((result) => {
-                delete result['capa'];
-                delete result['base64'];
-                delete result['_rev'];
-                resolve(result);  
+            this._getById(id).then((catalogo) => {
+                catalogo = catalogo.result;
+                delete catalogo['capa'];
+                delete catalogo['base64'];
+                resolve(catalogo);  
             }).catch(() => {
                 resolve();
             });
         });
     }
     
-
 }
 export default new catalogoDB();

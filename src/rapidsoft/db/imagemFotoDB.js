@@ -19,7 +19,7 @@ class imagemFotoDB extends BasicDB {
             if (_.isArray(fotos) && fotos.length > 0) {
                 const done = _.after(fotos.length, () => resolve(fotos.length));
                 fotos.forEach(imagem => {
-                    this.salvar(imagem).then(() => done()).catch(() => done());
+                    this._salvar(imagem).then(() => done()).catch(() => done());
                 });
             } else {
                 resolve(0)

@@ -76,6 +76,7 @@ class sincDataDB extends BasicDB {
 
     constructor() {
         super("sinc_data");
+        createSincs(this._localDB);
     }
 
     findById(id) {
@@ -107,6 +108,18 @@ class sincDataDB extends BasicDB {
                     sincDados.push(this.zerar(sinc));
                     done();
                 });
+            });
+        });
+    }
+
+    jaTeveSincronizacao() {
+        return new Promise((resolve) => {
+            this.getAll().then((sincs) => {
+                if(_.find(sincs, (sinc) => sinc.total > 0)) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
             });
         });
     }
