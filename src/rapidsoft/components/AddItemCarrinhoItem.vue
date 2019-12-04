@@ -50,8 +50,18 @@
                                                 class="form-control" 
                                                 style="margin-top: 0rem;min-width: 5rem;padding: 1px 4px;"/>
                                             <div class="produto-add-button">
-                                                <feather-icon icon="MinusIcon" svgClasses='h-4 w-4' class="produto-add-button-menos" @click="menosTamanho(produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho])" />
-                                                <feather-icon icon="PlusIcon" svgClasses='h-4 w-4' class="produto-add-button-mais"  @click="maisTamanho(produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho])"/>
+                                                <feather-icon 
+                                                    icon="MinusIcon" 
+                                                    svgClasses='h-4 w-4' 
+                                                    class="produto-add-button-menos" 
+                                                    @click="menosTamanho(indexCor, indexTamanho)"
+                                                />
+                                                <feather-icon 
+                                                    icon="PlusIcon" 
+                                                    svgClasses='h-4 w-4' 
+                                                    class="produto-add-button-mais"  
+                                                    @click="maisTamanho(indexCor, indexTamanho)"
+                                                />
                                             </div>
                                         </div>
                                         <div v-else>
@@ -136,25 +146,31 @@ export default {
         // 2-tamanho, 1-cor
         disabledCorTamanho(produto, corTamanho, tipo) {
             if(tipo === 2) {
-                for (let index = 0; index < this.produtoAdd.produtoAddCores.length; index++) {
-                    const cor = this.produtoAdd.produtoAddCores[index];
-                    for (let index = 0; index < cor.produtoAddTamanhos.length; index++) {
-                        const tamanho = cor.produtoAddTamanhos[index];
+                for (let indexCor = 0; index < this.produtoAdd.produtoAddCores.length; indexCor++) {
+                    const cor = this.produtoAdd.produtoAddCores[indexCor];
+                    for (let indexTamanho = 0; index < cor.produtoAddTamanhos.length; indexTamanho++) {
+                        const tamanho = cor.produtoAddTamanhos[indexTamanho];
                         if (tamanho.codigo === corTamanho.codigo) {
                             tamanho.ativo = corTamanho.ativo;
-                            this.menosTamanho(tamanho);
+                            this.menosTamanho(indexCor, indexTamanho);
                         }
                     }
                 }
             }
             this.$forceUpdate();
         },
-        menosTamanho(tamanho) {
+        menosTamanho(indexCor, indexTamanho) {
+            const tamanho = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho];
+            tamanho.ref = this.produtoAdd.referencia;
+            tamanho.cor = this.produtoAdd.cores[indexCor].idCor;
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade-1);
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
-        maisTamanho(tamanho) {
+        maisTamanho(indexCor, indexTamanho) {
+            const tamanho = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho];
+            tamanho.ref = this.produtoAdd.referencia;
+            tamanho.cor = this.produtoAdd.cores[indexCor].idCor;
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : tamanho.quantidade+1;
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();

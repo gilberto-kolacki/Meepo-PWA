@@ -88,6 +88,50 @@ class produtoDB extends BasicDB {
         });
     }
 
+    getTamanhosProdutoCarrinho(tamanhos, carrinho) {
+        return tamanhos.filter((tamanho) => {
+            return _.findIndex(carrinho.itens, (item) => item.id === tamanho.id ) >= 0
+        }).map((tamanho) => {
+            const item = _.find(carrinho.itens, (item) => item.id === tamanho.id);
+            tamanho.quantidade = _.find(carrinho.itens, (item) => item.id === tamanho.id).quantidade;
+            return tamanho;
+        });
+    }
+
+    getProdutosFromCarrinho(carrinho) {
+        return new Promise((resolve) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                const produtosCor = [];
+                const produtos = resultDocs.rows.filter((produto) => _.findIndex(carrinho.itens, (item) => item.ref === produto.id ) >= 0 ).map((row) => row.doc);
+
+                const doneProduto = _.after(produtos.length, () => resolve(produtosCor));
+                produtos.forEach(produto => {
+                    produto.cores.forEach(cor => {
+                        if (_.findIndex(carrinho.itens, (item) => item.cor === cor.idCor ) >= 0) {
+                            const produtoCor = _.clone(produto);
+                            produtoCor.cor = _.clone(cor);
+                            produtoCor.cor.tamanhos = this.getTamanhosProdutoCarrinho(produtoCor.cor.tamanhos, carrinho);
+                            produtoCor.cor.imagem = _.orderBy(produtoCor.cor.imagens, ['seq'])[0];
+                            delete produtoCor['cores'];
+                            delete produtoCor['video'];
+                            delete produtoCor['_rev'];
+                            delete produtoCor.cor['selos'];
+                            delete produtoCor.cor['simbolos'];
+                            delete produtoCor.cor['produtosLook'];
+                            delete produtoCor.cor['prontaEntrega'];
+                            delete produtoCor.cor['imagens'];
+                            produtosCor.push(produtoCor);
+                        }
+                        doneProduto();
+                    });                                        
+                });
+            }).catch((err) => {
+                console.log(err);
+                resolve(err);
+            });
+        });
+    }
+
     getPaginasCatalogo(idCatalogo) {
         return new Promise((resolve) => {
             CatalogoDB.getById(idCatalogo).then((catalogo) =>{
