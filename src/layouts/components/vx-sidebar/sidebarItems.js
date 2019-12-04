@@ -80,4 +80,10 @@ export default [
     slug: "Atualização",
     icon: "DownloadIcon",
   },
+  {
+    url: "/pages/suporte/log",
+    name: "Logs do Sistema",
+    slug: "Logs do Sistema",
+    icon: "MonitorIcon",
+  },
 ]

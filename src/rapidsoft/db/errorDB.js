@@ -25,10 +25,22 @@ class errorDB extends BasicDB {
         return _.cloneDeep(logger); 
     }
 
+    listar() {
+        return new Promise((resolve) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                resolve(resultDocs.rows.map((error) => {
+                    return _.clone(error.doc);
+                }))
+            }).catch((err) => {
+                console.log(err);
+                resolve(err);
+            });
+        });
+    }
+
     criarLog(erro) {
         return new Promise((resolve) => {
             console.log(erro);
-            
             const logger = this.newLog('tela', erro.vm.id, erro.vm.$el.baseURI, erro.info, erro.err.message);
             this._salvar(logger).then((result) => {
                 resolve(result);
