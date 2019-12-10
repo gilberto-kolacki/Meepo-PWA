@@ -151,6 +151,16 @@ const router = new Router({
                         navBar: true,
                     },
                 },
+                {
+					path: '/pages/suporte/log',
+					name: 'log',
+					component: () => import('./views/pages/suporte/Log.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor',
+                        navBar: true,
+                    },
+                },
 			],
 		},
         // =============================================================================
