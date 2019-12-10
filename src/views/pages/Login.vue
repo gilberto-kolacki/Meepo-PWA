@@ -123,6 +123,10 @@ export default {
     mounted() {
         
     },
+    errorCaptured(err, vm, info) {
+        ErrorDB.criarLog({err, vm, info});
+        return true;
+    }
 }
 </script>
 

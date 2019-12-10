@@ -252,6 +252,10 @@ export default {
       this.carrinho = carrinho;
       console.log(this.carrinho);  
     });
+  },
+  errorCaptured(err, vm, info) {
+    ErrorDB.criarLog({ err, vm, info });
+    return true;
   }
 };
 </script>

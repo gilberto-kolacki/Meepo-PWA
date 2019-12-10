@@ -92,7 +92,7 @@ class produtoDB extends BasicDB {
         return tamanhos.filter((tamanho) => {
             return _.findIndex(carrinho.itens, (item) => item.id === tamanho.id ) >= 0
         }).map((tamanho) => {
-            const item = _.find(carrinho.itens, (item) => item.id === tamanho.id);
+            // const item = _.find(carrinho.itens, (item) => item.id === tamanho.id);
             tamanho.quantidade = _.find(carrinho.itens, (item) => item.id === tamanho.id).quantidade;
             return tamanho;
         });
