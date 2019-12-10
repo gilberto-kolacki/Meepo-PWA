@@ -104,6 +104,10 @@ export default {
     mounted() {
         this.listar();
     },
+    errorCaptured(err, vm, info) {
+        ErrorDB.criarLog({err, vm, info});
+        return true;
+    },
     beforeCreate() {
         
     }

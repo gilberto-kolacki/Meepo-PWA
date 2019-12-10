@@ -825,6 +825,10 @@ export default {
             this.proximoCampo('cpfCnpj');
         }, 200);
     },
+    errorCaptured(err, vm, info) {
+        ErrorDB.criarLog({err, vm, info});
+        return true;
+    },
     afterMounted() {
         
     }

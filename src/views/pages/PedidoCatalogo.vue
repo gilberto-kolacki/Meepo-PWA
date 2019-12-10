@@ -1,58 +1,112 @@
 <template>
-	<div id="page-catalogo" class="page-catalogo">
-		<div v-if="this.isShowing">
-			<vs-button @click.stop="prevSlide" color="primary" type="filled" class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
-        	<vs-button @click.stop="nextSlide" color="primary" type="filled" class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
-		</div>
-		<vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12" style="margin-bottom: 2rem;">
-            <div class="vx-row">                
-                <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 50;">
-					<div class="vx-row">
-						<div class="flex w-full items-center justify-center">
-							<vs-button color="dark" type="filled" icon-pack="feather" class="w-full" icon="icon-menu" @click.stop="showSidebar"></vs-button>
-						</div>
-					</div>
-				</div>	
-				<div class="vx-col w-full lg:w-3/5 sm:w-3/5 h-12">
-					<div class="vx-row items-center justify-center" style="margin-bottom: 2rem;" v-if="this.isShowing">
-                        <h1>{{this.catalogo.nome}}</h1>
-                    </div>
-				</div>
-				<div class="vx-col w-full md:w-1/5 h-12">
-                    <div class="vx-row">
-                        <div class="flex w-full items-center justify-center">
-                            <vs-button color="primary" type="filled" icon-pack="feather" class="w-full" icon="icon-search" @click.stop="abrirPesquisaCliente()"></vs-button>
-                        </div>
-                    </div>
-				</div>
-			</div>
-		</vs-col>
-		<div class="vx-col w-full h-12">
-			<div class="vx-row">
-				<div class="flex w-full items-center justify-center">
-					<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" v-if="catalogos.length > 0">
-						<ol class="carousel-indicators-catalog">
-							<li
-								data-target="#carouselExampleIndicators"
-								:data-slide-to="index"
-								:id="'carousel-slide-'+index"
-								v-for="(catalogo, index) in catalogos" :key="`slide-to-${index}`">
-							</li>
-						</ol>
-						<div class="carousel-inner">
-							<div class="carousel-item" :id="'carousel-item-'+index" v-for="(catalogo, index) in catalogos" :key="`catalogo-${index}`" v-on:click.once="selecionarCatalogo(catalogo)">
-								<img :src="catalogo.base64" class="img-catalogo responsive img-ref" :alt="catalogo.nome">
-								<!-- <div class="carousel-caption">
+  <div id="page-catalogo" class="page-catalogo">
+    <div v-if="this.isShowing">
+      <vs-button
+        @click.stop="prevSlide"
+        color="primary"
+        type="filled"
+        class="btn-left"
+        icon-pack="feather"
+        icon="icon-chevron-left"
+      ></vs-button>
+      <vs-button
+        @click.stop="nextSlide"
+        color="primary"
+        type="filled"
+        class="btn-right"
+        icon-pack="feather"
+        icon="icon-chevron-right"
+      ></vs-button>
+    </div>
+    <vs-col
+      vs-type="block"
+      vs-justify="center"
+      vs-align="center"
+      vs-w="12"
+      style="margin-bottom: 2rem;"
+    >
+      <div class="vx-row">
+        <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 50;">
+          <div class="vx-row">
+            <div class="flex w-full items-center justify-center">
+              <vs-button
+                color="dark"
+                type="filled"
+                icon-pack="feather"
+                class="w-full"
+                icon="icon-menu"
+                @click.stop="showSidebar"
+              ></vs-button>
+            </div>
+          </div>
+        </div>
+        <div class="vx-col w-full lg:w-3/5 sm:w-3/5 h-12">
+          <div
+            class="vx-row items-center justify-center"
+            style="margin-bottom: 2rem;"
+            v-if="this.isShowing"
+          >
+            <h1>{{this.catalogo.nome}}</h1>
+          </div>
+        </div>
+        <div class="vx-col w-full md:w-1/5 h-12">
+          <div class="vx-row">
+            <div class="flex w-full items-center justify-center">
+              <vs-button
+                color="primary"
+                type="filled"
+                icon-pack="feather"
+                class="w-full"
+                icon="icon-search"
+                @click.stop="abrirPesquisaCliente()"
+              ></vs-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </vs-col>
+    <div class="vx-col w-full h-12">
+      <div class="vx-row">
+        <div class="flex w-full items-center justify-center">
+          <div
+            id="carouselExampleIndicators"
+            class="carousel slide"
+            data-ride="carousel"
+            v-if="catalogos.length > 0"
+          >
+            <ol class="carousel-indicators-catalog">
+              <li
+                data-target="#carouselExampleIndicators"
+                :data-slide-to="index"
+                :id="'carousel-slide-'+index"
+                v-for="(catalogo, index) in catalogos"
+                :key="`slide-to-${index}`"
+              ></li>
+            </ol>
+            <div class="carousel-inner">
+              <div
+                class="carousel-item"
+                :id="'carousel-item-'+index"
+                v-for="(catalogo, index) in catalogos"
+                :key="`catalogo-${index}`"
+                v-on:click.once="selecionarCatalogo(catalogo)"
+              >
+                <img
+                  :src="catalogo.base64"
+                  class="img-catalogo responsive img-ref"
+                  :alt="catalogo.nome"
+                />
+                <!-- <div class="carousel-caption">
 									<div class="title-catalog">{{catalogo.nome}}</div>
-								</div> -->
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		<search-cliente @search-selected="selectSearchCliente" :id="idPopUpSearch"></search-cliente>
-	</div>
+                </div>-->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <search-cliente @search-selected="selectSearchCliente" :id="idPopUpSearch"></search-cliente>
+  </div>
 </template>
 
 <script>
@@ -60,6 +114,7 @@
 import _ from 'lodash'
 import SearchCliente  from '../../rapidsoft/components/SearchCliente'
 import CatalogoDB from '../../rapidsoft/db/catalogoDB'
+import ErrorDB from '../../rapidsoft/db/errorDB'
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
 import Storage from '../../rapidsoft/utils/storage'
 
@@ -164,72 +219,74 @@ export default {
 				document.getElementById('loading-bg').style.display = "none";
 			}, 3000)
 		}
-	}
+	},
+  errorCaptured(err, vm, info) {
+      ErrorDB.criarLog({err, vm, info});
+      return true;
+  }
 }
 </script>
 
 <style lang="scss" scoped>
-
 .carousel-inner {
-	border-radius: .5rem!important;
+  border-radius: 0.5rem !important;
 }
 
 .carousel-indicators-catalog {
-    position: absolute;
-    right: 0;
-    top: 0;
-    left: 0;
-    z-index: 15;
-    display: -ms-flexbox;
-    display: -webkit-box;
-    display: flex;
-    -ms-flex-pack: center;
-    -webkit-box-pack: center;
-    justify-content: center;
-    padding-left: 0;
-    margin-right: 15%;
-    margin-left: 15%;
-    list-style: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  left: 0;
+  z-index: 15;
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: flex;
+  -ms-flex-pack: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  padding-left: 0;
+  margin-right: 15%;
+  margin-left: 15%;
+  list-style: none;
 }
 
 .carousel-indicators-catalog li {
-    -webkit-box-sizing: content-box;
-    box-sizing: content-box;
-    -ms-flex: 0 1 auto;
-    -webkit-box-flex: 0;
-    flex: 0 1 auto;
-    width: 30px;
-    height: 3px;
-    margin-right: 3px;
-    margin-left: 3px;
-    text-indent: -999px;
-    cursor: pointer;
-    background-color: #fff;
-    background-clip: padding-box;
-    border-top: 10px solid transparent;
-    border-bottom: 10px solid transparent;
-    opacity: .5;
-    -webkit-transition: opacity 0.6s ease;
-    transition: opacity 0.6s ease;
+  -webkit-box-sizing: content-box;
+  box-sizing: content-box;
+  -ms-flex: 0 1 auto;
+  -webkit-box-flex: 0;
+  flex: 0 1 auto;
+  width: 30px;
+  height: 3px;
+  margin-right: 3px;
+  margin-left: 3px;
+  text-indent: -999px;
+  cursor: pointer;
+  background-color: #fff;
+  background-clip: padding-box;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  opacity: 0.5;
+  -webkit-transition: opacity 0.6s ease;
+  transition: opacity 0.6s ease;
 }
 
 .carousel-indicators-catalog .active {
-    opacity: 1;
-	background-color: #ec1e1e;
+  opacity: 1;
+  background-color: #ec1e1e;
 }
 
 .img-catalogo {
-	max-height:80vh;
-	width: auto;
+  max-height: 80vh;
+  width: auto;
 }
 
 .title-catalog {
-	font-family: inherit;
-    font-weight: 500;
-    line-height: 1.2;
-    color: #ece6e6;
-	font-size: 28px;
-	text-shadow: 1px 0 0 #504f4f;
+  font-family: inherit;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #ece6e6;
+  font-size: 28px;
+  text-shadow: 1px 0 0 #504f4f;
 }
-
 </style>

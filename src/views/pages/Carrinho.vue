@@ -228,9 +228,25 @@ export default {
     });
   },
   mounted() {
+<<<<<<< HEAD
     this.carregaItensTela(() => {
 
 	});
+=======
+    ProdutoUtils.getCarrinho().then(carrinho => {
+      carrinho.map(item => {
+        ImagemDB.getFotoById(item.cor.imagem.id).then(imagem => {
+          item.imagemPrincipal = imagem;
+        });
+      });
+      this.carrinho = carrinho;
+      console.log(this.carrinho);  
+    });
+  },
+  errorCaptured(err, vm, info) {
+    ErrorDB.criarLog({ err, vm, info });
+    return true;
+>>>>>>> remotes/origin/tela_logs
   }
 };
 </script>
