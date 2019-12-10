@@ -120,134 +120,124 @@ import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import AddItemCarrinho from '../../rapidsoft/components/AddItemCarrinho'
 
 export default {
-  data: () => ({
-    carrinho: null,
-    selected: [],
-    itemsPerPage: 4,
-    isMounted: false,
-    addNewDataSidebar: false,
-    sidebarData: {},
-    embarques: [],
-    objectSelectCart: {
-      itemsSelectCart: []
-    },
-    popupAddProduto:false,
-    produtoAdd: {
-      produtoA: {
-        cores:[]
-      },
-      produtoB: {
-        cores:[]
-      }
-    },
-  }),
-  components: {
-    AddItemCarrinho,
-  },
-  computed: {
-    currentPage() {
-      if (this.isMounted) {
-        return this.$refs.table.currentx;
-      }
-      return 0;
-    },
-    products() {
-      return this.carrinho;
-    },
-    queriedItems() {
-      return this.$refs.table
-        ? this.$refs.table.queriedResults.length
-        : this.products.length;
-    },    
-  },
-  methods: {
-    showAddCarrinho(show) {
-		this.carregaItensTela(() => {
-			this.popupAddProduto = show;
-      		this.produtoAdd=null;
-		});
-    },
-    voltar() {
-      this.$router.go(-1);
+	data: () => ({
+		carrinho: null,
+		selected: [],
+		itemsPerPage: 4,
+		isMounted: false,
+		addNewDataSidebar: false,
+		sidebarData: {},
+		embarques: [],
+		objectSelectCart: {
+		itemsSelectCart: []
+		},
+		popupAddProduto:false,
+		produtoAdd: {
+		produtoA: {
+			cores:[]
+		},
+		produtoB: {
+			cores:[]
+		}
+		},
+	}),
+	components: {
+		AddItemCarrinho,
 	},
-	carregaItensTela(callback) {
-		ProdutoUtils.getCarrinho().then(carrinho => {
-			this.carrinho = carrinho;
-			callback();
+	computed: {
+		currentPage() {
+		if (this.isMounted) {
+			return this.$refs.table.currentx;
+		}
+		return 0;
+		},
+		products() {
+		return this.carrinho;
+		},
+		queriedItems() {
+		return this.$refs.table
+			? this.$refs.table.queriedResults.length
+			: this.products.length;
+		},    
+	},
+  	methods: {
+		showAddCarrinho(show) {
+			this.carregaItensTela(() => {
+				this.popupAddProduto = show;
+				this.produtoAdd=null;
+			});
+		},
+		voltar() {
+		this.$router.go(-1);
+		},
+		carregaItensTela(callback) {
+			ProdutoUtils.getCarrinho().then(carrinho => {
+				this.carrinho = carrinho;
+				callback();
+			});
+		},
+		getTamanhosProduto(index) {
+		// console.log(this.carrinho[index].cor.tamanhos);
+
+		return this.carrinho[index].cor.tamanhos
+		},
+
+		setPopupAddProduto(produto){
+			ProdutoDB.getProdutoEdicaoCarrinho(produto).then((result) => {
+				console.log(result);
+				this.produtoAdd = result;
+				this.produtoAdd = {
+					produtoA: result,
+					produtoB: null,
+				};
+				this.popupAddProduto = true;
+			});
+		},
+		toggleDataSidebar(val = false) {
+		this.addNewDataSidebar = val;
+		},
+		getCoinFormat(value) {
+		return (
+			"R$ " +
+			value
+			.toFixed(2)
+			.toString()
+			.replace(".", ",")
+		);
+		},
+		getAmountValueBuy(valorCompra,totalQuantidade){
+		return valorCompra * totalQuantidade;
+		},
+		getAmountQuantities(listaPedidoTamanho){
+		let totalPedido = 0;
+		for (let i = 0; i < listaPedidoTamanho.length; i++) {
+			totalPedido += listaPedidoTamanho[i].quantidade;
+		}
+		return totalPedido;
+		},
+		deleteItemsChart(){
+		console.log('Vai excluir = ', this.objectSelectCart.itemsSelectCart);
+		}
+	},
+	beforeCreate() {
+		
+	},
+	created() {
+		EmbarqueDB.getAll().then(embarques => {
+		this.embarques = embarques;
 		});
 	},
-    getTamanhosProduto(index) {
-      // console.log(this.carrinho[index].cor.tamanhos);
+  	mounted() {
+    	this.carregaItensTela(() => {
 
-      return this.carrinho[index].cor.tamanhos
-    },
+		});
+  	},
 
-    setPopupAddProduto(produto){
-    	ProdutoDB.getProdutoEdicaoCarrinho(produto).then((result) => {
-	        console.log(result);
-			this.produtoAdd = result;
-			this.produtoAdd = {
-				produtoA: result,
-				produtoB: null,
-			};
-			this.popupAddProduto = true;
-    	});
-    },
-    toggleDataSidebar(val = false) {
-      this.addNewDataSidebar = val;
-    },
-    getCoinFormat(value) {
-      return (
-        "R$ " +
-        value
-          .toFixed(2)
-          .toString()
-          .replace(".", ",")
-      );
-    },
-    getAmountValueBuy(valorCompra,totalQuantidade){
-      return valorCompra * totalQuantidade;
-    },
-    getAmountQuantities(listaPedidoTamanho){
-      let totalPedido = 0;
-      for (let i = 0; i < listaPedidoTamanho.length; i++) {
-        totalPedido += listaPedidoTamanho[i].quantidade;
-      }
-      return totalPedido;
-    },
-    deleteItemsChart(){
-      console.log('Vai excluir = ', this.objectSelectCart.itemsSelectCart);
-    }
-  },
-  beforeCreate() {
-    
-  },
-  created() {
-    EmbarqueDB.getAll().then(embarques => {
-      this.embarques = embarques;
-    });
-  },
-  mounted() {
-<<<<<<< HEAD
-    this.carregaItensTela(() => {
+	errorCaptured(err, vm, info) {
+    	ErrorDB.criarLog({ err, vm, info });
+    	return true;
+  	}
 
-	});
-=======
-    ProdutoUtils.getCarrinho().then(carrinho => {
-      carrinho.map(item => {
-        ImagemDB.getFotoById(item.cor.imagem.id).then(imagem => {
-          item.imagemPrincipal = imagem;
-        });
-      });
-      this.carrinho = carrinho;
-      console.log(this.carrinho);  
-    });
-  },
-  errorCaptured(err, vm, info) {
-    ErrorDB.criarLog({ err, vm, info });
-    return true;
->>>>>>> remotes/origin/tela_logs
-  }
 };
 </script>
 
