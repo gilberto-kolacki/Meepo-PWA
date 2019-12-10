@@ -14,13 +14,9 @@ class grupoClienteDB extends BasicDB {
         super("grupo_cliente");
     }
 
-    limparBase() {
-        return this._limparBase();
-    }
-
     salvarSinc(gruposCliente) {
         return new Promise((resolve) => {
-            this.limparBase().then(() => {
+            this._limparBase().then(() => {
                 if(gruposCliente.length > 0) {
                     const done = _.after(gruposCliente.length, () => resolve());
                     gruposCliente.forEach(grupo => {

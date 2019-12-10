@@ -14,10 +14,6 @@ class cidadeDB extends BasicDB {
         super("cidade");
     }
 
-    limparBase() {
-        return this._limparBase();
-    }
-
     criaCidades(estado) {
         return new Promise((resolve) => {
             let cidades = _.flattenDeep(estado.cidades.map(cidade => {

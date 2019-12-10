@@ -15,13 +15,9 @@ class categoriaDB extends BasicDB {
         super("categoria");
     }
 
-    limparBase() {
-        return this._limparBase();
-    }
-
     salvarSinc(categorias) {
         return new Promise((resolve) => {
-            this.limparBase().then(() => {
+            this._limparBase().then(() => {
                 if(categorias.length > 0) {
                     const done = _.after(categorias.length, () => resolve());
                     categorias.forEach(categoria => {

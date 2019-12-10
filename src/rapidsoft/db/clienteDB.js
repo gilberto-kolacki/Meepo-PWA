@@ -201,10 +201,6 @@ class clienteDB extends BasicDB {
         super("cliente", true);
     }
 
-    limparBase() {
-        return this._limparBase();
-    }
-
     salvar(cliente) {
         return new Promise((resolve, reject) => {
             validarObjetoDB(cliente).then((resultCliente) => {

@@ -14,13 +14,9 @@ class formaPagtoDB extends BasicDB {
         super("forma_pagto");
     }
 
-    limparBase() {
-        return this._limparBase(new formaPagtoDB())
-    }
-
     salvarSinc(formasPagto) {
         return new Promise((resolve) => {
-            this.limparBase().then(() => {
+            this._limparBase().then(() => {
                 if(formasPagto.length > 0) {
                     const done = _.after(formasPagto.length, () => resolve());
                     formasPagto.forEach(formPagto => {

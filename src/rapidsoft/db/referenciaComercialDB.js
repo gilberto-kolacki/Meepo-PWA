@@ -14,13 +14,9 @@ class refComercialDB extends BasicDB {
         super("ref_comer");
     }
 
-    limparBase() {
-        return this._limparBase();
-    }
-
     salvarSinc(referenciasComerciais) {
         return new Promise((resolve) => {
-            this.limparBase().then(() => {
+            this._limparBase().then(() => {
                 if(referenciasComerciais.length > 0) {
                     const done = _.after(referenciasComerciais.length, () => resolve());
                     referenciasComerciais.forEach(refComer => {

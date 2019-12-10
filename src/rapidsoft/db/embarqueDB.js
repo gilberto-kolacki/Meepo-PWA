@@ -14,24 +14,13 @@ class embarqueDB extends BasicDB {
         super("embarque");
     }
 
-    limparBase() {
-        return new Promise((resolve) => {
-            this._localDB.destroy().then(() => {
-                resolve(new embarqueDB());
-            }).catch((err) => {
-                resolve(err);
-            });
-        });
-    }
-
     salvarSinc(embarques) {
         return new Promise((resolve) => {
-            this.limparBase().then(() => {
+            this._limparBase().then(() => {
                 if(embarques.length > 0) {
                     const done = _.after(embarques.length, () => resolve());
                     embarques.forEach(embarque => {
-                        embarque._id = _.toString(embarque.id);
-                        this._localDB.put(embarque).then(() => done()).catch(() => done());
+                        this._salvar(embarque).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();

@@ -5,7 +5,6 @@
   Author: Giba
 ==========================================================================================*/
 
-import PouchDB from 'pouchdb';
 import BasicDB from './basicDB'
 import _ from 'lodash';
 
@@ -15,13 +14,9 @@ class periodoDB extends BasicDB {
         super("periodo");
     }
 
-    limparBase() {
-        return this._limparBase(new periodoDB())
-    }
-
     salvarSinc(periodos) {
         return new Promise((resolve) => {
-            this.limparBase().then(() => {
+            this._limparBase().then(() => {
                 if(periodos.length > 0) {
                     const done = _.after(periodos.length, () => resolve());
                     periodos.forEach(periodo => {

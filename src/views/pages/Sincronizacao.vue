@@ -190,7 +190,7 @@ export default {
             this.carregarSinc();
             ProdutoService.sincProduto().then((produtos) => {
                 sinc.total = produtos.length;
-                ProdutoDB.limparBase().then(() => {
+                ProdutoDB._limparBase().then(() => {
                     const done = _.after(produtos.length, () => this.closeLoading(sinc,all));
                     produtos.forEach(produto => {
                         ProdutoDB.salvar(produto).then(() => {
@@ -227,7 +227,7 @@ export default {
             ClienteDB.buscaClientesSinc().then((clientesSinc) => {
                 ClienteService.sincCliente(clientesSinc).then((clientes) => {
                     sinc.total = clientes.length;
-                    ClienteDB.limparBase().then(() => {
+                    ClienteDB._limparBase().then(() => {
                         const done = _.after(clientes.length, () => this.closeLoading(sinc,all));
                         clientes.forEach(cliente => {
                             ClienteDB.salvarSinc(cliente).then(() => {
@@ -278,7 +278,7 @@ export default {
             !all ? this.carregarSinc() : undefined;
             const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
             sinc.total = siglasEstados.length;
-            CidadeDB.limparBase().then(() => {
+            CidadeDB._limparBase().then(() => {
                 this.downloadCidadesFromData(sinc, siglasEstados).then(() => {
                     this.closeLoading(sinc);
                 })

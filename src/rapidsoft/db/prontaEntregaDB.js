@@ -14,13 +14,9 @@ class prontaEntregaDB extends BasicDB {
         super("pronta_entrega");
     }
 
-    limparBase() {
-        return this._limparBase();
-    }
-
     salvarSinc(prontasEntregas) {
         return new Promise((resolve) => {
-            this.limparBase().then(() => {
+            this._limparBase().then(() => {
                 if(prontasEntregas.length > 0) {
                     const done = _.after(prontasEntregas.length, () => resolve());
                     prontasEntregas.forEach(prontaEntrega => {
@@ -30,7 +26,7 @@ class prontaEntregaDB extends BasicDB {
                 } else {
                     resolve();
                 }
-            })
+            });
         });
     }
 

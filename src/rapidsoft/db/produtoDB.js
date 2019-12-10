@@ -89,41 +89,63 @@ class produtoDB extends BasicDB {
     }
 
     getTamanhosProdutoCarrinho(tamanhos, carrinho) {
-        return tamanhos.filter((tamanho) => {
-            return _.findIndex(carrinho.itens, (item) => item.id === tamanho.id ) >= 0
-        }).map((tamanho) => {
-            const item = _.find(carrinho.itens, (item) => item.id === tamanho.id);
-            tamanho.quantidade = _.find(carrinho.itens, (item) => item.id === tamanho.id).quantidade;
-            return tamanho;
-        });
+        return new Promise((resolve) => {
+            const tamanhoResult = [];
+            const done = _.after(tamanhos.length, () => resolve(tamanhoResult));
+
+            tamanhos.forEach(tamanho => {
+                const itemQuantidade = _.find(carrinho.itens, (item) => item.id === tamanho.id);
+                tamanho.quantidade = itemQuantidade ? itemQuantidade.quantidade : 0;
+                tamanhoResult.push(tamanho);
+                done();
+            });
+        });   
+    }
+
+    getProdutoFromCarrinho(produto, carrinho) {
+        return new Promise((resolve) => {
+            const produtoCores = [];
+            const done = _.after(produto.cores.length, () => resolve(produtoCores));
+            
+            produto.cores.forEach(cor => {
+                const produtoCor = _.clone(produto);
+                produtoCor.cor = _.clone(cor);
+                this.getTamanhosProdutoCarrinho(produtoCor.cor.tamanhos, carrinho).then((tamanhos) => {
+                    produtoCor.cor.tamanhos = tamanhos;
+                    const imagemPrincipal = _.orderBy(produtoCor.cor.imagens, ['seq'])[0];
+                    ImagemDB.getFotoById(imagemPrincipal.id).then(imagem => {
+                        produtoCor.imagemPrincipal = imagem;
+                        delete produtoCor['cores'];
+                        delete produtoCor['video'];
+                        delete produtoCor['_rev'];
+                        delete produtoCor.cor['selos'];
+                        delete produtoCor.cor['simbolos'];
+                        delete produtoCor.cor['produtosLook'];
+                        delete produtoCor.cor['prontaEntrega'];
+                        delete produtoCor.cor['imagens'];
+                        produtoCores.push(produtoCor);
+                        done();
+                    });                
+                });
+            });
+        });        
     }
 
     getProdutosFromCarrinho(carrinho) {
+
+        console.log(carrinho);
+        
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 const produtosCor = [];
                 const produtos = resultDocs.rows.filter((produto) => _.findIndex(carrinho.itens, (item) => item.ref === produto.id ) >= 0 ).map((row) => row.doc);
-
-                const doneProduto = _.after(produtos.length, () => resolve(produtosCor));
+                const done = _.after(produtos.length, () => resolve(_.flattenDeep(produtosCor)));                
                 produtos.forEach(produto => {
-                    produto.cores.forEach(cor => {
-                        if (_.findIndex(carrinho.itens, (item) => item.cor === cor.idCor ) >= 0) {
-                            const produtoCor = _.clone(produto);
-                            produtoCor.cor = _.clone(cor);
-                            produtoCor.cor.tamanhos = this.getTamanhosProdutoCarrinho(produtoCor.cor.tamanhos, carrinho);
-                            produtoCor.cor.imagem = _.orderBy(produtoCor.cor.imagens, ['seq'])[0];
-                            delete produtoCor['cores'];
-                            delete produtoCor['video'];
-                            delete produtoCor['_rev'];
-                            delete produtoCor.cor['selos'];
-                            delete produtoCor.cor['simbolos'];
-                            delete produtoCor.cor['produtosLook'];
-                            delete produtoCor.cor['prontaEntrega'];
-                            delete produtoCor.cor['imagens'];
-                            produtosCor.push(produtoCor);
-                        }
-                        doneProduto();
-                    });                                        
+                    produto.cores = _.filter(produto.cores, (cor) => _.findIndex(carrinho.itens, (item) => item.cor === cor.idCor) >= 0 );
+                    this.getProdutoFromCarrinho(produto, carrinho).then((produtoCor) => {
+                        produtosCor.push(produtoCor);
+                        done();
+                    });
                 });
             }).catch((err) => {
                 console.log(err);
@@ -177,8 +199,8 @@ class produtoDB extends BasicDB {
 
     getByProdPaginaCatalogo(pagina) {
         return new Promise((resolve) => {
-            if (pagina && pagina.ref) {
-                this.getById(pagina.ref).then((resultProduto) => {
+            if (pagina && (pagina.ref || pagina.referencia)) {
+                this.getById(pagina.ref || pagina.referencia).then((resultProduto) => {
                     if (resultProduto.existe && resultProduto.result.cores && resultProduto.result.cores.length > 0) {                        
                         resultProduto.result.cores = _.filter(resultProduto.result.cores, (cor) => { return cor.prontaEntrega === false });
                         resultProduto.result.cores = arrayMove(resultProduto.result.cores, _.findIndex(resultProduto.result.cores, (cor) => { return cor.idProduto == pagina.id }), 0);
@@ -289,6 +311,14 @@ class produtoDB extends BasicDB {
             } else {
                 resolve(produto);
             }
+        });
+    }
+
+    getProdutoEdicaoCarrinho(produto) {
+        return new Promise((resolve) => {
+            this.getByProdPaginaCatalogo(produto).then((resultProduto) => {
+                resolve(resultProduto);
+            });
         });
     }
 

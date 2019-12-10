@@ -4,8 +4,22 @@
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
         <vs-button @click.stop="abrirCarrinho" color="warning" type="filled" class="btn-carrinho" icon="card_travel"></vs-button>
         <div>
-            <add-item-carrinho-item @atualiza-qtde-itens="atualizaQuantidadeItens" idColapse="accordion-ref-a" :toggle="true" title="Referencia A" :produtoAdd="this.produtoA"></add-item-carrinho-item>
-            <add-item-carrinho-item @atualiza-qtde-itens="atualizaQuantidadeItens" idColapse="accordion-ref-b" :toggle="false" title="Referencia B" :produtoAdd="this.produtoB"></add-item-carrinho-item>
+            <add-item-carrinho-item 
+                v-if="this.produtoA"
+                @atualiza-qtde-itens="atualizaQuantidadeItens" 
+                idColapse="accordion-ref-a" 
+                :toggle="true" 
+                title="Referencia A" 
+                :produtoAdd="this.produtoA">
+            </add-item-carrinho-item>
+            <add-item-carrinho-item 
+                v-if="this.produtoB"
+                @atualiza-qtde-itens="atualizaQuantidadeItens" 
+                idColapse="accordion-ref-b" 
+                :toggle="false" 
+                title="Referencia B" 
+                :produtoAdd="this.produtoB">
+            </add-item-carrinho-item>
         </div>
     </div>    
 </template>    

@@ -1,11 +1,10 @@
 <template>
-    
-</template>
-<template>
   <div id="page-catalogo-add" class="page-catalogo-add" v-if="this.popupAddProduto" style="height:1000px;">
     <add-item-carrinho @show-add-carrinho="showAddCarrinho(false)" :produtoAdd="this.produtoAdd"></add-item-carrinho>
   </div>
   <div v-else>
+    <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-plus" @click="addReferenciaCarrinho()">Finalizar</vs-button>
+    <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltar()" icon="icon-x">Voltar</vs-button>
     <div class="demo-alignment">
       <div class="dropdown-button-container">
         <vs-dropdown>
@@ -22,11 +21,11 @@
       </div>
     </div>
 
-    <template>
+    <template v-if="this.carrinho">
       <div
-        class="flex"
-        v-for="(item,index) in this.carrinho"
-        :key="index + '-' + item.referencia"
+        class="flex"        
+        v-for="(item, indexItem) in this.carrinho"
+        :key="indexItem + '-' + item.referencia"
         style="padding:10px;box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);margin-top:20px;"
       >
       
@@ -60,25 +59,23 @@
           <div class="vx-col mx-8" style="justify-content:center;margin:auto">
             <table>
               <thead class="border-solid">
-                <th style="background-color:#808080;color:white" class="border-solid">P</th>
-                <th style="background-color:#808080;color:white" class="border-solid">M</th>
-                <th style="background-color:#808080;color:white" class="border-solid">G</th>
-                <th style="background-color:#808080;color:white" class="border-solid">GG</th>
+                <th 
+                  style="background-color:#808080;color:white" 
+                  class="border-solid" 
+                  v-for="(tamanho, indexTamanho) in getTamanhosProduto(indexItem)"
+                  :key="indexTamanho + ' - ' + tamanho.sku"
+                >
+                  {{tamanho.codigo}}
+                </th>
               </thead>
               <tbody>
                 <tr>
                   <td
                     style="border-color:#808080;font-weight:bold"
                     class="border-solid text-center"
-                    v-for="(tamanho,index2) in item.cor.tamanhos"
-                    :key="index2 + ' - ' + tamanho.sku"
-                  >{{item.cor.tamanhos[index2].quantidade}}</td>
-                  <td
-                    style="border-color:#808080;font-weight:bold"
-                    class="border-solid text-center"
-                    v-for="(tamanho,index3) in (4 - item.cor.tamanhos.length)"
-                    :key="index3"
-                  >0</td>
+                    v-for="(tamanho, indexTamanho) in getTamanhosProduto(indexItem)"
+                    :key="indexTamanho + ' - ' + tamanho.sku"
+                  >{{tamanho.quantidade}}</td>
                 </tr>
               </tbody>
             </table>
@@ -114,12 +111,12 @@
   </div>
 </template>
 <script>
-import _ from "lodash";
-import vSelect from "vue-select";
-import Storage from "../../rapidsoft/utils/storage";
+// import _ from "lodash";
+// import vSelect from "vue-select";
+// import Storage from "../../rapidsoft/utils/storage";
+import ProdutoDB from "../../rapidsoft/db/produtoDB";
 import ProdutoUtils from "../../rapidsoft/utils/produtoUtils";
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
-import ImagemDB from "../../rapidsoft/db/imagemDB";
 import AddItemCarrinho from '../../rapidsoft/components/AddItemCarrinho'
 
 export default {
@@ -137,10 +134,10 @@ export default {
     popupAddProduto:false,
     produtoAdd: {
       produtoA: {
-          cores:[]
+        cores:[]
       },
       produtoB: {
-          cores:[]
+        cores:[]
       }
     },
   }),
@@ -161,44 +158,40 @@ export default {
       return this.$refs.table
         ? this.$refs.table.queriedResults.length
         : this.products.length;
-    }
+    },    
   },
   methods: {
     showAddCarrinho(show) {
-      this.popupAddProduto = show;
-      this.produtoAdd=null;
+		this.carregaItensTela(() => {
+			this.popupAddProduto = show;
+      		this.produtoAdd=null;
+		});
     },
+    voltar() {
+      this.$router.go(-1);
+	},
+	carregaItensTela(callback) {
+		ProdutoUtils.getCarrinho().then(carrinho => {
+			this.carrinho = carrinho;
+			callback();
+		});
+	},
+    getTamanhosProduto(index) {
+      // console.log(this.carrinho[index].cor.tamanhos);
+
+      return this.carrinho[index].cor.tamanhos
+    },
+
     setPopupAddProduto(produto){
-
-      const cores = [{
-        ativo: produto.cor.ativo,
-        categorias: produto.cor.categorias,
-        codigo: produto.cor.codigo,
-        idCor: produto.cor.idCor,
-        idProduto: produto.cor.idProduto,
-        precoCusto: produto.cor.precoCusto,
-        precoVenda: produto.cor.precoVenda,
-        tamanhos: produto.cor.tamanhos,
-        referencia: produto.referencia,
-      }];
-
-      const produtoRemodelado = {
-        genero: produto.genero,
-        nome: produto.nome,
-        produtoAddCores: [produto.cor],
-        produtoLabelTamanhos: produto.cor.tamanhos,
-        referencia: produto.referencia,
-        segmento: produto.segmento,
-        _id: produto._id,
-        cores:cores,
-        prontaEntrega: false,
-      };
-
-      this.produtoAdd = {
-        produtoA: produtoRemodelado,
-        produtoB: [],
-      };
-      this.popupAddProduto = !this.popupAddProduto;
+    	ProdutoDB.getProdutoEdicaoCarrinho(produto).then((result) => {
+	        console.log(result);
+			this.produtoAdd = result;
+			this.produtoAdd = {
+				produtoA: result,
+				produtoB: null,
+			};
+			this.popupAddProduto = true;
+    	});
     },
     toggleDataSidebar(val = false) {
       this.addNewDataSidebar = val;
@@ -227,15 +220,7 @@ export default {
     }
   },
   beforeCreate() {
-    ProdutoUtils.getCarrinho().then(carrinho => {
-      carrinho.map(item => {
-        ImagemDB.getFotoById(item.cor.imagem.id).then(imagem => {
-          item.imagemPrincipal = imagem;
-        });
-      });
-      this.carrinho = carrinho;
-      console.log(this.carrinho);  
-    });
+    
   },
   created() {
     EmbarqueDB.getAll().then(embarques => {
@@ -243,15 +228,9 @@ export default {
     });
   },
   mounted() {
-    ProdutoUtils.getCarrinho().then(carrinho => {
-      carrinho.map(item => {
-        ImagemDB.getFotoById(item.cor.imagem.id).then(imagem => {
-          item.imagemPrincipal = imagem;
-        });
-      });
-      this.carrinho = carrinho;
-      console.log(this.carrinho);  
-    });
+    this.carregaItensTela(() => {
+
+	});
   }
 };
 </script>
