@@ -25,22 +25,17 @@ class embarqueDB extends BasicDB {
                 } else {
                     resolve();
                 }
-            })
+            });
         });
     }
 
-    getAll() {
+    getEmbarquesProduto(produto) {
         return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((embarque) => {
-                    if (embarque.doc['nome']) {
-                        delete embarque.doc['_rev'];
-                        return _.clone(embarque.doc);
-                    }
-                }))
-            }).catch((err) => {
-                resolve(err);
-            });
+
+            console.log(produto);
+            
+
+            resolve();
         });
     }
 

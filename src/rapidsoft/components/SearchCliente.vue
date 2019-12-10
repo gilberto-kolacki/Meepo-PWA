@@ -163,7 +163,6 @@ export default {
             }
             
         },
-
         createEstadoSelect(estado) {
             return {value: estado.id, label: estado.nome, uf: estado.sigla};
         }
@@ -172,10 +171,11 @@ export default {
     beforeCreate() {              
     },
     created() {
+    },
+    beforeMount() {
         CidadeDB.getEstados().then((estados) => {
             this.estadosFiltro = estados;
             this.estadoSelecionado = this.createEstadoSelect(_.find(estados, (estado) => { return estado.sigla === Storage.getUsuario().estado; }));
-            this.searchCidades();
         })
     },
     mounted() {

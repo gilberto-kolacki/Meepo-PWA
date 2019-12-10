@@ -105,7 +105,7 @@ class basicDB {
                 resolve(resultDocs.rows.map((row) => {
                     if (row.doc['_id']) {
                         delete row.doc['_rev'];
-                        return _.clone(row.doc);
+                        return _.cloneDeep(row.doc);
                     }
                 }))
             }).catch((err) => {

@@ -102,11 +102,11 @@ class cidadeDB extends BasicDB {
     getCidadesFromEstado(estado) {
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                const cidadesEstado = _.filter(resultDocs.rows, (cidade) => { return cidade.doc.uf === estado; });
-                resolve(cidadesEstado.map((cidade) => {
+                const cidadesEstado = resultDocs.rows.filter((cidade) => cidade.doc.uf === estado).map((cidade) => {
                     delete cidade.doc['_rev'];
                     return cidade.doc;
-                }));
+                });
+                resolve(cidadesEstado);
             }).catch((err) => {
                 console.log(err);
                 resolve(err);
