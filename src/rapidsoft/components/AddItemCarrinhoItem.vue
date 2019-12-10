@@ -102,6 +102,7 @@
 import _ from 'lodash'
 import Storage from '../utils/storage'
 import UtilMask from '../utils/utilMask'
+import { log } from 'util';
 
 export default {
     name: 'add-item-carrinho-tem',
@@ -146,13 +147,14 @@ export default {
         // 2-tamanho, 1-cor
         disabledCorTamanho(produto, corTamanho, tipo) {
             if(tipo === 2) {
-                for (let indexCor = 0; index < this.produtoAdd.produtoAddCores.length; indexCor++) {
+                for (let indexCor = 0; indexCor < this.produtoAdd.produtoAddCores.length; indexCor++) {
                     const cor = this.produtoAdd.produtoAddCores[indexCor];
-                    for (let indexTamanho = 0; index < cor.produtoAddTamanhos.length; indexTamanho++) {
+                    for (let indexTamanho = 0; indexTamanho < cor.produtoAddTamanhos.length; indexTamanho++) {
                         const tamanho = cor.produtoAddTamanhos[indexTamanho];
                         if (tamanho.codigo === corTamanho.codigo) {
                             tamanho.ativo = corTamanho.ativo;
-                            this.menosTamanho(indexCor, indexTamanho);
+                            // this.menosTamanho(indexCor, indexTamanho);
+                            this.getTotalPecas();
                         }
                     }
                 }
@@ -171,7 +173,7 @@ export default {
             const tamanho = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho];
             tamanho.ref = this.produtoAdd.referencia;
             tamanho.cor = this.produtoAdd.cores[indexCor].idCor;
-            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : tamanho.quantidade+1;
+            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : parseInt(tamanho.quantidade)+1;
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
@@ -181,13 +183,11 @@ export default {
                 for (let index = 0; index < cor.produtoAddTamanhos.length; index++) {
                     const tamanho = cor.produtoAddTamanhos[index];
                     if (tamanho.ativo && tamanho.quantidade) {
-                        totalCor = totalCor + tamanho.quantidade;
+                        totalCor = totalCor + parseInt(tamanho.quantidade);
                     }
                 }
                 return totalCor;
-            } else {
-                return 0
-            }
+            } 
         },
         getTotalPecasTamanho(tamanho) {
             let totalTamanho = 0;
@@ -195,17 +195,15 @@ export default {
                 for (let index = 0; index < this.produtoAdd.produtoAddCores.length; index++) {
                     const cor = this.produtoAdd.produtoAddCores[index];
                     if (cor.ativo) {
-                        for (let index = 0; index < cor.produtoAddTamanhos.length; index++) {
-                            const tamanhoCor = cor.produtoAddTamanhos[index];
+                        for (let index2 = 0; index2 < cor.produtoAddTamanhos.length; index2++) {
+                            const tamanhoCor = cor.produtoAddTamanhos[index2];
                             if (tamanho.codigo === tamanhoCor.codigo && tamanhoCor.quantidade) {
-                                totalTamanho = totalTamanho + tamanhoCor.quantidade;
+                                totalTamanho = totalTamanho + parseInt(tamanhoCor.quantidade);
                             }
                         }
                     }
                 }
                 return totalTamanho;
-            } else {
-                return 0;
             }
         },
         getTotalPecas() {
@@ -213,10 +211,10 @@ export default {
             for (let index = 0; index < this.produtoAdd.produtoAddCores.length; index++) {
                 const cor = this.produtoAdd.produtoAddCores[index];
                 if (cor.ativo) {
-                    for (let index = 0; index < cor.produtoAddTamanhos.length; index++) {
-                        const tamanho = cor.produtoAddTamanhos[index];
+                    for (let index2 = 0; index2 < cor.produtoAddTamanhos.length; index2++) {
+                        const tamanho = cor.produtoAddTamanhos[index2];
                         if (tamanho.ativo && tamanho.quantidade) {
-                            totalCorTamanho = totalCorTamanho + tamanho.quantidade;
+                            totalCorTamanho = parseInt(totalCorTamanho) + parseInt(tamanho.quantidade);
                         }
                     }
                 }
