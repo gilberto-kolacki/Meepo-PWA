@@ -32,10 +32,9 @@ class grupoClienteDB extends BasicDB {
 
     getGrupoPadrao() {
         return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                const grupo = _.find(resultDocs.rows, (grupo) => { return grupo.doc.padrao; });
-                delete grupo.doc['_rev'];
-                resolve(grupo.doc)
+            this._getAll().then((grupos) => {
+                const grupo = _.find(grupos, (grupo) => { return grupo.padrao; });
+                resolve(grupo)
             }).catch((err) => {
                 resolve(err);
             });
@@ -44,11 +43,8 @@ class grupoClienteDB extends BasicDB {
 
     getById(idGrupoCliente) {
         return new Promise((resolve) => {
-            this._localDB.get(_.toString(idGrupoCliente)).then((result) => {
-                resolve(result);
-            }).catch((err) => {
-                console.log(err);
-                resolve(null);
+            this._getById(idGrupoCliente).then((grupo) => {
+                resolve(grupo.result);
             });
         });
     }

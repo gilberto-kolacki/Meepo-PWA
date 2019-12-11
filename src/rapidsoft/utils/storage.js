@@ -63,6 +63,15 @@ class storage {
         else return null;
     }
 
+    getCatalogo() {
+        if (localStorage.getItem('catalogoCarrinho')) return JSON.parse(localStorage.getItem('catalogoCarrinho'));
+        else return null;
+    }
+
+    setCatalogo(catalogo) {
+        localStorage.setItem('catalogoCarrinho', JSON.stringify(catalogo));
+    }
+
 }
 
 export default new storage();

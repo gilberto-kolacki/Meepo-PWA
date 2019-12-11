@@ -7,7 +7,7 @@
         <div v-if="this.produtoA">
             <vs-button @click.stop="prevRef" color="primary" type="filled" class="btn-left" icon="chevron_left"></vs-button>
             <vs-button @click.stop="nextRef" color="primary" type="filled" class="btn-right" icon="chevron_right"></vs-button>
-            <vs-button @click.stop="abrirCarrinho" color="warning" type="filled" class="btn-carrinho" icon="card_travel"></vs-button>
+            <vs-button @click.stop="abrirCarrinho" color="warning" type="filled" class="btn-carrinho" icon="shopping_cart"></vs-button>
         </div>
         <vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12">
             <div class="vx-row">
@@ -156,6 +156,7 @@ export default {
             idPopUpZoom: 'popup-produto-zoom',
             produtoZoomShow: false,
             grupoCliente: null,
+            catalogo: null,
         }
     },
     components: {
@@ -221,7 +222,6 @@ export default {
             const precoProduto = produto.cores[this.corSelecionada].precoVenda;
             const preco = _.round(precoProduto + ((percentual/100) * precoProduto), 2)
             return UtilMask.getMoney(preco, true);
-
         },
         selectCorImagemProduto(indexCor) {
             this.corSelecionada = indexCor;
@@ -331,9 +331,10 @@ export default {
         },
     },
     beforeCreate() {
-        if (this.$route.params.idCatalogo) {
+        this.catalogo = Storage.getCatalogo();
+        if (this.catalogo.idCatalogo) {
             document.getElementById('loading-bg').style.display = null;
-            ProdutoDB.getPaginasCatalogo(this.$route.params.idCatalogo).then(paginas => {
+            ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo).then(paginas => {
                 this.paginas = paginas;
                 this.selectProduto(paginas[0]);
                 document.getElementById('loading-bg').style.display = "none";
@@ -346,7 +347,7 @@ export default {
         console.log('created');
     },
     beforeMount() {
-        this.grupoCliente = _.clone(Storage.getGrupoCarrinho());
+        this.grupoCliente = Storage.getGrupoCarrinho();
         console.log('beforeMount');
     },
     mounted() {
@@ -508,6 +509,7 @@ html {
 .page-catalogo {
     top: 2rem;
 }
+
 
 
 </style>

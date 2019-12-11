@@ -79,7 +79,7 @@
                 data-target="#carouselExampleIndicators"
                 :data-slide-to="index"
                 :id="'carousel-slide-'+index"
-                v-for="(catalogo, index) in catalogos"
+                v-for="(catalogo, index) in getCatalogos"
                 :key="`slide-to-${index}`"
               ></li>
             </ol>
@@ -87,7 +87,7 @@
               <div
                 class="carousel-item"
                 :id="'carousel-item-'+index"
-                v-for="(catalogo, index) in catalogos"
+                v-for="(catalogo, index) in getCatalogos"
                 :key="`catalogo-${index}`"
                 v-on:click.once="selecionarCatalogo(catalogo)"
               >
@@ -133,7 +133,11 @@ export default {
 	components: {
 		SearchCliente,
 	},
-	computed: {},
+	computed: {
+		getCatalogos() {
+			return this.catalogos;
+		}
+	},
 	methods: {
 		selecionarCatalogo(catalogo) {
 			this.isShowing = false;
@@ -149,6 +153,7 @@ export default {
 			}
 		},
 		carregarCatalogo(catalogo) {
+			Storage.setCatalogo(catalogo);
 			setTimeout(() => {
 				this.$router.push({ name: 'catalogoItem', params: {idCatalogo: catalogo.idCatalogo, idSegmento: catalogo.idSegmento }});
 			}, 100);
@@ -164,6 +169,8 @@ export default {
 					document.getElementById("carousel-item-"+proximo).classList.add("active");
 					document.getElementById("carousel-slide-"+proximo).classList.add("active");
 				}
+			} else {
+				this.setActiveItemCarousel(proximo);
 			}
 		},
 		showSidebar() {
@@ -200,25 +207,22 @@ export default {
 		Storage.deleteClienteCarrinho();
 	},
 	beforeMount() {
-        
-    },
-	mounted() {
-		CatalogoDB._getAll().then((catalogos) => {
-			this.catalogos = _.cloneDeep(catalogos);
+        CatalogoDB._getAll().then((catalogos) => {
+			this.catalogos = catalogos;
 			GrupoClienteDB.getGrupoPadrao().then((grupoClientePadrao) => {
-				this.grupoClientePadrao = grupoClientePadrao;
 				this.abrirPesquisaCliente();
-			});
-		})
-	},
-	updated() {
-		if (!this.isShowing) {
-			setTimeout(() => {				
+				this.grupoClientePadrao = grupoClientePadrao;
 				this.setActiveItemCarousel(0);
 				this.isShowing = true;
 				document.getElementById('loading-bg').style.display = "none";
-			}, 3000)
-		}
+			});
+		})
+    },
+	mounted() {
+
+	},
+	updated() {
+		
 	},
   errorCaptured(err, vm, info) {
       ErrorDB.criarLog({err, vm, info});

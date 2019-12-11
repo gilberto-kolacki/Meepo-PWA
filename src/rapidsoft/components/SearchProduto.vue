@@ -108,6 +108,7 @@ import vSelect from 'vue-select';
 import ProdutoDB from '../../rapidsoft/db/produtoDB'
 import SegmentoDB from '../../rapidsoft/db/segmentoDB'
 import CategoriaDB from '../../rapidsoft/db/categoriaDB'
+import Storage from '../../rapidsoft/utils/storage'
 
 export default {
     name: 'search-produto',
@@ -191,7 +192,7 @@ export default {
     created() {
         SegmentoDB._getAll().then((segmentos) => {
             this.segmentosFiltro = _.cloneDeep(segmentos);
-            this.segmentoSelecionado = _.find(segmentos, (segmento) => { return segmento.id === this.$route.params.idSegmento });
+            this.segmentoSelecionado = _.find(segmentos, (segmento) => { return segmento.id === Storage.getCatalogo().idSegmento });
             CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
                 this.categoriasFiltro = _.cloneDeep(categorias);
             });
