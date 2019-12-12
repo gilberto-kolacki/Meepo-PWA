@@ -267,8 +267,6 @@ class clienteDB extends BasicDB {
                         cliente.doc.endereco.cidade = "";
                         cliente.doc.endereco.estado = "";
                     }
-                    console.log(cliente.doc);
-                    
                     return _.clone(cliente.doc);
                 }))
             }).catch((err) => {
@@ -320,7 +318,6 @@ class clienteDB extends BasicDB {
     }
 
     validarEndereco(endereco) {
-        console.log(endereco)
         return new Promise((resolve, reject) => {
             let validarEndereco = validarEnderecoDB(endereco);
             if (validarEndereco.mensagem === undefined) {
@@ -362,39 +359,61 @@ class clienteDB extends BasicDB {
 
     filter(uf, idCidade, cnpjCpf, nome, cliente) {
         let existe = false;
-        if (!_.isNil(uf) &&  uf === cliente.endereco.estado) {
-            existe = true;
-        }
-        if (!_.isNil(idCidade) && idCidade != 0) {
-            if (idCidade === cliente.endereco.idCidade) {
+
+        if (uf && !idCidade) {
+            if (!_.isNil(uf) &&  uf === cliente.endereco.estado) {
                 existe = true;
-            } else {
-                existe = true;
-            }
-        }else{
-            existe = true;
-        }
-     
-        if (!_.isNil(cnpjCpf)) {
-            if(cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "").substr(0, cnpjCpf.length) === cnpjCpf) {
-                existe = true;
+                if (!_.isNil(cnpjCpf)) {
+                    if(cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "").substr(0, cnpjCpf.length) === cnpjCpf) {
+                        if (!_.isNil(nome)) {
+                            if (cliente.nome.substr(0, nome.length).toUpperCase() === nome.toUpperCase()) {
+                                existe = true
+                            } else {
+                                existe = false
+                            }
+                        }else{
+                            existe = true
+                        }
+                    }else{
+                        existe = false
+                    }
+                }else{
+                    existe = true
+                }
+                
             }else{
                 existe = false;
             }
-        }
 
-        if (!_.isNil(nome) && nome.length > 0) {
-            if(cliente.nome.includes(nome)) {
-                existe = true;
-            } else {
-                existe = false;
+            
+        } else { // se vir com a cidade
+            if (!_.isNil(cnpjCpf)) {
+                if (cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "").substr(0, cnpjCpf.length) === cnpjCpf) {
+                    if (cliente.nome.substr(0, nome.length).toUpperCase() === nome.toUpperCase()) {
+                        if (cliente.endereco.estado === uf) {
+                            if (idCidade > 0) {
+                                if (cliente.endereco.idCidade === idCidade) {
+                                    existe = true;
+                                } else {
+                                    existe = false;
+                                }
+                            } else {
+                                existe = true; 
+                            }
+                        } else {
+                            existe = false;
+                        }
+                    }
+                }
             }
         }
+        
         return existe;
     }
 
     getClientesSearch(uf, idCidade, cnpjCpf, nome) {
-        cnpjCpf = cnpjCpf.replace(/[^a-z0-9]/gi, "");
+        
+        cnpjCpf = cnpjCpf ? cnpjCpf.replace(/[^a-z0-9]/gi, "") : "";
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 const clientes = _.filter(resultDocs.rows, (cliente) => {

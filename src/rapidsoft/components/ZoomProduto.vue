@@ -44,11 +44,6 @@ import VueZoomer from 'vue-zoomer'
 
 Vue.use(VueZoomer)
 
-new Vue({
-  el: '#img',
-  render: h => h(),
-})
-
 export default {
     name: 'zoom-produto',
     props: {

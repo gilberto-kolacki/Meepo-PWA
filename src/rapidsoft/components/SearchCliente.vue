@@ -17,7 +17,7 @@
         <div class="vx-row">
             <div class="vx-col sm:w-1/2 w-full">
                 <label for="estadosFiltro" class="vs-input--label">Estado</label>
-                <v-select id="estadosFiltro" name="estado" v-model="estadoSelecionado" :options="getEstadosSearch"/>                
+                <v-select id="estadosFiltro" required=true name="estado" :clearable=false v-model="estadoSelecionado" :options="getEstadosSearch" :dir="$vs.rtl ? 'rtl' : 'ltr'"/>                
             </div>
             <div class="vx-col sm:w-1/2 w-full mb-2">
                 <label for="cidadesFiltro" class="vs-input--label">Cidade</label>
@@ -98,6 +98,7 @@ export default {
     watch: {
         estadoSelecionado(newValue, oldValue) {
             if (newValue !== null || oldValue !== null) {
+                this.searchFindCliente();
                 this.searchCidades();
             }
         },
@@ -146,8 +147,7 @@ export default {
             })
         },
         searchFindCliente() {
-
-            if ((this.cidadeSelecionada && this.cidadeSelecionada.value != null) || (this.cnpjCpfSearch && this.cnpjCpfSearch.length >= 3) || (this.nomeSearch && this.nomeSearch.length >= 3)) {
+            if ((this.estadoSelecionado && this.cidadeSelecionada && this.cidadeSelecionada.value != null) || (this.cnpjCpfSearch && this.cnpjCpfSearch.length >= 3) || (this.nomeSearch && this.nomeSearch.length >= 3)) {
                 this.$vs.loading({ container: '#div-with-loading-search', scale: 0.6 });
                 const uf = this.estadoSelecionado.uf;
                 const idCidade = this.cidadeSelecionada ? this.cidadeSelecionada.value : 0;
@@ -158,8 +158,18 @@ export default {
                     this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
                 });
             } else {
-                this.listaProdutosPesquisa = [];
-                this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
+                if (this.estadoSelecionado) {
+                    	
+                    const uf = this.estadoSelecionado.uf;
+
+                    ClienteDB.getClientesSearch(uf, 0, null, null).then((clientes) => {
+                        this.listaPesquisa = clientes;
+                        this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
+                    });
+                }else{
+                    this.listaProdutosPesquisa = [];
+                    this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
+                }
             }
             
         },
@@ -191,6 +201,8 @@ export default {
 
 </style>
 <style lang="scss">
+
+.v-select .clear { visibility: hidden; }
 
 .modal {    
     position: fixed;

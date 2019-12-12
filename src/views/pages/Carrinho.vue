@@ -138,7 +138,7 @@ import ErrorDB from "../../rapidsoft/db/errorDB";
 import ProdutoUtils from "../../rapidsoft/utils/produtoUtils";
 import UtilMask from '../../rapidsoft/utils/utilMask'
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
-import AddItemCarrinho from '../../rapidsoft/components/AddItemCarrinho'
+import AddItemCarrinho from "../../rapidsoft/components/AddItemCarrinho";
 
 export default {
 	data: () => ({
@@ -291,6 +291,6 @@ export default {
 }
 
 .page-carrinho {
-	margin-top: -15px !important;
+  margin-top: -15px !important;
 }
 </style>
