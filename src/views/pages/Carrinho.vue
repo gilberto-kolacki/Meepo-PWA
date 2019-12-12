@@ -134,10 +134,10 @@
 import _ from "lodash";
 import Storage from "../../rapidsoft/utils/storage";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
-import ErrorDB from "../../rapidsoft/db/errorDB";
 import ProdutoUtils from "../../rapidsoft/utils/produtoUtils";
 import UtilMask from '../../rapidsoft/utils/utilMask'
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
+import ErrorDB from "../../rapidsoft/db/errorDB";
 import AddItemCarrinho from "../../rapidsoft/components/AddItemCarrinho";
 
 export default {

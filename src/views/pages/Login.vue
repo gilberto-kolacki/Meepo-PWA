@@ -69,6 +69,7 @@
 <script>
 
 import UsuarioDB from '../../rapidsoft/db/usuarioDB';
+import ErrorDB from '../../rapidsoft/db/errorDB';
 
 export default {
     data() {

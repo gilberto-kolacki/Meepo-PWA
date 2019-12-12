@@ -38,7 +38,6 @@
 </template>    
 <script>
 
-import _ from 'lodash'
 import Vue from 'vue'
 import VueZoomer from 'vue-zoomer'
 

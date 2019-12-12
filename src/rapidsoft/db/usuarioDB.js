@@ -5,7 +5,6 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
 import store from '../../store/store'
 import BasicDB from './basicDB'
 import SegmentoDB from './segmentoDB'

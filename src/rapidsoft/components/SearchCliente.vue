@@ -158,8 +158,7 @@ export default {
                     this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
                 });
             } else {
-                if (this.estadoSelecionado) {
-                    	
+                if (this.estadoSelecionado) {                    	
                     const uf = this.estadoSelecionado.uf;
 
                     ClienteDB.getClientesSearch(uf, 0, null, null).then((clientes) => {

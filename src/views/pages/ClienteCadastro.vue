@@ -438,6 +438,7 @@ import ClienteDB from '../../rapidsoft/db/clienteDB'
 import CidadeDB from '../../rapidsoft/db/cidadeDB'
 import CidadeService from '../../rapidsoft/service/cidadeService'
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
+import ErrorDB from '../../rapidsoft/db/errorDB'
 import SegmentoDB from '../../rapidsoft/db/segmentoDB'
 
 Validator.localize('pt', validatePtBR);
