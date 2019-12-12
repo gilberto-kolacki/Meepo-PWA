@@ -360,28 +360,31 @@ class clienteDB extends BasicDB {
     filter(uf, idCidade, cnpjCpf, nome, cliente) {
         let existe = false;
 
-        if (uf && !idCidade) { // Se não vir com a cidade
+        if (uf && !idCidade) {
             if (!_.isNil(uf) &&  uf === cliente.endereco.estado) {
                 existe = true;
+                if (!_.isNil(cnpjCpf)) {
+                    if(cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "").substr(0, cnpjCpf.length) === cnpjCpf) {
+                        if (!_.isNil(nome)) {
+                            if (cliente.nome.substr(0, nome.length).toUpperCase() === nome.toUpperCase()) {
+                                existe = true
+                            } else {
+                                existe = false
+                            }
+                        }else{
+                            existe = true
+                        }
+                    }else{
+                        existe = false
+                    }
+                }else{
+                    existe = true
+                }
+                
             }else{
                 existe = false;
             }
 
-            if (!_.isNil(cnpjCpf)) {
-                if(cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "").substr(0, cnpjCpf.length) === cnpjCpf) {
-                    if (!_.isNil(nome)) {
-                        if (cliente.nome.substr(0, nome.length).toUpperCase() === nome.toUpperCase()) {
-                            existe = true
-                        } else {
-                            existe = false
-                        }
-                    }else{
-                        existe = true
-                    }
-                }else{
-                    existe = false
-                }
-            }
             
         } else { // se vir com a cidade
             if (!_.isNil(cnpjCpf)) {
