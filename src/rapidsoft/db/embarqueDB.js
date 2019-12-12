@@ -6,7 +6,9 @@
 ==========================================================================================*/
 
 import _ from 'lodash';
+import defer from 'promise-defer'
 import BasicDB from './basicDB'
+import Storage from '../utils/storage'
 
 class embarqueDB extends BasicDB {
 
@@ -29,14 +31,22 @@ class embarqueDB extends BasicDB {
         });
     }
 
-    getEmbarquesProduto(produto) {
-        return new Promise((resolve) => {
+    getEmbarqueProduto(produto) {
+        const deferred = defer();
+        const grupo = Storage.getGrupoCarrinho();
 
-            console.log(produto);
-            
-
-            resolve();
+        this._getAll().then((embarques) => {
+            embarques.forEach(embarque => {
+                if (this._exists(grupo.embarques, embarque.id)) {
+                    if (this._exists(produto.segmento, embarque.idSegmento)) {
+                        if (this._exists(embarque.produtos, produto.cor.idProduto)) {
+                            deferred.resolve(embarque);
+                        }
+                    }
+                }
+            });
         });
+        return deferred.promise;
     }
 
 }

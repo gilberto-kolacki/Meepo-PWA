@@ -365,11 +365,11 @@ class clienteDB extends BasicDB {
         if (!_.isNil(uf) &&  uf === cliente.endereco.estado) {
             existe = true;
         }
-        if (!_.isNil(idCidade)) {
-            if(idCidade === cliente.endereco.estado) {
+        if (!_.isNil(idCidade) && idCidade != 0) {
+            if (idCidade === cliente.endereco.idCidade) {
                 existe = true;
             } else {
-                existe = false;
+                existe = true;
             }
         }else{
             existe = true;

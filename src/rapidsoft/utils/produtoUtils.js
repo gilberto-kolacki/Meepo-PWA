@@ -39,7 +39,7 @@ class produtoUtils {
 
     getCoresProduto(produto) {
         return produto.cores.map((cor) => {
-            return {codigo: cor.codigo, ativo: true, idCor: cor.idCor, tamanhos: cor.tamanhos};
+            return {codigo: cor.codigo, ativo: true, idCor: cor.idCor, idProduto: cor.idProduto, tamanhos: cor.tamanhos};
         });
     }
 
