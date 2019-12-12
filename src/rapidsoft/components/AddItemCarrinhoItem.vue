@@ -102,7 +102,6 @@
 import _ from 'lodash'
 import Storage from '../utils/storage'
 import UtilMask from '../utils/utilMask'
-import { log } from 'util';
 
 export default {
     name: 'add-item-carrinho-tem',
@@ -161,18 +160,21 @@ export default {
             }
             this.$forceUpdate();
         },
-        menosTamanho(indexCor, indexTamanho) {
+        criaTamanho(indexCor, indexTamanho) {
             const tamanho = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho];
             tamanho.ref = this.produtoAdd.referencia;
             tamanho.cor = this.produtoAdd.cores[indexCor].idCor;
+            tamanho.idProduto = this.produtoAdd.cores[indexCor].idProduto;
+            return tamanho
+        },
+        menosTamanho(indexCor, indexTamanho) {
+            const tamanho = this.criaTamanho(indexCor, indexTamanho);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade-1);
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
         maisTamanho(indexCor, indexTamanho) {
-            const tamanho = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho];
-            tamanho.ref = this.produtoAdd.referencia;
-            tamanho.cor = this.produtoAdd.cores[indexCor].idCor;
+            const tamanho = this.criaTamanho(indexCor, indexTamanho);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : parseInt(tamanho.quantidade)+1;
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();

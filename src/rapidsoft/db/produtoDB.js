@@ -10,6 +10,7 @@ import arrayMove from 'array-move';
 import BasicDB from './basicDB'
 import ImagemDB from './imagemDB'
 import CatalogoDB from './catalogoDB'
+import EmbarqueDB from './embarqueDB';
 
 const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
     textoSearch = _.toUpper(textoSearch);
@@ -115,16 +116,19 @@ class produtoDB extends BasicDB {
                     const imagemPrincipal = _.orderBy(produtoCor.cor.imagens, ['seq'])[0];
                     ImagemDB.getFotoById(imagemPrincipal.id).then(imagem => {
                         produtoCor.imagemPrincipal = imagem;
-                        delete produtoCor['cores'];
-                        delete produtoCor['video'];
-                        delete produtoCor['_rev'];
-                        delete produtoCor.cor['selos'];
-                        delete produtoCor.cor['simbolos'];
-                        delete produtoCor.cor['produtosLook'];
-                        delete produtoCor.cor['prontaEntrega'];
-                        delete produtoCor.cor['imagens'];
-                        produtoCores.push(produtoCor);
-                        done();
+                        EmbarqueDB.getEmbarqueProduto(produtoCor).then((embarque) => {
+                            produtoCor.embarque = embarque;
+                            delete produtoCor['cores'];
+                            delete produtoCor['video'];
+                            delete produtoCor['_rev'];
+                            delete produtoCor.cor['selos'];
+                            delete produtoCor.cor['simbolos'];
+                            delete produtoCor.cor['produtosLook'];
+                            delete produtoCor.cor['prontaEntrega'];
+                            delete produtoCor.cor['imagens'];
+                            produtoCores.push(produtoCor);
+                            done();
+                        });
                     });                
                 });
             });
@@ -132,9 +136,6 @@ class produtoDB extends BasicDB {
     }
 
     getProdutosFromCarrinho(carrinho) {
-
-        console.log(carrinho);
-        
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 const produtosCor = [];

@@ -27,6 +27,21 @@ class storage {
         localStorage.setItem('carrinho', JSON.stringify(carrinho));
     }
 
+    getCarrinhoItens() {
+        if (localStorage.getItem('carrinho')) {
+            const carrinho = JSON.parse(localStorage.getItem('carrinho'));
+            return carrinho.itens;
+        } else {
+            return [];
+        }
+    }
+
+    setCarrinhoItens(itens) {
+        const carrinho = this.getCarrinho();
+        carrinho.itens = itens
+        localStorage.setItem('carrinho', JSON.stringify(carrinho));
+    }
+
     getGrupoCarrinho() {
         if (localStorage.getItem('grupoCarrinho')) {
             return JSON.parse(localStorage.getItem('grupoCarrinho'));

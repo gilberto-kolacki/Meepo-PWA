@@ -77,9 +77,8 @@ class usuarioDB extends BasicDB {
 
     limparBase() {
         return new Promise((resolve) => {
-            SegmentoDB.limparBase().then(() => {
-                this._localDB.destroy().then(() => {
-                    new usuarioDB();
+            SegmentoDB._limparBase().then(() => {
+                this._limparBase().then(() => {
                     resolve();
                 }).catch((err) => {
                     resolve(err);

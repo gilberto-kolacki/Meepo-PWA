@@ -62,6 +62,19 @@ class basicDB {
         });
     }
 
+    _exists(array, value) {
+        // return array.indexOf(value) >= 0 ? true : false;
+        return _.findIndex(array, (object) => {
+            return object == value
+        }) >= 0 ? true : false;
+    }
+
+    _existsId(array, value) {
+        return _.findIndex(array, (object) => {
+            return object.id === value.id
+        }) >= 0 ? true : false;
+    }
+
     _limparBase() {
         return new Promise((resolve) => {
             this._localDB.destroy().then(() => {
@@ -105,7 +118,7 @@ class basicDB {
                 resolve(resultDocs.rows.map((row) => {
                     if (row.doc['_id']) {
                         delete row.doc['_rev'];
-                        return _.cloneDeep(row.doc);
+                        return row.doc;
                     }
                 }))
             }).catch((err) => {
