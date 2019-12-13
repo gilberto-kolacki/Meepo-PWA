@@ -85,7 +85,7 @@
     "@vue/cli-plugin-babel": "^3.12.1",
     "@vue/cli-plugin-eslint": "^3.12.1",
     "@vue/cli-plugin-pwa": "^3.12.1",
-    "@vue/cli-service": "^3.12.1",
+    "@vue/cli-service": "^4.1.1",
     "babel-eslint": "^10.0.3",
     "node-sass": "^4.13.0",
     "purgecss": "^1.4.1",

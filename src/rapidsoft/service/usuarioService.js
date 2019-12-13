@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import { http } from './serviceConfig'
 
 class usuarioService {

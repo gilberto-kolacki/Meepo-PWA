@@ -121,9 +121,7 @@
 
 <script>
 import _ from "lodash";
-import ClienteDB from "../../../rapidsoft/db/clienteDB";
 import ErrorDB from "../../../rapidsoft/db/errorDB";
-import ProdutoDB from "../../../rapidsoft/db/produtoDB";
 
 export default {
   data() {

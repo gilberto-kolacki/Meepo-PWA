@@ -50,6 +50,7 @@
 
 import _ from 'lodash';
 import clienteDB from '../../rapidsoft/db/clienteDB';
+import ErrorDB from '../../rapidsoft/db/errorDB';
 
 export default {
     data() {

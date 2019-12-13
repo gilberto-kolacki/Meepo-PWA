@@ -37,7 +37,7 @@ import _ from "lodash";
 import sizeOf from "object-sizeof";
 import ClienteDB from "../../../rapidsoft/db/clienteDB";
 import ProdutoDB from "../../../rapidsoft/db/produtoDB";
-import ImagemDB from "../../../rapidsoft/db/imagemDB";
+import ErrorDB from "../../../rapidsoft/db/errorDB";
 
 export default {
   data() {
@@ -203,7 +203,6 @@ export default {
     getCalcularArmazenamento() {
       return new Promise(resolve => {
         let armazenamento = 0;
-        let pounchDB = 0;
         this.armazenamentoCliente().then(lengthCliente => {
           armazenamento += lengthCliente;
           this.armazenamentoProduto().then(lengthProduto => {
