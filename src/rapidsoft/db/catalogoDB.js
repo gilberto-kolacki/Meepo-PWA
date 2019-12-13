@@ -7,6 +7,7 @@
 
 import _ from 'lodash';
 import BasicDB from './basicDB'
+import ErrorDB from './errorDB'
 
 class catalogoDB extends BasicDB {
 
@@ -26,7 +27,10 @@ class catalogoDB extends BasicDB {
                 } else {
                     resolve();
                 }
-            })
+            }).catch((erro) => {
+                ErrorDB.criarLogDB({url:'db/catalogoDB',method:'salvarSinc',message: erro,error:'Failed Request'})
+                resolve();
+            });
         });
     }
 
@@ -37,7 +41,8 @@ class catalogoDB extends BasicDB {
                 delete catalogo['capa'];
                 delete catalogo['base64'];
                 resolve(catalogo);  
-            }).catch(() => {
+            }).catch((erro) => {
+                ErrorDB.criarLogDB({url:'db/catalogoDB',method:'getById',message: erro,error:'Failed Request'})
                 resolve();
             });
         });
