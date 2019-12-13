@@ -165,6 +165,7 @@ export default {
             tamanho.ref = this.produtoAdd.referencia;
             tamanho.cor = this.produtoAdd.cores[indexCor].idCor;
             tamanho.idProduto = this.produtoAdd.cores[indexCor].idProduto;
+            tamanho.idSegmento = this.produtoAdd.segmento;
             return tamanho
         },
         menosTamanho(indexCor, indexTamanho) {

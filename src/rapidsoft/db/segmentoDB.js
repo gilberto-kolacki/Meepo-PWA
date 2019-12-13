@@ -6,19 +6,8 @@
 ==========================================================================================*/
 
 import _ from 'lodash';
-import BasicDB from './basicDB'
-
-// let localDB = null;
-
-// const createDB = () => {
-//     BasicDB.createDBLocalBasic("segmento").then((dataBaseLocal) => {
-//         if (dataBaseLocal) {
-//             localDB = new PouchDB(dataBaseLocal, {revs_limit: 0, auto_compaction: true});
-//         }
-//     })
-// };
-
-// createDB();
+import BasicDB from './basicDB';
+import Storage from '../utils/storage';
 
 class segmentoDB extends BasicDB {
 
@@ -36,16 +25,21 @@ class segmentoDB extends BasicDB {
         });
     }
 
-    limparBase() {
+    getSegmentosCarrinho() {
         return new Promise((resolve) => {
-            this._localDB.destroy().then(() => {
-                resolve(new segmentoDB());
-            }).catch((err) => {
-                resolve(err);
+            const idsSegmentos = Storage.getSegmentosCarrinho();
+            const arraySegmentos = [];
+            const done = _.after(idsSegmentos.length, () => resolve(arraySegmentos));
+            idsSegmentos.forEach(idSegmento => {
+                this._getById(idSegmento).then((segmento) => {
+                    if (segmento.existe) {
+                        arraySegmentos.push(segmento.result);
+                    }
+                    done();
+                });
             });
         });
     }
-
     
 
 }

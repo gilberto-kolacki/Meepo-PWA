@@ -103,6 +103,19 @@ class produtoDB extends BasicDB {
         });   
     }
 
+    getTotalCor(tamanhos, carrinho) {
+        return new Promise((resolve) => {
+            let totalCor = 0;   
+            const done = _.after(tamanhos.length, () => resolve(totalCor));
+            
+            tamanhos.forEach(tamanho => {
+                const itemQuantidade = _.find(carrinho.itens, (item) => item.id === tamanho.id);
+                totalCor = totalCor + (itemQuantidade ? itemQuantidade.quantidade : 0);
+                done();
+            });
+        });
+    }
+
     getProdutoFromCarrinho(produto, carrinho) {
         return new Promise((resolve) => {
             const produtoCores = [];
@@ -111,25 +124,33 @@ class produtoDB extends BasicDB {
             produto.cores.forEach(cor => {
                 const produtoCor = _.clone(produto);
                 produtoCor.cor = _.clone(cor);
-                this.getTamanhosProdutoCarrinho(produtoCor.cor.tamanhos, carrinho).then((tamanhos) => {
-                    produtoCor.cor.tamanhos = tamanhos;
-                    const imagemPrincipal = _.orderBy(produtoCor.cor.imagens, ['seq'])[0];
-                    ImagemDB.getFotoById(imagemPrincipal.id).then(imagem => {
-                        produtoCor.imagemPrincipal = imagem;
-                        EmbarqueDB.getEmbarqueProduto(produtoCor).then((embarque) => {
-                            produtoCor.embarque = embarque;
-                            delete produtoCor['cores'];
-                            delete produtoCor['video'];
-                            delete produtoCor['_rev'];
-                            delete produtoCor.cor['selos'];
-                            delete produtoCor.cor['simbolos'];
-                            delete produtoCor.cor['produtosLook'];
-                            delete produtoCor.cor['prontaEntrega'];
-                            delete produtoCor.cor['imagens'];
-                            produtoCores.push(produtoCor);
-                            done();
+                this.getTotalCor(produtoCor.cor.tamanhos, carrinho).then((totalCor) => {
+                    produtoCor.cor.quantidade = totalCor;
+                    if (produtoCor.cor.quantidade > 0) {
+                        this.getTamanhosProdutoCarrinho(produtoCor.cor.tamanhos, carrinho).then((tamanhos) => {
+                            produtoCor.cor.tamanhos = tamanhos;
+                            const imagemPrincipal = _.orderBy(produtoCor.cor.imagens, ['seq'])[0];
+                            ImagemDB.getFotoById(imagemPrincipal.id).then(imagem => {
+                                produtoCor.imagemPrincipal = imagem;
+                                EmbarqueDB.getEmbarqueProduto(produtoCor).then((embarque) => {
+                                    produtoCor.embarque = embarque;
+                                    produtoCor.segmento = produtoCor.segmento[0];
+                                    delete produtoCor['cores'];
+                                    delete produtoCor['video'];
+                                    delete produtoCor['_rev'];
+                                    delete produtoCor.cor['selos'];
+                                    delete produtoCor.cor['simbolos'];
+                                    delete produtoCor.cor['produtosLook'];
+                                    delete produtoCor.cor['prontaEntrega'];
+                                    delete produtoCor.cor['imagens'];
+                                    produtoCores.push(produtoCor);
+                                    done();
+                                });
+                            });                
                         });
-                    });                
+                    } else {
+                        done();
+                    }
                 });
             });
         });        
@@ -181,7 +202,7 @@ class produtoDB extends BasicDB {
                     pagina.produtoD = prodOrderSeq[3];
                 }
                 return pagina;
-            })
+            });
             resolve(paginasProdutos);
         });
     }
@@ -205,6 +226,7 @@ class produtoDB extends BasicDB {
                     if (resultProduto.existe && resultProduto.result.cores && resultProduto.result.cores.length > 0) {                        
                         resultProduto.result.cores = _.filter(resultProduto.result.cores, (cor) => { return cor.prontaEntrega === false });
                         resultProduto.result.cores = arrayMove(resultProduto.result.cores, _.findIndex(resultProduto.result.cores, (cor) => { return cor.idProduto == pagina.id }), 0);
+                        resultProduto.result.segmento = resultProduto.result.segmento[0];
                         resolve(resultProduto.result)    
                     } else {
                         resolve(null)        

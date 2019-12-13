@@ -29,7 +29,6 @@ import _ from 'lodash'
 import AddItemCarrinhoItem  from '../../rapidsoft/components/AddItemCarrinhoItem'
 import Storage  from '../../rapidsoft/utils/storage'
 import ProdutoUtils  from '../../rapidsoft/utils/produtoUtils'
-import PedidoUtils  from '../../rapidsoft/utils/pedidoUtils'
 
 export default {
     name: 'add-item-carrinho',
@@ -72,18 +71,22 @@ export default {
         abrirCarrinho() {
             this.$router.push({ name: 'carrinho'});
         },
+        buscaProdutosPagina() {
+            this.produtoA = ProdutoUtils.createProdutoAdd(this.produtoAdd.produtoA);
+            if(!_.isNil(this.produtoAdd.produtoB)) {
+                this.produtoB = ProdutoUtils.createProdutoAdd(this.produtoAdd.produtoB);
+            }
+        }
     },
     beforeCreate() {       
         
     },
     created() {        
-        this.produtoA = ProdutoUtils.createProdutoAdd(this.produtoAdd.produtoA);
-        if(!_.isNil(this.produtoAdd.produtoB)) {
-            this.produtoB = ProdutoUtils.createProdutoAdd(this.produtoAdd.produtoB);
-        }
+        this.buscaProdutosPagina();
     },
     mounted() {
         this.carrinho = Storage.getCarrinho();
+    
     }
 }
 </script>    

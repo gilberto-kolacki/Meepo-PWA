@@ -1,4 +1,5 @@
-import PedidoUtils from './pedidoUtils'
+// import _ from "lodash";
+import PedidoUtils from './pedidoUtils';
 
 
 class storage {
@@ -21,6 +22,15 @@ class storage {
         } else {
             return PedidoUtils.newCarrinho();
         }
+    }
+
+    getSegmentosCarrinho() {
+        return this.getCarrinho().itens.map((produto) => produto.idSegmento ).sort().reduce((init, current) => {
+            if (init.length === 0 || init[init.length - 1] !== current) {
+                init.push(current);
+            }
+            return init;
+        }, []);
     }
 
     setCarrinho(carrinho) {
