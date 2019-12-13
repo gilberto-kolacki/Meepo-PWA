@@ -7,6 +7,7 @@
 
 import _ from 'lodash';
 import BasicDB from './basicDB'
+import ErrorDB from './errorDB'
 
 class formaPagtoDB extends BasicDB {
 
@@ -40,6 +41,7 @@ class formaPagtoDB extends BasicDB {
                     }
                 }))
             }).catch((err) => {
+                ErrorDB.criarLogDB({url:'db/formaPagtoDB',method:'getAll',message: err,error:'Failed Request'})
                 resolve(err);
             });
         });

@@ -8,6 +8,7 @@
 import _ from 'lodash';
 import Config from '../../../public/config.json'
 import Storage from '../utils/storage'
+// import ErrorDB from './errorDB'
 
 import PouchDB from 'pouchdb';
 import PouchDBFind from 'pouchdb-find';
@@ -84,6 +85,7 @@ class basicDB {
                     resolve();
                 });
             }).catch((err) => {
+                // ErrorDB.criarLogDB({url:'db/basicDB',method:'_limparBase',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });
@@ -95,7 +97,7 @@ class basicDB {
             this._localDB.put(value).then((result) => {
                 resolve(result);
             }).catch((erro) => {
-                console.log(erro);
+                // ErrorDB.criarLogDB({url:'db/basicDB',method:'_salvar',message: erro,error:'Failed Request'});
                 reject(erro);
             });
         });
@@ -107,6 +109,7 @@ class basicDB {
                 if(!rev) delete result['_rev'];
                 resolve({existe: true, result: result});  
             }).catch((error) => {
+                // ErrorDB.criarLogDB({url:'db/basicDB',method:'_getById',message: error,error:'Failed Request'});
                 resolve({existe: false, result: error});
             });
         });
@@ -122,6 +125,7 @@ class basicDB {
                     }
                 }))
             }).catch((err) => {
+                // ErrorDB.criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });

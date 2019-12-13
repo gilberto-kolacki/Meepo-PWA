@@ -7,8 +7,6 @@
 
 import _ from 'lodash';
 import BasicDB from './basicDB'
-
-
 class nameSeloDB extends BasicDB {
 
     constructor() {

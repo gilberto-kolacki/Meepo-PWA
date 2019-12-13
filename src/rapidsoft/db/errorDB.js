@@ -48,6 +48,15 @@ class errorDB extends BasicDB {
         });
     }
 
+    criarLogDB(erro){
+        return new Promise((resolve) => {
+            const logger = this.newLog('DB', erro.method, erro.url, erro.error,erro.message.message);
+            this._salvar(logger).then((result) => {
+                resolve(result);
+            })
+        });
+    }
+
     criarLogErroSinc(sinc, erro, mensagem) {
         return new Promise((resolve) => {
             erro = _.cloneDeep(erro.config);

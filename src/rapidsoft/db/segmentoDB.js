@@ -7,6 +7,7 @@
 
 import _ from 'lodash';
 import BasicDB from './basicDB'
+import ErrorDB from './errorDB'
 
 // let localDB = null;
 
@@ -41,6 +42,7 @@ class segmentoDB extends BasicDB {
             this._localDB.destroy().then(() => {
                 resolve(new segmentoDB());
             }).catch((err) => {
+                ErrorDB.criarLogDB({url:'db/segmentoDB',method:'limparBase',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });

@@ -7,6 +7,7 @@
 
 import _ from 'lodash';
 import BasicDB from './basicDB'
+import ErrorDB from './errorDB'
 
 const sincDados =  [
     {
@@ -68,7 +69,7 @@ const sincDados =  [
 
 const createSincs = (localDB) => {
     localDB.bulkDocs(sincDados).then().catch((err) => {
-        console.log(err);
+        ErrorDB.criarLogDB({url:'db/sincDataDB',method:'createSincs',message: err,error:'Failed Request'});
     });
 }
 
@@ -84,7 +85,7 @@ class sincDataDB extends BasicDB {
             this._localDB.get(id).then((result) => {
                 resolve(result);
             }).catch((err) => {
-                console.log(err);
+                ErrorDB.criarLogDB({url:'db/sincDataDB',method:'findById',message: err,error:'Failed Request'});
                 reject(err);
             });
         });
@@ -133,7 +134,8 @@ class sincDataDB extends BasicDB {
                     sinc._rev = resultSinc.result._rev;
                     this._salvar(sinc).then(() => {
                         resolve(sinc);
-                    }).catch(() => {
+                    }).catch((err) => {
+                        ErrorDB.criarLogDB({url:'db/sincDataDB',method:'finalizaSinc',message: err,error:'Failed Request'});
                         resolve(sinc);
                     });
                 } else {
