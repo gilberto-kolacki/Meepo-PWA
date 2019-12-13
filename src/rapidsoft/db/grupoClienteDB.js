@@ -6,6 +6,7 @@
 ==========================================================================================*/
 
 import BasicDB from './basicDB'
+import ErrorDB from './errorDB'
 import _ from 'lodash';
 
 class grupoClienteDB extends BasicDB {
@@ -36,6 +37,7 @@ class grupoClienteDB extends BasicDB {
                 const grupo = _.find(grupos, (grupo) => { return grupo.padrao; });
                 resolve(grupo)
             }).catch((err) => {
+                ErrorDB.criarLogDB({url:'db/grupoClienteDB',method:'getGrupoPadrao',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });

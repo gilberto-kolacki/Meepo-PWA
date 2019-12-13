@@ -7,6 +7,7 @@
 
 import store from '../../store/store'
 import BasicDB from './basicDB'
+import ErrorDB from './errorDB'
 import SegmentoDB from './segmentoDB'
 import Auth from "../../rapidsoft/auth/authService";
 
@@ -29,8 +30,9 @@ class usuarioDB extends BasicDB {
                 this._salvar(usuario).then((user) => {
                     usuario._id = user.id;
                     resolve(usuario);
-                }).catch((erro) => {
-                    reject(erro);
+                }).catch((err) => {
+                    ErrorDB.criarLogDB({url:'db/usuarioDB',method:'signIn',message: err,error:'Failed Request'});
+                    reject(err);
                 });
             })
         });
@@ -46,6 +48,7 @@ class usuarioDB extends BasicDB {
                     localStorage.removeItem('userRole');
                     resolve(new usuarioDB());
                 }).catch((err) => {
+                    ErrorDB.criarLogDB({url:'db/usuarioDB',method:'signOut',message: err,error:'Failed Request'});
                     reject(err);
                 });
             })
@@ -58,6 +61,7 @@ class usuarioDB extends BasicDB {
                 store.dispatch('updateUserActive', user);
                 resolve(user);
             }).catch((err) => {
+                ErrorDB.criarLogDB({url:'db/usuarioDB',method:'onAuthStateChanged',message: err,error:'Failed Request'});
                 reject(err);
             });
         });
@@ -80,6 +84,7 @@ class usuarioDB extends BasicDB {
                 this._limparBase().then(() => {
                     resolve();
                 }).catch((err) => {
+                    ErrorDB.criarLogDB({url:'db/usuarioDB',method:'limparBase',message: err,error:'Failed Request'});
                     resolve(err);
                 });
             });

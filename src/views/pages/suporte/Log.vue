@@ -79,6 +79,41 @@
             </vs-table>
           </div>
         </vs-tab>
+
+        <vs-tab label="Banco de Dados">
+          <div>
+            <vs-table :sst="true" pagination max-items="8" search :data="errosDB">
+              <template slot="thead">
+                <vs-th sort-key="messagem">Mensagem</vs-th>
+                <vs-th sort-key="_id">Data</vs-th>
+                <vs-th sort-key="_id">Hora</vs-th>
+                <vs-th sort-key="compnente">Componente</vs-th>
+                <vs-th width="40" sort-key="caminho">Caminho</vs-th>
+                <vs-th width="40" sort-key="erro">Erro</vs-th>
+              </template>
+              <template slot-scope="{data}">
+                <vs-tr :key="indextr" v-for="(tr, indextr) in data">
+                  <vs-td :data="data[indextr].messagem">{{ data[indextr].messagem }}</vs-td>
+                  <vs-td :data="data[indextr]._id">
+                    <span style="color:red;">{{ getDateFromStringDate(data[indextr]._id) }}</span>
+                  </vs-td>
+                  <vs-td :data="data[indextr]._id">
+                    <span style="color:red;">{{ getHourError(data[indextr]._id) }}</span>
+                  </vs-td>
+                  <vs-td :data="data[indextr].compnente">{{ data[indextr].compnente }}</vs-td>
+                  <vs-td :data="data[indextr].caminho">
+                    {{diminuirCaminho(data[indextr].caminho)}}
+                  </vs-td>
+                  <vs-td class="align-center" :data="data[indextr].caminho">
+                    <span
+                      style="display: block;width: 60px;overflow: hidden;text-overflow: ellipsis;"
+                    >{{ data[indextr].erro }}</span>
+                  </vs-td>
+                </vs-tr>
+              </template>
+            </vs-table>
+          </div>
+        </vs-tab>
       </vs-tabs>
     </div>
   </div>
@@ -95,6 +130,7 @@ export default {
       backgroundLoading: "primary",
       errosTela: [],
       errosSincronizacao: [],
+      errosDB: [],
       quota: 0,
       usage: 0,
       browserName: null,
@@ -126,6 +162,8 @@ export default {
             this.errosTela.push(_.clone(error));
           } else if (error.type === "sincronizacao") {
             this.errosSincronizacao.push(_.clone(error));
+          } else if (error.type === "DB") {
+            this.errosDB.push(_.clone(error));
           }
         });
       });

@@ -11,6 +11,7 @@ import BasicDB from './basicDB'
 import ImagemDB from './imagemDB'
 import CatalogoDB from './catalogoDB'
 import EmbarqueDB from './embarqueDB';
+import ErrorDB from './errorDB';
 
 const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
     textoSearch = _.toUpper(textoSearch);
@@ -52,7 +53,7 @@ class produtoDB extends BasicDB {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 resolve(getProdutoToDB(resultDocs.rows))
             }).catch((err) => {
-                console.log(err);
+                ErrorDB.criarLogDB({url:'db/produtoDB',method:'getAllProdutos',message: err,error:'Failed Request'})
                 resolve(err);
             });
         });
@@ -65,7 +66,7 @@ class produtoDB extends BasicDB {
                 this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                     resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias))
                 }).catch((err) => {
-                    console.log(err);
+                    ErrorDB.criarLogDB({url:'db/produtoDB',method:'getAllProdutosByCategorias',message: err,error:'Failed Request'})
                     resolve(err);
                 });
             } else {
@@ -80,7 +81,7 @@ class produtoDB extends BasicDB {
                 this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                     resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias, textoSearch))
                 }).catch((err) => {
-                    console.log(err);
+                    ErrorDB.criarLogDB({url:'db/produtoDB',method:'getAllProdutosByIdCategorias',message: err,error:'Failed Request'})
                     resolve(err);
                 });
             } else {
@@ -170,7 +171,7 @@ class produtoDB extends BasicDB {
                     });
                 });
             }).catch((err) => {
-                console.log(err);
+                ErrorDB.criarLogDB({url:'db/produtoDB',method:'getProdutosFromCarrinho',message: err,error:'Failed Request'})
                 resolve(err);
             });
         });
@@ -213,6 +214,7 @@ class produtoDB extends BasicDB {
                 delete result['_rev'];
                 resolve({existe: true, result: result});  
             }).catch((error) => {
+                ErrorDB.criarLogDB({url:'db/produtoDB',method:'getById',message: error,error:'Failed Request'})
                 resolve({existe: false, result: error});
             });
         });
@@ -373,6 +375,8 @@ class produtoDB extends BasicDB {
                     });
                 });
             });
+        }).catch((err) => {
+            ErrorDB.criarLogDB({url:'db/produtoDB',method:'getProdutoPaginaCatalogo',message: err,error:'Failed Request'})
         });
     }
 
