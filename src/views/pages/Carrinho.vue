@@ -39,6 +39,7 @@ import ErrorDB from "../../rapidsoft/db/errorDB";
 import AddItemCarrinho from "../../rapidsoft/components/AddItemCarrinho";
 import CarrinhoItem from "../../rapidsoft/components/CarrinhoItem";
 import CarrinhoPedido from "../../rapidsoft/components/CarrinhoPedido";
+import EmbarqueItem from "../../rapidsoft/components/EmbarqueItem";
 
 export default {
 	data: () => ({
@@ -78,6 +79,7 @@ export default {
 		AddItemCarrinho,
 		CarrinhoItem,
 		CarrinhoPedido,
+		EmbarqueItem,
 	},
 	computed: {
  
