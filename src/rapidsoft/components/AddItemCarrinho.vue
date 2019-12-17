@@ -2,7 +2,6 @@
     <div class="parentx">
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-plus" @click="addReferenciaCarrinho()">Adicionar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
-        <vs-button @click.stop="abrirCarrinho" color="warning" type="filled" class="btn-carrinho" icon="card_travel"></vs-button>
         <div>
             <add-item-carrinho-item 
                 v-if="this.produtoA"
@@ -67,9 +66,6 @@ export default {
                 itens.push(tamanho);
             }
             this.carrinho.itens = itens;
-        },
-        abrirCarrinho() {
-            this.$router.push({ name: 'carrinho'});
         },
         buscaProdutosPagina() {
             this.produtoA = ProdutoUtils.createProdutoAdd(this.produtoAdd.produtoA);

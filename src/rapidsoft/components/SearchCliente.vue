@@ -75,6 +75,7 @@ import _ from 'lodash'
 import vSelect from 'vue-select';
 import ClienteDB from '../db/clienteDB'
 import CidadeDB from '../db/cidadeDB'
+import GrupoClienteDB from '../db/grupoClienteDB'
 import Storage from '../utils/storage'
 
 export default {
@@ -139,7 +140,13 @@ export default {
             this.nomeSearch = "";
         },
         selectSearchProduto(cliente) {
-            this.$emit('search-selected', cliente);
+            GrupoClienteDB.getById(cliente.grupoCliente).then((grupo) => {
+                cliente.grupoCliente = grupo;
+                Storage.setGrupoCarrinho(grupo);
+                Storage.setClienteCarrinho(cliente);
+                this.$bvModal.hide(this.id);
+                this.$emit('search-selected', cliente);
+            })
         },
         searchCidades() {
            CidadeDB.getCidadesFromEstado(this.estadoSelecionado.uf).then((cidades) => {

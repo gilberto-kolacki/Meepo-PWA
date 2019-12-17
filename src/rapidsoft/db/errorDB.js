@@ -50,10 +50,10 @@ class errorDB extends BasicDB {
 
     criarLogDB(erro){
         return new Promise((resolve) => {
-            const logger = this.newLog('DB', erro.method, erro.url, erro.error,erro.message.message);
+            const logger = this.newLog('DB', erro.method, erro.url, erro.error,erro.message);
             this._salvar(logger).then((result) => {
                 resolve(result);
-            })
+            });
         });
     }
 

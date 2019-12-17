@@ -195,9 +195,8 @@ export default {
 		abrirPesquisaCliente() {
 			this.$bvModal.show(this.idPopUpSearch);
 		},
-		selectSearchCliente(cliente) {
-			Storage.setClienteCarrinho(cliente);
-			this.$bvModal.hide(this.idPopUpSearch);
+		selectSearchCliente() {
+			
 		}
 	},
 	beforeCreate() {
