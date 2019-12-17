@@ -16,6 +16,8 @@
 						</carrinho-item>
 					</vs-tab>
 					<vs-tab label="Embarques" icon-pack="feather" icon="icon-box">
+						<embarque-item>
+						</embarque-item>
 					</vs-tab>
 				</vs-tabs>
 			</div>
@@ -50,6 +52,7 @@ import SegmentoDB from "../../rapidsoft/db/segmentoDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import AddItemCarrinho from "../../rapidsoft/components/AddItemCarrinho";
 import CarrinhoItem from "../../rapidsoft/components/CarrinhoItem";
+import EmbarqueItem from "../../rapidsoft/components/EmbarqueItem";
 
 export default {
 	data: () => ({
@@ -71,6 +74,7 @@ export default {
 	components: {
 		AddItemCarrinho,
 		CarrinhoItem,
+		EmbarqueItem,
 	},
 	computed: {
  
