@@ -67,14 +67,15 @@
             </div>
             <div class="vx-col w-2/12 mx-5" style="justify-content:center;margin:auto">
                 <div class="vx-row" style="display=flex;justify-content:center;">
-                    <vs-select v-model="produtoCor.embarque.id">
+                    <!-- <vs-select v-model="produtoCor.embarque.id">
                         <vs-select-item
                             :key="index"
                             :value="embarque.id"
                             :text="embarque.nome"
                             v-for="(embarque, index) in getEmbarquesProdutos()"
                         />
-                    </vs-select>
+                    </vs-select> -->
+                     <b-form-select v-model="produtoCor.embarque.id" :options="embarques" size="md" class="mt-3"></b-form-select>
                 </div>
             </div>
             <div class="vx-col mx-1 w-1/6" style="justify-content:center;margin:auto">
@@ -181,7 +182,10 @@ export default {
 	created() {
         this.carregaItensTela()
 		EmbarqueDB._getAll().then(embarques => {
-			this.embarques = embarques;
+            embarques.map((item) => {
+                this.embarques.push({value:item.id,text:item.nome});
+            })
+			
 		});
 	},
     mounted() {

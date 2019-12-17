@@ -3,8 +3,9 @@
         <div class="embarque-item" v-for="(embarqueItem, indexItem) in listEmbarqueItems" :key="indexItem">
             <div class="vx-row flex justify-between">
                 <div class="vx-col mx-1">
-                    <span class="titulo_item" style="margin-top:2px">Pedido:</span>
-                    <v-select id="embarques" name="embarque" v-model="embarqueItem.embarque" :options="embarques"/>
+                    <span class="titulo_item" style="margin-top:2px">Embarque:</span>
+                    <!-- <v-select id="embarques" name="embarque" v-model="embarqueItem.embarque" :options="embarques"/> -->
+                    <b-form-select style="display:flex;width:200px" v-model="embarqueItem.id" :options="embarques" size="lg"></b-form-select>
                 </div>
                 <div class="vx-col mx-1">
                     <span class="titulo_item">Data Embarque:</span>
@@ -22,18 +23,16 @@
                         input-class="vs-inputx vs-input--input normal">
                     </datepicker>
                 </div>
-                <div class="vx-col mx-1">
+                <div class="vx-col mx-1" style="display:flex;margin:auto">
                     <table> 
-                        <tbody>
-                            <tr>
-                                <td style="font-weight:bold">Qtde Itens</td>
-                                <td style="padding-left:10px">{{embarqueItem.quantidade}}</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight:bold">Total</td>
-                                <td style="padding-left:10px">{{getCoinFormat(embarqueItem.total)}}</td>
-                            </tr>
-                        </tbody>
+                        <tr>
+                            <td style="font-weight:bold">Qtde Itens</td>
+                            <td style="padding-left:10px">{{embarqueItem.quantidade}}</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:bold">Total</td>
+                            <td style="padding-left:10px">{{getCoinFormat(embarqueItem.total)}}</td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -115,8 +114,9 @@ export default {
     beforeCreate() {},
     created() {
         EmbarqueDB._getAll().then(embarques => {
-            this.embarques = embarques;
+            
             embarques.map((embarque) => {
+                this.embarques.push({value:embarque.id, text:embarque.nome})
                 this.getProdutosPorEmbarques(embarque.id);
             })
         });
