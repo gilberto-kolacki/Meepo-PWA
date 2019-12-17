@@ -27,14 +27,14 @@ class grupoClienteDB extends BasicDB {
                 } else {
                     resolve();
                 }
-            })
+            });
         });
     }
 
     getGrupoPadrao() {
         return new Promise((resolve) => {
             this._getAll().then((grupos) => {
-                const grupo = _.find(grupos, (grupo) => { return grupo.padrao; });
+                const grupo = grupos.filter((grupo) => grupo.padrao)[0];
                 resolve(grupo)
             }).catch((err) => {
                 ErrorDB.criarLogDB({url:'db/grupoClienteDB',method:'getGrupoPadrao',message: err,error:'Failed Request'});
@@ -46,7 +46,14 @@ class grupoClienteDB extends BasicDB {
     getById(idGrupoCliente) {
         return new Promise((resolve) => {
             this._getById(idGrupoCliente).then((grupo) => {
-                resolve(grupo.result);
+                if (grupo.existe) {
+                    resolve(grupo.result);
+                } else {
+                    ErrorDB.criarLogDB({url:'db/grupoClienteDB',method:'getById',message: 'Grupo de cliente não encontrado: '+idGrupoCliente ,error:'Failed Request'});
+                    this.getGrupoPadrao().then((grupoPadrao) => {
+                        resolve(grupoPadrao);
+                    });
+                }
             });
         });
     }

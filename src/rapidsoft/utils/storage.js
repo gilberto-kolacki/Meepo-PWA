@@ -72,7 +72,13 @@ class storage {
 
     getClienteCarrinho() {
         if (localStorage.getItem('clienteCarrinho')) return JSON.parse(localStorage.getItem('clienteCarrinho'));
-        else return null;
+        else return {
+            cpfCnpj: null,
+            nome: null,
+            grupoCliente: {
+                nome: null
+            },
+        };
     }
 
     deleteClienteCarrinho() {
