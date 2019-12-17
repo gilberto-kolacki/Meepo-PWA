@@ -1,19 +1,16 @@
 <template>
     <div class="parentx">
-        <div class="demo-alignment">
-            <div class="dropdown-button-container">
-                <vs-dropdown>
-                    <vs-button class="btn-drop" type="filled" icon="expand_more">Ações</vs-button>
-                    <vs-dropdown-menu>
-                        <vs-dropdown-item>
-                            <span class="flex items-center">
-                                <feather-icon icon="TrashIcon" svgClasses="h-4 w-4" class="mr-2" />
-                                <span v-on:click="deleteItemsChart">Deletar</span>
-                            </span>
-                        </vs-dropdown-item>
-                    </vs-dropdown-menu>
-                </vs-dropdown>
-            </div>
+        <div class="demo-alignment" style="margin-bottom:40px">
+            <!-- <b-button-group> -->
+                <b-dropdown  text="Ações" variant="danger">
+                    <b-dropdown-item>
+                        <span class="flex items-center">
+                            <feather-icon icon="TrashIcon" svgClasses="h-4 w-4" class="mr-2" />
+                            <span v-on:click="deleteItemsChart">Deletar</span>
+                        </span>
+                    </b-dropdown-item>
+                </b-dropdown>
+            <!-- </b-button-group> -->
         </div>
         <div class="flex carrinho-item" v-for="(produtoCor, indexItem) in this.produtosCarrinho" :key="indexItem">
             <div class="vx-col mx-1" style="justify-content:center;margin:auto">
