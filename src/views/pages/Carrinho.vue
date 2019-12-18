@@ -17,6 +17,7 @@
 							</carrinho-item>
 						</vs-tab>
 						<vs-tab label="Embarques" icon-pack="feather" icon="icon-box">
+							<embarque-item></embarque-item>
 						</vs-tab>
 					</vs-tabs>
 				</div>
