@@ -84,7 +84,7 @@
                                     <label>{{"Descontos: " + somarDescontos() + "%"}} </label>
                                 </div>
                                 <div class="vx-row" style="justify-content: flex-start;">
-                                    <label style="font-weight:bold;">{{"Total: " + getCoinFormat(somarValorTotal(embarqueItem.total,somarDescontos()))}} </label>
+                                    <label style="font-weight:bold;">{{"Total: " + getCoinFormat(somarValorTotal(embarqueItem.total,somarDescontos(),indexItem))}} </label>
                                 </div>
                             </vs-col>
                             <vs-col vs-lg="6" vs-sm="6" vs-xs="12">
@@ -106,7 +106,7 @@
                                 </div>
                             </vs-col>
                         </div>
-                        <div class="vx-row flex" style="margin-top:20px;padding-left:15px;border-bottom:1px solid grey" v-if="!embarqueItem.informacoesAdicionais.brinde">
+                        <div class="vx-row flex" style="margin-top:20px;padding-left:15px" v-if="!embarqueItem.informacoesAdicionais.brinde">
                             <h4> Pagamento </h4>
                             <vx-tooltip text="Cartão de Crédito" position="right" v-if="embarqueItem.formaPagamento.value === 4">
                                 <feather-icon icon="CreditCardIcon" style="color:warning;margin-left:10px" class="cursor-pointer" v-if="embarqueItem.formaPagamento.value === 4"></feather-icon>
@@ -224,7 +224,8 @@ export default {
                 this.tempHidden = false;
             }, time)
         },
-        somarValorTotal(total, descontos){
+        somarValorTotal(total, descontos,indexItem){
+            this.listEmbarqueItems[indexItem].valueBeforeDiscount = total - (total * descontos / 100)
             return total - (total * descontos / 100)
         },
         setCopiaEmail(indexItem){
