@@ -401,77 +401,68 @@ class produtoDB extends BasicDB {
         });
     }   
 
-    getIdsFotos() {
+    getIdsFotos(produto) {
         return new Promise((resolve) => {
-            this.getAllProdutos().then((produtos) => {
-                resolve(_.flattenDeep(produtos.map((produto) => {
-                    let cores = _.clone(produto['cores']);
-                    return getCoresAtivas(cores).map((cor) => {
-                        return cor.imagens.map((imagem) => {
-                            return imagem.id;
-                        })
-                    });
-                })));
-            });
+            const cores = produto['cores'];
+            resolve(_.flattenDeep(getCoresAtivas(cores).map((cor) => {
+                return cor.imagens.map((imagem) => {
+                    return imagem.id;
+                })
+            })));
         });
     }
 
-    getIdsCores() {
+    getIdsCores(produto) {
         return new Promise((resolve) => {
-            this.getAllProdutos().then((produtos) => {
-                resolve(_.flattenDeep(produtos.map((produto) => {
-                    let cores = _.clone(produto['cores']);
-                    return getCoresAtivas(cores).map((cor) => {
-                        if(cor != undefined && cor.idCor) return cor.idCor;
-                    });
-                })));
-            });
+            const cores = produto['cores'];
+            resolve(_.flattenDeep(getCoresAtivas(cores).map((cor) => {
+                if(cor != undefined && cor.idCor) return cor.idCor;
+            })));
         });
     }
 
-    getIdsSelos() {
+    getIdsSelos(produto) {
         return new Promise((resolve) => {
-            this.getAllProdutos().then((produtos) => {
-                resolve(_.flattenDeep(produtos.map((produto) => {
-                    let cores = _.clone(produto['cores']);
-                    return getCoresAtivas(cores).map((cor) => {
-                        if(cor != undefined && _.isArray(cor.selos)) return cor.selos;
-                    })
-                })));
-            })
+            const cores = produto['cores'];
+            resolve(_.flattenDeep(getCoresAtivas(cores).map((cor) => {
+                if(cor != undefined && _.isArray(cor.selos)) return cor.selos;
+            })));
         });
     }
 
-    getIdsSimbolos() {
+    getIdsSimbolos(produto) {
         return new Promise((resolve) => {
-            this.getAllProdutos().then((produtos) => {
-                resolve(_.flattenDeep(produtos.map((produto) => {
-                    let cores = _.clone(produto['cores']);
-                    return getCoresAtivas(cores).map((cor) => {
-                        if(cor != undefined && _.isArray(cor.simbolos)) return cor.simbolos;
-                    })
-                })));
-            })
+            const cores = _.clone(produto['cores']);
+            resolve(_.flattenDeep(getCoresAtivas(cores).map((cor) => {
+                if(cor != undefined && _.isArray(cor.simbolos)) return cor.simbolos;
+            })));
         });
     }
 
     getIdsImagens() {
         return new Promise((resolve) => {
             const dataResult = {fotos:[], selos:[], simbolos:[], cores:[]};
-            this.getIdsFotos().then((idsImagens) => {
-                dataResult.fotos = _.uniq(idsImagens);
-                this.getIdsCores().then((idsCores) => {
-                    dataResult.cores = _.uniq(idsCores);
-                    this.getIdsSelos().then((idsSelos) => {
-                        dataResult.selos = _.uniq(idsSelos);
-                        this.getIdsSimbolos().then((idsSimbolos) => {
-                            dataResult.simbolos = _.uniq(idsSimbolos);
-                            const qtdeImagens = dataResult.fotos.length + dataResult.cores.length + dataResult.selos.length + dataResult.simbolos.length;
-                            resolve({quantidade: qtdeImagens, data: dataResult});
-                        })
-                    })
-                })
-            })
+            this.getAllProdutos().then((produtos) => {
+                const done = _.after(produtos.length, function() {
+                    const qtdeImagens = dataResult.fotos.length + dataResult.cores.length + dataResult.selos.length + dataResult.simbolos.length;
+                    resolve({quantidade: qtdeImagens, data: dataResult})
+                });
+                produtos.forEach(produto => {
+                    this.getIdsFotos(produto).then((idsImagens) => {
+                        dataResult.fotos = _.uniq(_.concat(dataResult.fotos, idsImagens));
+                        this.getIdsCores(produto).then((idsCores) => {
+                            dataResult.cores = _.uniq(_.concat(dataResult.cores, idsCores));
+                            this.getIdsSelos(produto).then((idsSelos) => {
+                                dataResult.selos = _.uniq(_.concat(dataResult.selos, idsSelos));
+                                this.getIdsSimbolos(produto).then((idsSimbolos) => {
+                                    dataResult.simbolos = _.uniq(_.concat(dataResult.simbolos, idsSimbolos));
+                                    done();
+                                });
+                            });
+                        });
+                    });
+                });
+            });
         });
     }
 

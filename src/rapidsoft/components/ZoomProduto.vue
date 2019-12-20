@@ -21,15 +21,15 @@
             <div class="vx-col w-full lg:w-1/5 sm:w-1/5">
                 <div id="produto-image-gallery-zoom" class="produto-image-gallery-zoom" v-if="produtoImagens.length > 0">
                     <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(index)">
-                        <img :src="imagem.base64" :id="'produto-image-gallery-item-'+imagem.id" class="mb-4 responsive img-ref">
+                        <b-img-lazy :src="imagem.base64" :id="'produto-image-gallery-item-'+imagem.id" class="mb-4 responsive img-ref" />
                     </div>
                 </div>
             </div>
             <div class="vx-col w-full lg:w-4/5 sm:w-4/5">
                 <div class="vx-row items-center justify-center" style="height: 1500px" id="img">
                         <!-- <img :src="imagemProdutoPrincipal" class="card-img-zoom" id="produto-swipe-area"/> -->
-                        <v-zoomer style="width: 500px; height: 100%;" maxScale="3">
-                            <img :src="imagemProdutoPrincipal" style="border:none" class="card-img-zoom items-center justify-center" id="produto-swipe-area"/>
+                        <v-zoomer style="width: 100%; height: 100%;" maxScale="3">
+                            <b-img-lazy :src="imagemProdutoPrincipal" style="border:none; object-fit: contain; width: 100%; height: 100%;" class="card-img-zoom items-center justify-center" id="produto-swipe-area"/>
                         </v-zoomer>   
                 </div>
             </div>

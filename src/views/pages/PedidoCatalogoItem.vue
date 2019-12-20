@@ -26,12 +26,12 @@
                             <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button produto-image-gallery-button-up" @click="scrollUp" style="margin-top: -10px" />
                             <div id="produto-image-gallery" class="produto-image-gallery" v-if="getImagensCorProduto.length > 0">
                                 <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(index)">
-                                    <img :src="imagem.base64" :id="'produto-image-gallery-item-'+imagem.seq" class="mb-4 responsive img-ref">
+                                    <b-img-lazy :src="imagem.base64" :id="'produto-image-gallery-item-'+imagem.seq" class="mb-4 responsive img-ref"/>
                                 </div>
                             </div>
                             <div id="produto-image-gallery" class="produto-image-gallery" v-else>
                                 <div class="produto-image-gallery-item">
-                                    <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="mb-4 responsive img-ref">
+                                    <b-img-lazy :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="mb-4 responsive img-ref"/>
                                 </div>
                             </div>
                             <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button produto-image-gallery-button-down" @click="scrollDown" style="margin-bottom: -10px; margin-top: 10px" />
@@ -65,8 +65,8 @@
                         :interact-x-threshold="120"                         
                         v-if="isShowing">
                         <div>
-                            <img :src="imagemProdutoPrincipal" class="card-img-principal" id="produto-swipe-area" v-if="imagemProdutoPrincipal"/>
-                            <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" v-else>
+                            <b-img center :src="imagemProdutoPrincipal" class="card-img-principal" id="produto-swipe-area" v-if="imagemProdutoPrincipal"/>
+                            <b-img-lazy center :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" v-else />
                         </div>
                     </Vue2InteractDraggable>
                     <div class="vx-row items-center justify-center" style="z-index: 15; margin-top: 2rem;" v-if="this.produtoB">

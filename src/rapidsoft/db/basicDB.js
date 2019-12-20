@@ -131,6 +131,17 @@ class basicDB {
         });
     }
 
+    _getIds() {
+        return new Promise((resolve) => {
+            this._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                resolve(resultDocs.rows.map((row) => row.id ));
+            }).catch((err) => {
+                // ErrorDB.criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
+                resolve(err);
+            });
+        });
+    }
+
 }
 
 export default basicDB;

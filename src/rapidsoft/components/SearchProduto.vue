@@ -61,8 +61,8 @@
                 <div class="vx-col px-2 lg:w-1/4 md:w-1/4 sm:w-1/3 mb-4" :key="indextr" v-for="(produto, indextr) in listaProdutosPesquisa" @click="selectSearchProduto(produto)">
                     <vx-card class="text-center cursor-pointer" style="box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);height:100%;">
                         <b-card-text style="display:flex;align-items:center;justify-content:center;">
-                            <img :src="produto.imagemPrincipal" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-if="produto.imagemPrincipal"/>
-                            <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-else />
+                            <b-img-lazy :src="produto.imagemPrincipal" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-if="produto.imagemPrincipal"/>
+                            <b-img-lazy :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-else />
                         </b-card-text >
                         <b-card-text style="padding:10px">
                             <span class="vx-row" style="font-weight:bold">{{'Ref: ' + produto.referencia}}</span>
@@ -225,14 +225,6 @@ export default {
     .input-search {
         width: 100vw;
     }
-}
-
-.modal-xl {
-    max-width: 1024px;
-    width: 97% !important; 
-    margin: 0.3rem 0.0rem 0.3rem 0.0rem;
-    z-index: 60000;
-    left: 12px;
 }
 
 .vs-con-loading-search .vs-loading {

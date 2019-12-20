@@ -44,11 +44,10 @@
 <script>
 
 import _ from 'lodash'
+import SincUtils from '../../rapidsoft/utils/sincUtils'
 import ProdutoService from '../../rapidsoft/service/produtoService'
-import CidadeService from '../../rapidsoft/service/cidadeService'
 import ClienteService from '../../rapidsoft/service/clienteService'
 import ParametroService from '../../rapidsoft/service/parametroService'
-import ImagemService from '../../rapidsoft/service/imagemService'
 import SincDataDB from '../../rapidsoft/db/sincDataDB'
 import ProdutoDB from '../../rapidsoft/db/produtoDB'
 import ImagemDB from '../../rapidsoft/db/imagemDB'
@@ -67,29 +66,29 @@ import ErrorDB from '../../rapidsoft/db/errorDB'
 export default {
     data() {
         return {
-            backgroundLoading:'rgba(0, 0, 0, 0.03',
-            colorLoading:'#fff',
-            activeConfirm: false,
             tabelasSincronizacao: [],
-            tabelasSincronizadas: []
+            sincAtivo: false,
+            // tabelasSincronizadas: []
         }
     },
     components: {
     },
     methods: {
         carregarSinc() {
-            this.$vs.loading({
-                background: this.backgroundLoading,
-                color: 'danger',
-                scale: 0.9
-            });
+            if (document.getElementsByClassName('con-vs-loading').length == 1) {
+                this.$vs.loading({
+                    background: 'rgba(0, 0, 0, 0.15)',
+                    color: 'danger',
+                    scale: 0.9
+                });
+            }
         },
         sincronizarAlert() {
             this.$vs.dialog({
                 type: 'confirm',
                 color: 'warning',
                 title: `Atenção`,
-                text: 'Deseja realmente sincronizar todos os pedidos?',
+                text: 'Isso levará algum tempo, Deseja realmente sincronizar todos os Dados do Sistema?',
                 acceptText: 'Sim',
                 cancelText: 'Não',
                 accept: this.sincronizarTodos,
@@ -104,62 +103,48 @@ export default {
             })
         },
         sincronizarTodos() {
-            this.tabelasSincronizadas = [];
-
-
-            this.tabelasSincronizacao.forEach(sinc => {
-                if(sinc.methodo !== 'sincImagem'){
-                    this.sincronizar(sinc, true);
-                    // this.carregarSinc();
-                }
+            this.sincAll = true;        
+            this.tabelasSincronizacao.forEach(sinc => {        
+                sinc.parcial = 0;
+                sinc.percent = 0;
+                _.defer(() => this.sincronizar(sinc, true));
             });
         },
         sincronizar(sinc, all = false) {
-            if(!sinc.ativo) {
-                sinc.ativo = true;
-                sinc.parcial = 0;
-                sinc.percent = 0;
-                sinc.inicio = Date.now();
+            if (this.sincAtivo) {
+                setTimeout(()=> {
+                    _.defer(() => this.sincronizar(sinc, true));
+                }, 2000);                
+            } else {
+                if(!sinc.ativo) {                    
+                    sinc.ativo = true;
+                    sinc.parcial = 0;
+                    sinc.percent = 0;
+                    sinc.inicio = Date.now();
+                    SincUtils.openLoading(this, sinc);
 
-                this.$vs.loading({
-                    background: this.backgroundLoading,
-                    color: this.colorLoading,
-                    container: "#button-with-loading-"+sinc.type,
-                    scale: 0.6
-                });
-                if (sinc.methodo && sinc.methodo != "") {
-                    if (sinc.methodo !== 'sincImagem') {
-                        _.defer(() => this[sinc.methodo](sinc, all));
-                    }else{                        
-                        if (_.find(this.tabelasSincronizacao, (sinc) => sinc.methodo === "sincProduto").total  >= 0  ) {
+                    if (sinc.methodo && sinc.methodo != "") {
+                        this.sincAtivo = true;
+                        if (sinc.methodo !== 'sincImagem') {
                             _.defer(() => this[sinc.methodo](sinc, all));
-                        }else{
-                            _.defer(() => this.closeLoading(sinc, all));
-                            setTimeout(()=> {
-                              _.defer(() => this.openErroSincronizarImgAlert());
-                            }, 1000);
+                        }else{                        
+                            if (_.find(this.tabelasSincronizacao, (sinc) => sinc.methodo === "sincProduto").total  >= 0  ) {
+                                _.defer(() => this[sinc.methodo](sinc, all));
+                            }else{
+                                _.defer(() => SincUtils.closeLoading(this, sinc, all));
+                                setTimeout(()=> {
+                                  _.defer(() => this.openErroSincronizarImgAlert());
+                                }, 1000);
+                            }
                         }
+                    } else {
+                        _.defer(() => SincUtils.closeLoading(this, sinc));
                     }
-                } else {
-                    _.defer(() => this.closeLoading(sinc));
                 }
             }
         },
-        closeLoading(sinc,all) {
-            sinc.erro = false;
-            SincDataDB.finalizaSinc(_.clone(sinc)).then((sincResult) => {
-                sinc.dataSincronizacao = sincResult.dataSincronizacao;
-                sinc.tempoSincronizacao = sincResult.tempoSincronizacao;
-
-                setTimeout(()=> {
-                     this.$vs.loading.close("#button-with-loading-"+sinc.type+" > .con-vs-loading");
-                     !all ? this.$vs.loading.close() : all === 'img' ? this.$vs.loading.close() : undefined;   
-                     if (sinc.percent >= 99) sinc.percent = 100;
-                     sinc.ativo = false;
-                }, 1000);
-            })
-        },
         errorSinc(sinc, error) {
+            this.sincAtivo = false;
             sinc.erro = true;
             let mensagem = "Problemas com a Internet!"
             if (error && error.response) {
@@ -178,30 +163,18 @@ export default {
                     iconPack: 'feather',
                     icon: 'icon-alert-circle'
                 })
-                _.defer(() => this.closeLoading(sinc));
+                _.defer(() => SincUtils.closeLoading(this, sinc));
             });
         },
-        atuaizaParcialSinc(sinc, imagensSalvas) {
-            sinc.parcial = (sinc.parcial + imagensSalvas);
-            sinc.percent = _.round((sinc.parcial)/sinc.total * 100, 1);
-        },
         sincProduto(sinc, all) {
-            // !all ? this.carregarSinc() :undefined;
             this.carregarSinc();
             ProdutoService.sincProduto().then((produtos) => {
                 sinc.total = produtos.length;
                 ProdutoDB._limparBase().then(() => {
-                    const done = _.after(produtos.length, () => this.closeLoading(sinc,all));
+                    const done = _.after(produtos.length, () => SincUtils.closeLoading(this, sinc, all));
                     produtos.forEach(produto => {
                         ProdutoDB.salvar(produto).then(() => {
-                            this.atuaizaParcialSinc(sinc, 1);
-                            if(sinc.percent >= 100 && all === true){
-                                this.tabelasSincronizacao.forEach(sinc => {
-                                    if(sinc.methodo === 'sincImagem'){
-                                        this.sincronizar(sinc,all);
-                                    }
-                                });
-                            }
+                            SincUtils.atuaizaParcialSinc(sinc, 1);            
                             done();
                         });
                     });
@@ -216,8 +189,8 @@ export default {
                 sinc.parcial = 0;
                 sinc.total = retorno.quantidade;
                 ImagemDB.limparBase().then(() => {
-                    this.downloadImagensFromData(sinc, retorno.data).then(() => {
-                        all ? this.closeLoading(sinc,all) : this.closeLoading(sinc,'img') ;
+                    SincUtils.downloadImagensFromData(sinc, retorno.data).then(() => {
+                        SincUtils.closeLoading(this, sinc, all);
                     })
                 })
             });
@@ -228,10 +201,10 @@ export default {
                 ClienteService.sincCliente(clientesSinc).then((clientes) => {
                     sinc.total = clientes.length;
                     ClienteDB._limparBase().then(() => {
-                        const done = _.after(clientes.length, () => this.closeLoading(sinc,all));
+                        const done = _.after(clientes.length, () => SincUtils.closeLoading(this, sinc, all));
                         clientes.forEach(cliente => {
                             ClienteDB.salvarSinc(cliente).then(() => {
-                                this.atuaizaParcialSinc(sinc, 1);
+                                SincUtils.atuaizaParcialSinc(sinc, 1);
                                 done();
                             });
                         });
@@ -246,22 +219,22 @@ export default {
             ParametroService.sincParametro().then((data) => {
                 sinc.total = Object.keys(data).length;
                 GrupoClienteDB.salvarSinc(data.grupoCliente).then(() => {
-                    this.atuaizaParcialSinc(sinc, 1);
+                    SincUtils.atuaizaParcialSinc(sinc, 1);
                     CategoriaDB.salvarSinc(data.categoria).then(() => {
-                        this.atuaizaParcialSinc(sinc, 1);
+                        SincUtils.atuaizaParcialSinc(sinc, 1);
                         ProntaEntregaDB.salvarSinc(data.prontaEntrega).then(() => {
-                            this.atuaizaParcialSinc(sinc, 1);
+                            SincUtils.atuaizaParcialSinc(sinc, 1);
                             PeriodoDB.salvarSinc(data.periodo).then(() => {
-                                this.atuaizaParcialSinc(sinc, 1);
+                                SincUtils.atuaizaParcialSinc(sinc, 1);
                                 EmbarqueDB.salvarSinc(data.embarque).then(() => {
-                                    this.atuaizaParcialSinc(sinc, 1);
+                                    SincUtils.atuaizaParcialSinc(sinc, 1);
                                     FormaPagtoDB.salvarSinc(data.formaPagamento).then(() => {
-                                        this.atuaizaParcialSinc(sinc, 1);
+                                        SincUtils.atuaizaParcialSinc(sinc, 1);
                                         CatalogoDB.salvarSinc(data.catalogo).then(() => {
-                                            this.atuaizaParcialSinc(sinc, 1);
+                                            SincUtils.atuaizaParcialSinc(sinc, 1);
                                             RefComercialDB.salvarSinc(data.referenciaComercial).then(() => {
-                                                this.atuaizaParcialSinc(sinc, 1);
-                                                this.closeLoading(sinc,all);
+                                                SincUtils.atuaizaParcialSinc(sinc, 1);
+                                                SincUtils.closeLoading(this, sinc, all);
                                             })
                                         })
                                     })
@@ -274,77 +247,16 @@ export default {
                 this.errorSinc(sinc, error);
             });
         },
-        sincCidade(sinc,all) {
+        sincCidade(sinc, all) {
             !all ? this.carregarSinc() : undefined;
             const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
             sinc.total = siglasEstados.length;
             CidadeDB._limparBase().then(() => {
-                this.downloadCidadesFromData(sinc, siglasEstados).then(() => {
-                    this.closeLoading(sinc);
+                SincUtils.downloadCidadesFromData(sinc, siglasEstados).then(() => {
+                    SincUtils.closeLoading(this, sinc, all);
                 })
             });
-        },
-        
-        downloadImagensFromData(sinc, data) {
-            return new Promise((resolve) => {
-                const quantidadeSinc = 60;
-                let idsFotos = _.take(data.fotos, quantidadeSinc);
-                
-                ImagemService.sincImagemFoto(idsFotos).then((resultFotos) => {
-                    ImagemDB.salvarFotos(resultFotos).then((fotosSalvas) => {
-                        data.fotos = _.pullAll(data.fotos, idsFotos);
-                        this.atuaizaParcialSinc(sinc, fotosSalvas);
-
-                        let idsCores = _.take(data.cores, quantidadeSinc);
-                        ImagemService.sincImagemCor(idsCores).then((resultCores) => {
-                            ImagemDB.salvarCores(resultCores).then((coresSalvas) => {
-                                data.cores = _.pullAll(data.cores, idsCores);
-                                this.atuaizaParcialSinc(sinc, coresSalvas);
-
-                                let idsSelos = _.take(data.selos, quantidadeSinc);
-                                ImagemService.sincImagemSelo(idsSelos).then((resultSelos) => {
-                                    ImagemDB.salvarSelos(resultSelos).then((selosSalvos) => {
-                                        data.selos = _.pullAll(data.selos, idsSelos);
-                                        this.atuaizaParcialSinc(sinc, selosSalvos);
-
-                                        let idsSimbolos = _.take(data.simbolos, quantidadeSinc);
-                                        ImagemService.sincImagemSimbolo(idsSimbolos).then((resultSimbolos) => {
-                                            ImagemDB.salvarSimbolos(resultSimbolos).then((simbolosSalvos) => {
-                                                data.simbolos = _.pullAll(data.simbolos, idsSimbolos);
-                                                this.atuaizaParcialSinc(sinc, simbolosSalvos);
-
-                                                if (fotosSalvas > 0 || coresSalvas > 0 || selosSalvos > 0 || simbolosSalvos > 0) {
-                                                    this.downloadImagensFromData(sinc, data).then(() => resolve());
-                                                } else {
-                                                    resolve();
-                                                }
-                                            })
-                                        });
-                                    })
-                                });
-                            })
-                        });
-                    })
-                })
-            });
-        },
-        downloadCidadesFromData(sinc, siglasEstados) {
-            return new Promise((resolve) => {
-                let siglaEstado = siglasEstados[sinc.parcial];
-                if(_.isNil(siglaEstado)) {
-                    resolve();
-                } else {
-                    CidadeService.sincCidade(siglaEstado).then((estado) => {
-                        CidadeDB.salvar(estado).then(() => {
-                            this.atuaizaParcialSinc(sinc, 1);
-                            this.downloadCidadesFromData(sinc, siglasEstados).then(() => resolve());
-                        })
-                    }).catch((error) => {
-                        this.errorSinc(sinc, error);
-                    }); 
-                }
-            });
-        },
+        },        
     },
 
     beforeMount() {

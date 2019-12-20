@@ -241,14 +241,6 @@ export default {
     }
 }
 
-.modal-xl {
-    max-width: 1024px;
-    width: 97% !important; 
-    margin: 0.3rem 0.0rem 0.3rem 0.0rem;
-    z-index: 60000;
-    left: 12px;
-}
-
 .vs-con-loading-search .vs-loading {
     position: fixed;
     width: 55px;

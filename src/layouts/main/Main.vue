@@ -222,6 +222,14 @@ html, body {
     background-color: #fff;
 }
 
+.modal-xl {
+    max-width: 1024px;
+    width: 97% !important; 
+    margin: 0.3rem 0.0rem 0.3rem 0.0rem;
+    z-index: 200000 !important;
+    left: 12px;
+}
+
 .btn-left {
     position: fixed;
     top:50%;
@@ -230,7 +238,7 @@ html, body {
     border-bottom-left-radius: 0 !important;
     border-top-right-radius: 50% !important;
     border-bottom-right-radius: 50% !important;
-    z-index: 1000;
+    z-index: 300001;
     height: 6vw !important;
 }
 
@@ -242,7 +250,8 @@ html, body {
     border-bottom-right-radius: 0 !important;
     border-top-left-radius: 50% !important;
     border-bottom-left-radius: 50% !important;
-    z-index: 1000;
+    // z-index: 1000;
+    z-index: 300001;
     height: 6vw !important;
 }
 

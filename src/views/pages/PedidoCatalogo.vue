@@ -91,11 +91,7 @@
                 :key="`catalogo-${index}`"
                 v-on:click.once="selecionarCatalogo(catalogo)"
               >
-                <img
-                  :src="catalogo.base64"
-                  class="img-catalogo responsive img-ref"
-                  :alt="catalogo.nome"
-                />
+                <b-img-lazy :src="catalogo.base64" class="img-catalogo responsive img-ref" :alt="catalogo.nome" />
                 <!-- <div class="carousel-caption">
 									<div class="title-catalog">{{catalogo.nome}}</div>
                 </div>-->

@@ -84,13 +84,16 @@ class imagemDB {
         })
     }
 
-    existFoto(idFoto) {
-        ImagemFotoDB._getById(idFoto).then((fotoProduto) => {
-            if(fotoProduto.existe) {
-                return true;
-            } else {
-                return false;
-            }
+    existFoto(idsFoto) {
+        return new Promise((resolve) => {
+            ImagemFotoDB._getIds().then((idsFotoDB) => {
+                const idsFotoNew = [];
+                const done = _.after(idsFoto.length, () => resolve(idsFotoNew));
+                idsFoto.forEach(idFoto => {
+                    if (!ImagemFotoDB._exists(idsFotoDB, idFoto)) idsFotoNew.push(idFoto);
+                    done();
+                });
+            });
         });
     }
 
