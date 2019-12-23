@@ -2,7 +2,7 @@
     <b-modal 
         :id="id" 
         class="popup-cliente-search" 
-        size="xl" 
+        size="xl"
         scrollable  
         @show="zoomSearch"
         hide-footer>
