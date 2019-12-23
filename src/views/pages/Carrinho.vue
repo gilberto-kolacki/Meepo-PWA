@@ -1,31 +1,40 @@
 <template>
-	<div class="page-carrinho">
+	<div>
 		<div id="page-carrinho-edit" v-if="this.showEditProduto">
 			<add-item-carrinho @show-add-carrinho="showAddCarrinho" :produtoAdd="this.produtoAdd"></add-item-carrinho>
 		</div>
 		<div v-else-if="this.showCarrinho">
-			<div id="page-carrinho">
+			<div id="page-carrinho" class="page-carrinho">
 				<vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="showPedidos()">Pedidos</vs-button>
 				<vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltar()" icon="icon-x">Voltar</vs-button>
-				<div class="mt-5">
-					<vs-tabs alignment="fixed">
-						<vs-tab :label="segmento.nome" v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento" icon-pack="feather" icon="icon-shopping-bag">
-							<carrinho-item 
-								@show-add-carrinho="showAddCarrinho"
-								@edicao-item-carrinho="showEditCarrinho"
-								:segmento="segmento">
-							</carrinho-item>
-						</vs-tab>
-						<vs-tab label="Embarques" icon-pack="feather" icon="icon-box">
-							<embarque-item></embarque-item>
-						</vs-tab>
-					</vs-tabs>
-				</div>
-			</div>
-		</div>
-		<div v-else-if="this.showPedido">
-			<div id="page-pedidos-revisao" class="page-pedidos-revisao">
-				<carrinho-pedido @voltar-carrinho="voltarCarrinho"></carrinho-pedido>			
+				<b-tabs content-class="mt-5" justified v-if="this.showCarrinho">
+					<b-tab active lazy>
+						<template v-slot:title>
+							<strong>
+								<feather-icon icon="BoxIcon" style="color:warning;" class="cursor-pointer"/>
+								Embarques
+							</strong>
+						</template>
+						<embarque-item
+							v-model="this.embarques"
+						>
+						</embarque-item>
+					</b-tab>
+					<b-tab v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento">
+						<template v-slot:title>
+							<strong>
+								<feather-icon icon="ServerIcon" style="color:warning;" class="cursor-pointer"/>
+								{{segmento.nome}}
+							</strong>
+						</template>
+						<carrinho-item 							
+							@show-add-carrinho="showAddCarrinho"
+							@edicao-item-carrinho="showEditCarrinho"
+							@atuliza-embarques="atulizaEmbarques"
+							:segmento="segmento"
+							:produtos="getProdutosSegmento(segmento.id)"/>
+					</b-tab>
+				</b-tabs>
 			</div>
 		</div>
 		<div v-else>
@@ -33,20 +42,23 @@
 	</div>
 </template>
 <script>
-// import _ from "lodash";
+import _ from "lodash";
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import SegmentoDB from "../../rapidsoft/db/segmentoDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import AddItemCarrinho from "../../rapidsoft/components/AddItemCarrinho";
 import CarrinhoItem from "../../rapidsoft/components/CarrinhoItem";
-import CarrinhoPedido from "../../rapidsoft/components/CarrinhoPedido";
 import EmbarqueItem from "../../rapidsoft/components/EmbarqueItem";
+import ProdutoUtils from "../../rapidsoft/utils/produtoUtils";
+import Storage from "../../rapidsoft/utils/storage";
 
 export default {
 	data: () => ({
 		selected: [],
 		segmentos: [],
 		embarques: [],
+		itensCarrinho: [],
+		produtosSegmento: null,
 		showCarrinho: false,
 		showEditProduto: false,
 		showPedido: false,
@@ -60,42 +72,48 @@ export default {
 		},
 	}),
 	watch: {
-        // showCarrinho(val) {
-		// 	this.showEditProduto = false;
-		// 	this.showPedido = false;
-		// 	console.log(val);
-		// },
-		// showEditProduto(val) {
-		// 	this.showCarrinho = false;
-		// 	this.showPedido = false;
-		// 	console.log(val);
-		// },
-		// showPedido(val) {
-		// 	this.showCarrinho = false;
-		// 	this.showEditProduto = false;
-		// 	console.log(val);
-        // }
+
     },
 	components: {
 		AddItemCarrinho,
 		CarrinhoItem,
-		CarrinhoPedido,
 		EmbarqueItem,
 	},
 	computed: {
- 
+		getEmbarquesCarrinho() {
+			return this.itensCarrinho
+		}
 	},
-    methods: {		
+    methods: {
+		getProdutosSegmento(segmentoId) {
+			return this.produtosSegmento.get(segmentoId);
+		},
 		showAddCarrinho() {
 			this.gerenciaVisualizacao(1);
 			this.produtoAdd=null;
 		},
 		showPedidos() {
-			this.gerenciaVisualizacao(2);
+			const itensCarrinhoStorage = Storage.getCarrinhoItens();
+			const done = _.after(itensCarrinhoStorage.length, () => {
+				Storage.setCarrinhoItens(itensCarrinhoStorage);
+				this.$router.push({ name: 'carrinhoPedido'});
+			});        
+
+			itensCarrinhoStorage.forEach(itemStorage => {
+				const itemCarrinho = _.find(this.itensCarrinho, (itemCarrinho) => itemCarrinho.cor.idProduto === itemStorage.idProduto);
+				itemStorage.embarque = itemCarrinho.embarque;
+				done();
+			});
 		},
 		showEditCarrinho(produto) {
 			this.produtoAdd = produto;
 			this.gerenciaVisualizacao(3);
+		},
+		atulizaEmbarques() {
+			EmbarqueDB.getInfosEmbarques(this.itensCarrinho).then((embarques) => {
+				this.embarques = embarques
+				this.$forceUpdate();
+			});  
 		},
 		voltar() {
 			this.$router.go(-1);
@@ -111,11 +129,6 @@ export default {
 					this.showPedido = false;
 					this.showEditProduto = false;
 					break;				
-				case 2:
-					this.showPedido = true;
-					this.showCarrinho = false;
-					this.showEditProduto = false;
-					break;
 				case 3:
 					this.showEditProduto = true;
 					this.showPedido = false;
@@ -124,21 +137,33 @@ export default {
 				default:
 					break;
 			}
-		}
+		},
+		carregaItensTela() {
+			return new Promise((resolve) => {
+				ProdutoUtils.getCarrinho().then(carrinho => {
+					this.itensCarrinho = carrinho;
+					EmbarqueDB.getInfosEmbarques(carrinho).then((embarques) => {
+						this.embarques = embarques;
+						SegmentoDB.getSegmentosCarrinho().then(segmentos => {
+							this.segmentos = segmentos;
+							ProdutoUtils.getProdutosSegmentos(segmentos, carrinho).then((produtosSegmento) => {
+								this.produtosSegmento = produtosSegmento;
+								this.showCarrinho = true;
+								resolve();
+							});
+						});
+					});
+				});
+			});
+		},
 	},
 	beforeCreate() {
 		
 	},
-	created() {
-		EmbarqueDB._getAll().then(embarques => {
-			this.embarques = embarques;
-			SegmentoDB.getSegmentosCarrinho().then(segmentos => {
-				this.segmentos = segmentos;
-				this.showCarrinho = true;
-			})
-		});
+	async created() {
+		await this.carregaItensTela();
 	},
-    mounted() {
+    async mounted() {
         
 	},
 	updated() {
@@ -170,5 +195,7 @@ export default {
 
 .page-carrinho {
   margin-top: -15px !important;
+  margin-left: 1px !important;
+  margin-right: 1px !important;
 }
 </style>

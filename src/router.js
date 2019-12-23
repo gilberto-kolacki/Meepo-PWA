@@ -132,6 +132,16 @@ const router = new Router({
                     },
                 },
                 {
+					path: '/carrinhoPedido',
+					name: 'carrinhoPedido',
+					component: () => import('./views/pages/CarrinhoPedido.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor',
+                        navBar: false,
+                    },
+                },
+                {
 					path: '/pages/sincronizacao',
 					name: 'sincronizacao',
 					component: () => import('./views/pages/Sincronizacao.vue'),

@@ -249,10 +249,8 @@ export default {
         },
         sincCidade(sinc, all) {
             !all ? this.carregarSinc() : undefined;
-            const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
-            sinc.total = siglasEstados.length;
             CidadeDB._limparBase().then(() => {
-                SincUtils.downloadCidadesFromData(sinc, siglasEstados).then(() => {
+                SincUtils.downloadCidadesFromData(sinc).then(() => {
                     SincUtils.closeLoading(this, sinc, all);
                 })
             });

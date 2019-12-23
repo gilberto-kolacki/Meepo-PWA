@@ -20,8 +20,7 @@ class periodoDB extends BasicDB {
                 if(periodos.length > 0) {
                     const done = _.after(periodos.length, () => resolve());
                     periodos.forEach(periodo => {
-                        periodo._id = _.toString(periodo.id);
-                        this._localDB.put(periodo).then(() => done()).catch(() => done());
+                        this._salvar(periodo).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();

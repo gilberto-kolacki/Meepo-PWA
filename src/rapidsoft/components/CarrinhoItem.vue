@@ -1,16 +1,14 @@
 <template>
     <div class="parentx">
-        <div class="demo-alignment" style="margin-bottom:40px">
-            <!-- <b-button-group> -->
-                <b-dropdown  text="Ações" variant="danger">
-                    <b-dropdown-item>
-                        <span class="flex items-center">
-                            <feather-icon icon="TrashIcon" svgClasses="h-4 w-4" class="mr-2" />
-                            <span v-on:click="deleteItemsChart">Deletar</span>
-                        </span>
-                    </b-dropdown-item>
-                </b-dropdown>
-            <!-- </b-button-group> -->
+        <div class="demo-alignment" style="margin-bottom:20px">
+            <b-dropdown text="Ações" variant="danger">
+                <b-dropdown-item>
+                    <span class="flex items-center">
+                        <feather-icon icon="TrashIcon" svgClasses="h-4 w-4" class="mr-2" />
+                        <span v-on:click="deleteItemsChart">Deletar</span>
+                    </span>
+                </b-dropdown-item>
+            </b-dropdown>
         </div>
         <div class="flex carrinho-item" v-for="(produtoCor, indexItem) in this.produtosCarrinho" :key="indexItem">
             <div class="vx-col mx-1" style="justify-content:center;margin:auto">
@@ -72,7 +70,17 @@
                             v-for="(embarque, index) in getEmbarquesProdutos()"
                         />
                     </vs-select> -->
-                     <b-form-select v-model="produtoCor.embarque.id" :options="embarques" size="md" class="mt-3"></b-form-select>
+                    <b-form-select 
+                        v-model="produtoCor.embarque.id" 
+                        :options="getEmbarquesSelect"
+                        value-field="id"
+                        text-field="nome"
+                        v-on:change="getSelectedItem(produtoCor.embarque)"
+                        size="md" class="mt-3">
+                        <template v-slot:first>
+                            <option value="" disabled>-- Please select an option --</option>
+                        </template>
+                    </b-form-select>
                 </div>
             </div>
             <div class="vx-col mx-1 w-1/6" style="justify-content:center;margin:auto">
@@ -96,7 +104,7 @@ import _ from "lodash";
 import Storage from "../../rapidsoft/utils/storage";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
 import UtilMask from '../../rapidsoft/utils/utilMask'
-import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
+// import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 
@@ -107,23 +115,37 @@ export default {
             type: Object,
             required: true,
         },
+        produtos: {
+            type: Array,
+            required: true,
+        },
     },
 	data: () => ({
 		embarques: [],
         itensSelecionados: [],
         produtosCarrinho: []	    		
-	}),
+    }),
+    watch: {
+    },
 	components: {
 	},
 	computed: {
         getProdutosCorSegmento() {
 			return this.produtosCarrinho;
-		},   
+        },
+        getEmbarquesSelect() {
+            return this.embarques;
+        }
 	},
     methods: {
 		getTamanhosProduto(index) {
 			return this.produtosCarrinho[index].cor.tamanhos
-		},
+        },
+        getSelectedItem(itemSelecionado) {
+            console.log(itemSelecionado);
+            console.log(this.produtosCarrinho);            
+            this.$emit('atuliza-embarques');
+        },
 		getEmbarquesProdutos() {
             const embarques = [];
             this.produtosCarrinho.forEach(produto => {
@@ -165,28 +187,16 @@ export default {
             this.itensSelecionados = [];
             this.carregaItensTela();
         },
-        //Falar com André, segmento esta vindo como lista
-        carregaItensTela() {
-			ProdutoUtils.getCarrinho().then(carrinho => {
-                this.produtosCarrinho = carrinho.filter(produto => {
-                    return produto.segmento === this.segmento.id;
-                });
-			});
-		},
 	},
 	beforeCreate() {		
 	},
 	created() {
-        this.carregaItensTela()
-		EmbarqueDB._getAll().then(embarques => {
-            embarques.map((item) => {
-                this.embarques.push({value:item.id,text:item.nome});
-            })
-			
-		});
+        this.produtosCarrinho = this.produtos;
 	},
     mounted() {
-    
+        EmbarqueDB._getAll().then(embarques => {
+            this.embarques = embarques;
+		});
     },
 	errorCaptured(err, vm, info) {
         ErrorDB.criarLog({ err, vm, info });

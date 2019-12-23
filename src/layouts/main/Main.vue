@@ -293,4 +293,9 @@ html, body {
     }
 }
 
+.rapid-input-date {
+    font-size: 1rem !important;
+    padding: .4rem !important;
+}
+
 </style>

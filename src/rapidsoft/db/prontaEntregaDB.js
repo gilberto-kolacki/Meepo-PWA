@@ -20,8 +20,7 @@ class prontaEntregaDB extends BasicDB {
                 if(prontasEntregas.length > 0) {
                     const done = _.after(prontasEntregas.length, () => resolve());
                     prontasEntregas.forEach(prontaEntrega => {
-                        prontaEntrega._id = _.toString(prontaEntrega.id);
-                        this._localDB.put(prontaEntrega).then(() => done()).catch(() => done());
+                        this._salvar(prontaEntrega).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();

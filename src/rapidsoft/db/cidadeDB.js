@@ -92,12 +92,12 @@ class cidadeDB extends BasicDB {
                 if(cidades.length > 0) {
                     const done = _.after(cidades.length, () => resolve());
                     cidades.forEach(cidade => {
-                        this._localDB.put(cidade).then(() => done()).catch(() => done());
+                        this._salvar(cidade).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
                 }
-            })
+            });
         });
     }
 

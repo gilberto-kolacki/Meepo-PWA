@@ -74,27 +74,29 @@ class sincUtils {
                                             } else {
                                                 resolve();
                                             }
-                                        })
+                                        });
                                     });
-                                })
+                                });
                             });
-                        })
+                        });
                     });
-                })
-            })
+                });
+            });
         });
     }
 
-    downloadCidadesFromData(sinc, siglasEstados) {
+    downloadCidadesFromData(sinc) {
         return new Promise((resolve) => {
-            let siglaEstado = siglasEstados[sinc.parcial];
+            const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
+            sinc.total = siglasEstados.length;
+            const siglaEstado = siglasEstados[sinc.parcial];
             if(_.isNil(siglaEstado)) {
                 resolve();
             } else {
                 CidadeService.sincCidade(siglaEstado).then((estado) => {
                     CidadeDB.salvar(estado).then(() => {
                         this.atuaizaParcialSinc(sinc, 1);
-                        this.downloadCidadesFromData(sinc, siglasEstados).then(() => resolve());
+                        this.downloadCidadesFromData(sinc).then(() => resolve());
                     })
                 }).catch((error) => {
                     console.log(error);
@@ -103,7 +105,6 @@ class sincUtils {
         });
     }
     
-
         
 }
 

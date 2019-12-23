@@ -20,8 +20,7 @@ class refComercialDB extends BasicDB {
                 if(referenciasComerciais.length > 0) {
                     const done = _.after(referenciasComerciais.length, () => resolve());
                     referenciasComerciais.forEach(refComer => {
-                        refComer._id = _.toString(refComer.id);
-                        this._localDB.put(refComer).then(() => done()).catch(() => done());
+                        this._salvar(refComer).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
