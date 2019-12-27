@@ -2,7 +2,7 @@
     <div class="page-carrinho-pedido">
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-play" @click="gerarPedidos()">Finalizar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarCarrinho()" icon="icon-arrow-down">Carrinho</vs-button>
-        <b-tabs content-class="mt-5" justified>
+        <b-tabs content-class="mt-5" justified v-if="this.showPedido">
             <b-tab active>
                 <template v-slot:title>
                     <strong>
@@ -51,10 +51,10 @@
                             <vs-input type="number" icon-pack="feather" label="Desconto 1" icon="icon-percent" v-model="pedidoCapa.desconto1" icon-after/>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="4" vs-sm="4" vs-xs="12">
-                            <vs-input icon-pack="feather" label="Desconto 2" icon="icon-percent" v-model="pedidoCapa.desconto2" icon-after/>
+                            <vs-input type="number" icon-pack="feather" label="Desconto 2" icon="icon-percent" v-model="pedidoCapa.desconto2" icon-after/>
                         </vs-col>
                         <vs-col style="display:flex;justify-content: flex-end;" vs-lg="4" vs-sm="4" vs-xs="12">
-                            <vs-input icon-pack="feather" label="Desconto 3" icon="icon-percent" v-model="pedidoCapa.desconto3" icon-after/>
+                            <vs-input type="number" icon-pack="feather" label="Desconto 3" icon="icon-percent" v-model="pedidoCapa.desconto3" icon-after/>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
                             <vs-textarea v-model="pedidoCapa.observacao" style="margin-top:30px" label="Observação" height="100" />
@@ -69,82 +69,78 @@
                         Pedidos
                     </strong>
                 </template>
-                <div class="embarque-item" style="padding:20px" v-for="(embarqueItem, indexItem) in listEmbarqueItems" :key="indexItem">
+                <div class="embarque-item" style="padding:20px" v-for="(embarqueItem, indexItem) in this.listPedidosEmbarque" :key="indexItem">
                     <div class="vx-row flex justify-between">
-                        <vs-col vs-type="flex" vs-lg="8" vs-sm="8" vs-xs="12">
-                            <h4>{{embarqueItem.embarque[0]}}</h4>
+                        <vs-col vs-type="flex" vs-lg="12" vs-sm="12" vs-xs="12">
+                            <h4><strong>Pedido:</strong> {{embarqueItem.nome}}</h4>
                         </vs-col>
                     </div>
                     <div class="vx-row flex justify-between" style="margin-top:20px;padding-left:15px">
                         <vs-col vs-lg="6" vs-sm="6" vs-xs="12">
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label>Data Embarque: </label>
-                                <label>{{getDateFromStringDate(embarqueItem.dataEmbarque)}}</label>
+                                <label>Data Embarque: {{embarqueItem.dataEmbarque | formatDate}}</label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label>{{"Quantidade: " + embarqueItem.quantidade}} </label>
+                                <label>Quantidade: {{embarqueItem.quantidade}} </label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label>{{"Subtotal: " + getCoinFormat(embarqueItem.total)}} </label>
+                                <label>Subtotal: {{getCoinFormat(embarqueItem.total)}} </label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label>{{"Descontos: " + somarDescontos() + "%"}} </label>
+                                <label>Descontos: {{somarDescontos() + "%"}} </label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label style="font-weight:bold;">{{"Total: " + getCoinFormat(somarValorTotal(embarqueItem.total,somarDescontos(),indexItem))}} </label>
+                                <label><strong>Total:</strong> </label>
                             </div>
                         </vs-col>
                         <vs-col vs-lg="6" vs-sm="6" vs-xs="12">
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Brinde </label>
-                                <vs-checkbox @input="setBrinde(indexItem)" :v-model="embarqueItem.informacoesAdicionais.brinde"></vs-checkbox>
+                                <vs-checkbox @input="setBrinde(indexItem)" v-model="embarqueItem.brinde"></vs-checkbox>
                             </div>
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Aceita Pedido Parcial</label>
-                                <vs-checkbox @input="setPedidoParcial(indexItem)" :v-model="embarqueItem.informacoesAdicionais.pedidoParcial"></vs-checkbox>
+                                <vs-checkbox v-model="embarqueItem.pedidoParcial"></vs-checkbox>
                             </div>
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Aceita Antecipação do Pedido </label>
-                                <vs-checkbox @input="setAntecipacaoPedido(indexItem)" :v-model="embarqueItem.informacoesAdicionais.antecipacaoPedido"></vs-checkbox>
+                                <vs-checkbox v-model="embarqueItem.antecipacaoPedido"></vs-checkbox>
                             </div>
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Enviar Cópia Por Email </label>
-                                <vs-checkbox @input="setCopiaEmail(indexItem)" :v-model="embarqueItem.informacoesAdicionais.copiaEmail"></vs-checkbox>
+                                <vs-checkbox v-model="embarqueItem.copiaEmail"></vs-checkbox>
+                            </div>
+                            <div class="vx-row" style="justify-content: flex-end;">
+                                <label>Orçamento</label>
+                                <vs-checkbox v-model="embarqueItem.orcamento"></vs-checkbox>
                             </div>
                         </vs-col>
                     </div>
-                    <div class="vx-row flex" style="margin-top:20px;padding-left:15px" v-if="!embarqueItem.informacoesAdicionais.brinde">
-                        <h4> Pagamento </h4>
-                        <vx-tooltip text="Cartão de Crédito" position="right" v-if="embarqueItem.formaPagamento.value === 4">
-                            <feather-icon icon="CreditCardIcon" style="color:warning;margin-left:10px" class="cursor-pointer" v-if="embarqueItem.formaPagamento.value === 4"></feather-icon>
-                        </vx-tooltip>
-                        <vx-tooltip text="Boleto" position="right" v-if="embarqueItem.formaPagamento.value === 1">
-                            <feather-icon icon="FileTextIcon" style="color:warning;margin-left:10px" class="cursor-pointer" v-if="embarqueItem.formaPagamento.value === 1"></feather-icon>
-                        </vx-tooltip>
-                        <vx-tooltip text="Depósito Antecipado" position="right" v-if="embarqueItem.formaPagamento.value === 2">
-                            <feather-icon icon="DollarSignIcon" style="color:warning;margin-left:10px" class="cursor-pointer" v-if="embarqueItem.formaPagamento.value === 2"></feather-icon>
-                        </vx-tooltip>
-                        <vx-tooltip text="Brinde" position="right" v-if="embarqueItem.formaPagamento.value === 5">
-                            <feather-icon icon="GiftIcon" style="color:warning;margin-left:10px" class="cursor-pointer" v-if="embarqueItem.formaPagamento.value === 5"></feather-icon>
-                        </vx-tooltip>
-                    </div>
-                    <div class="vx-row flex justify-between" style="padding:15px" v-if="!embarqueItem.informacoesAdicionais.brinde">
-                        <vs-col vs-lg="5" vs-sm="5" vs-xs="12">
-                            <div class="vx-row">
+                    <div v-if="!embarqueItem.brinde">
+                        <h4>Pagamento</h4>
+                        <div class="vx-row flex justify-between" style="padding:15px">
+                            <vs-col vs-lg="5" vs-sm="6" vs-xs="12">
                                 <label>Forma de Pagamento</label>
-                            </div>
-                            <div class="vx-row">
-                                <v-select @input="selecionarCondicaoPagamento(indexItem)" id="formaPgto" style="width:100%" name="formaPgto" :clearable=false v-model="embarqueItem.formaPagamento" :options="getFormasPagto" :dir="$vs.rtl ? 'rtl' : 'ltr'"/>
-                            </div>
-                        </vs-col>
-                        <vs-col vs-lg="5" vs-sm="5" vs-xs="12" v-if="embarqueItem.formaPagamento.value !== 1 && embarqueItem.formaPagamento.value !== 5">
-                            <div class="vx-row">
+                                <v-select 
+                                    @input="selecionarCondicaoPagamento(indexItem)"
+                                    id="formaPgto" 
+                                    style="width:100%" 
+                                    :clearable=false 
+                                    v-model="embarqueItem.formaPagamento" 
+                                    :options="getFormasPagto" 
+                                    :dir="$vs.rtl ? 'rtl' : 'ltr'"/>
+                            </vs-col>
+                            <vs-col vs-lg="5" vs-sm="6" vs-xs="12" v-if="condicoesPagto">
                                 <label>Condição de Pagamento</label>
-                            </div>
-                            <div class="vx-row">
-                                <v-select id="CondicaoPgto" required=true name="CondicaoPgto" style="width:100%" :clearable=false v-model="embarqueItem.condicaoPagamento" :options="embarqueItem.condicoesPagamento" :dir="$vs.rtl ? 'rtl' : 'ltr'"/>
-                            </div>
-                        </vs-col>
+                                <v-select 
+                                    id="condicaoPgto" 
+                                    style="width:100%" 
+                                    :clearable=false
+                                    v-model="embarqueItem.condicaoPagamento" 
+                                    :options="getCondPagtoFormaPagto(embarqueItem.formaPagamento)" 
+                                    :dir="$vs.rtl ? 'rtl' : 'ltr'"/>
+                            </vs-col>
+                        </div>
                     </div>
                 </div>
             </b-tab>
@@ -153,7 +149,7 @@
     </div>
 </template>
 <script>
-// import _ from "lodash";
+import _ from "lodash";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 // import Storage from "../utils/storage";
 import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
@@ -165,21 +161,26 @@ import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import vSelect from 'vue-select';
 
-
 export default {
 	data: () => ({
         pedidoCapa: null,
+        showPedido: false,
         idPopUpSearch: 'popup-cliente-search',
         formasPagto: [],
+        condicoesPagto: [],
         embarques:[],
-        listEmbarqueItems:[],
+        listPedidosEmbarque:[],
         dataEmbarque:[],
         condicaoPagamento: [],
         observacao:'',
-        descontos:{d1:0,d2:0,d3:0},
+        condigoBrinde: 5,
+        condigoBoleto: 1,
     }),
     watch: {
-        
+        formasPagto(val) {
+            console.log(val);
+            
+        }
     },
 	components: {
         SearchCliente,
@@ -194,118 +195,67 @@ export default {
             } else return [];
         },
         getFormasPagto() {
-            return this.formasPagto.map((formaPagto) => {
-                return {label:formaPagto.nome, value:formaPagto.id,formaPgto:formaPagto}
-            });
-        }
-         
+            return this.formasPagto.map((formaPagto) => this.getValueSelectFormaPagto(formaPagto));
+        },
 	},
     methods: {
         selecionarCondicaoPagamento(indexItem) {
-            this.listEmbarqueItems[indexItem].condicoesPagamento = [];
-            const listConditions = this.listEmbarqueItems[indexItem].formaPagamento.formaPgto.condicoes ?
-                this.listEmbarqueItems[indexItem].formaPagamento.formaPgto.condicoes : [];
-            if (listConditions.length > 0) {
-                this.listEmbarqueItems[indexItem].condicaoPagamento = {
-                    value: listConditions[0].id,
-                    label:listConditions[0].nome,
-                    parcelas:listConditions[0].parcelas
-                };
-                listConditions.map((item) => {
-                    this.listEmbarqueItems[indexItem].condicoesPagamento.push({value:item.id,label:item.nome,parcelas:item.parcelas})
-                })    
+            const formaPagto = this.listPedidosEmbarque[indexItem].formaPagamento.formaPgto;
+            if (formaPagto.id == this.condigoBrinde) {
+                this.listPedidosEmbarque[indexItem].brinde = true;
+                this.condicoesPagto = null;
+                this.listPedidosEmbarque[indexItem].condicaoPagamento = null;
+            } else if (formaPagto.id == this.condigoBoleto) {
+                this.condicoesPagto = null;
+                this.listPedidosEmbarque[indexItem].condicaoPagamento = null;
+            } else {
+                this.listPedidosEmbarque[indexItem].condicoesPagamento = [];
+                const condicoes = formaPagto.condicoes && formaPagto.condicoes.length > 0 ? formaPagto.condicoes : [];
+                this.condicoesPagto = condicoes;
+                if (condicoes.length > 0) {
+                    this.listPedidosEmbarque[indexItem].condicaoPagamento = {
+                        value: condicoes[0].id,
+                        label:condicoes[0].nome,
+                        parcelas:condicoes[0].parcelas
+                    };
+                }
             }
         },
-        refreshcard() {
-            this.$vs.loading({
-                container: this.$refs.content,
-                scale: 0.5,
-            });
-            this.tempHidden = true;
-            this.$emit("refresh", this);
-        },
-        removeRefreshAnimation(time=100) {
-            setTimeout( ()=> {
-                this.$vs.loading.close(this.$refs.content)
-                this.tempHidden = false;
-            }, time)
+        getCondPagtoFormaPagto(formaPagamento) {
+            if (formaPagamento) {
+                return formaPagamento.formaPgto.condicoes.map((condPagto) => {
+                    return {label:condPagto.nome, value:condPagto.id, formaPgto:condPagto}
+                });
+            }
         },
         somarValorTotal(total, descontos,indexItem){
-            this.listEmbarqueItems[indexItem].valueBeforeDiscount = total - (total * descontos / 100)
-            return total - (total * descontos / 100)
-        },
-        setCopiaEmail(indexItem){
-            this.listEmbarqueItems[indexItem].informacoesAdicionais.copiaEmail = !this.listEmbarqueItems[indexItem].informacoesAdicionais.copiaEmail
+            this.listPedidosEmbarque[indexItem].valueBeforeDiscount = total - (total * descontos / 100);
+            return total - (total * descontos / 100);
         },
         somarDescontos(){
-            return parseInt(this.descontos.d1) + parseInt(this.descontos.d2) + parseInt(this.descontos.d3)
+            return parseInt(this.pedidoCapa.desconto1) + parseInt(this.pedidoCapa.desconto2) + parseInt(this.pedidoCapa.desconto3);
         },
         setDescontos(){
         },
+        getValueSelectFormaPagto(formaPagto) {
+            return {label:formaPagto.nome, value:formaPagto.id, formaPgto:formaPagto};
+        },
         setBrinde(indexItem){
-            this.listEmbarqueItems[indexItem].informacoesAdicionais.brinde = !this.listEmbarqueItems[indexItem].informacoesAdicionais.brinde
-            this.listEmbarqueItems[indexItem].formaPagamento = {value:4,label:'Brinde'};
-        },
-        setPedidoParcial(indexItem){
-            this.listEmbarqueItems[indexItem].informacoesAdicionais.pedidoParcial = !this.informacoesAdicionais.pedidoParcial;
-        },
-        setAntecipacaoPedido(indexItem){
-            this.listEmbarqueItems[indexItem].informacoesAdicionais.antecipacaoPedido = !this.informacoesAdicionais.antecipacaoPedido;
+            if (this.listPedidosEmbarque[indexItem].brinde) {
+                const brinde = _.find(this.formasPagto, (formaPagto) => formaPagto.id == this.condigoBrinde );
+                this.listPedidosEmbarque[indexItem].formaPagamento = this.getValueSelectFormaPagto(brinde);
+            } else {
+                this.listPedidosEmbarque[indexItem].formaPagamento = null;
+            }
+            this.listPedidosEmbarque[indexItem].condicaoPagamento = null;
         },
         getCoinFormat(value) {
 			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
         },
-        getDateFromStringDate(inputFormat) {
-            function pad(valueDate) {
-                return valueDate < 10 ? "0" + valueDate : valueDate;
-            }
-            var date = new Date(parseInt(inputFormat));
-            var dataEmbarque = [
-                pad(date.getMonth() + 1),
-                pad(date.getDate()),
-                date.getFullYear()
-            ].join("/");
-            return dataEmbarque
-        },
-        getProdutosPorEmbarques(idEmbarque) {
-            let produtos = [];
-            let quantProdutosEmbarque = 0;
-            let totalProdutosEmbarque = 0;
-            let dataEmbarque = 0;
-            let embarque = [];
-
-            ProdutoUtils.getCarrinho().then(carrinho => {
-                produtos = carrinho.filter(produto => {
-                    return produto.embarque.id === idEmbarque;
-                });
-                if (produtos.length > 0) {
-                    let embarqueSelecionado = "";
-                    produtos.forEach(item => {
-                        quantProdutosEmbarque += item.cor.quantidade;
-                        totalProdutosEmbarque = item.cor.quantidade * item.cor.precoVenda;
-                        dataEmbarque = item.embarque.dataInicio;
-                        embarqueSelecionado = item.embarque;
-                    });
-                    embarque.push(embarqueSelecionado.nome)
-                    this.listEmbarqueItems.push({id:idEmbarque,
-                        embarque,
-                        dataEmbarque,
-                        quantidade: quantProdutosEmbarque,
-                        total: totalProdutosEmbarque,
-                        informacoesAdicionais:{
-                            brinde:false,
-                            pedidoParcial:false,
-                            antecipacaoPedido:false
-                        },
-                        formaPagamento:{id: null, label: '',condicoesPagamento:[]},
-                        condicaoPagamento:{}
-                    })
-                }
-                
-            });
-        },
 		gerarPedidos() {
+            PedidoUtils.gerarPedidosFromEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then(() => {
 
+            });
         },
         voltarCarrinho() {
             this.$router.go(-1);
@@ -322,9 +272,9 @@ export default {
                     this.formasPagto = formaPagto;
                     ProdutoUtils.getCarrinho().then(carrinho => {
                         this.itensCarrinho = carrinho;
-                        EmbarqueDB.getInfosEmbarques(carrinho).then((embarques) => {
-                            this.embarques = embarques;
-                            this.showCarrinho = true;
+                        EmbarqueDB.getPedidosPorEmbarques(carrinho).then((embarques) => {
+                            this.listPedidosEmbarque = embarques;
+                            this.showPedido = true;
                             resolve();
                         });
                     });

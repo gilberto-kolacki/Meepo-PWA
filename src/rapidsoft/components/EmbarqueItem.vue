@@ -15,11 +15,12 @@
                 <div class="vx-col sm:w-1/5 w-full mb-2">
                     <label for="dataEmbarque" class="vs-input--label">Data Embarque</label>
                     <datepicker
+                        @input="changeData(indexItem)"
                         placeholder="DD/MM/AAAA" 
                         v-model="embarqueItem.dataEmbarque" 
                         format="dd/MM/yyyy" 
                         name="dataEmbarque" 
-                        :language="langSettings"                         
+                        :language="langSettings"  
                         input-class="vs-inputx vs-input--input normal rapid-input-date">
                     </datepicker>
                 </div>
@@ -76,7 +77,10 @@ export default {
 			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
         },
         carregaItensTela() {
-		},
+        },
+        changeData(indexItem) {
+            this.embarques[indexItem].dataEmbarque = this.embarques[indexItem].dataEmbarque.getTime();
+        }
     },
     beforeCreate() {
 

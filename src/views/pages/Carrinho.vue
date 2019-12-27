@@ -42,7 +42,7 @@
 	</div>
 </template>
 <script>
-import _ from "lodash";
+// import _ from "lodash";
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import SegmentoDB from "../../rapidsoft/db/segmentoDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
@@ -50,7 +50,8 @@ import AddItemCarrinho from "../../rapidsoft/components/AddItemCarrinho";
 import CarrinhoItem from "../../rapidsoft/components/CarrinhoItem";
 import EmbarqueItem from "../../rapidsoft/components/EmbarqueItem";
 import ProdutoUtils from "../../rapidsoft/utils/produtoUtils";
-import Storage from "../../rapidsoft/utils/storage";
+// import Storage from "../../rapidsoft/utils/storage";
+import PedidoUtils from '../../rapidsoft/utils/pedidoUtils';
 
 export default {
 	data: () => ({
@@ -93,16 +94,8 @@ export default {
 			this.produtoAdd=null;
 		},
 		showPedidos() {
-			const itensCarrinhoStorage = Storage.getCarrinhoItens();
-			const done = _.after(itensCarrinhoStorage.length, () => {
-				Storage.setCarrinhoItens(itensCarrinhoStorage);
+			PedidoUtils.setEmbarqueItensCarrinho(this.itensCarrinho).then(() => {
 				this.$router.push({ name: 'carrinhoPedido'});
-			});        
-
-			itensCarrinhoStorage.forEach(itemStorage => {
-				const itemCarrinho = _.find(this.itensCarrinho, (itemCarrinho) => itemCarrinho.cor.idProduto === itemStorage.idProduto);
-				itemStorage.embarque = itemCarrinho.embarque;
-				done();
 			});
 		},
 		showEditCarrinho(produto) {

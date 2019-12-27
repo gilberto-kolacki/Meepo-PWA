@@ -69,6 +69,30 @@ class embarqueDB extends BasicDB {
         });
     }
 
+    getPedidosPorEmbarques(carrinho) {
+        return new Promise((resolve) => {
+            const grupo = Storage.getGrupoCarrinho();
+            const embarques = new Map();
+            const done = _.after(carrinho.length, () => resolve([...embarques.values()]));
+            carrinho.forEach(produto => {
+                if (!embarques.has(produto.embarque.id)) {
+                    embarques.set(produto.embarque.id, produto.embarque);
+                }
+                const embarque = embarques.get(produto.embarque.id);
+                embarque.brinde = false;
+                embarque.pedidoParcial = false;
+                embarque.antecipacaoPedido = false;
+                embarque.copiaEmail = false;
+                embarque.quantidade = (embarque.quantidade || 0 ) + produto.cor.quantidade;
+                embarque.valor = ((embarque.valor || 0 ) + produto.cor.precoVenda);
+                embarque.valor = _.round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
+                embarque.total = embarque.quantidade * embarque.valor;
+                embarque.dataEmbarque = new Date(_.toNumber(embarque.dataInicio));
+                done();
+            });
+        });
+    }
+
 }
 
 export default new embarqueDB();
