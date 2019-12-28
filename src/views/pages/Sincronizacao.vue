@@ -62,6 +62,7 @@ import CidadeDB from '../../rapidsoft/db/cidadeDB'
 import CatalogoDB from '../../rapidsoft/db/catalogoDB'
 import RefComercialDB from '../../rapidsoft/db/referenciaComercialDB'
 import ErrorDB from '../../rapidsoft/db/errorDB'
+import PedidoDB from '../../rapidsoft/db/pedidoDB'
 
 export default {
     data() {
@@ -254,7 +255,12 @@ export default {
                     SincUtils.closeLoading(this, sinc, all);
                 })
             });
-        },        
+        },
+        sincPedido(sinc, all) {
+            PedidoDB._limparBase().then(() => {
+                SincUtils.closeLoading(this, sinc, all);
+            });
+        }     
     },
 
     beforeMount() {

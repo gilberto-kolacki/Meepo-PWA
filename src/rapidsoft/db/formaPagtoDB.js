@@ -25,7 +25,7 @@ class formaPagtoDB extends BasicDB {
                 } else {
                     resolve();
                 }
-            })
+            });
         });
     }
 

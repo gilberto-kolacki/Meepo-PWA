@@ -1,6 +1,6 @@
-import _ from "lodash";
-import Storage from '../utils/storage';
-import PedidoDB from '../db/pedidoDB';
+import _ from "lodash"
+import Storage from '../utils/storage'
+// import PedidoDB from '../db/pedidoDB'
 
 class pedidoUtils {
 
@@ -48,7 +48,13 @@ class pedidoUtils {
 
             const done = _.after(embarques.length, () => resolve());
             embarques.forEach(embarque => {
-                PedidoDB.getNextIdPedido(() => {
+
+                console.log(embarque);
+
+                // console.log(PedidoDB);
+                
+                
+                // PedidoDB.getNextIdPedido(() => {
 
                     const itensEmbarque = itens.filter((item) => item.embarque.id == embarque.id );
                     console.log(embarque);
@@ -56,7 +62,7 @@ class pedidoUtils {
                     
                     
                     done();
-                });
+                // });
             });
         });
     }

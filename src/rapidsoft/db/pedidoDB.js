@@ -1,27 +1,16 @@
 /*=========================================================================================
   File Name: pedidoDB.js
-  Description: Classe de banco de Pedidos
+  Description: Classe de banco de pedidos
   ----------------------------------------------------------------------------------------
   Author: Giba
 ==========================================================================================*/
-
-import BasicDB from './basicDB'
-// import _ from 'lodash';
+import BasicDB from './basicDB';
 
 class pedidoDB extends BasicDB {
 
-    constructor() {
-        super("pedido", true);
-    }
-
-    // getNextIdPedido() {
-    //     return new Promise((resolve) => {
-    //         this._getIds().then((idsPedidos) => {
-    //             console.log(idsPedidos);
-    //             resolve();
-    //         });
-    //     });
-    // }
+  constructor() {
+    super("pedido", true);
+  }
 
 }
 

@@ -159,6 +159,7 @@ import SearchCliente  from '../../rapidsoft/components/SearchCliente'
 import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
+import PedidoDB from "../../rapidsoft/db/pedidoDB";
 import vSelect from 'vue-select';
 
 export default {
@@ -294,6 +295,8 @@ export default {
     mounted() {
         PedidoUtils.newPedido().then((pedido) => {
             this.pedidoCapa = pedido;
+            console.log(PedidoDB);
+            
         });
     },
 	errorCaptured(err, vm, info) {
