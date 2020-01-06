@@ -66,34 +66,36 @@
       </div>
     </vs-col>
     <div class="vx-col w-full h-12">
-        <div class="vx-row">
-            <div class="flex w-full items-center justify-center">
-                <div
-                    id="carouselExampleIndicators"
-                    class="carousel slide"
-                    data-ride="carousel"
-                    v-if="catalogos.length > 0"
-                >
-                    <b-carousel
-                        id="carousel-1"
-                        no-animation
-                        v-model="slide"
-                        indicators
-                        :interval="0"
-                        ref="carrossel_catalogo"
-                        style="width:100%;border-radius: 0.5rem !important;"
+        <div class="vx-row justify-center">
+            <div class="flex w-full items-center justify-center lg:w-1/2 sm:w-1 md:w-full">
+                <div class="carousel-inner">
+                    <div
+                        id="carouselExampleIndicators"
+                        class="carousel slide"
+                        data-ride="carousel"
+                        v-if="catalogos.length > 0"
                     >
-                    
-                        <div
-                        style="border-radius: 0.5rem !important;" 
-                            v-for="(catalogo,index) in getCatalogos" 
-                            :key="`slide-to-${index}`"
-                            v-on:click.once="selecionarCatalogo(catalogo)"
+                        <b-carousel
+                            id="carousel-1"
+                            no-animation
+                            v-model="slide"
+                            indicators
+                            :interval="0"
+                            ref="carrossel_catalogo"
+                            style="width:100%;border-radius: 0.5rem !important;"
                         >
-                            <b-carousel-slide style="width:100%" class="img-catalogo responsive img-ref" :img-src="catalogo.base64" />
-                        </div>
+                        
+                            <div
+                                style="border-radius: 0.5rem !important;" 
+                                v-for="(catalogo,index) in getCatalogos" 
+                                :key="`slide-to-${index}`"
+                                v-on:click.once="selecionarCatalogo(catalogo)"
+                            >
+                                <b-carousel-slide style="width:100%" class="img-catalogo responsive img-ref" :img-src="catalogo.base64" />
+                            </div>
 
-                    </b-carousel>
+                        </b-carousel>
+                    </div>
                 </div>
             </div>
         </div>
@@ -120,7 +122,8 @@ export default {
 			idPopUpSearch: 'popup-cliente-search',
 			catalogos: [],
 			catalogo: null,
-			grupoClientePadrao: null,
+            grupoClientePadrao: null,
+            slide:null
 		}
 	},
 	components: {
@@ -134,37 +137,39 @@ export default {
 	methods: {
         prev() {
             this.$refs.carrossel_catalogo.prev()
+            this.prevSlide();
         },
         next() {
             this.$refs.carrossel_catalogo.next()
+            this.nextSlide()
         },
 		selecionarCatalogo(catalogo) {
-			this.isShowing = false;
 			const clientePedido = Storage.getClienteCarrinho();
 			if (clientePedido && clientePedido.grupoCliente) {
-				GrupoClienteDB.getById(clientePedido.grupoCliente).then((grupoCliente) => {
+                GrupoClienteDB.getById(clientePedido.grupoCliente).then((grupoCliente) => {
+                    console.log(grupoCliente);
+                    
 					Storage.setGrupoCarrinho(grupoCliente);
 					this.carregarCatalogo(catalogo);
 				});
 			} else {
-				Storage.setGrupoCarrinho(this.grupoClientePadrao);
+                Storage.setGrupoCarrinho(this.grupoClientePadrao);
 				this.carregarCatalogo(catalogo);
 			}
 		},
 		carregarCatalogo(catalogo) {
-			Storage.setCatalogo(catalogo);
-			setTimeout(() => {
+            setTimeout(() => {
+                Storage.setCatalogo(catalogo);
 				this.$router.push({ name: 'catalogoItem', params: {idCatalogo: catalogo.idCatalogo, idSegmento: catalogo.idSegmento }});
 			}, 100);
+			this.isShowing = false;
 		},
 		setActiveItemCarousel(proximo) {
 			if (this.catalogos.length > 0) {
-                console.log("IF 1");
                 
                 this.catalogo = this.catalogos[proximo];
                 
 				if (document.getElementById("carousel-item-"+proximo)) {
-                    console.log("IF");
                     
 					for (let index = 0; index < this.catalogos.length; index++) {
 						document.getElementById("carousel-item-"+index).classList.remove("active");
@@ -174,13 +179,11 @@ export default {
 					document.getElementById("carousel-slide-"+proximo).classList.add("active");
 				}
 			} else {
-                console.log('ELSE');
-                
 				this.setActiveItemCarousel(proximo);
 			}
 		},
 		showSidebar() {
-      return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
+        return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
     },
 		prevSlide() {
 			const anterior = _.findIndex(this.catalogos, (catalogo) => { return catalogo.idCatalogo === this.catalogo.idCatalogo })-1;
