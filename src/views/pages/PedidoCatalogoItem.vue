@@ -347,11 +347,11 @@ export default {
         }
     },
     created() {
-        console.log('created');
+        // console.log('created');
     },
     beforeMount() {
         this.grupoCliente = Storage.getGrupoCarrinho();
-        console.log('beforeMount');
+        // console.log('beforeMount');
     },
     mounted() {
         // document.getElementById('loading-bg').style.display = "none";
