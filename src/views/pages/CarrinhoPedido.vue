@@ -254,8 +254,13 @@ export default {
 			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
         },
 		gerarPedidos() {
-            PedidoUtils.gerarPedidosFromEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then(() => {
-
+            PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
+                const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
+                pedidos.forEach(pedido => {
+                    PedidoDB.salvarPedido(pedido).then(() => {
+                        done();
+                    });
+                });
             });
         },
         voltarCarrinho() {
@@ -295,8 +300,6 @@ export default {
     mounted() {
         PedidoUtils.newPedido().then((pedido) => {
             this.pedidoCapa = pedido;
-            console.log(PedidoDB);
-            
         });
     },
 	errorCaptured(err, vm, info) {

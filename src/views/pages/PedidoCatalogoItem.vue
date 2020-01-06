@@ -7,7 +7,7 @@
         <div v-if="this.produtoA">
             <vs-button @click.stop="prevRef" color="primary" type="filled" class="btn-left" icon="chevron_left"></vs-button>
             <vs-button @click.stop="nextRef" color="primary" type="filled" class="btn-right" icon="chevron_right"></vs-button>
-            <vs-button @click.stop="abrirCarrinho" color="warning" type="filled" class="btn-carrinho" icon="shopping_cart"></vs-button>
+            <vs-button @click.stop="abrirCarrinho" color="warning" type="filled" class="btn-carrinho" :disabled="existeCarrinho()" icon="shopping_cart"></vs-button>
         </div>
         <vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12">
             <div class="vx-row">
@@ -216,6 +216,9 @@ export default {
                 iconPack: 'feather',
                 icon:'icon-dollar-sign'
             })
+        },
+        existeCarrinho() {
+            return !Storage.existeCarrinho();
         },
         calcularPrecoProduto(produto) {
             const percentual = _.toNumber(this.grupoCliente.porcentagem);

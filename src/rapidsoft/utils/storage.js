@@ -16,6 +16,10 @@ class storage {
         localStorage.removeItem(chave);
     }
 
+    existeCarrinho() {
+        return localStorage.getItem('carrinho') != null ? true : false;
+    }
+
     getCarrinho() {
         if (localStorage.getItem('carrinho')) {
             return JSON.parse(localStorage.getItem('carrinho'));
@@ -35,6 +39,10 @@ class storage {
 
     setCarrinho(carrinho) {
         localStorage.setItem('carrinho', JSON.stringify(carrinho));
+    }
+
+    deleteCarrinho() {
+        localStorage.removeItem('carrinho');
     }
 
     getCarrinhoItens() {
@@ -62,6 +70,10 @@ class storage {
 
     setGrupoCarrinho(grupo) {
         localStorage.setItem('grupoCarrinho', JSON.stringify(grupo));
+    }
+
+    deleteGrupoCarrinho() {
+        localStorage.removeItem('grupoCarrinho');
     }
 
     setClienteCarrinho(cliente) {

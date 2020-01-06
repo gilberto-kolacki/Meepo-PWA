@@ -53,12 +53,6 @@ export default [
     icon: "ShoppingCartIcon",
   },
   {
-    url: "/pedido/cadastro",
-    name: "Novo Pedido",
-    slug: "Pedido",
-    icon: "ShoppingCartIcon",
-  },
-  {
     url: "/catalogo",
     name: "Catálogo",
     slug: "Pedido",

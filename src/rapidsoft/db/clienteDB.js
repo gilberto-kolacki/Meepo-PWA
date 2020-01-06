@@ -256,9 +256,8 @@ class clienteDB extends BasicDB {
             }).catch((err) => {
                 ErrorDB.criarLogDB({url:'db/clienteDB',method:'listarConsulta',message: err,error:'Failed Request'})
                 resolve(err);
-            })
-
-            })
+            });
+        });
     }
 
     listar() {

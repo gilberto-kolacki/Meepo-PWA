@@ -57,6 +57,7 @@ class basicDB {
     constructor(name, remote = false) {
         this._name = name;
         this._remote = remote;
+        this._lastId = null;
         create(this._name, this._remote, (localDB, remoteDB) => {
             this._localDB = localDB;
             this._remoteDB = remoteDB;
@@ -95,7 +96,7 @@ class basicDB {
         return new Promise((resolve, reject) => {
             value._id = _.toString(value.id ? value.id : value._id);
             this._localDB.put(value).then((result) => {
-                resolve(result);
+                resolve(_.toNumber(result.id));
             }).catch((erro) => {
                 // ErrorDB.criarLogDB({url:'db/basicDB',method:'_salvar',message: erro,error:'Failed Request'});
                 reject(erro);
@@ -138,6 +139,29 @@ class basicDB {
             }).catch((err) => {
                 // ErrorDB.criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
                 resolve(err);
+            });
+        });
+    }
+
+    _createIndex(indexName) {
+        this._localDB.createIndex({index: {fields: [indexName]}});
+    }
+
+    _findLastId() {
+        return new Promise((resolve) => {
+            this._localDB.find({
+                selector: {
+                    id: {$gte: null}
+                },
+                sort: [{'id':'desc'}],
+                limit: 1
+            }).then((result) => {
+                if (result.docs.length == 1) {
+                    this._lastId = result.docs[0].id;
+                } else {
+                    this._lastId = 0;
+                }
+                resolve(this._lastId);
             });
         });
     }

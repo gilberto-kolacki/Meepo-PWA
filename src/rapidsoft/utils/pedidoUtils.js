@@ -1,6 +1,5 @@
-import _ from "lodash"
-import Storage from '../utils/storage'
-// import PedidoDB from '../db/pedidoDB'
+import _ from "lodash";
+import Storage from '../utils/storage';
 
 class pedidoUtils {
 
@@ -41,30 +40,25 @@ class pedidoUtils {
         });
     }
 
-    gerarPedidosFromEmbarques(pedido, embarques) {
+    gerarPedidosPorEmbarques(pedido, embarques) {
         return new Promise((resolve) => {
-            console.log("pedido", pedido);
+            const pedidosNew = [];
             const itens = Storage.getCarrinhoItens();
-
-            const done = _.after(embarques.length, () => resolve());
+            const done = _.after(embarques.length, () => resolve(pedidosNew));
             embarques.forEach(embarque => {
-
-                console.log(embarque);
-
-                // console.log(PedidoDB);
-                
-                
-                // PedidoDB.getNextIdPedido(() => {
-
-                    const itensEmbarque = itens.filter((item) => item.embarque.id == embarque.id );
-                    console.log(embarque);
-                    console.log(itensEmbarque);
-                    
-                    
-                    done();
-                // });
+                const newPedido = _.cloneDeep(pedido);
+                newPedido.itens = _.cloneDeep(itens.filter((item) => item.embarque.id == embarque.id ));
+                pedidosNew.push(newPedido);
+                done();
             });
         });
+    }
+
+    concluirGeracaoPedidos(view) {        
+        Storage.deleteCarrinho();
+        Storage.deleteGrupoCarrinho();
+        Storage.deleteClienteCarrinho();
+        view.$router.push({ name: 'pedidoConsulta'});
     }
 
         
