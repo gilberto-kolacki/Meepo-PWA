@@ -168,32 +168,43 @@ export default {
 		selectSearchCliente() {
 			
         },
+        buscaGrupoPadrao() {
+            return new Promise((resolve) => {
+                GrupoClienteDB.getGrupoPadrao().then((grupoClientePadrao) => {
+                    this.grupoClientePadrao = grupoClientePadrao;
+                    resolve();
+                });
+            });
+        },
         carregaItensTela() {
             return new Promise((resolve) => {
-                CatalogoDB._getAll().then((catalogos) => {
-                    this.catalogos = catalogos;
-                    GrupoClienteDB.getGrupoPadrao().then((grupoClientePadrao) => {
-                        this.grupoClientePadrao = grupoClientePadrao;
+                // GrupoClienteDB.getGrupoPadrao().then((grupoClientePadrao) => {
+                //     console.log(grupoClientePadrao);
+                    
+                    // this.grupoClientePadrao = grupoClientePadrao;
+                    // alert('achou')
+                    CatalogoDB._getAll().then((catalogos) => {
+                        this.catalogos = catalogos;
                         this.abrirPesquisaCliente();
                         this.isShowing = true;
                         document.getElementById('loading-bg').style.display = "none";
                         resolve();
                     });
-                });
+                // });
             });
         }
 	},
 	beforeCreate() {
 		document.getElementById('loading-bg').style.display = null;
 	},
-	created() {
-		Storage.deleteClienteCarrinho();
-	},
-	async beforeMount() {
+	async created() {
+        Storage.deleteClienteCarrinho();
         await this.carregaItensTela();
-    },
-	mounted() {
-
+	},
+	beforeMount() {
+        },
+	async mounted() {
+        await this.buscaGrupoPadrao();
 	},
 	updated() {
 		

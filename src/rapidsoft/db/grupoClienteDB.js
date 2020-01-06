@@ -13,6 +13,7 @@ class grupoClienteDB extends BasicDB {
 
     constructor() {
         super("grupo_cliente");
+        this._createIndex('padrao');
     }
 
     salvarSinc(gruposCliente) {
@@ -32,15 +33,32 @@ class grupoClienteDB extends BasicDB {
 
     getGrupoPadrao() {
         return new Promise((resolve) => {
-            this._getAll().then((grupos) => {
-                const grupo = grupos.filter((grupo) => grupo.padrao === true)[0];
-                resolve(grupo)
-            }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/grupoClienteDB',method:'getGrupoPadrao',message: err,error:'Failed Request'});
-                resolve(err);
+            this._localDB.find({
+                selector: {
+                    padrao: {$eq: true}
+                },
+                // limit: 1
+            }).then((result) => {
+                if (result.docs.length == 1) {
+                    resolve(result.docs[0]);
+                } else {
+                    resolve(null);
+                }
             });
         });
     }
+
+    // getGrupoPadrao() {
+    //     return new Promise((resolve) => {
+    //         this._getAll().then((grupos) => {
+    //             const grupo = grupos.filter((grupo) => grupo.padrao === true)[0];
+    //             resolve(grupo)
+    //         }).catch((err) => {
+    //             ErrorDB.criarLogDB({url:'db/grupoClienteDB',method:'getGrupoPadrao',message: err,error:'Failed Request'});
+    //             resolve(err);
+    //         });
+    //     });
+    // }
 
     getById(idGrupoCliente) {
         return new Promise((resolve) => {

@@ -145,26 +145,7 @@ class basicDB {
 
     _createIndex(indexName) {
         this._localDB.createIndex({index: {fields: [indexName]}});
-    }
-
-    _findLastId() {
-        return new Promise((resolve) => {
-            this._localDB.find({
-                selector: {
-                    id: {$gte: null}
-                },
-                sort: [{'id':'desc'}],
-                limit: 1
-            }).then((result) => {
-                if (result.docs.length == 1) {
-                    this._lastId = result.docs[0].id;
-                } else {
-                    this._lastId = 0;
-                }
-                resolve(this._lastId);
-            });
-        });
-    }
+    }    
 
 }
 

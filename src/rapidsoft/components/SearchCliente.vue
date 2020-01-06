@@ -181,20 +181,27 @@ export default {
         },
         createEstadoSelect(estado) {
             return {value: estado.id, label: estado.nome, uf: estado.sigla};
-        }
+        },
+        buscaEstados() {
+            return new Promise((resolve) => {
+                CidadeDB.getEstados().then((estados) => {
+                    this.estadosFiltro = estados;
+                    this.estadoSelecionado = this.createEstadoSelect(_.find(estados, (estado) => { return estado.sigla === Storage.getUsuario().estado; }));
+                    resolve();
+                });
+            });
+        },
     
     },
     beforeCreate() {              
     },
-    created() {
+    async created() {
+        await this.buscaEstados();
     },
     beforeMount() {
-        CidadeDB.getEstados().then((estados) => {
-            this.estadosFiltro = estados;
-            this.estadoSelecionado = this.createEstadoSelect(_.find(estados, (estado) => { return estado.sigla === Storage.getUsuario().estado; }));
-        })
     },
     mounted() {
+        this.searchFindCliente();
     },
 }
 </script>    
