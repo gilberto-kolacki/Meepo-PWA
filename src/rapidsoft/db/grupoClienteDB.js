@@ -21,8 +21,7 @@ class grupoClienteDB extends BasicDB {
                 if(gruposCliente.length > 0) {
                     const done = _.after(gruposCliente.length, () => resolve());
                     gruposCliente.forEach(grupo => {
-                        grupo._id = _.toString(grupo.id);
-                        this._localDB.put(grupo).then(() => done()).catch(() => done());
+                        this._salvar(grupo).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();
@@ -34,7 +33,7 @@ class grupoClienteDB extends BasicDB {
     getGrupoPadrao() {
         return new Promise((resolve) => {
             this._getAll().then((grupos) => {
-                const grupo = grupos.filter((grupo) => grupo.padrao)[0];
+                const grupo = grupos.filter((grupo) => grupo.padrao === true)[0];
                 resolve(grupo)
             }).catch((err) => {
                 ErrorDB.criarLogDB({url:'db/grupoClienteDB',method:'getGrupoPadrao',message: err,error:'Failed Request'});

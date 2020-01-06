@@ -21,8 +21,7 @@ class categoriaDB extends BasicDB {
                 if(categorias.length > 0) {
                     const done = _.after(categorias.length, () => resolve());
                     categorias.forEach(categoria => {
-                        categoria._id = _.toString(categoria.id);
-                        this._localDB.put(categoria).then(() => done()).catch(() => done());
+                        this._salvar(categoria).then(() => done()).catch(() => done());
                     });
                 } else {
                     resolve();

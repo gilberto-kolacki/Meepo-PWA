@@ -62,6 +62,7 @@ import CidadeDB from '../../rapidsoft/db/cidadeDB'
 import CatalogoDB from '../../rapidsoft/db/catalogoDB'
 import RefComercialDB from '../../rapidsoft/db/referenciaComercialDB'
 import ErrorDB from '../../rapidsoft/db/errorDB'
+import PedidoDB from '../../rapidsoft/db/pedidoDB'
 
 export default {
     data() {
@@ -249,14 +250,17 @@ export default {
         },
         sincCidade(sinc, all) {
             !all ? this.carregarSinc() : undefined;
-            const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
-            sinc.total = siglasEstados.length;
             CidadeDB._limparBase().then(() => {
-                SincUtils.downloadCidadesFromData(sinc, siglasEstados).then(() => {
+                SincUtils.downloadCidadesFromData(sinc).then(() => {
                     SincUtils.closeLoading(this, sinc, all);
                 })
             });
-        },        
+        },
+        sincPedido(sinc, all) {
+            PedidoDB._limparBase().then(() => {
+                SincUtils.closeLoading(this, sinc, all);
+            });
+        }     
     },
 
     beforeMount() {

@@ -64,7 +64,18 @@ const sincDados =  [
         total: 0,
         tempoSincronizacao: 0,
         dataSincronizacao: null
-    },    
+    },
+    {
+        _id:"20",
+        type:"pedido",
+        titulo: "Pedidos",
+        methodo: "sincPedido",
+        percent: 0,
+        parcial: 0,
+        total: 0,
+        tempoSincronizacao: 0,
+        dataSincronizacao: null
+    },
 ]
 
 const createSincs = (localDB) => {

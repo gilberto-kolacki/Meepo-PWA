@@ -83,6 +83,19 @@ class produtoUtils {
             });
         });
     }
+
+    getProdutosSegmentos(segmentos, produtos) {
+        return new Promise((resolve) => {
+            const produtosSegmentos = new Map();
+            segmentos.forEach(segmento => {
+                const produtosSegmento = produtos.filter((produto) => {
+                    return produto.segmento == segmento.id;
+                });
+                produtosSegmentos.set(segmento.id, produtosSegmento);
+            });
+            resolve(produtosSegmentos);
+        });
+    }
     
 }
 
