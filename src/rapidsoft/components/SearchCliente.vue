@@ -168,7 +168,6 @@ export default {
         },
         executaPesquisa() {
             return new Promise((resolve) => {
-                alert('aqui 2')
                 const uf = this.estadoSelecionado.uf;
                 const idCidade = this.cidadeSelecionada ? this.cidadeSelecionada.value : 0;
                 const cnpjCpf = this.cnpjCpfSearch ? this.cnpjCpfSearch : null;

@@ -143,8 +143,6 @@ export default {
 			const clientePedido = Storage.getClienteCarrinho();
 			if (clientePedido && clientePedido.grupoCliente) {
                 GrupoClienteDB.getById(clientePedido.grupoCliente).then((grupoCliente) => {
-                    console.log(grupoCliente);
-                    
 					Storage.setGrupoCarrinho(grupoCliente);
 					this.carregarCatalogo(catalogo);
 				});
