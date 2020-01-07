@@ -377,16 +377,13 @@ class clienteDB extends BasicDB {
                 }else{
                     existe = true
                 }
-                
             }else{
                 existe = false;
             }
-
-            
         } else { // se vir com a cidade
             if (!_.isNil(cnpjCpf)) {
                 if (cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "").substr(0, cnpjCpf.length) === cnpjCpf) {
-                    if (cliente.nome.substr(0, nome.length).toUpperCase() === nome.toUpperCase()) {
+                    if ((nome == null) || (cliente.nome.substr(0, nome.length).toUpperCase() === nome.toUpperCase())) {
                         if (cliente.endereco.estado === uf) {
                             if (idCidade > 0) {
                                 if (cliente.endereco.idCidade === idCidade) {

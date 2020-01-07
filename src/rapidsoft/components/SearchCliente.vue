@@ -3,7 +3,7 @@
         :id="id" 
         class="popup-cliente-search" 
         size="xl"
-        scrollable  
+          
         @show="zoomSearch"
         hide-footer>
         <template v-slot:modal-header="{ close }">
@@ -35,7 +35,6 @@
                 <vs-input v-validate="'required'" label="Nome" v-model="nomeSearch" class="w-full" />
             </div>
         </div>
-        <div>
         <vs-table ref="table" v-model="clienteSearch" @selected="selectSearchProduto(clienteSearch)" :data="listaPesquisa">
             <template slot="thead">
                 <vs-th sort-key="referencia">Cpf/Cnpj</vs-th>
@@ -66,7 +65,6 @@
                 </tbody>
             </template>
         </vs-table>
-        </div>
     </b-modal>
 </template>    
 <script>
@@ -98,13 +96,12 @@ export default {
     }),
     watch: {
         estadoSelecionado(newValue, oldValue) {
-            if (newValue !== null || oldValue !== null) {
-                this.searchFindCliente();
-                this.searchCidades();
+            if ((newValue != null && oldValue == null) || (newValue != oldValue)) {
+                this.searchCidades(() => this.searchFindCliente());
             }
         },
         cidadeSelecionada(newValue, oldValue) {
-            if (newValue !== null || oldValue !== null) {
+            if ((newValue != null && oldValue == null) || (newValue != oldValue)) {
                 this.searchFindCliente();
             }
         },
@@ -148,36 +145,40 @@ export default {
                 this.$emit('search-selected', cliente);
             })
         },
-        searchCidades() {
-           CidadeDB.getCidadesFromEstado(this.estadoSelecionado.uf).then((cidades) => {
+        searchCidades(callback) {
+            this.cidadeSelecionada = null;
+            CidadeDB.getCidadesFromEstado(this.estadoSelecionado.uf).then((cidades) => {
                 this.cidadesFiltro = cidades;
-            })
+                callback();
+            });
         },
         searchFindCliente() {
             if ((this.estadoSelecionado && this.cidadeSelecionada && this.cidadeSelecionada.value != null) || (this.cnpjCpfSearch && this.cnpjCpfSearch.length >= 3) || (this.nomeSearch && this.nomeSearch.length >= 3)) {
                 this.$vs.loading({ container: '#div-with-loading-search', scale: 0.6 });
-                const uf = this.estadoSelecionado.uf;
-                const idCidade = this.cidadeSelecionada ? this.cidadeSelecionada.value : 0;
-                const cnpjCpf = this.cnpjCpfSearch;
-                const nome = this.nomeSearch;
-                ClienteDB.getClientesSearch(uf, idCidade, cnpjCpf, nome).then((clientes) => {
-                    this.listaPesquisa = clientes;
-                    this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
-                });
+                this.executaPesquisa();
             } else {
-                if (this.estadoSelecionado) {                    	
-                    const uf = this.estadoSelecionado.uf;
-
-                    ClienteDB.getClientesSearch(uf, 0, null, null).then((clientes) => {
-                        this.listaPesquisa = clientes;
-                        this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
-                    });
-                }else{
+                if (this.estadoSelecionado) {
+                    this.$vs.loading({ container: '#div-with-loading-search', scale: 0.6 });
+                    this.executaPesquisa();
+                } else {
                     this.listaProdutosPesquisa = [];
                     this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
                 }
             }
-            
+        },
+        executaPesquisa() {
+            return new Promise((resolve) => {
+                alert('aqui 2')
+                const uf = this.estadoSelecionado.uf;
+                const idCidade = this.cidadeSelecionada ? this.cidadeSelecionada.value : 0;
+                const cnpjCpf = this.cnpjCpfSearch ? this.cnpjCpfSearch : null;
+                const nome = this.nomeSearch ? this.nomeSearch : null;
+                ClienteDB.getClientesSearch(uf, idCidade, cnpjCpf, nome).then((clientes) => {
+                    this.listaPesquisa = clientes;
+                    this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
+                    resolve();
+                });
+            });
         },
         createEstadoSelect(estado) {
             return {value: estado.id, label: estado.nome, uf: estado.sigla};
@@ -199,9 +200,9 @@ export default {
         await this.buscaEstados();
     },
     beforeMount() {
+    
     },
     mounted() {
-        this.searchFindCliente();
     },
 }
 </script>    
@@ -222,8 +223,22 @@ export default {
     z-index: 42000;
 }
 
+.modal-content {
+    height: 98.5vh !important;
+}
+
 .vs-table--content{
-    max-height: 580px;
+    max-height: 65vh;
+}
+
+@media only screen and (max-width: 768px) {
+    .modal-content {
+        height: 98.5vh !important;
+    }
+
+    .vs-table--content{
+        max-height: 75vh;
+    }
 }
 
 .img-popup {

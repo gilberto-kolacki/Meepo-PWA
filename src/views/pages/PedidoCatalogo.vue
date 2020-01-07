@@ -178,19 +178,13 @@ export default {
         },
         carregaItensTela() {
             return new Promise((resolve) => {
-                // GrupoClienteDB.getGrupoPadrao().then((grupoClientePadrao) => {
-                //     console.log(grupoClientePadrao);
-                    
-                    // this.grupoClientePadrao = grupoClientePadrao;
-                    // alert('achou')
-                    CatalogoDB._getAll().then((catalogos) => {
-                        this.catalogos = catalogos;
-                        this.abrirPesquisaCliente();
-                        this.isShowing = true;
-                        document.getElementById('loading-bg').style.display = "none";
-                        resolve();
-                    });
-                // });
+                CatalogoDB._getAll().then((catalogos) => {
+                    this.catalogos = catalogos;
+                    this.abrirPesquisaCliente();
+                    this.isShowing = true;
+                    document.getElementById('loading-bg').style.display = "none";
+                    resolve();
+                });
             });
         }
 	},
