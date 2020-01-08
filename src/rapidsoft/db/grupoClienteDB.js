@@ -64,7 +64,7 @@ class grupoClienteDB extends BasicDB {
         return new Promise((resolve) => {
             this._getById(idGrupoCliente).then((grupo) => {
                 if (grupo.existe) {
-                    resolve(grupo.result);
+                    resolve(grupo.value);
                 } else {
                     ErrorDB.criarLogDB({url:'db/grupoClienteDB',method:'getById',message: 'Grupo de cliente não encontrado: '+idGrupoCliente ,error:'Failed Request'});
                     this.getGrupoPadrao().then((grupoPadrao) => {

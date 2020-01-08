@@ -387,7 +387,7 @@ class clienteDB extends BasicDB {
 
             this._localDB.find({
                 selector: selectorFilter,
-                fields: ['_id', 'cpfCnpj', 'nome', 'endereco', 'inadimplente', 'ativo'],
+                fields: ['id', 'cpfCnpj', 'nome', 'endereco', 'inadimplente', 'ativo'],
             }).then((result) => {
                 resolve(result.docs);
             });

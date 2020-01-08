@@ -142,7 +142,7 @@ class sincDataDB extends BasicDB {
             sinc.dataSincronizacao = Date.now();
             this._getById(sinc._id, true).then((resultSinc) => {
                 if (resultSinc.existe) {
-                    sinc._rev = resultSinc.result._rev;
+                    sinc._rev = resultSinc.value._rev;
                     this._salvar(sinc).then(() => {
                         resolve(sinc);
                     }).catch((err) => {

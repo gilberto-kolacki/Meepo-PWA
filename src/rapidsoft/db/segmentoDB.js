@@ -33,7 +33,7 @@ class segmentoDB extends BasicDB {
             idsSegmentos.forEach(idSegmento => {
                 this._getById(idSegmento).then((segmento) => {
                     if (segmento.existe) {
-                        arraySegmentos.push(segmento.result);
+                        arraySegmentos.push(segmento.value);
                     }
                     done();
                 });

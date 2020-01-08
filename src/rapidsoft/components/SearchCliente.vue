@@ -140,12 +140,16 @@ export default {
             }
         },
         selectSearchProduto(cliente) {
-            GrupoClienteDB.getById(cliente.grupoCliente).then((grupo) => {
-                cliente.grupoCliente = grupo;
-                Storage.setGrupoCarrinho(grupo);
-                Storage.setClienteCarrinho(cliente);
-                this.$bvModal.hide(this.id);
-                this.$emit('search-selected', cliente);
+            ClienteDB._getById(cliente.cpfCnpj).then((result) => {
+                cliente = result.value;
+                GrupoClienteDB.getById(cliente.grupoCliente).then((grupo) => {
+                    cliente.grupoCliente = grupo;
+                    Storage.setGrupoCarrinho(grupo);
+                    Storage.setClienteCarrinho(cliente);
+                    this.$bvModal.hide(this.id);
+                    this.$emit('search-selected', cliente);
+                })
+
             })
         },
         searchCidades(callback) {

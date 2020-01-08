@@ -108,7 +108,7 @@ class basicDB {
         return new Promise((resolve) => {
             this._localDB.get(_.toString(id)).then((result) => {
                 if(!rev) delete result['_rev'];
-                resolve({existe: true, result: result});  
+                resolve({existe: true, value: result});  
             }).catch((error) => {
                 // ErrorDB.criarLogDB({url:'db/basicDB',method:'_getById',message: error,error:'Failed Request'});
                 resolve({existe: false, result: error});

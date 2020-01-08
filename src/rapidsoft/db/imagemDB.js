@@ -16,7 +16,7 @@ class imagemDB {
     getImagemCor(id) {
         return new Promise((resolve) => {
             ImagemCorDB._getById(id).then((cor) => {
-                if (cor.existe) resolve(cor.result)
+                if (cor.existe) resolve(cor.value)
                 else resolve(null)
             });
         });
@@ -57,7 +57,7 @@ class imagemDB {
             if (cor && cor.idCor && cor.idCor > 0) {
                 ImagemCorDB._getById(cor.idCor).then((corProduto) => {
                     if(corProduto.existe) {
-                        resolve(corProduto.result.base64);
+                        resolve(corProduto.value.base64);
                     } else {
                         resolve(null);
                     }
@@ -73,7 +73,7 @@ class imagemDB {
             if (idFoto > 0) {
                 ImagemFotoDB._getById(idFoto).then((fotoProduto) => {
                     if(fotoProduto.existe) {
-                        resolve(fotoProduto.result.base64);
+                        resolve(fotoProduto.value.base64);
                     } else {
                         resolve(null);
                     }
@@ -115,7 +115,7 @@ class imagemDB {
                 cor.imagens.forEach(imagem => {
                     ImagemFotoDB._getById(imagem.id).then((fotoProduto) => {
                         if(fotoProduto.existe) {
-                            imagem.base64 = fotoProduto.result.base64
+                            imagem.base64 = fotoProduto.value.base64
                             if(_.last(cor.imagens) === imagem) {
                                 resolve(cor.imagens)
                             }
@@ -138,7 +138,7 @@ class imagemDB {
             if (_.isObject(produto.cores[0]) && produto.cores[0].imagens.length > 0 && _.isArray(produto.cores[0].imagens)) {
                 ImagemFotoDB._getById(_.orderBy(produto.cores[0].imagens, ['seq'])[0].id).then((fotoProduto) => {
                     if(fotoProduto.existe) {
-                        resolve(fotoProduto.result.base64);
+                        resolve(fotoProduto.value.base64);
                     } else {
                         resolve(null);
                     }

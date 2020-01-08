@@ -37,7 +37,7 @@ class catalogoDB extends BasicDB {
     getById(id) {
         return new Promise((resolve) => {
             this._getById(id).then((catalogo) => {
-                catalogo = catalogo.result;
+                catalogo = catalogo.value;
                 delete catalogo['capa'];
                 delete catalogo['base64'];
                 resolve(catalogo);  
