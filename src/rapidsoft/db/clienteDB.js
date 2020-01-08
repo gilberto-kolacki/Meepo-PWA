@@ -332,19 +332,6 @@ class clienteDB extends BasicDB {
         });
     }
 
-    sincNuvem() {
-        return new Promise((resolve) => {
-            if (this._localDB && this._remoteDB) {
-                resolve();
-                // localDB.sync(remoteDB).then((result) => {
-                //     resolve(result);
-                // }).catch((err) => {
-                //     console.log(err);
-                // })
-            }
-        });
-    }
-
     buscaClientesSinc() {
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {

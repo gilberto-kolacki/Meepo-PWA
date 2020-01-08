@@ -29,13 +29,19 @@
 
 <script>
 
+import ClienteDB from '../rapidsoft/db/clienteDB';
+import PedidoDB from '../rapidsoft/db/pedidoDB';
+import ErrorDB from '../rapidsoft/db/errorDB';
+
 export default {
     data() {
         return { 
             clientes: [],
         }
 	},
-	components: {},
+	components: {
+        
+    },
     computed: {
     
     },
@@ -45,7 +51,10 @@ export default {
     created() {
         
     },
-    mounted() {
+    async mounted() {
+        await ClienteDB._sincNuvem();
+        await PedidoDB._sincNuvem();
+        await ErrorDB._sincNuvem();
 
     },
     beforeCreate() {

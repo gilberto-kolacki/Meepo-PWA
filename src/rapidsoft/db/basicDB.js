@@ -37,7 +37,7 @@ const create = (name, remote, callback) => {
                 const localDB = new PouchDB(dataBaseLocal, {revs_limit: 1, auto_compaction: true});
                 const dataBaseRemote = createDBRemote(dataBaseLocal);
                 if (dataBaseRemote) {
-                    const remoteDB = new PouchDB(dataBaseRemote, {ajax: {cache: false, timeout: 10000 }});
+                    const remoteDB = new PouchDB(dataBaseRemote, {skip_setup: true, ajax: {cache: false, timeout: 50000 }});
                     callback(localDB, remoteDB);
                 }
             }
@@ -172,7 +172,38 @@ class basicDB {
         } catch (err) {
             console.log(err);
         }
-    }    
+    }
+    
+    _sincNuvem() {
+        return new Promise((resolve) => {
+            // this._localDB.replicate.to(this._remoteDB).then((result) => {
+            //     if (result.ok) {
+            //         this._localDB.replicate.from(this._remoteDB).then((result) => {
+            //             if (result.ok) {
+            //                 resolve();
+            //             } else {
+            //                 this.sincNuvem().then(() => {
+            //                     resolve();
+            //                 });
+            //             }
+            //         });
+            //     } else {
+            //         this.sincNuvem().then(() => {
+            //             resolve();
+            //         });
+            //     }
+            // });
+            this._localDB.sync(this._remoteDB).then(() => {
+                resolve();
+             }).catch((err) => {
+                 if (err.error === "not_found") {
+                    this._remoteDB = new PouchDB(this._remoteDB.name);
+                 } else {
+                     resolve(err);
+                 }
+            });
+        });
+    }
 
 }
 

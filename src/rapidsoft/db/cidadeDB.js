@@ -13,6 +13,8 @@ class cidadeDB extends BasicDB {
 
     constructor() {
         super("cidade");
+        this.indexes = ['uf', 'rel'];
+        this._createIndexes(this.indexes, 'estado_relacionado');
     }
 
     criaCidades(estado) {
@@ -101,17 +103,30 @@ class cidadeDB extends BasicDB {
         });
     }
 
+    // getCidadesFromEstado(estado) {
+    //     console.log(estado);
+        
+    //     return new Promise((resolve) => {
+    //         this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
+    //             const cidadesEstado = resultDocs.rows.filter((cidade) => cidade.doc.uf === estado).map((cidade) => {
+    //                 delete cidade.doc['_rev'];
+    //                 return cidade.doc;
+    //             });
+    //             resolve(cidadesEstado);
+    //         }).catch((err) => {
+    //             ErrorDB.criarLogDB({url:'db/cidadeDB',method:'getCidadesFromEstado',message: err,error:'Failed Request'})
+    //             resolve(err);
+    //         });
+    //     });
+    // }
+
     getCidadesFromEstado(estado) {
         return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                const cidadesEstado = resultDocs.rows.filter((cidade) => cidade.doc.uf === estado).map((cidade) => {
-                    delete cidade.doc['_rev'];
-                    return cidade.doc;
-                });
-                resolve(cidadesEstado);
-            }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/cidadeDB',method:'getCidadesFromEstado',message: err,error:'Failed Request'})
-                resolve(err);
+            this._localDB.find({
+                selector: {'uf': {$eq: estado}},
+                fields: ['idCidade', 'nome'],
+            }).then((result) => {
+                resolve(result.docs);
             });
         });
     }
