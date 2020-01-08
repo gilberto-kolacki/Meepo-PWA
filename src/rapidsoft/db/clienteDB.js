@@ -6,8 +6,8 @@
 ==========================================================================================*/
 
 // import PouchDB from 'pouchdb';
-import BasicDB from './basicDB'
-import ErrorDB from './errorDB'
+import BasicDB from './basicDB';
+import ErrorDB from './errorDB';
 import _ from 'lodash';
 
 // let localDB = null;
@@ -30,25 +30,25 @@ const validarContatoDB = (contato) => {
     return new Promise((resolve, reject) => {
         let retorno = {
             mensagem : "Campo obrigatório!"
-        }
+        };
         if (contato.nome === undefined || contato.nome === ""){
-            retorno.campo = "nomeContato"
+            retorno.campo = "nomeContato";
             reject(retorno);
         }
         else if (contato.funcao === undefined || contato.funcao === ""){
-            retorno.campo = "funcao"
+            retorno.campo = "funcao";
             reject(retorno);
         }
         else if (contato.telefone === undefined || contato.telefone === ""){
-            retorno.campo = "telefoneContato"
+            retorno.campo = "telefoneContato";
             reject(retorno);
         }
         else if (contato.celular === undefined || contato.celular === ""){
-            retorno.campo = "celularContato"
+            retorno.campo = "celularContato";
             reject(retorno);
         }
         else if (contato.email === undefined || contato.email === ""){
-            retorno.campo = "emailContato"
+            retorno.campo = "emailContato";
             reject(retorno);
         }
         resolve(contato);
@@ -58,7 +58,7 @@ const validarContatoDB = (contato) => {
 const validarEnderecoDB = (endereco, opcao) => {
         let retorno = {
             mensagem : "Campo obrigatório!"
-        }
+        };
         if (endereco.cep === undefined || endereco.cep === ""){
             retorno.campo = opcao == 1 ? "cepEndereco" : "cadCepEndereco";
             return retorno;
@@ -95,28 +95,28 @@ const validarObjetoDB = (cliente) => {
     return new Promise((resolve, reject) => {
         let retorno = {
             mensagem : "Campo obrigatório!"
-        }
+        };
         // let validarEndereco = validarEnderecoDB(cliente.endereco, 1);
         if (cliente.cpfCnpj === undefined || cliente.cpfCnpj.length < 14 || cliente.cpfCnpj === "") {
-            retorno.campo = "cpfCnpj"            
+            retorno.campo = "cpfCnpj";    
             reject(retorno);
         }
         else if (cliente.cpfCnpj && cliente.cpfCnpj.length > 14) {
             cliente.pessoaJuridica = true;
             if (cliente.razaoSocial === undefined || cliente.razaoSocial === "") {
-                retorno.campo = "razaoSocial"
+                retorno.campo = "razaoSocial";
                 reject(retorno);
             }
             else if (cliente.fantasia === undefined || cliente.fantasia === "") {
-                retorno.campo = "fantasia"
+                retorno.campo = "fantasia";
                 reject(retorno);
             }
             else if (cliente.dataFundacao === undefined || cliente.dataFundacao === "") {
-                retorno.campo = "dataFundacao"
+                retorno.campo = "dataFundacao";
                 reject(retorno);
             }
             else if (cliente.inscricaoEstadual === undefined || cliente.inscricaoEstadual === "") {
-                retorno.campo = "inscricaoEstadual"
+                retorno.campo = "inscricaoEstadual";
                 reject(retorno);
             }
         } else {
@@ -153,27 +153,27 @@ const validarObjetoDB = (cliente) => {
             reject(retorno);
         }
         else if (cliente.endereco.endereco === undefined || cliente.endereco.endereco === "") {
-            retorno.campo = "endereco"
+            retorno.campo = "endereco";
             reject(retorno);
         }
         else if (cliente.endereco.numero === undefined || cliente.endereco.numero === "") {
-            retorno.campo = "numeroEndereco"
+            retorno.campo = "numeroEndereco";
             reject(retorno);
         }
         else if (cliente.endereco.bairro === undefined || cliente.endereco.bairro === "") {
-            retorno.campo = "bairro"
+            retorno.campo = "bairro";
             reject(retorno);
         }
         else if (cliente.endereco.cidade === undefined || cliente.endereco.cidade === "") {
-            retorno.campo = "cidade"
+            retorno.campo = "cidade";
             reject(retorno);
         }
         else if (cliente.endereco.estado === undefined || cliente.endereco.estado === "") {
-            retorno.campo = "estado"
+            retorno.campo = "estado";
             reject(retorno);
         }
         else if (cliente.grupoCliente === undefined) {
-            retorno.campo = "grupoCliente"
+            retorno.campo = "grupoCliente";
             reject(retorno);
         }
         // else if (!_.isEmpty(validarEndereco)){
@@ -249,19 +249,19 @@ class clienteDB extends BasicDB {
                         cliente.doc.endereco.estado = "";
                     }
                     docDados.cpfCnpj = cliente.doc.cpfCnpj;
-                    docDados.nome = cliente.doc.nome
-                    docDados.cidade = cliente.doc.endereco.cidade
-                    docDados.estado = cliente.doc.endereco.estado
-                    docDados.clienteErp = cliente.doc.clienteErp
-                    docDados.inadimplente = cliente.doc.inadimplente
-                    docDados.ativo = cliente.doc.ativo
-                    docDados._id = cliente.doc._id
-                    docDados._rev = cliente.doc._rev
+                    docDados.nome = cliente.doc.nome;
+                    docDados.cidade = cliente.doc.endereco.cidade;
+                    docDados.estado = cliente.doc.endereco.estado;
+                    docDados.clienteErp = cliente.doc.clienteErp;
+                    docDados.inadimplente = cliente.doc.inadimplente;
+                    docDados.ativo = cliente.doc.ativo;
+                    docDados._id = cliente.doc._id;
+                    docDados._rev = cliente.doc._rev;
                     
-                    return _.clone(docDados)
+                    return _.clone(docDados);
                 }))
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'listarConsulta',message: err,error:'Failed Request'})
+                ErrorDB.criarLogDB({url:'db/clienteDB',method:'listarConsulta',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });
@@ -279,7 +279,7 @@ class clienteDB extends BasicDB {
                     return _.clone(cliente.doc);
                 }))
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'listar',message: err,error:'Failed Request'})
+                ErrorDB.criarLogDB({url:'db/clienteDB',method:'listar',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });
@@ -293,7 +293,7 @@ class clienteDB extends BasicDB {
                 result.inscricaoEstadual = result.inscricaoEstadual == "" ? "ISENTO" : result.inscricaoEstadual;
                 resolve(result);
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'findById',message: err,error:'Failed Request'})
+                ErrorDB.criarLogDB({url:'db/clienteDB',method:'findById',message: err,error:'Failed Request'});
                 reject(err);
             });
         });
@@ -304,8 +304,8 @@ class clienteDB extends BasicDB {
             this._localDB.remove(idCliente).then((result) => {
                 resolve(result);
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'})
-                reject(err)
+                ErrorDB.criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
+                reject(err);
             });
         });
     }
@@ -313,10 +313,10 @@ class clienteDB extends BasicDB {
     validarContato(contato) {
         return new Promise((resolve, reject) => {
             validarContatoDB(contato).then((result) => {
-                resolve(result)
+                resolve(result);
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'validarContato',message: err,error:'Failed Request'})
-                reject(err)
+                ErrorDB.criarLogDB({url:'db/clienteDB',method:'validarContato',message: err,error:'Failed Request'});
+                reject(err);
             })
         });
     }
@@ -336,13 +336,13 @@ class clienteDB extends BasicDB {
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 const clientes = _.filter(resultDocs.rows, (cliente) => {
-                    return cliente.doc.clienteErp === false
+                    return cliente.doc.clienteErp === false;
                 });
                 resolve(clientes.map((cliente) => {                    
                     return _.cloneDeep(cliente.doc);
                 }))
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'buscaClientesSinc',message: err,error:'Failed Request'})
+                ErrorDB.criarLogDB({url:'db/clienteDB',method:'buscaClientesSinc',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });

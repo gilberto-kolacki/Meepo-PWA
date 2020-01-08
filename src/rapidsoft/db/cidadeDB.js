@@ -5,7 +5,7 @@
   Author: Giba
 ==========================================================================================*/
 
-import BasicDB from './basicDB'
+import BasicDB from './basicDB';
 import ErrorDB from './errorDB'
 import _ from 'lodash';
 
@@ -28,8 +28,8 @@ class cidadeDB extends BasicDB {
                     cidadeNew.estado = estado.nome;
                     cidadeNew.idCidade = cidade.id;
 
-                    delete cidadeNew["id"];
-                    delete cidadeNew["ceps"];
+                    delete cidadeNew.id;
+                    delete cidadeNew.ceps;
                     return cidadeNew;
                 }
             }));
@@ -57,7 +57,7 @@ class cidadeDB extends BasicDB {
                             delete cidadeNew["ceps"];
                             return cidadeNew;
                         } else return {};
-                    })
+                    });
                 } else return [];
             }));
             resolve(cidades);
