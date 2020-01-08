@@ -55,7 +55,7 @@ export default [
   {
     url: "/catalogo",
     name: "Catálogo",
-    slug: "Pedido",
+    slug: "Catálogo",
     icon: "ShoppingBagIcon",
   },
   {

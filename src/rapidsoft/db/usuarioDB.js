@@ -40,7 +40,7 @@ class usuarioDB extends BasicDB {
 
     signOut() {
         return new Promise((resolve, reject) => {
-            SegmentoDB.limparBase().then(() => {
+            SegmentoDB._limparBase().then(() => {
                 this._localDB.destroy().then(() => {
                     localStorage.removeItem('userInfo')
                     localStorage.removeItem('token');
@@ -61,7 +61,9 @@ class usuarioDB extends BasicDB {
                 store.dispatch('updateUserActive', user);
                 resolve(user);
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/usuarioDB',method:'onAuthStateChanged',message: err,error:'Failed Request'});
+                console.log(err);
+                
+                // ErrorDB.criarLogDB({url:'db/usuarioDB',method:'onAuthStateChanged',message: err,error:'Failed Request'});
                 reject(err);
             });
         });

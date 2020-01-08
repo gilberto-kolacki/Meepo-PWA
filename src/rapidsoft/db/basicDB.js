@@ -143,8 +143,35 @@ class basicDB {
         });
     }
 
-    _createIndex(indexName) {
-        this._localDB.createIndex({index: {fields: [indexName]}});
+    async _createIndex(index) {
+        try {
+            const result = await this._localDB.createIndex({
+                index: {
+                    fields: [index],
+                    name: index +'_'+ this._name,
+                    ddoc: '_'+index +'_'+ this._name,
+                }
+            });
+            if (result.result !== "exists") console.log(result);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    async _createIndexes(indices, indexName) {
+        try {
+            const result = await this._localDB.createIndex({
+                index: {
+                    fields: indices,
+                    name: indexName +'_'+ this._name,
+                    ddoc: '_'+indexName +'_'+ this._name,
+                    type: 'json',
+                }
+            });
+            if (result.result !== "exists") console.log(result);
+        } catch (err) {
+            console.log(err);
+        }
     }    
 
 }

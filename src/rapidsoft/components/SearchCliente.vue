@@ -96,7 +96,7 @@ export default {
     }),
     watch: {
         estadoSelecionado(newValue, oldValue) {
-            if ((newValue != null && oldValue == null) || (newValue != oldValue)) {
+            if ((oldValue != null && newValue != null && newValue != oldValue)) {
                 this.searchCidades(() => this.searchFindCliente());
             }
         },
@@ -135,6 +135,9 @@ export default {
         zoomSearch() {
             this.cnpjCpfSearch = "";
             this.nomeSearch = "";
+            if (this.cidadesFiltro.length == 0) {
+                this.searchCidades(() => this.searchFindCliente());
+            }
         },
         selectSearchProduto(cliente) {
             GrupoClienteDB.getById(cliente.grupoCliente).then((grupo) => {

@@ -41,7 +41,6 @@
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import Datepicker from 'vuejs-datepicker';
 import * as lang from "vuejs-datepicker/src/locale";
-import vSelect from 'vue-select';
 // import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
 export default {
     name: "embarque-item",
@@ -65,7 +64,6 @@ export default {
     }),
     components: {
         Datepicker,
-        'v-select': vSelect,
     },
     computed: {
         getEmbarquesSelect() {

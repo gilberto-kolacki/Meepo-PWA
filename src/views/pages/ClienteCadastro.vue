@@ -375,10 +375,8 @@
                             </div>
                         </template>
                         <template slot="thead">
-                            <vs-th sort-key="cep">CEP</vs-th>
                             <vs-th sort-key="endereco">Endereço</vs-th>
-                            <vs-th sort-key="numero">Numero</vs-th>
-                            <vs-th sort-key="bairro">Bairro</vs-th>
+                            <vs-th sort-key="cep">CEP</vs-th>
                             <vs-th sort-key="cidade">Cidade</vs-th>
                             <vs-th sort-key="estado">UF</vs-th>
                             <vs-th sort-key="telefone">Telefone</vs-th>
@@ -386,17 +384,11 @@
                         </template>
                         <template slot-scope="{data}">
                             <vs-tr :state="data[indextr].ativo === false ? 'danger' :null" :key="indextr" v-for="(tr, indextr) in data">
-                                <vs-td :data="data[indextr].cep">
-                                    {{ data[indextr].cep }}
-                                </vs-td>
                                 <vs-td :data="data[indextr].endereco">
                                     {{ data[indextr].endereco }}
                                 </vs-td>
-                                <vs-td :data="data[indextr].numero">
-                                    {{ data[indextr].numero }}
-                                </vs-td>
-                                <vs-td :data="data[indextr].bairro">
-                                    {{ data[indextr].bairro }}
+                                <vs-td :data="data[indextr].cep">
+                                    {{ data[indextr].cep }}
                                 </vs-td>
                                 <vs-td :data="data[indextr].cidade">
                                     {{ data[indextr].cidade }}

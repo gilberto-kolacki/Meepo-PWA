@@ -282,20 +282,28 @@ html, body {
     bottom: 5%;
     right: 8vw;
     z-index: 1000;
-    width: 7vw !important;
-    height: 7vw !important;
+    width: 60px !important;
+    height: 60px !important;
     border-radius: 50%;
     
     .vs-icon{        
         color: inherit;
         text-align: center;
-        font-size: 1.8rem;
+        font-size: 30px;
     }
 }
 
 .rapid-input-date {
     font-size: 1rem !important;
     padding: .4rem !important;
+}
+
+.vs-input--input.normal {
+    font-size: 0.75rem;
+}
+
+.vs-input--input:disabled {
+    opacity: 1;
 }
 
 </style>

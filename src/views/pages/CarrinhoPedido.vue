@@ -14,7 +14,7 @@
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="2" vs-sm="3" vs-xs="12" >
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
-                                <label for="" class="vs-input--label">CPF/CNPJ</label>
+                                <label for="cpfCnpj" class="vs-input--label">CPF/CNPJ</label>
                                 <div class="vs-con-input">
                                     <the-mask v-validate="'required|min:14'" id="cpfCnpj" disabled name="cpfCnpj" v-model="pedidoCapa.cliente.cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
                                 </div>
@@ -42,8 +42,8 @@
                     </div>
                     <div class="vx-row">
                         <div class="vx-col w-full">
-                            <label for="estadosFiltro" class="vs-input--label">Endereço de entrega</label>
-                            <v-select id="endEntrega" name="endEntrega" :clearable=false v-model="pedidoCapa.endEntrega" :options="getEnderecosEntrega" :dir="$vs.rtl ? 'rtl' : 'ltr'"/> 
+                            <label for="endEntrega" class="vs-input--label">Endereço de entrega</label>
+                            <v-select id="endEntrega" :clearable=false v-model="pedidoCapa.endEntrega" :options="getEnderecosEntrega" :dir="$vs.rtl ? 'rtl' : 'ltr'"/> 
                         </div>
                     </div>
                     <div class="vx-row" style="margin-top:20px">
@@ -57,7 +57,7 @@
                             <vs-input type="number" icon-pack="feather" label="Desconto 3" icon="icon-percent" v-model="pedidoCapa.desconto3" icon-after/>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
-                            <vs-textarea v-model="pedidoCapa.observacao" style="margin-top:30px" label="Observação" height="100" />
+                            <vs-textarea v-model="pedidoCapa.observacao" style="margin-top:30px" label="Observação" height="150" />
                         </vs-col>
                     </div>
                 </div>
@@ -159,7 +159,7 @@ import SearchCliente  from '../../rapidsoft/components/SearchCliente'
 import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
-import PedidoDB from "../../rapidsoft/db/pedidoDB";
+// import PedidoDB from "../../rapidsoft/db/pedidoDB";
 import vSelect from 'vue-select';
 
 export default {
@@ -178,10 +178,7 @@ export default {
         condigoBoleto: 1,
     }),
     watch: {
-        formasPagto(val) {
-            console.log(val);
-            
-        }
+
     },
 	components: {
         SearchCliente,
@@ -191,10 +188,10 @@ export default {
         getEnderecosEntrega() {
             if (this.pedidoCapa.cliente.enderecos && this.pedidoCapa.cliente.enderecos.length > 0) {
                 return this.pedidoCapa.cliente.enderecos.map((endereco) => {
-                    return endereco;
+                    return {value: endereco, label: this.getLabelEndereco(endereco) };
                 });
             } else return [];
-        },
+        },        
         getFormasPagto() {
             return this.formasPagto.map((formaPagto) => this.getValueSelectFormaPagto(formaPagto));
         },
@@ -221,6 +218,9 @@ export default {
                     };
                 }
             }
+        },
+        getLabelEndereco(endereco) {
+            return endereco ? endereco.endereco +' - '+ endereco.numero +', CEP: '+ endereco.cep : null;
         },
         getCondPagtoFormaPagto(formaPagamento) {
             if (formaPagamento) {
@@ -254,14 +254,16 @@ export default {
 			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
         },
 		gerarPedidos() {
-            PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
-                const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
-                pedidos.forEach(pedido => {
-                    PedidoDB.salvarPedido(pedido).then(() => {
-                        done();
-                    });
-                });
-            });
+            console.log(this.pedidoCapa);
+            
+            // PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
+            //     const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
+            //     pedidos.forEach(pedido => {
+            //         PedidoDB.salvarPedido(pedido).then(() => {
+            //             done();
+            //         });
+            //     });
+            // });
         },
         voltarCarrinho() {
             this.$router.go(-1);
@@ -271,6 +273,7 @@ export default {
         },
         selectSearchCliente(cliente) {
             this.pedidoCapa.cliente = cliente;
+            this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(cliente.enderecos, (endereco) => endereco.endEntrega ));
         },
         carregaItensTela() {
 			return new Promise((resolve) => {
@@ -300,6 +303,7 @@ export default {
     mounted() {
         PedidoUtils.newPedido().then((pedido) => {
             this.pedidoCapa = pedido;
+            this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(pedido.cliente.enderecos, (endereco) => endereco.endEntrega ));
         });
     },
 	errorCaptured(err, vm, info) {
@@ -327,7 +331,7 @@ export default {
 
     .btn-line-group-rapid {
         margin-top: 26px;
-        height: 43px !important;
+        height: 38px !important;
         width: 15% !important;
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
