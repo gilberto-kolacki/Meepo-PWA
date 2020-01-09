@@ -13,7 +13,7 @@ class embarqueDB extends BasicDB {
 
     constructor() {
         super("embarque");
-        this.indexes = ['id', 'idSegmento'];
+        this.indexes = ['id', 'idSegmento', 'produtos'];
         this._createIndexes(this.indexes, 'embarque_segmento');
     }
 
@@ -32,24 +32,6 @@ class embarqueDB extends BasicDB {
         });
     }
 
-    // getEmbarqueProduto(produto) {
-    //     const deferred = defer();
-    //     const grupo = Storage.getGrupoCarrinho();
-
-    //     this._getAll().then((embarques) => {
-    //         embarques.forEach(embarque => {
-    //             if (this._exists(grupo.embarques, embarque.id)) {
-    //                 if (this._exists(produto.segmento, embarque.idSegmento)) {
-    //                     if (this._exists(embarque.produtos, produto.cor.idProduto)) {
-    //                         deferred.resolve(embarque);
-    //                     }
-    //                 }
-    //             }
-    //         });
-    //     });
-    //     return deferred.promise;
-    // }
-
     getEmbarqueProduto(produto) {
         return new Promise((resolve) => {
             const grupo = Storage.getGrupoCarrinho();
@@ -61,11 +43,11 @@ class embarqueDB extends BasicDB {
                 else resolve(embarqueProduto);
             };
 
-            this._getFindCondition({id : {$in : grupo.embarques}, idSegmento : {$in : produto.segmento}}).then((embarques) => {
+            this._getFindCondition({$and : [{id : {$in : grupo.embarques}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$in : [produto.cor.idProduto]}}]}).then((embarques) => {
                 if (embarques.length > 0) {
                     buscaEmbaqueProduto(embarques);
                 } else {
-                    this._getFindCondition({id : {$gte : null}, idSegmento : {$in : produto.segmento}}).then((embarques) => {
+                    this._getFindCondition({$and : [{id : {$gte : null}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$in : [produto.cor.idProduto]}}]}).then((embarques) => {
                         buscaEmbaqueProduto(embarques);
                     });
                 }
