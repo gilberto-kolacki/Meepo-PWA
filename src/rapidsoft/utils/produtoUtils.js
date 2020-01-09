@@ -79,7 +79,7 @@ class produtoUtils {
     getCarrinho() {
         return new Promise((resolve) => {
             ProdutoDB.getProdutosFromCarrinho(Storage.getCarrinho()).then((carrinho) => {
-                resolve(carrinho)
+                resolve(carrinho);
             });
         });
     }

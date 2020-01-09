@@ -143,6 +143,16 @@ class basicDB {
         });
     }
 
+    _getFindCondition(condition) {
+        return new Promise((resolve) => {
+            this._localDB.find({
+                selector: condition,
+            }).then((result) => {
+                resolve(result.docs);
+            });
+        });
+    }
+
     async _createIndex(index) {
         try {
             const result = await this._localDB.createIndex({

@@ -6,7 +6,6 @@
 ==========================================================================================*/
 
 import _ from 'lodash';
-import defer from 'promise-defer';
 import BasicDB from './basicDB';
 import Storage from '../utils/storage';
 
@@ -14,6 +13,8 @@ class embarqueDB extends BasicDB {
 
     constructor() {
         super("embarque");
+        this.indexes = ['id', 'idSegmento'];
+        this._createIndexes(this.indexes, 'embarque_segmento');
     }
 
     salvarSinc(embarques) {
@@ -31,22 +32,45 @@ class embarqueDB extends BasicDB {
         });
     }
 
-    getEmbarqueProduto(produto) {
-        const deferred = defer();
-        const grupo = Storage.getGrupoCarrinho();
+    // getEmbarqueProduto(produto) {
+    //     const deferred = defer();
+    //     const grupo = Storage.getGrupoCarrinho();
 
-        this._getAll().then((embarques) => {
-            embarques.forEach(embarque => {
-                if (this._exists(grupo.embarques, embarque.id)) {
-                    if (this._exists(produto.segmento, embarque.idSegmento)) {
-                        if (this._exists(embarque.produtos, produto.cor.idProduto)) {
-                            deferred.resolve(embarque);
-                        }
-                    }
+    //     this._getAll().then((embarques) => {
+    //         embarques.forEach(embarque => {
+    //             if (this._exists(grupo.embarques, embarque.id)) {
+    //                 if (this._exists(produto.segmento, embarque.idSegmento)) {
+    //                     if (this._exists(embarque.produtos, produto.cor.idProduto)) {
+    //                         deferred.resolve(embarque);
+    //                     }
+    //                 }
+    //             }
+    //         });
+    //     });
+    //     return deferred.promise;
+    // }
+
+    getEmbarqueProduto(produto) {
+        return new Promise((resolve) => {
+            const grupo = Storage.getGrupoCarrinho();
+            const buscaEmbaqueProduto = (embarques) => {
+                const embarqueProduto = _.filter(embarques, (embarque) => {
+                    this._exists(embarque.produtos, produto.cor.idProduto);
+                });
+                if (embarqueProduto != null) resolve(embarques[0]);
+                else resolve(embarqueProduto);
+            };
+
+            this._getFindCondition({id : {$in : grupo.embarques}, idSegmento : {$in : produto.segmento}}).then((embarques) => {
+                if (embarques.length > 0) {
+                    buscaEmbaqueProduto(embarques);
+                } else {
+                    this._getFindCondition({id : {$gte : null}, idSegmento : {$in : produto.segmento}}).then((embarques) => {
+                        buscaEmbaqueProduto(embarques);
+                    });
                 }
             });
         });
-        return deferred.promise;
     }
 
     getInfosEmbarques(carrinho) {

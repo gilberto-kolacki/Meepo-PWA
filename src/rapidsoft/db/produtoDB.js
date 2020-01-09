@@ -27,25 +27,32 @@ const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
                 });
             });
         });
-    })
-}
+    });
+};
 
 const getProdutoToDB = (rows) => {
     return rows.filter((produto) => {
         return produto.doc['referencia'] ;
     }).map((row) => row.doc);
-}
+};
 
 const getCoresAtivas = (cores) => {
     return cores.filter((cor) => {
         return cor.ativo;
     });
-}
+};
+
+const getReferenciasCarrinho = (carrinho) => {
+    return carrinho.itens.map((produto) => {
+        return produto.ref;
+    });
+};
 
 class produtoDB extends BasicDB {
 
     constructor() {
         super("produto");
+        this._createIndex('referencia');
     }
 
     getAllProdutos() {
@@ -159,9 +166,10 @@ class produtoDB extends BasicDB {
 
     getProdutosFromCarrinho(carrinho) {
         return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                const produtosCor = [];
-                const produtos = resultDocs.rows.filter((produto) => _.findIndex(carrinho.itens, (item) => item.ref === produto.id ) >= 0 ).map((row) => row.doc);
+            const produtosCor = [];
+            const refsCarrinho = getReferenciasCarrinho(carrinho);
+
+            this._getFindCondition({referencia : {$in : refsCarrinho}}).then((produtos) => {
                 const done = _.after(produtos.length, () => resolve(_.flattenDeep(produtosCor)));                
                 produtos.forEach(produto => {
                     produto.cores = _.filter(produto.cores, (cor) => _.findIndex(carrinho.itens, (item) => item.cor === cor.idCor) >= 0 );
@@ -170,9 +178,6 @@ class produtoDB extends BasicDB {
                         done();
                     });
                 });
-            }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/produtoDB',method:'getProdutosFromCarrinho',message: err,error:'Failed Request'})
-                resolve(err);
             });
         });
     }
