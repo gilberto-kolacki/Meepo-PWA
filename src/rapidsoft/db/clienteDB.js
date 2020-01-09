@@ -53,7 +53,7 @@ const validarContatoDB = (contato) => {
         }
         resolve(contato);
     });
-}
+};
 
 const validarEnderecoDB = (endereco, opcao) => {
         let retorno = {
@@ -89,7 +89,7 @@ const validarEnderecoDB = (endereco, opcao) => {
         } else {
             return endereco;
         }
-}
+};
 
 const validarObjetoDB = (cliente) => {
     return new Promise((resolve, reject) => {
@@ -121,15 +121,15 @@ const validarObjetoDB = (cliente) => {
             }
         } else {
             if (cliente.nome === undefined || cliente.nome === "") {
-                retorno.campo = "nomeCliente"
+                retorno.campo = "nomeCliente";
                 reject(retorno);
             }
             else if (cliente.dataAniversario === undefined || cliente.dataAniversario === "") {
-                retorno.campo = "dataAniversario"
+                retorno.campo = "dataAniversario";
                 reject(retorno);
             }
             else if (cliente.registroGeral === undefined || cliente.registroGeral === "") {
-                retorno.campo = "registroGeral"
+                retorno.campo = "registroGeral";
                 reject(retorno);
             }
             cliente.pessoaJuridica = false;
@@ -141,15 +141,15 @@ const validarObjetoDB = (cliente) => {
             reject({campo: "segmento", mensagem: "Campo obrigatório, informe ao menos 1 Segmento!"});
         }
         else if (cliente.emailNfe === undefined || (!(cliente.emailNfe.includes("@") && cliente.emailNfe.includes(".com"))) ) {
-            retorno.campo = "emailNfe"
+            retorno.campo = "emailNfe";
             reject(retorno);
         }
         else if (cliente.endereco.telefone === undefined || cliente.endereco.telefone === "") {
-            retorno.campo = "enderecoTelefone"
+            retorno.campo = "enderecoTelefone";
             reject(retorno);
         }
         else if (cliente.endereco.cep === undefined || cliente.endereco.cep === "") {
-            retorno.campo = "cepEndereco"
+            retorno.campo = "cepEndereco";
             reject(retorno);
         }
         else if (cliente.endereco.endereco === undefined || cliente.endereco.endereco === "") {
@@ -180,10 +180,10 @@ const validarObjetoDB = (cliente) => {
         //     reject(validarEndereco);
         // }
         else if (!(_.isArray(cliente.imagens) && cliente.imagens.length >= 1)){
-            reject({mensagem: "É necessário adicicionar ao menos uma imagem!"})
+            reject({mensagem: "É necessário adicicionar ao menos uma imagem!"});
         }
         else if (cliente.imagens.length > 5){
-            reject({mensagem: "É necessário remover uma ou mais imagens(Máximo 5 imagens)"})
+            reject({mensagem: "É necessário remover uma ou mais imagens(Máximo 5 imagens)"});
         }
         else if (!(_.isArray(cliente.contatos) && cliente.contatos.length >= 1)) {
             reject ({mensagem: "É necessário adicionar ao menos um contato!"});
@@ -194,7 +194,7 @@ const validarObjetoDB = (cliente) => {
             resolve(cliente);
         }
     });
-}
+};
 
 class clienteDB extends BasicDB {
 
@@ -215,8 +215,8 @@ class clienteDB extends BasicDB {
                     reject(erro);
                 });
             }).catch((erro) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'salvar',message: erro,error:'Failed Request'})
-                reject(erro)
+                ErrorDB.criarLogDB({url:'db/clienteDB',method:'salvar',message: erro,error:'Failed Request'});
+                reject(erro);
             });
         });
     }
@@ -229,17 +229,17 @@ class clienteDB extends BasicDB {
                 enderecoEntrega.endEntrega = true;
                 cliente.enderecos.push(enderecoEntrega);
             }
-            cliente.clienteErp = true
+            cliente.clienteErp = true;
             this._salvar(cliente).then(() => {
                 resolve();
             }).catch((erro) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: erro,error:'Failed Request'})
+                ErrorDB.criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: erro,error:'Failed Request'});
                 resolve();
             });
         });
     }
     listarConsulta() {
-        let docDados = {}
+        let docDados = {};
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 resolve(resultDocs.rows.map((cliente) => {
@@ -259,7 +259,7 @@ class clienteDB extends BasicDB {
                     docDados._rev = cliente.doc._rev;
                     
                     return _.clone(docDados);
-                }))
+                }));
             }).catch((err) => {
                 ErrorDB.criarLogDB({url:'db/clienteDB',method:'listarConsulta',message: err,error:'Failed Request'});
                 resolve(err);
@@ -277,7 +277,7 @@ class clienteDB extends BasicDB {
                         cliente.doc.endereco.estado = "";
                     }
                     return _.clone(cliente.doc);
-                }))
+                }));
             }).catch((err) => {
                 ErrorDB.criarLogDB({url:'db/clienteDB',method:'listar',message: err,error:'Failed Request'});
                 resolve(err);
@@ -317,7 +317,7 @@ class clienteDB extends BasicDB {
             }).catch((err) => {
                 ErrorDB.criarLogDB({url:'db/clienteDB',method:'validarContato',message: err,error:'Failed Request'});
                 reject(err);
-            })
+            });
         });
     }
 
@@ -340,7 +340,7 @@ class clienteDB extends BasicDB {
                 });
                 resolve(clientes.map((cliente) => {                    
                     return _.cloneDeep(cliente.doc);
-                }))
+                }));
             }).catch((err) => {
                 ErrorDB.criarLogDB({url:'db/clienteDB',method:'buscaClientesSinc',message: err,error:'Failed Request'});
                 resolve(err);
