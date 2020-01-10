@@ -34,12 +34,43 @@ class pedidoDB extends BasicDB {
         });
     }
 
+    deletarItemPedido(pedido) {
+        return new Promise((resolve) => {
+
+            this._getById(pedido.id,true).then((pedidoById) => {
+                if (pedidoById.existe) {
+                    pedidoById.result.id = pedido.id
+                    pedidoById.result.itens = pedido.itens
+                    this._salvar(pedidoById.result).then(() => {
+                        resolve();
+                    })
+                }
+                
+            })
+            
+        });
+    }
+
     getNextIdPedido() {
         return new Promise((resolve) => {
             this.findLastId().then((ultimoIdPedido) => {
                 ultimoIdPedido = ultimoIdPedido >= 0 ? ultimoIdPedido : 0;
                 resolve(ultimoIdPedido+1);
             });
+        });
+    }
+    
+    atualizarPedido(pedido) {
+        return new Promise((resolve) => {
+            this._getById(pedido.id,true).then((pedidoById) => {
+                if (pedidoById.existe) {
+                    pedidoById.result = pedido
+                    this._salvar(pedidoById.result).then(() => {
+                        resolve();
+                    })
+                }
+            })
+            
         });
     }
 

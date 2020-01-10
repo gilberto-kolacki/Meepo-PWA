@@ -72,6 +72,16 @@ const router = new Router({
                     },
                 },
                 {
+					path: '/pedido/cadastro',
+					name: 'pedidoEditar',
+					component: () => import('./views/pages/PedidoCadastro.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor',
+                        navBar: true,
+                    },
+                },
+                {
 					path: '/cliente/consulta',
 					name: 'clienteConsulta',
 					component: () => import('./views/pages/ClienteConsulta.vue'),

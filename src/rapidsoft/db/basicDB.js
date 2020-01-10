@@ -143,6 +143,18 @@ class basicDB {
         });
     }
 
+    _deletar(id) {
+        return new Promise((resolve) => {
+            this._getById(id,true).then((item) => {
+                this._localDB.remove(item.result).then((result) => {
+                    resolve(result);
+                }).catch(() => {
+                    resolve();
+                });
+            });
+        });
+    }
+
     _createIndex(indexName) {
         this._localDB.createIndex({index: {fields: [indexName]}});
     }    
