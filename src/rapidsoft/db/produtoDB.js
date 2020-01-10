@@ -16,14 +16,14 @@ import ErrorDB from './errorDB';
 const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
     textoSearch = _.toUpper(textoSearch);
     return rows.map((row) => { 
-        return _.clone(row.doc)
+        return _.clone(row.doc);
     }).filter((produto) => {
         return textoSearch === null || textoSearch === "" || _.toUpper(produto.referencia).includes(textoSearch) || produto.nome.includes(textoSearch);
     }).filter((produto) => {
         return idsCategorias.length === 0 || produto.cores.some((cor) => {
             return cor.categorias.some((categoria) => {
                 return idsCategorias.some((idCategoria) => {
-                    return categoria === idCategoria
+                    return categoria === idCategoria;
                 });
             });
         });
@@ -32,7 +32,7 @@ const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
 
 const getProdutoToDB = (rows) => {
     return rows.filter((produto) => {
-        return produto.doc['referencia'] ;
+        return produto.doc['referencia'];
     }).map((row) => row.doc);
 };
 
@@ -68,12 +68,12 @@ class produtoDB extends BasicDB {
 
     getAllProdutosByCategorias(categorias) {
         return new Promise((resolve) => {
-            const idCategorias = categorias.filter((categoria) => {return categoria.check}).map((categoria) => { return categoria.id});
+            const idCategorias = categorias.filter((categoria) => {return categoria.check}).map((categoria) => { return categoria.id });
             if (idCategorias.length > 0) {
                 this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                    resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias))
+                    resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias));
                 }).catch((err) => {
-                    ErrorDB.criarLogDB({url:'db/produtoDB',method:'getAllProdutosByCategorias',message: err,error:'Failed Request'})
+                    ErrorDB.criarLogDB({url:'db/produtoDB',method:'getAllProdutosByCategorias',message: err,error:'Failed Request'});
                     resolve(err);
                 });
             } else {
@@ -88,7 +88,7 @@ class produtoDB extends BasicDB {
                 this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                     resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias, textoSearch))
                 }).catch((err) => {
-                    ErrorDB.criarLogDB({url:'db/produtoDB',method:'getAllProdutosByIdCategorias',message: err,error:'Failed Request'})
+                    ErrorDB.criarLogDB({url:'db/produtoDB',method:'getAllProdutosByIdCategorias',message: err,error:'Failed Request'});
                     resolve(err);
                 });
             } else {
@@ -219,7 +219,7 @@ class produtoDB extends BasicDB {
                 delete result['_rev'];
                 resolve({existe: true, result: result});  
             }).catch((error) => {
-                ErrorDB.criarLogDB({url:'db/produtoDB',method:'getById',message: error,error:'Failed Request'})
+                ErrorDB.criarLogDB({url:'db/produtoDB',method:'getById',message: error,error:'Failed Request'});
                 resolve({existe: false, result: error});
             });
         });
@@ -234,7 +234,7 @@ class produtoDB extends BasicDB {
                         resultProduto.result.cores = _.filter(resultProduto.result.cores, (cor) => { return cor.prontaEntrega === false });
                         resultProduto.result.cores = arrayMove(resultProduto.result.cores, _.findIndex(resultProduto.result.cores, (cor) => { return cor.idProduto == pagina.id }), 0);
                         resultProduto.result.segmento = resultProduto.result.segmento[0];
-                        resolve(resultProduto.result)    
+                        resolve(resultProduto.result);
                     } else {
                         resolve(null)        
                     }
@@ -303,11 +303,11 @@ class produtoDB extends BasicDB {
                 const done = _.after(produto.cores.length, () => resolve(produto));
                 produto.cores.forEach(cor => {
                     ImagemDB.getCorById(cor).then((resultImagemCor) => {
-                        cor.imagemCor = resultImagemCor
+                        cor.imagemCor = resultImagemCor;
                         ImagemDB.getSelos(cor).then((resultSelos) => {
-                            cor.selos = resultSelos
+                            cor.selos = resultSelos;
                             ImagemDB.getSimbolos(cor).then((resultSimbolos) => {
-                                cor.simbolos = resultSimbolos
+                                cor.simbolos = resultSimbolos;
                                 done();
                             });
                         });
@@ -325,11 +325,11 @@ class produtoDB extends BasicDB {
                 const done = _.after(produto.cores.length, () => resolve(produto));
                 produto.cores.forEach(cor => {
                     ImagemDB.getCorById(cor).then((resultImagemCor) => {
-                        cor.imagemCor = resultImagemCor
+                        cor.imagemCor = resultImagemCor;
                         ImagemDB.getSelos(cor).then((resultSelos) => {
-                            cor.selos = resultSelos
+                            cor.selos = resultSelos;
                             ImagemDB.getSimbolos(cor).then((resultSimbolos) => {
-                                cor.simbolos = resultSimbolos
+                                cor.simbolos = resultSimbolos;
                                 ImagemDB.getFotosProduto(cor).then((resultFotos) => {
                                     cor.imagens = _.orderBy(resultFotos, ['seq'], ['asc']);
                                     done();
@@ -477,14 +477,10 @@ class produtoDB extends BasicDB {
                 resolve(_.uniq(_.flattenDeep(produtos.map((produto) => {
                     return produto.cores.map((cor) => {
                         return cor.categorias;
-                    })
+                    });
                 }))));
             });
         });
-    }
-
-    limparBase() {
-        return this._limparBase()
     }
 
 }

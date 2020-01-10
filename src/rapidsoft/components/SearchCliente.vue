@@ -47,7 +47,7 @@
                 <tbody id="div-with-loading-search" class="vs-con-loading__container vs-con-loading-search">
                     <vs-tr :state="data[indextr].ativo === 0 ? 'danger':data[indextr].inadimplente !== 0 ? 'warning':null" :data="tr" :key="indextr" v-for="(tr, indextr) in data">
                         <vs-td :data="data[indextr].cpfCnpj">
-                            <p class="product-name font-medium">{{ tr.cpfCnpj }}</p>
+                            <p class="product-name font-medium">{{ tr.cpfCnpj | cpfCnpj }}</p>
                         </vs-td>
                         <vs-td :data="data[indextr].nome">
                             <p class="product-name font-medium">{{ tr.nome }}</p>

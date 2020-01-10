@@ -75,9 +75,5 @@ class errorDB extends BasicDB {
         });
     }
 
-    limparBase() {
-        return this._limparBase();
-    }
-
 }
 export default new errorDB();

@@ -73,6 +73,7 @@
                         <h6 class="title-ref">{{produtoB.referencia}} - {{produtoB.nome}}</h6>
                     </div>
                 </div>
+                <!-- IMAGEM PRINCIPAL FIM -->
                 <div class="vx-col w-full md:w-1/5 h-12" style="z-index: 50;" v-if="this.produtoA">
                     <div class="vx-row">
                         <div class="flex w-full items-center justify-center">
@@ -104,16 +105,16 @@
 <script>
 
 import { Vue2InteractDraggable } from "vue2-interact";
-import _ from 'lodash'
-import ProdutoDB from '../../rapidsoft/db/produtoDB'
-import ImagemDB from '../../rapidsoft/db/imagemDB'
-import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
-import Storage from '../../rapidsoft/utils/storage'
-import UtilMask from '../../rapidsoft/utils/utilMask'
-import AddItemCarrinho  from '../../rapidsoft/components/AddItemCarrinho'
-import SearchProduto  from '../../rapidsoft/components/SearchProduto'
-import ZoomProduto  from '../../rapidsoft/components/ZoomProduto'
-import ErrorDB from '../../rapidsoft/db/errorDB'
+import _ from 'lodash';
+import ProdutoDB from '../../rapidsoft/db/produtoDB';
+import ImagemDB from '../../rapidsoft/db/imagemDB';
+import ProdutoUtils from '../../rapidsoft/utils/produtoUtils';
+import Storage from '../../rapidsoft/utils/storage';
+import UtilMask from '../../rapidsoft/utils/utilMask';
+import AddItemCarrinho  from '../../rapidsoft/components/AddItemCarrinho';
+import SearchProduto  from '../../rapidsoft/components/SearchProduto';
+import ZoomProduto  from '../../rapidsoft/components/ZoomProduto';
+import ErrorDB from '../../rapidsoft/db/errorDB';
 
 export default {
 
@@ -168,13 +169,6 @@ export default {
     watch: {
     },
     computed: {
-        // getProdutosPesquisa() {
-        //     return this.produtos.filter((produto) => {
-        //         return this.getCategoriasCardPesquisa.some((categoria) => {
-        //             return categoria.check && produto.hasOwnProperty('categoria') && produto.categoria.hasOwnProperty('codigo') && produto.categoria.codigo == categoria.codigo;
-        //         });
-        //     });
-        // },
         getSegmentosSearch() {
             return this.segmentosFiltro.map((segmento) => {
                 return segmento;
@@ -187,14 +181,14 @@ export default {
         },
         getImagensCorProduto() {
             if (this.produtoA) {
-                return this.produtoA.cores[this.corSelecionada].imagens
+                return this.produtoA.cores[this.corSelecionada].imagens;
             } else {
                 return [];
             }
         },        
         getCoresProduto() {
             if (this.produtoA) {
-                return this.produtoA.cores
+                return this.produtoA.cores;
             } else {
                 return [];
             }
@@ -215,7 +209,7 @@ export default {
                 time: 4000,
                 iconPack: 'feather',
                 icon:'icon-dollar-sign'
-            })
+            });
         },
         existeCarrinho() {
             return !Storage.existeCarrinho();
@@ -261,8 +255,6 @@ export default {
             } else {
                 this.selectProduto(this.paginas[this.paginas.length-1]);
             }
-            document.getElementById("produto-image-gallery").scrollTop = 0;
-            this.corSelecionada = 0;
             this.hideCard();
         },
         nextRef() {
@@ -272,8 +264,6 @@ export default {
             } else {
                 this.selectProduto(this.paginas[0]);
             }
-            document.getElementById("produto-image-gallery").scrollTop = 0;
-            this.corSelecionada = 0;
             this.hideCard();
         },
         showSidebar() {
@@ -318,6 +308,7 @@ export default {
                 ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
                     this.imagemProdutoPrincipal = result;
                     this.corSelecionada = 0;
+                    document.getElementById("produto-image-gallery").scrollTop = 0;
                     this.$vs.loading.close();
                 })
             })
@@ -332,29 +323,34 @@ export default {
         abrirCarrinho() {
             this.$router.push({ name: 'carrinho'});
         },
-    },
-    beforeCreate() {
-        this.catalogo = Storage.getCatalogo();
-        if (this.catalogo.idCatalogo) {
-            document.getElementById('loading-bg').style.display = null;
-            ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo).then(paginas => {
-                this.paginas = paginas;
-                this.selectProduto(paginas[0]);
-                document.getElementById('loading-bg').style.display = "none";
+        carregaItensTela() {
+            return new Promise((resolve) => {
+                document.getElementById('loading-bg').style.display = null;
+                ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo).then(paginas => {
+                    this.paginas = paginas;
+                    this.selectProduto(paginas[0]);
+                    document.getElementById('loading-bg').style.display = "none";
+                    resolve();
+                });
             });
-        } else {
-            this.$router.push('/catalogo');
         }
     },
-    created() {
-        // console.log('created');
+    beforeCreate() {
+        
+    },
+    async created() {
+        this.catalogo = Storage.getCatalogo();
+        if (this.catalogo == null || this.catalogo.idCatalogo == null) {
+            this.$router.push('/catalogo');
+        } else {
+            this.grupoCliente = Storage.getGrupoCarrinho();
+            await this.carregaItensTela();
+        }
     },
     beforeMount() {
-        this.grupoCliente = Storage.getGrupoCarrinho();
-        // console.log('beforeMount');
+        
     },
     mounted() {
-        // document.getElementById('loading-bg').style.display = "none";
         document.getElementById("page-catalogo").ontouchmove = (e) => {
             if(!(e.target.className == "produto-image-gallery-item" || e.target.className == "mb-4 responsive img-ref")) {
                 e.preventDefault();

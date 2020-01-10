@@ -197,7 +197,7 @@ export default {
       }, 2000);
     },
     deletarLogs() {
-      ErrorDB.limparBase();
+      ErrorDB._limparBase();
       this.listarErros();
     },
     alertLimparLogs() {

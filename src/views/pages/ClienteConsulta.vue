@@ -14,9 +14,8 @@
                 </template> 
                 <template slot-scope="{data}">
                     <vs-tr :state="data[indextr].ativo === 0 ? 'danger':data[indextr].inadimplente !== 0 ? 'warning':null" :key="indextr" v-for="(tr, indextr) in data">
-                        
                         <vs-td :data="data[indextr].cpfCnpj">
-                            {{ data[indextr].cpfCnpj }}
+                            {{ data[indextr].cpfCnpj | cpfCnpj }}
                         </vs-td>
                         <vs-td :data="data[indextr].nome">
                             {{ data[indextr].nome }}
