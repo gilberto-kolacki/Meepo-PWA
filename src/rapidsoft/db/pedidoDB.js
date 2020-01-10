@@ -36,18 +36,14 @@ class pedidoDB extends BasicDB {
 
     deletarItemPedido(pedido) {
         return new Promise((resolve) => {
-
             this._getById(pedido.id,true).then((pedidoById) => {
                 if (pedidoById.existe) {
-                    pedidoById.result.id = pedido.id
-                    pedidoById.result.itens = pedido.itens
-                    this._salvar(pedidoById.result).then(() => {
+                    pedido._rev = pedidoById.value._rev;
+                    this._salvar(pedido).then(() => {
                         resolve();
-                    })
+                    });
                 }
-                
-            })
-            
+            });
         });
     }
 
@@ -67,9 +63,9 @@ class pedidoDB extends BasicDB {
                     pedidoById.result = pedido
                     this._salvar(pedidoById.result).then(() => {
                         resolve();
-                    })
+                    });
                 }
-            })
+            });
             
         });
     }
@@ -85,6 +81,14 @@ class pedidoDB extends BasicDB {
                         resolve();
                     });
                 });
+            });
+        });
+    }
+
+    getPedido(pedidoId) {
+        return new Promise((resolve) => {
+            this._getById(pedidoId, true).then((pedido) => {
+                resolve(pedido.value);
             });
         });
     }

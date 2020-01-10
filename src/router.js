@@ -17,10 +17,10 @@
 ==========================================================================================*/
 
 
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from 'vue';
+import Router from 'vue-router';
 import auth from "./rapidsoft/auth/authService";
-import usuarioDB from './rapidsoft/db/usuarioDB'
+import usuarioDB from './rapidsoft/db/usuarioDB';
 
 Vue.use(Router);
 
@@ -236,15 +236,15 @@ router.beforeEach((to, from, next) => {
                 if (auth.isAuthenticated()) {
                     next();
                 } else {
-                    next('/login')
+                    next('/login');
                 }
             }).catch(() => {
-                next('/login')
+                next('/login');
             });
         }
     } else {
         if (to.name === "login" && auth.isAuthenticated()) {
-            next('/')
+            next('/');
         } else {
             next();
         }

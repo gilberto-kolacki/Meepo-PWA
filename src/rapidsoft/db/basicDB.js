@@ -174,8 +174,8 @@ class basicDB {
     
     _deletar(id) {
         return new Promise((resolve) => {
-            this._getById(id, true).then((item) => {
-                this._localDB.remove(item.result).then((result) => {
+            this._getById(id, true).then((object) => {
+                this._localDB.remove(object.value).then((result) => {
                     resolve(result);
                 }).catch(() => {
                     resolve();
@@ -217,31 +217,22 @@ class basicDB {
     
     _sincNuvem() {
         return new Promise((resolve) => {
-            // this._localDB.replicate.to(this._remoteDB).then((result) => {
-            //     if (result.ok) {
-            //         this._localDB.replicate.from(this._remoteDB).then((result) => {
-            //             if (result.ok) {
-            //                 resolve();
-            //             } else {
-            //                 this.sincNuvem().then(() => {
-            //                     resolve();
-            //                 });
-            //             }
-            //         });
-            //     } else {
-            //         this.sincNuvem().then(() => {
-            //             resolve();
-            //         });
-            //     }
-            // });
-            this._localDB.sync(this._remoteDB).then(() => {
-                resolve();
-             }).catch((err) => {
-                 if (err.error === "not_found") {
-                    this._remoteDB = new PouchDB(this._remoteDB.name);
-                 } else {
-                     resolve(err);
-                 }
+            this._localDB.replicate.to(this._remoteDB).then((result) => {
+                if (result.ok) {
+                    this._localDB.replicate.from(this._remoteDB).then((result) => {
+                        if (result.ok) {
+                            resolve();
+                        } else {
+                            this._sincNuvem().then(() => {
+                                resolve();
+                            });
+                        }
+                    });
+                } else {
+                    this._sincNuvem().then(() => {
+                        resolve();
+                    });
+                }
             });
         });
     }

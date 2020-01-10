@@ -196,10 +196,10 @@ export default {
         },
         navbarTypeLocal: {
             get() {
-              return 'navbar-' + this.navbarType
+                return 'navbar-' + this.navbarType
             },
             set(val) {
-              this.$emit('updateNavbar', val.replace("navbar-", ""))
+                this.$emit('updateNavbar', val.replace("navbar-", ""))
             }
         },
         navbarColorLocal: {

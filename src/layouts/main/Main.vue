@@ -86,7 +86,7 @@ import TheNavbar from '../components/TheNavbar.vue';
 import TheFooter from '../components/TheFooter.vue';
 import themeConfig from '@/../themeConfig.js';
 import sidebarItems from "@/layouts/components/vx-sidebar/sidebarItems.js";
-import BackToTop from 'vue-backtotop'
+import BackToTop from 'vue-backtotop';
 
 export default {
     data() {
@@ -108,12 +108,8 @@ export default {
         '$route'() {
             this.routeTitle = this.$route.meta.pageTitle;
         },
-        '$route.meta.navBar'() {
-            if (this.$route.name === "catalogo" || this.$route.name === "catalogoItem") {
-                this.navbarType = 'hidden';
-            } else {
-                this.navbarType = themeConfig.navbarType || 'floating';
-            }
+        '$route.meta.navBar'(mostrar) {
+            this.navbarType = mostrar ? themeConfig.navbarType || 'floating' : 'hidden';
         },
         isThemeDark(val) {
             if(this.navbarColor == "#fff" && val) {
@@ -291,6 +287,21 @@ html, body {
         text-align: center;
         font-size: 30px;
     }
+}
+
+.input-line-group-rapid {
+    input {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+}
+
+.btn-line-group-rapid {
+    margin-top: 26px;
+    height: 38px !important;
+    width: 15% !important;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .rapid-input-date {

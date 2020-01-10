@@ -6,18 +6,18 @@
 ==========================================================================================*/
 
 import _ from 'lodash';
-import ImagemFotoDB from './imagemFotoDB'
-import ImagemCorDB from './imagemCorDB'
-import ImagemSeloDB from './imagemSeloDB'
-import ImagemSimboloDB from './imagemSimboloDB'
+import ImagemFotoDB from './imagemFotoDB';
+import ImagemCorDB from './imagemCorDB';
+import ImagemSeloDB from './imagemSeloDB';
+import ImagemSimboloDB from './imagemSimboloDB';
 
 class imagemDB {
 
     getImagemCor(id) {
         return new Promise((resolve) => {
             ImagemCorDB._getById(id).then((cor) => {
-                if (cor.existe) resolve(cor.value)
-                else resolve(null)
+                if (cor.existe) resolve(cor.value);
+                else resolve(null);
             });
         });
     }
@@ -65,7 +65,7 @@ class imagemDB {
             } else {
                 resolve(null);
             }
-        })
+        });
     }
 
     getFotoById(idFoto) {
@@ -81,7 +81,7 @@ class imagemDB {
             } else {
                 resolve(null);
             }
-        })
+        });
     }
 
     existFoto(idsFoto) {
@@ -115,14 +115,14 @@ class imagemDB {
                 cor.imagens.forEach(imagem => {
                     ImagemFotoDB._getById(imagem.id).then((fotoProduto) => {
                         if(fotoProduto.existe) {
-                            imagem.base64 = fotoProduto.value.base64
+                            imagem.base64 = fotoProduto.value.base64;
                             if(_.last(cor.imagens) === imagem) {
-                                resolve(cor.imagens)
+                                resolve(cor.imagens);
                             }
                         } else {
-                            imagem.base64 = null
+                            imagem.base64 = null;
                             if(_.last(cor.imagens) === imagem) {
-                                resolve(cor.imagens)
+                                resolve(cor.imagens);
                             }
                         }
                     });
@@ -135,9 +135,6 @@ class imagemDB {
 
     getFotoPrincipal(produto) {
         return new Promise((resolve) => {
-
-            console.log(produto);
-            
             if (_.isObject(produto.cores[0]) && produto.cores[0].imagens.length > 0 && _.isArray(produto.cores[0].imagens)) {
                 ImagemFotoDB._getById(_.orderBy(produto.cores[0].imagens, ['seq'])[0].id).then((fotoProduto) => {
                     if(fotoProduto.existe) {

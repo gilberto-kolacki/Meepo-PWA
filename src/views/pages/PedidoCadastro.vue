@@ -1,12 +1,12 @@
 <template>
     <div>
-        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down"  @click="finalizarPedido(pedido)" >Finalizar</vs-button>
+        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-save"  @click="finalizarPedido(pedido)" >Salvar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
         <b-tabs content-class="mt-5" justified>
             <b-tab  active lazy>
                 <template v-slot:title>
                     <strong>
-                        <feather-icon icon="BoxIcon" style="color:warning;" class="cursor-pointer"/>
+                        <feather-icon icon="FileTextIcon" style="color:warning;" class="cursor-pointer"/>
                         Capa
                     </strong>
                 </template>
@@ -140,7 +140,8 @@
                         <div class="flex carrinho-item" v-if="!item.remove">
                             <div class="vx-col w-3/12 mx-6" style="justify-content:center;margin:auto">
                                 <div class="vx-row" style="font-weight:bold;">
-                                    {{"Data: " + getDateFromStringDate(item.embarque)}}
+                                    <!-- {{"Data: " + getDateFromStringDate(item.embarque)}} -->
+                                    Data: {{ item.embarque.dataEmbarque | formatDate}}
                                 </div>
                                 <div class="vx-row" style="font-weight:bold;">
                                     {{item.sku}}
@@ -287,9 +288,12 @@ export default {
                 document.getElementById('loading-bg').style.display = null;
                 FormaPagtoDB._getAll().then((formaPagto) => {
                     this.formasPagto = formaPagto;
-                    PedidoDB._getById(this.$route.params.pedidoId,true).then((pedido) => {
-                        this.pedido = pedido.result;
-                        this.itensPedido = this.pedido.itens
+                    PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
+
+                        console.log(pedido);
+                        
+                        this.pedido = pedido;
+                        this.itensPedido = pedido.itens;
                         document.getElementById('loading-bg').style.display = "none";
                         resolve();
                     })
@@ -310,35 +314,27 @@ export default {
             })
         },
         deletarItemPedido(parametersItemPedido) {
-            _.remove(this.pedido.itens, function(itemPedido) {
-                return itemPedido.id === parametersItemPedido.id
-            });
+            this.pedido.itens = _.remove(this.pedido.itens, (itemPedido) => itemPedido.id !== parametersItemPedido.id);
             PedidoDB.deletarItemPedido(this.pedido).then(() => {
-                document.getElementById('loading-bg').style.display = null;
                 this.carregaItensTela();
             });
-            
         },
         finalizarPedido(pedido) {
             PedidoDB.atualizarPedido(pedido).then(() => {
-                this.carregaItensTela();
                 this.voltarPedido();
             });
         },
         getDateFromStringDate(inputFormat) {
             if (inputFormat.dataEmbarque) {
-                const date = inputFormat.dataEmbarque.substring(0,10)
+                const date = inputFormat.dataEmbarque.substring(0,10);
                 return date.split('-').reverse().join('/');
-            }else{
-                return '-'
+            } else {
+                return '-';
             }
         },
-
         voltarPedido() {
-            this.carregaItensTela();
             this.$router.go(-1);
         },
-
     },
     created() {
         if(navigator.platform === "iPad") {
@@ -364,21 +360,6 @@ export default {
 
 <style lang="scss">
 
-.input-line-group-rapid {
-    input {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-}
-
-.btn-line-group-rapid {
-    margin-top: 26px;
-    height: 43px !important;
-    width: 15% !important;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    }
-
 .celulaTable {
     border-color:#808080;
     font-weight:bold;
@@ -386,39 +367,10 @@ export default {
     padding:5px;
 }
 
-.input-line-group-rapid {
-    input {
-        border-top-right-radius: 0;
-        border-bottom-right-radius: 0;
-    }
-}
-
 .carrinho-item {
     padding:10px;
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2); 
     margin-top:10px;
-}
-
-.btn-confirm {
-    position: fixed;
-    top: 50%;
-    right: -50px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    z-index: 1000;
-    width: 10rem;
-    transform: rotate(-90deg);
-}
-
-.btn-cancel {
-    position: fixed;
-    top: 50%;
-    left: -50px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    z-index: 1000;
-    width: 10rem;
-    transform: rotate(90deg);
 }
 
 .mb-base-button {

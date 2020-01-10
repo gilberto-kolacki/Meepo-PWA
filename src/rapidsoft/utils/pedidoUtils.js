@@ -33,7 +33,10 @@ class pedidoUtils {
 			});        
 
 			itensCarrinhoStorage.forEach(itemStorage => {
-				const itemCarrinho = _.find(carrinho, (itemCarrinho) => itemCarrinho.cor.idProduto === itemStorage.idProduto);
+                const itemCarrinho = _.find(carrinho, (itemCarrinho) => itemCarrinho.cor.idProduto === itemStorage.idProduto);
+                
+                console.log(itemCarrinho.embarque);
+                
 				itemStorage.embarque = itemCarrinho.embarque;
 				done();
 			});
@@ -47,7 +50,12 @@ class pedidoUtils {
             const done = _.after(embarques.length, () => resolve(pedidosNew));
             embarques.forEach(embarque => {
                 const newPedido = _.cloneDeep(pedido);
+                newPedido.embarque = _.cloneDeep(embarque);
                 newPedido.itens = _.cloneDeep(itens.filter((item) => item.embarque.id == embarque.id ));
+                newPedido.itens = newPedido.itens.map((item) => {
+                    delete item.embarque;
+                    return item;
+                });
                 pedidosNew.push(newPedido);
                 done();
             });

@@ -10,13 +10,12 @@ import BasicDB from './basicDB';
 import SegmentoDB from './segmentoDB';
 import Auth from "../../rapidsoft/auth/authService";
 
-let idUsuario = "1";
-const nameDB = "usuario";
+const idUsuario = "1";
 
 class usuarioDB extends BasicDB {
 
     constructor() {
-        super(nameDB);
+        super("usuario");
     }
 
     signIn(usuario) {
@@ -33,7 +32,7 @@ class usuarioDB extends BasicDB {
                     this._criarLogDB({url:'db/usuarioDB',method:'signIn',message: err,error:'Failed Request'});
                     reject(err);
                 });
-            })
+            });
         });
     }
 
@@ -50,7 +49,7 @@ class usuarioDB extends BasicDB {
                     this._criarLogDB({url:'db/usuarioDB',method:'signOut',message: err,error:'Failed Request'});
                     reject(err);
                 });
-            })
+            });
         });
     }
 

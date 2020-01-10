@@ -228,7 +228,7 @@ export default {
             this.imagemProdutoPrincipal = this.getImagemCorProduto(imagemSelecionada);
         },
         getImagemCorProduto(imagem) {
-            var cor = _.cloneDeep(this.produtoA.cores[this.corSelecionada]);
+            var cor = Object.assign(this.produtoA.cores[this.corSelecionada]);
             return cor.imagens[imagem].base64;
         },
         scrollUp() {
@@ -270,7 +270,7 @@ export default {
             return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
         },
         showZoom() {
-            this.produtoZoom = _.cloneDeep(this.produtoA);
+            this.produtoZoom = Object.assign(this.produtoA);
             this.produtoZoomShow = true;
             setTimeout(() => {
                 this.$bvModal.show(this.idPopUpZoom)

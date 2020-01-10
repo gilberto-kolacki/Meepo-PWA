@@ -5,30 +5,13 @@
                 <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editar(null)">Novo</vs-button>
             </template> -->
             <template slot="thead">
+                <vs-th>Ações</vs-th>
                 <vs-th sort-key="cnpj">CNPJ</vs-th>
                 <vs-th sort-key="nome">Nome</vs-th>
                 <vs-th sort-key="nome">Status</vs-th>
-                <vs-th sort-key="cidade">Cidade</vs-th>
-                <vs-th sort-key="estado">UF</vs-th>
-                <vs-th>Ações</vs-th>
             </template> 
             <template slot-scope="{data}">
                 <vs-tr :key="indextr" v-for="(tr, indextr) in data">
-                    <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        {{ data[indextr].cliente.cpfCnpj }}
-                    </vs-td>
-                    <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        {{ data[indextr].cliente.nome }}
-                    </vs-td>
-                    <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        <vs-chip :color="getStatusColor(30)" class="product-order-status">{{ getNameStatus(30) }}</vs-chip>
-                    </vs-td>
-                    <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        {{ data[indextr].cliente.endereco.cidade }}
-                    </vs-td>
-                    <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        {{ data[indextr].cliente.endereco.estado }}
-                    </vs-td>
                     <vs-td v-if="data[indextr].cliente">
                         <div class="flex">
                             <div class="p-1">
@@ -39,7 +22,15 @@
                             </div>
                         </div>
                     </vs-td>
-
+                    <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
+                        {{ data[indextr].cliente.cpfCnpj }}
+                    </vs-td>
+                    <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
+                        {{ data[indextr].cliente.nome }}
+                    </vs-td>
+                    <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
+                        <vs-chip :color="getStatusColor(30)" class="product-order-status">{{ getNameStatus(30) }}</vs-chip>
+                    </vs-td>
                 </vs-tr>
             </template>
         </vs-table>
@@ -51,7 +42,6 @@
 // import _ from 'lodash';
 import PedidoDB from '../../rapidsoft/db/pedidoDB';
 import ErrorDB from '../../rapidsoft/db/errorDB';
-// import _ from 'lodash';
 
 export default {
     data() {
@@ -102,8 +92,6 @@ export default {
             })
         },
         deletar(pedido) {
-            console.log("Pedido = = = : ", pedido.id);
-            
             PedidoDB._deletar(pedido.id).then(() => {
                 this.listar();
             });

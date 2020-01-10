@@ -1,6 +1,6 @@
 <template>
     <div class="page-carrinho-pedido">
-        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-play" @click="gerarPedidos()">Finalizar</vs-button>
+        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-play" @click="gerarPedidosMessage()">Finalizar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarCarrinho()" icon="icon-arrow-down">Carrinho</vs-button>
         <b-tabs content-class="mt-5" justified v-if="this.showPedido">
             <b-tab active>
@@ -151,15 +151,12 @@
 <script>
 import _ from "lodash";
 import ErrorDB from "../../rapidsoft/db/errorDB";
-// import Storage from "../utils/storage";
 import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
 import SearchCliente  from '../../rapidsoft/components/SearchCliente'
-// import ProdutoDB from "../../rapidsoft/db/produtoDB";
-// import UtilMask from '../../rapidsoft/utils/utilMask'
 import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
-// import PedidoDB from "../../rapidsoft/db/pedidoDB";
+import PedidoDB from "../../rapidsoft/db/pedidoDB";
 import vSelect from 'vue-select';
 
 export default {
@@ -253,17 +250,29 @@ export default {
         getCoinFormat(value) {
 			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
         },
+        gerarPedidosMessage() {
+            this.$vs.dialog({
+                type:'confirm',
+                color:'warning',
+                title:'Atenção!',
+                text:'Serão gerados pedidos diferentes para cada Embarque, e se carrinho será apagado!. Deseja continuar?',
+                accept: this.gerarPedidos,
+                acceptText: 'Sim',
+                cancelText: 'Cancelar',
+            });
+        },
+
 		gerarPedidos() {
             console.log(this.pedidoCapa);
             
-            // PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
-            //     const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
-            //     pedidos.forEach(pedido => {
-            //         PedidoDB.salvarPedido(pedido).then(() => {
-            //             done();
-            //         });
-            //     });
-            // });
+            PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
+                const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
+                pedidos.forEach(pedido => {
+                    PedidoDB.salvarPedido(pedido).then(() => {
+                        done();
+                    });
+                });
+            });
         },
         voltarCarrinho() {
             this.$router.go(-1);
@@ -320,21 +329,6 @@ export default {
         margin-top: -15px !important;
         margin-left: 5px !important;
         margin-right: 5px !important;
-    }
-
-    .input-line-group-rapid {
-        input {
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-    }
-
-    .btn-line-group-rapid {
-        margin-top: 26px;
-        height: 38px !important;
-        width: 15% !important;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
     }
 
     .embarque-item {

@@ -15,10 +15,7 @@
 								Embarques
 							</strong>
 						</template>
-						<embarque-item
-							v-model="this.embarques"
-						>
-						</embarque-item>
+						<embarque-item v-model="this.embarques" />
 					</b-tab>
 					<b-tab v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento">
 						<template v-slot:title>
@@ -137,6 +134,9 @@ export default {
 					this.itensCarrinho = carrinho;
 					EmbarqueDB.getInfosEmbarques(carrinho).then((embarques) => {
 						this.embarques = embarques;
+
+						console.log(embarques);
+						
 						SegmentoDB.getSegmentosCarrinho().then(segmentos => {
 							this.segmentos = segmentos;
 							ProdutoUtils.getProdutosSegmentos(segmentos, carrinho).then((produtosSegmento) => {

@@ -200,7 +200,7 @@
                         <div class="vx-col my-5-top w-full">
                             <!-- <vs-button color="success" class="mr-3 mb-2 pull-right" v-if="!clienteEdit.clienteErp" @click="salvarCliente">Salvar</vs-button> -->
                             <!-- <vs-button color="danger" type="border" class="mr-2 mb-2 pull-right"  @click="cancelarCliente">Voltar</vs-button> -->
-                            <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" v-if="!clienteEdit.clienteErp" icon="icon-plus" @click="salvarCliente">Adicionar</vs-button>
+                            <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" v-if="!clienteEdit.clienteErp" icon="icon-save" @click="salvarCliente">Adicionar</vs-button>
                             <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" icon="icon-x" @click="cancelarCliente">Voltar</vs-button>
   
                         </div>
