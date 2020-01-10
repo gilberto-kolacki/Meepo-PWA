@@ -15,19 +15,19 @@
             <template slot-scope="{data}">
                 <vs-tr :key="indextr" v-for="(tr, indextr) in data">
                     <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        {{ data[indextr].cliente.cpfCnpj }}
+                        {{ data[indextr].cliente ? data[indextr].cliente.cpfCnpj : "" }}
                     </vs-td>
                     <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        {{ data[indextr].cliente.nome }}
+                        {{ data[indextr].cliente ? data[indextr].cliente.nome : "" }}
                     </vs-td>
                     <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
                         <vs-chip :color="getStatusColor(30)" class="product-order-status">{{ getNameStatus(30) }}</vs-chip>
                     </vs-td>
                     <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        {{ data[indextr].cliente.endereco.cidade }}
+                        {{ data[indextr].cliente ? data[indextr].cliente.endereco.cidade : "" }}
                     </vs-td>
                     <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        {{ data[indextr].cliente.endereco.estado }}
+                        {{ data[indextr].cliente ? data[indextr].cliente.endereco.estado : " "}}
                     </vs-td>
                     <vs-td v-if="data[indextr].cliente">
                         <div class="flex">

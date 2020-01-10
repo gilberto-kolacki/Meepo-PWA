@@ -16,6 +16,32 @@
             </div>
         </b-card-header>
         <b-collapse :id="idColapse" visible accordion="my-accordion" role="tabpanel">
+            <div class="vx-row" style="margin-top:10px">
+                <div class="vx-col flex justify-end w-full">
+                    <vs-button 
+                        color="primary" 
+                        type="border" 
+                        icon-pack="feather" 
+                        icon="icon-angle-double-down"
+                        class="small"
+                        @click="replicarGrade()"
+                    >
+                        Replicar Grade
+                    </vs-button>
+                    <!-- <vs-button 
+                        color="warning" 
+                        type="border" 
+                        icon-pack="feather" 
+                        icon="icon-angle-double-down"
+                        class="small"
+                        @click="replicarGrade()"
+                        style="margin-left: 10px"
+                        v-if="title !== 'Referencia A'"
+                    >
+                        Replicar Grade da Referência A
+                    </vs-button> -->
+                </div>
+            </div>
             <b-card-body>
                 <div class="row">
                     <div class="table-responsive">
@@ -144,6 +170,25 @@ export default {
     },
     methods: {
         // 2-tamanho, 1-cor
+        replicarGrade(){
+            const listaBaseGrade = this.produtoAdd.cores[0];
+            for (let indexCor = 0; indexCor < this.produtoAdd.cores.length; indexCor++) {
+                this.produtoAdd.cores[indexCor].tamanhos.map((itemTamanho,indexTamanho) => {
+                    const produtoCodigo = _.find(listaBaseGrade.tamanhos, function (pedidoItemTamanho) {
+                        return pedidoItemTamanho.codigo === itemTamanho.codigo
+                    })
+                    itemTamanho.quantidade = _.clone(parseInt(produtoCodigo.quantidade))
+                    this.atualizarGrade(indexCor,indexTamanho);
+                })
+            }            
+        },
+        atualizarGrade(indexCor, indexTamanho) {
+            const tamanho = this.criaTamanho(indexCor, indexTamanho);
+            console.log("Mais tamanho ", tamanho);
+            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade);
+            this.$emit('atualiza-qtde-itens', _.clone(tamanho));
+            this.$forceUpdate();
+        },
         disabledCorTamanho(produto, corTamanho, tipo) {
             if(tipo === 2) {
                 for (let indexCor = 0; indexCor < this.produtoAdd.produtoAddCores.length; indexCor++) {
@@ -170,11 +215,14 @@ export default {
         },
         menosTamanho(indexCor, indexTamanho) {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
+            console.log("Mais tamanho ", tamanho);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade-1);
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
         maisTamanho(indexCor, indexTamanho) {
+            console.log("menos tamanho");
+            
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : parseInt(tamanho.quantidade)+1;
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
