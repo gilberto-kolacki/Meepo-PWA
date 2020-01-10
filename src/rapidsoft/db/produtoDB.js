@@ -7,11 +7,10 @@
 
 import _ from 'lodash';
 import arrayMove from 'array-move';
-import BasicDB from './basicDB'
-import ImagemDB from './imagemDB'
-import CatalogoDB from './catalogoDB'
+import BasicDB from './basicDB';
+import ImagemDB from './imagemDB';
+import CatalogoDB from './catalogoDB';
 import EmbarqueDB from './embarqueDB';
-import ErrorDB from './errorDB';
 
 const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
     textoSearch = _.toUpper(textoSearch);
@@ -60,7 +59,7 @@ class produtoDB extends BasicDB {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 resolve(getProdutoToDB(resultDocs.rows))
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/produtoDB',method:'getAllProdutos',message: err,error:'Failed Request'})
+                this._criarLogDB({url:'db/produtoDB',method:'getAllProdutos',message: err,error:'Failed Request'})
                 resolve(err);
             });
         });
@@ -73,7 +72,7 @@ class produtoDB extends BasicDB {
                 this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                     resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias));
                 }).catch((err) => {
-                    ErrorDB.criarLogDB({url:'db/produtoDB',method:'getAllProdutosByCategorias',message: err,error:'Failed Request'});
+                    this._criarLogDB({url:'db/produtoDB',method:'getAllProdutosByCategorias',message: err,error:'Failed Request'});
                     resolve(err);
                 });
             } else {
@@ -86,9 +85,9 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             if (idCategorias.length > 0 || textoSearch.length > 0) {
                 this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                    resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias, textoSearch))
+                    resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias, textoSearch));
                 }).catch((err) => {
-                    ErrorDB.criarLogDB({url:'db/produtoDB',method:'getAllProdutosByIdCategorias',message: err,error:'Failed Request'});
+                    this._criarLogDB({url:'db/produtoDB',method:'getAllProdutosByIdCategorias',message: err,error:'Failed Request'});
                     resolve(err);
                 });
             } else {
@@ -219,7 +218,7 @@ class produtoDB extends BasicDB {
                 delete result['_rev'];
                 resolve({existe: true, result: result});  
             }).catch((error) => {
-                ErrorDB.criarLogDB({url:'db/produtoDB',method:'getById',message: error,error:'Failed Request'});
+                this._criarLogDB({url:'db/produtoDB',method:'getById',message: error,error:'Failed Request'});
                 resolve({existe: false, result: error});
             });
         });
@@ -354,34 +353,41 @@ class produtoDB extends BasicDB {
 
     getProdutoPaginaCatalogo(pagina) {
         return new Promise((resolve) => {
+            console.log(pagina);
+            
             let item = {};
             this.getByProdPaginaCatalogo(pagina.produtoA).then((resultProdutoA) => {
-                item.produtoA = resultProdutoA;
-                this.getByProdPaginaCatalogo(pagina.produtoB).then((resultProdutoB) => {
-                    if (resultProdutoB != null) {
-                        item.produtoB = resultProdutoB;
-                    }
-                    this.getByProdPaginaCatalogo(pagina.produtoC).then((resultProdutoC) => {
-                        if (resultProdutoC != null) {
-                            item.produtoC = resultProdutoC;
+                if (resultProdutoA) {
+                    item.produtoA = resultProdutoA;
+                    this.getByProdPaginaCatalogo(pagina.produtoB).then((resultProdutoB) => {
+                        if (resultProdutoB != null) {
+                            item.produtoB = resultProdutoB;
                         }
-                        this.getByProdPaginaCatalogo(pagina.produtoD).then((resultProdutoD) => {
-                            if (resultProdutoD != null) {
-                                item.produtoD = resultProdutoD;
+                        this.getByProdPaginaCatalogo(pagina.produtoC).then((resultProdutoC) => {
+                            if (resultProdutoC != null) {
+                                item.produtoC = resultProdutoC;
                             }
-                            if (item.produtoA == null && item.produtoB != null) {
-                                item.produtoA = item.produtoB;
-                                item.produtoB = null;
-                            }
-                            this.getImagens(item).then((resultImagem) => {
-                                resolve(resultImagem);
-                            })
+                            this.getByProdPaginaCatalogo(pagina.produtoD).then((resultProdutoD) => {
+                                if (resultProdutoD != null) {
+                                    item.produtoD = resultProdutoD;
+                                }
+                                if (item.produtoA == null && item.produtoB != null) {
+                                    item.produtoA = item.produtoB;
+                                    item.produtoB = null;
+                                }
+                                this.getImagens(item).then((resultImagem) => {
+                                    resolve(resultImagem);
+                                });
+                            });
                         });
                     });
-                });
+                } else {
+                    this._criarLogDB({url:'db/produtoDB',method:'getProdutoPaginaCatalogo',message: 'Produto não encontrado: '+pagina.produtoA,error:'Failed Request'});
+                    resolve();
+                }
             });
         }).catch((err) => {
-            ErrorDB.criarLogDB({url:'db/produtoDB',method:'getProdutoPaginaCatalogo',message: err,error:'Failed Request'})
+            this._criarLogDB({url:'db/produtoDB',method:'getProdutoPaginaCatalogo',message: err,error:'Failed Request'});
         });
     }
 

@@ -299,26 +299,30 @@ export default {
             this.produtoAdd=null;
         },
         selectProduto(pagina) {
-            this.$vs.loading();
             this.paginaAtual = pagina;
             ProdutoDB.getProdutoPaginaCatalogo(pagina).then((result) => {
-                this.popupSearchProdutos = false;
-                this.produtoA = result.produtoA;
-                this.produtoB = result.produtoB;
-                ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
-                    this.imagemProdutoPrincipal = result;
-                    this.corSelecionada = 0;
-                    document.getElementById("produto-image-gallery").scrollTop = 0;
-                    this.$vs.loading.close();
-                })
-            })
+                if (result) {
+                    this.$vs.loading();
+                    console.log(result);
+                    
+                    this.popupSearchProdutos = false;
+                    this.produtoA = result.produtoA;
+                    this.produtoB = result.produtoB;
+                    ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
+                        this.imagemProdutoPrincipal = result;
+                        this.corSelecionada = 0;
+                        document.getElementById("produto-image-gallery").scrollTop = 0;
+                        this.$vs.loading.close();
+                    });
+                }
+            });
         },
         selectSearchProduto(produto) {
             ProdutoUtils.addProdutoSearchFromPages(this.paginas, produto).then((paginas) => {
                 this.$bvModal.hide(this.idPopUpSearch);
                 this.paginas = paginas;                
                 this.selectProduto(this.paginas[this.paginas.length-1]);
-            })
+            });
         },
         abrirCarrinho() {
             this.$router.push({ name: 'carrinho'});

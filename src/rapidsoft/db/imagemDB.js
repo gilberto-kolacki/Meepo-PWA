@@ -135,6 +135,9 @@ class imagemDB {
 
     getFotoPrincipal(produto) {
         return new Promise((resolve) => {
+
+            console.log(produto);
+            
             if (_.isObject(produto.cores[0]) && produto.cores[0].imagens.length > 0 && _.isArray(produto.cores[0].imagens)) {
                 ImagemFotoDB._getById(_.orderBy(produto.cores[0].imagens, ['seq'])[0].id).then((fotoProduto) => {
                     if(fotoProduto.existe) {

@@ -5,9 +5,8 @@
   Author: Giba
 ==========================================================================================*/
 
-import BasicDB from './basicDB';
-import ErrorDB from './errorDB'
 import _ from 'lodash';
+import BasicDB from './basicDB';
 
 class cidadeDB extends BasicDB {
 
@@ -69,7 +68,7 @@ class cidadeDB extends BasicDB {
             this._localDB.bulkDocs(cidades).then(() => {
                 resolve();
             }).catch((error) => {
-                ErrorDB.criarLogDB({url:'db/cidadeDB',method:'salvarSinc',message: error,error:'Failed Request'})
+                this._criarLogDB({url:'db/cidadeDB',method:'salvarSinc',message: error,error:'Failed Request'})
                 resolve();
             });
         });
@@ -82,7 +81,7 @@ class cidadeDB extends BasicDB {
                 delete result['_rev'];
                 resolve({existe: true, result: result});  
             }).catch((error) => {
-                ErrorDB.criarLogDB({url:'db/cidadeDB',method:'buscaCidade',message: error,error:'Failed Request'})
+                this._criarLogDB({url:'db/cidadeDB',method:'buscaCidade',message: error,error:'Failed Request'})
                 resolve({existe: false, result: error});
             });
         });
@@ -114,7 +113,7 @@ class cidadeDB extends BasicDB {
     //             });
     //             resolve(cidadesEstado);
     //         }).catch((err) => {
-    //             ErrorDB.criarLogDB({url:'db/cidadeDB',method:'getCidadesFromEstado',message: err,error:'Failed Request'})
+    //             this._criarLogDB({url:'db/cidadeDB',method:'getCidadesFromEstado',message: err,error:'Failed Request'})
     //             resolve(err);
     //         });
     //     });

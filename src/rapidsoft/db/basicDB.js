@@ -6,27 +6,27 @@
 ==========================================================================================*/
 
 import _ from 'lodash';
-import Config from '../../../public/config.json'
-import Storage from '../utils/storage'
-// import ErrorDB from './errorDB'
-
 import PouchDB from 'pouchdb';
 import PouchDBFind from 'pouchdb-find';
 import PouchDBLiveFind from 'pouchdb-live-find';
 PouchDB.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBLiveFind);
 
+import Config from '../../../public/config.json';
+import Storage from '../utils/storage';
+// import ErrorUtils from './errorDB';
+
 const createDBLocal = (dataBaseName, representante) => {
     return "meepo_"+Config.empresa+"_rep_"+representante.id+"_"+dataBaseName;
-}
+};
 
 const createDBLocalBasic = (dataBaseName) => {
     return "meepo_"+Config.empresa+"_"+dataBaseName;
-}
+};
 
 const createDBRemote = (dataBaselocal) => {
     return Config.endereco_couchdb+dataBaselocal;
-}
+};
 
 const create = (name, remote, callback) => {
     if (remote) {
@@ -49,7 +49,18 @@ const create = (name, remote, callback) => {
             callback(localDB);
         }
     }
-}
+};
+
+const newLog = (tipo, compnente, caminho, erro, messagem) => {
+    const logger = {};
+    logger._id = _.toString(new Date().getTime());
+    logger.type = tipo;
+    logger.compnente = compnente;
+    logger.caminho = caminho;
+    logger.erro = erro;
+    logger.messagem = messagem;
+    return _.cloneDeep(logger); 
+};
 
 class basicDB {
 
@@ -61,7 +72,15 @@ class basicDB {
         create(this._name, this._remote, (localDB, remoteDB) => {
             this._localDB = localDB;
             this._remoteDB = remoteDB;
+            create("erros", true, (localErroDB, remoteErroDB) => {
+                this._localErroDB = localErroDB;
+                this._remoteErroDB = remoteErroDB;
+            });
         });
+    }
+
+    getLocalErroDB() {
+        return this._locaErrolDB;
     }
 
     _exists(array, value) {
@@ -86,7 +105,7 @@ class basicDB {
                     resolve();
                 });
             }).catch((err) => {
-                // ErrorDB.criarLogDB({url:'db/basicDB',method:'_limparBase',message: err,error:'Failed Request'});
+                this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });
@@ -98,7 +117,7 @@ class basicDB {
             this._localDB.put(value).then((result) => {
                 resolve(_.toNumber(result.id));
             }).catch((erro) => {
-                // ErrorDB.criarLogDB({url:'db/basicDB',method:'_salvar',message: erro,error:'Failed Request'});
+                this._criarLogDB({url:'db/basicDB',method:'_salvar',message: erro,error:'Failed Request'});
                 reject(erro);
             });
         });
@@ -110,7 +129,7 @@ class basicDB {
                 if(!rev) delete result['_rev'];
                 resolve({existe: true, value: result});  
             }).catch((error) => {
-                // ErrorDB.criarLogDB({url:'db/basicDB',method:'_getById',message: error,error:'Failed Request'});
+                this._criarLogDB({url:'db/basicDB',method:'_getById',message: error,error:'Failed Request'});
                 resolve({existe: false, result: error});
             });
         });
@@ -126,7 +145,7 @@ class basicDB {
                     }
                 }))
             }).catch((err) => {
-                // ErrorDB.criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
+                this._criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });
@@ -137,7 +156,7 @@ class basicDB {
             this._localDB.allDocs({include_docs: false}).then((resultDocs) => {
                 resolve(resultDocs.rows.map((row) => row.id ));
             }).catch((err) => {
-                // ErrorDB.criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
+                this._criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });
@@ -211,6 +230,55 @@ class basicDB {
                  } else {
                      resolve(err);
                  }
+            });
+        });
+    }
+
+    // logs
+
+    __salvarErro(value) {
+        return new Promise((resolve, reject) => {
+            this._localErroDB.put(value).then((result) => {
+                resolve(_.toNumber(result.id));
+            }).catch((erro) => {
+                this._criarLogDB({url:'db/basicDB',method:'_salvar',message: erro, error:'Failed Request'});
+                reject(erro);
+            });
+        });
+    }
+
+    _criarLogDB(erro){
+        return new Promise((resolve) => {
+            const logger = newLog('DB', erro.method, erro.url, erro.error,erro.message);
+            this.__salvarErro(logger).then((result) => {
+                resolve(result);
+            });
+        });
+    }
+
+    _criarLog(erro) {
+        return new Promise((resolve) => {
+            const logger = this.newLog('tela', erro.vm.id, erro.vm.$el.baseURI, erro.info, erro.err.message);
+            this.__salvarErro(logger).then((result) => {
+                resolve(result);
+            });
+        });
+    }
+
+    _criarLogErroSinc(sinc, erro, mensagem) {
+        return new Promise((resolve) => {
+            erro = _.cloneDeep(erro.config);
+            delete erro['transformRequest'];
+            delete erro['transformResponse'];
+            delete erro['validateStatus'];
+            delete erro['xsrfCookieName'];
+            delete erro['xsrfHeaderName'];
+            delete erro['adapter'];
+            const logger = this.newLog('sincronizacao', sinc.methodo, erro.url, erro, mensagem);
+            this.__salvarErro(logger).then((result) => {
+                resolve(result);
+            }).catch(() => {
+                resolve();
             });
         });
     }

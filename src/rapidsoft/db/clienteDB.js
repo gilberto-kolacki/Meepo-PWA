@@ -7,7 +7,6 @@
 
 // import PouchDB from 'pouchdb';
 import BasicDB from './basicDB';
-import ErrorDB from './errorDB';
 import _ from 'lodash';
 
 // let localDB = null;
@@ -211,11 +210,11 @@ class clienteDB extends BasicDB {
                 this._localDB.put(resultCliente).then((result) => {
                     resolve(result);
                 }).catch((erro) => {
-                    ErrorDB.criarLogDB({url:'db/clienteDB',method:'salvar().validarObjetoDB',message: erro,error:'Failed Request'});
+                    this._criarLogDB({url:'db/clienteDB',method:'salvar().validarObjetoDB',message: erro,error:'Failed Request'});
                     reject(erro);
                 });
             }).catch((erro) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'salvar',message: erro,error:'Failed Request'});
+                this._criarLogDB({url:'db/clienteDB',method:'salvar',message: erro,error:'Failed Request'});
                 reject(erro);
             });
         });
@@ -233,7 +232,7 @@ class clienteDB extends BasicDB {
             this._salvar(cliente).then(() => {
                 resolve();
             }).catch((erro) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: erro,error:'Failed Request'});
+                this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: erro,error:'Failed Request'});
                 resolve();
             });
         });
@@ -261,7 +260,7 @@ class clienteDB extends BasicDB {
                     return _.clone(docDados);
                 }));
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'listarConsulta',message: err,error:'Failed Request'});
+                this._criarLogDB({url:'db/clienteDB',method:'listarConsulta',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });
@@ -279,7 +278,7 @@ class clienteDB extends BasicDB {
                     return _.clone(cliente.doc);
                 }));
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'listar',message: err,error:'Failed Request'});
+                this._criarLogDB({url:'db/clienteDB',method:'listar',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });
@@ -293,7 +292,7 @@ class clienteDB extends BasicDB {
                 result.inscricaoEstadual = result.inscricaoEstadual == "" ? "ISENTO" : result.inscricaoEstadual;
                 resolve(result);
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'findById',message: err,error:'Failed Request'});
+                this._criarLogDB({url:'db/clienteDB',method:'findById',message: err,error:'Failed Request'});
                 reject(err);
             });
         });
@@ -304,7 +303,7 @@ class clienteDB extends BasicDB {
             this._localDB.remove(idCliente).then((result) => {
                 resolve(result);
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
+                this._criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
                 reject(err);
             });
         });
@@ -315,7 +314,7 @@ class clienteDB extends BasicDB {
             validarContatoDB(contato).then((result) => {
                 resolve(result);
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'validarContato',message: err,error:'Failed Request'});
+                this._criarLogDB({url:'db/clienteDB',method:'validarContato',message: err,error:'Failed Request'});
                 reject(err);
             });
         });
@@ -342,7 +341,7 @@ class clienteDB extends BasicDB {
                     return _.cloneDeep(cliente.doc);
                 }));
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/clienteDB',method:'buscaClientesSinc',message: err,error:'Failed Request'});
+                this._criarLogDB({url:'db/clienteDB',method:'buscaClientesSinc',message: err,error:'Failed Request'});
                 resolve(err);
             });
         });

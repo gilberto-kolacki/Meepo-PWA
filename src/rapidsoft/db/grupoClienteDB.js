@@ -5,8 +5,7 @@
   Author: Giba
 ==========================================================================================*/
 
-import BasicDB from './basicDB'
-import ErrorDB from './errorDB'
+import BasicDB from './basicDB';
 import _ from 'lodash';
 
 class grupoClienteDB extends BasicDB {
@@ -53,7 +52,7 @@ class grupoClienteDB extends BasicDB {
                 if (grupo.existe) {
                     resolve(grupo.value);
                 } else {
-                    ErrorDB.criarLogDB({url:'db/grupoClienteDB',method:'getById',message: 'Grupo de cliente não encontrado: '+idGrupoCliente ,error:'Failed Request'});
+                    this._criarLogDB({url:'db/grupoClienteDB',method:'getById',message: 'Grupo de cliente não encontrado: '+idGrupoCliente ,error:'Failed Request'});
                     this.getGrupoPadrao().then((grupoPadrao) => {
                         resolve(grupoPadrao);
                     });

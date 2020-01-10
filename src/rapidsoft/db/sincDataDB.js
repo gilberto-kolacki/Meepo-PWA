@@ -6,8 +6,7 @@
 ==========================================================================================*/
 
 import _ from 'lodash';
-import BasicDB from './basicDB'
-import ErrorDB from './errorDB'
+import BasicDB from './basicDB';
 
 const sincDados =  [
     {
@@ -76,13 +75,13 @@ const sincDados =  [
         tempoSincronizacao: 0,
         dataSincronizacao: null
     },
-]
+];
 
 const createSincs = (localDB) => {
     localDB.bulkDocs(sincDados).then().catch((err) => {
-        ErrorDB.criarLogDB({url:'db/sincDataDB',method:'createSincs',message: err,error:'Failed Request'});
+        this._criarLogDB({url:'db/sincDataDB',method:'createSincs',message: err,error:'Failed Request'});
     });
-}
+};
 
 class sincDataDB extends BasicDB {
 
@@ -96,7 +95,7 @@ class sincDataDB extends BasicDB {
             this._localDB.get(id).then((result) => {
                 resolve(result);
             }).catch((err) => {
-                ErrorDB.criarLogDB({url:'db/sincDataDB',method:'findById',message: err,error:'Failed Request'});
+                this._criarLogDB({url:'db/sincDataDB',method:'findById',message: err,error:'Failed Request'});
                 reject(err);
             });
         });
@@ -146,7 +145,7 @@ class sincDataDB extends BasicDB {
                     this._salvar(sinc).then(() => {
                         resolve(sinc);
                     }).catch((err) => {
-                        ErrorDB.criarLogDB({url:'db/sincDataDB',method:'finalizaSinc',message: err,error:'Failed Request'});
+                        this._criarLogDB({url:'db/sincDataDB',method:'finalizaSinc',message: err,error:'Failed Request'});
                         resolve(sinc);
                     });
                 } else {

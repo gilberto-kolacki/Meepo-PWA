@@ -156,6 +156,7 @@ export default {
             this.cidadeSelecionada = null;
             CidadeDB.getCidadesFromEstado(this.estadoSelecionado.uf).then((cidades) => {
                 this.cidadesFiltro = cidades;
+                this.cidadeSelecionada = this.getCidadesSearch[0];
                 callback();
             });
         },
