@@ -146,7 +146,7 @@
                                     {{item.sku}}
                                 </div>
                                 <div class="vx-row">
-                                    {{pedido.cliente.nome.substring(0,14)}}
+                                    {{pedido.cliente.nome}}
                                 </div>
                             </div>
                             <div class="vx-col w-2/12 mx-10" style="justify-content:center;margin:auto">
