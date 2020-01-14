@@ -39,6 +39,17 @@
                                     <td>
                                         <div class="flex w-full items-center justify-center">
                                             <vs-button 
+                                                v-if="getCoresProduto.length > 1"
+                                                type="filled" 
+                                                size="small" 
+                                                icon-pack="feather" 
+                                                color="danger" 
+                                                icon="icon-chevrons-down" 
+                                                @click="replicarGrade(indexCor, indexTamanho)"
+                                            />
+                                            <vs-button 
+                                                v-if="getCoresProduto.length <= 1"
+                                                disabled
                                                 type="filled" 
                                                 size="small" 
                                                 icon-pack="feather" 
@@ -95,10 +106,11 @@
                                     <th>
                                         <div class="flex w-full items-center justify-center">
                                             <vs-button 
+                                                v-if="quantRef"
                                                 type="filled" 
                                                 size="small" 
                                                 icon-pack="feather" 
-                                                color="warning" 
+                                                color="danger" 
                                                 icon="icon-chevrons-up" 
                                                 @click="replicarGradeRef()"
                                             />
