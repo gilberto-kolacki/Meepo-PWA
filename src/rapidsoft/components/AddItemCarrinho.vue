@@ -9,7 +9,9 @@
                 idColapse="accordion-ref-a" 
                 :toggle="true" 
                 title="Referencia A" 
-                :produtoAdd="this.produtoA">
+                :produtoAdd="this.produtoA"
+                :quantRef="this.produtoB"
+                >
             </add-item-carrinho-item>
             <add-item-carrinho-item 
                 v-if="this.produtoB"
@@ -17,7 +19,9 @@
                 idColapse="accordion-ref-b" 
                 :toggle="false" 
                 title="Referencia B" 
-                :produtoAdd="this.produtoB">
+                :produtoAdd="this.produtoB"
+                :quantRef="this.produtoA"
+                >
             </add-item-carrinho-item>
         </div>
     </div>    
