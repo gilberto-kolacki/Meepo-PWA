@@ -8,7 +8,7 @@
                 <vs-th sort-key="cnpj">CNPJ</vs-th>
                 <vs-th sort-key="nome">Nome</vs-th>
                 <vs-th sort-key="nome">Status</vs-th>
-                <vs-th sort-key="cidade">Cidade</vs-th>
+                <vs-th>Cidade</vs-th>
                 <vs-th sort-key="estado">UF</vs-th>
                 <vs-th>Ações</vs-th>
             </template> 
@@ -24,7 +24,7 @@
                         <vs-chip :color="getStatusColor(30)" class="product-order-status">{{ getNameStatus(30) }}</vs-chip>
                     </vs-td>
                     <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        {{ data[indextr].cliente ? data[indextr].cliente.endereco.cidade : "" }}
+                        {{ data[indextr].cliente ? data[indextr].cliente.endereco.cidade ? data[indextr].cliente.endereco.cidade : "" : "" }}
                     </vs-td>
                     <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
                         {{ data[indextr].cliente ? data[indextr].cliente.endereco.estado : " "}}
