@@ -142,19 +142,25 @@
                             <vs-input v-validate="'regex:.'" label="Complemento" id="complemento" name="complemento" v-model="clienteEdit.endereco.complemento" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('complemento') }}</span>
                         </div>
-                        <div class="vx-col sm:w-1/3 w-full mb-2" v-on:keyup.enter="proximoCampo('cidade')">
+                        <div class="vx-col sm:w-1/3 w-full mb-2" v-on:keyup.enter="proximoCampo('estado')">
                             <vs-input v-validate="'required|alpha_spaces'" label="Bairro*" id="bairro" name="bairro" v-model="clienteEdit.endereco.bairro" class="w-full" />
                             <span class="text-danger text-sm">{{ errors.first('bairro') }}</span>
                         </div>
                     </div>
                     <div class="vx-row">
-                        <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('estado')">
-                            <vs-input v-validate="'required|alpha_spaces'" label="Cidade*" id="cidade" name="cidade" v-model="clienteEdit.endereco.cidade" class="w-full"/>
-                            <span class="text-danger text-sm">{{ errors.first('cidade') }}</span>
-                        </div>
-                        <div class="vx-col sm:w-1/6 w-full mb-2" v-on:keyup.enter="proximoCampo('referenciaComercial')">
+                        <div class="vx-col sm:w-1/6 w-full mb-2" v-on:keyup.enter="proximoCampo('cidade')">
                             <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" @change="getGroupClient(clienteEdit.endereco.estado)" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
+                        </div>
+                        <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('estado')">
+                            <!-- <vs-input v-validate="'required|alpha_spaces'" label="Cidade*" id="cidade" name="cidade" v-model="clienteEdit.endereco.cidade" class="w-full"/> -->
+                            <label for="" class="vs-input--label">Cidade*</label>
+                            <v-select v-validate="'required'" id="cidade" name="cidade" 
+                                v-model="clienteEdit.endereco.cidade" 
+                                :options="getCitySelect"
+                            ></v-select>
+                            
+                            <span class="text-danger text-sm">{{ errors.first('cidade') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2">
                             <label for="" class="vs-input--label">Grupo de Clientes*</label>
@@ -333,20 +339,26 @@
                                 <span class="text-danger text-sm">{{ errors.first('cadComplemento') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/3 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Bairro*" id="cadBairro" name="cadBairro" v-model="enderecoEdit.bairro" class="w-full" v-on:keyup.enter="proximoCampo('cadCidade')"/>
+                                <vs-input v-validate="'required|alpha_spaces'" label="Bairro*" id="cadBairro" name="cadBairro" v-model="enderecoEdit.bairro" class="w-full" v-on:keyup.enter="proximoCampo('cadEstado')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadBairro') }}</span>
                             </div>
                         </div>
                         <div class="vx-row">
-                            <div class="vx-col sm:w-1/3 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Cidade*" id="cadCidade" name="cadCidade" v-model="enderecoEdit.cidade" class="w-full" v-on:keyup.enter="proximoCampo('cadEstado')"/>
-                                <span class="text-danger text-sm">{{ errors.first('cadCidade') }}</span>
-                            </div>
                             <div class="vx-col sm:w-1/6 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="cadEstado" name="cadEstado" v-model="enderecoEdit.estado" class="w-full" v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')"/>
+                                <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="cadEstado" name="cadEstado" v-model="enderecoEdit.estado" class="w-full" v-on:keyup.enter="cidadesPorEstado(enderecoEdit.estado)"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadEstado') }}</span>
                             </div>
-                            <div class="vx-col sm:w-1/4 w-full mb-2">
+                            <div class="vx-col sm:w-1/2 w-full mb-2">
+                                <!-- <vs-input v-validate="'required|alpha_spaces'" label="Cidade*" id="cadCidade" name="cadCidade" v-model="enderecoEdit.cidade" class="w-full" v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')"/> -->
+                                <label for="" class="vs-input--label">Cidade*</label>
+                                <v-select v-validate="'required'" id="grupoCliente" name="grupoCliente" 
+                                    v-model="enderecoEdit.cidade" 
+                                    v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')"
+                                    :options="getCitySelect"
+                                ></v-select>
+                                <span class="text-danger text-sm">{{ errors.first('cadCidade') }}</span>
+                            </div>
+                            <div class="vx-col sm:w-1/3 w-full mb-2">
                                 <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                     <label for="cadEnderecoTelefone" class="vs-input--label">Telefone*</label>
                                     <div class="vs-con-input">
@@ -469,7 +481,8 @@ export default {
             isEditEndereco: false,
             langSettings: lang.ptBR,
             segmentos: [],
-            grupoClientes: []
+            grupoClientes: [],
+            listCidades: [],
         }
     },
     components: {
@@ -516,6 +529,11 @@ export default {
                 return false;
             }
         },
+        getCitySelect(){
+            return this.listCidades.map((cidade) => {
+                return {value:cidade.idCidade, label:cidade.nome}
+            })
+        },
         getGrupoClientesSelect() {
             return this.grupoClientes.map((grupo) => {
                 return {value: grupo.id, label: grupo.nome, padrao: grupo.padrao};
@@ -528,13 +546,21 @@ export default {
         }
     },
     methods: {
+        cidadesPorEstado(uf) {
+            const estado = uf
+            CidadeDB.getCidadesFromEstado(estado).then((cidades) => {
+                this.listCidades = cidades;
+                console.log("Lista de Cidades = ", this.listCidades);
+            });
+        },
         getGroupClient(uf){
+            this.cidadesPorEstado(uf);
             return this.grupoClientes.map((item) => {
-                    item.estados.map((estado) => {
-                        if (estado === uf) {
-                            return this.grupoCliente = {value: item.id, label: item.nome, padrao: item.padrao} 
-                        }
-                    })
+                item.estados.map((estado) => {
+                    if (estado === uf) {
+                        return this.grupoCliente = {value: item.id, label: item.nome, padrao: item.padrao} 
+                    }
+                })
             })
         },
         scrollMeTo(refName) {
@@ -730,6 +756,7 @@ export default {
             let cliente = _.cloneDeep(this.clienteEdit);
             let fundacaoTime = null
             let aniversarioTime = null
+            cliente.endereco.cidade = cliente.endereco.cidade.label
             console.log(cliente)
             if (cliente.dataFundacao !== undefined) {
                 fundacaoTime = cliente.dataFundacao.getTime()
