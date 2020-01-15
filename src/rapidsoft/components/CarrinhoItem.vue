@@ -72,11 +72,13 @@
                     </vs-select> -->
                     <b-form-select 
                         v-model="produtoCor.embarque.id" 
-                        :options="getEmbarquesSelect"
+                        :options="getEmbarquesSelect(produtoCor.embarque)"
                         value-field="id"
                         text-field="nome"
                         v-on:change="getSelectedItem(produtoCor.embarque)"
-                        size="md" class="mt-3">
+                        size="md" 
+                        class="mt-3"
+                    >
                         <template v-slot:first>
                             <option value="" disabled>-- Please select an option --</option>
                         </template>
@@ -105,11 +107,13 @@ import Storage from "../../rapidsoft/utils/storage";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
 import UtilMask from '../../rapidsoft/utils/utilMask'
 // import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
-import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 
 export default {
     name: 'carrinho-item',
+    model: {
+        prop: 'produtos',        
+    },
     props: {
         segmento: {
             type: Object,
@@ -119,11 +123,15 @@ export default {
             type: Array,
             required: true,
         },
+        embarques: {
+            type: Array,
+            required: true,
+        }
     },
 	data: () => ({
-		embarques: [],
+        dataAtual: new Date().getTime(),
         itensSelecionados: [],
-        produtosCarrinho: []	    		
+        produtosCarrinho: [],    		
     }),
     watch: {
     },
@@ -133,11 +141,15 @@ export default {
         getProdutosCorSegmento() {
 			return this.produtosCarrinho;
         },
-        getEmbarquesSelect() {
-            return this.embarques;
-        }
+        
 	},
     methods: {
+        getEmbarquesSelect(embarque) {
+            return this.embarques.filter((emb) => {
+                return (emb.dataInicio > this.dataAtual || emb.dataFim < this.dataAtual) 
+                    && (emb.dataInicio >= embarque.dataInicio || emb.dataFim <= embarque.dataFim);
+            });
+        },
 		getTamanhosProduto(index) {
 			return this.produtosCarrinho[index].cor.tamanhos
         },
@@ -146,15 +158,6 @@ export default {
             console.log(this.produtosCarrinho);            
             this.$emit('atuliza-embarques');
         },
-		getEmbarquesProdutos() {
-            const embarques = [];
-            this.produtosCarrinho.forEach(produto => {
-                if (!EmbarqueDB._existsId(embarques, produto.embarque)) {
-                    embarques.push(produto.embarque);
-                }
-            });
-            return embarques;
-		},
 		setPopupAddProduto(produto){
 			ProdutoDB.getProdutoEdicaoCarrinho(produto).then((result) => {
 				const produtoEdicao = {
@@ -194,9 +197,7 @@ export default {
         this.produtosCarrinho = this.produtos;
 	},
     mounted() {
-        EmbarqueDB._getAll().then(embarques => {
-            this.embarques = embarques;
-		});
+        
     },
 	errorCaptured(err, vm, info) {
         ErrorDB.criarLog({ err, vm, info });

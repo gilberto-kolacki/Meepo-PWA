@@ -34,7 +34,7 @@
                     </div>
                     <div class="vx-row" v-if="isJuridico">
                         <div class="vx-col w-full mb-2" v-on:keyup.enter="proximoCampo('dataFundacao')">
-                            <vs-input v-validate=" isJuridico ? 'required' : ''" label="Fantasia*" id="fantasia" name="fantasia" v-model="clienteEdit.fantasia" class="w-full" />
+                            <vs-input v-validate=" isJuridico ? 'required' : ''" label="Fantasia*" id="fantasia" name="fantasia" v-model="clienteEdit.nomeFantasia" class="w-full" />
                             <span class="text-danger text-sm">{{ errors.first('fantasia') }}</span>
                         </div>
                     </div>
@@ -185,7 +185,7 @@
                                         </button>
                                         <img :src="imagenCliente.base64" style="max-width: none; max-height: 100%;" />
                                     </div>
-                                    <div class="con-input-upload">
+                                    <div class="con-input-upload" v-if="clienteEdit.imagens">
                                         <input type="file" multiple="multiple" accept="image/*" @change="onFileChanged" :disabled="clienteEdit.imagens.length >= 5"/>
                                         <span class="text-input">Selecione as Imagens</span>
                                         <button type="button" title="Upload" class="btn-upload-all vs-upload--button-upload" :disabled="clienteEdit.imagens.length >= 5">
@@ -214,18 +214,18 @@
                     <div class="my-1">
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/2 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Nome Contato*" id="nomeContato" name="nomeContato" v-model="contatoEdit.nome" class="w-full" v-on:keyup.enter="proximoCampo('funcao')"/>
+                                <vs-input v-validate="'required|alpha_spaces'" label="Nome Contato*" id="nomeContato" name="nomeContato" v-model="contatoEdit.nome" class="w-full" v-on:keyup.enter="proximoCampo('cargo')"/>
                                 <span class="text-danger text-sm">{{ errors.first('nomeContato') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/2 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Função*" id="funcao" name="funcao" v-model="contatoEdit.funcao" class="w-full" v-on:keyup.enter="proximoCampo('telefoneContato')"/>
+                                <vs-input v-validate="'required|alpha_spaces'" label="Cargo*" id="cargo" name="cargo" v-model="contatoEdit.cargo" class="w-full" v-on:keyup.enter="proximoCampo('telefoneContato')"/>
                                 <span class="text-danger text-sm">{{ errors.first('funcao') }}</span>
                             </div>
                         </div>
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/2 w-full mb-2">
                                 <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('celularContato')">
-                                    <label for="" class="vs-input--label">Telefone*</label>
+                                    <label for="" class="vs-input--label">Telefone</label>
                                     <div class="vs-con-input">
                                         <the-mask v-validate="'required'" type="tel" id="telefoneContato" name="telefoneContato" v-model="contatoEdit.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
                                     </div>
@@ -244,7 +244,7 @@
                         </div>
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/2 w-full mb-2">
-                                <vs-input v-validate="'required|email'" label="E-mail*" id="emailContato" name="emailContato" v-model="contatoEdit.email" class="w-full" type="email" />
+                                <vs-input v-validate="'required|email'" label="E-mail" id="emailContato" name="emailContato" v-model="contatoEdit.email" class="w-full" type="email" />
                                 <span class="text-danger text-sm">{{ errors.first('emailContato') }}</span>
                             </div>
                         </div>
@@ -265,7 +265,7 @@
                         </template>
                         <template slot="thead">
                             <vs-th sort-key="nome">Nome</vs-th>
-                            <vs-th sort-key="nome">Função</vs-th>
+                            <vs-th sort-key="nome">Cargo</vs-th>
                             <vs-th sort-key="contato">Telefone</vs-th>
                             <vs-th sort-key="telefone">celular</vs-th>
                             <vs-th sort-key="telefone">E-mail</vs-th>
@@ -277,7 +277,7 @@
                                     {{ data[indextr].nome }}
                                 </vs-td>
                                 <vs-td :data="data[indextr].funcao">
-                                    {{ data[indextr].funcao }}
+                                    {{ data[indextr].cargo }}
                                 </vs-td>
                                 <vs-td :data="data[indextr].telefone">
                                     {{ data[indextr].telefone }}
@@ -478,14 +478,14 @@ export default {
                     this.tipoPessoa = 1;
                 }
             } else {
-              this.tipoPessoa = 1;
+                this.tipoPessoa = 1;
             }
         },
         tipoPessoa(val) {
             this.clienteEdit.tipoPessoa = val;
         },
         grupoCliente(val) {
-            this.clienteEdit.grupoCliente = _.cloneDeep(val.value);
+            this.clienteEdit.grupoCliente = val.value;
         },
         cepCobranca(val) {
             this.clienteEdit.endereco.cep = val;
@@ -502,7 +502,7 @@ export default {
             return this.clienteEdit.imagens
         },
         isJuridico() {
-            if(this.tipoPessoa === 1) {
+            if(this.tipoPessoa == 1) {
                 return true;
             } else {
                 return false;
@@ -516,18 +516,18 @@ export default {
         getSegmentosCheckBox() {
             return this.segmentos.map((segmento) => {
                 return {value: segmento.id, label: segmento.nome};
-            })
+            });
         }
     },
     methods: {
         getGroupClient(uf){
             return this.grupoClientes.map((item) => {
-                    item.estados.map((estado) => {
-                        if (estado === uf) {
-                            return this.grupoCliente = {value: item.id, label: item.nome, padrao: item.padrao} 
-                        }
-                    })
-            })
+                item.estados.map((estado) => {
+                    if (estado === uf) {
+                        return this.grupoCliente = {value: item.id, label: item.nome, padrao: item.padrao} 
+                    }
+                });
+            });
         },
         scrollMeTo(refName) {
             var element = this.$refs[refName];
@@ -682,7 +682,8 @@ export default {
             }
         },
         salvarContato() {          
-            ClienteDB.validarContato(_.cloneDeep(this.contatoEdit)).then(() => {
+            ClienteDB.validarContato(this.contatoEdit).then(() => {
+                this.contatoEdit.id = this.contatoEdit.id ? this.contatoEdit.id : 0;
                 this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
                 this.isEditContato = false;
             }).catch((erro) => {
@@ -719,17 +720,12 @@ export default {
         },
         salvarCliente() {
             this.$vs.loading();
-            let cliente = _.cloneDeep(this.clienteEdit);
-            let fundacaoTime = null
-            let aniversarioTime = null
-            console.log(cliente)
+            const cliente = _.cloneDeep(this.clienteEdit);
             if (cliente.dataFundacao !== undefined) {
-                fundacaoTime = cliente.dataFundacao.getTime()
-                cliente.dataFundacao = fundacaoTime
+                cliente.dataFundacao = cliente.dataFundacao.getTime();
             }
             if (cliente.dataAniversario !== undefined) {
-                aniversarioTime = cliente.dataAniversario.getTime()
-                cliente.dataAniversario = aniversarioTime
+                cliente.dataAniversario = cliente.dataAniversario.getTime();
             }
             setTimeout(() => {  
                 ClienteDB.salvar(cliente).then(() => {
@@ -764,20 +760,23 @@ export default {
         },
 
         findById(idCliente) {
-            ClienteDB.findById(idCliente).then((result) => {
-                this.clienteEdit = _.cloneDeep(result);
+            ClienteDB.findById(idCliente).then((cliente) => {
+
+                console.log(cliente);
+                
+                this.clienteEdit = _.cloneDeep(cliente);
                 this.cpfCnpj = this.clienteEdit.cpfCnpj;
                 if (_.isNil(this.clienteEdit.grupoCliente)) {
-                    this.grupoCliente = _.filter(this.getGrupoClientesSelect, (grupo) => { return grupo.padrao });
+                    this.grupoCliente = _.find(this.getGrupoClientesSelect, (grupo) => { return grupo.padrao });
                 } else {
-                    this.grupoCliente = _.clone(_.filter(this.getGrupoClientesSelect, (grupo) => { return grupo.value === this.clienteEdit.grupoCliente }));
+                    this.grupoCliente = _.clone(_.find(this.getGrupoClientesSelect, (grupo) => { return grupo.value === this.clienteEdit.grupoCliente }));
                 }
-                if (this.clienteEdit.segmentos.length > 0) {
+                if (this.clienteEdit.segmentos && this.clienteEdit.segmentos.length > 0) {
                     this.segmentosCliente = _.flattenDeep(this.clienteEdit.segmentos.map((segmentoCliente) => {
                         return _.filter(this.getSegmentosCheckBox, (segmento) => { 
                             return _.toString(segmentoCliente) == _.toString(segmento.value)
-                        })
-                    }))
+                        });
+                    }));
                 }
             });
         },

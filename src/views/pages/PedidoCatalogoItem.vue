@@ -71,6 +71,7 @@
                     </Vue2InteractDraggable>
                     <div class="vx-row items-center justify-center" style="z-index: 15; margin-top: 2rem;" v-if="this.produtoB">
                         <h6 class="title-ref">{{produtoB.referencia}} - {{produtoB.nome}}</h6>
+                        <h6 class="title-ref" v-if="this.produtoC">{{produtoC.referencia}} - {{produtoC.nome}}</h6>
                     </div>
                 </div>
                 <!-- IMAGEM PRINCIPAL FIM -->
@@ -308,6 +309,7 @@ export default {
                     this.popupSearchProdutos = false;
                     this.produtoA = result.produtoA;
                     this.produtoB = result.produtoB;
+                    this.produtoC = result.produtoC;
                     ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
                         this.imagemProdutoPrincipal = result;
                         this.corSelecionada = 0;

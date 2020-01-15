@@ -114,6 +114,7 @@ class basicDB {
     _salvar(value) {
         return new Promise((resolve, reject) => {
             value._id = _.toString(value.id ? value.id : value._id);
+            value._id = value._id.replace(/[^a-z0-9]/gi, "");
             this._localDB.put(value).then((result) => {
                 resolve(_.toNumber(result.id));
             }).catch((erro) => {
@@ -217,23 +218,27 @@ class basicDB {
     
     _sincNuvem() {
         return new Promise((resolve) => {
-            this._localDB.replicate.to(this._remoteDB).then((result) => {
-                if (result.ok) {
-                    this._localDB.replicate.from(this._remoteDB).then((result) => {
-                        if (result.ok) {
-                            resolve();
-                        } else {
-                            this._sincNuvem().then(() => {
+            if (window.navigator.onLine) {
+                this._localDB.replicate.to(this._remoteDB).then((result) => {
+                    if (result.ok) {
+                        this._localDB.replicate.from(this._remoteDB).then((result) => {
+                            if (result.ok) {
                                 resolve();
-                            });
-                        }
-                    });
-                } else {
-                    this._sincNuvem().then(() => {
-                        resolve();
-                    });
-                }
-            });
+                            } else {
+                                this._sincNuvem().then(() => {
+                                    resolve();
+                                });
+                            }
+                        });
+                    } else {
+                        this._sincNuvem().then(() => {
+                            resolve();
+                        });
+                    }
+                });
+            } else {
+                resolve();
+            }
         });
     }
 
@@ -261,7 +266,7 @@ class basicDB {
 
     _criarLog(erro) {
         return new Promise((resolve) => {
-            const logger = this.newLog('tela', erro.vm.id, erro.vm.$el.baseURI, erro.info, erro.err.message);
+            const logger = newLog('tela', erro.vm.id, erro.vm.$el.baseURI, erro.info, erro.err.message);
             this.__salvarErro(logger).then((result) => {
                 resolve(result);
             });
@@ -277,7 +282,7 @@ class basicDB {
             delete erro['xsrfCookieName'];
             delete erro['xsrfHeaderName'];
             delete erro['adapter'];
-            const logger = this.newLog('sincronizacao', sinc.methodo, erro.url, erro, mensagem);
+            const logger = newLog('sincronizacao', sinc.methodo, erro.url, erro, mensagem);
             this.__salvarErro(logger).then((result) => {
                 resolve(result);
             }).catch(() => {

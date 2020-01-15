@@ -15,7 +15,7 @@
 								Embarques
 							</strong>
 						</template>
-						<embarque-item v-model="this.embarques" />
+						<embarque-item v-model="this.embarques" :embarquesOption="this.embarquesOption" />
 					</b-tab>
 					<b-tab v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento">
 						<template v-slot:title>
@@ -24,12 +24,13 @@
 								{{segmento.nome}}
 							</strong>
 						</template>
-						<carrinho-item 							
+						<carrinho-item
 							@show-add-carrinho="showAddCarrinho"
 							@edicao-item-carrinho="showEditCarrinho"
 							@atuliza-embarques="atulizaEmbarques"
 							:segmento="segmento"
-							:produtos="getProdutosSegmento(segmento.id)"/>
+							:embarques="getEmbarquesSegmento(segmento)"
+							:produtos="getProdutosSegmento(segmento)"/>
 					</b-tab>
 				</b-tabs>
 			</div>
@@ -42,6 +43,7 @@
 // import _ from "lodash";
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import SegmentoDB from "../../rapidsoft/db/segmentoDB";
+import PeriodoDB from "../../rapidsoft/db/periodoDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import AddItemCarrinho from "../../rapidsoft/components/AddItemCarrinho";
 import CarrinhoItem from "../../rapidsoft/components/CarrinhoItem";
@@ -55,6 +57,7 @@ export default {
 		selected: [],
 		segmentos: [],
 		embarques: [],
+		embarquesOption: [],
 		itensCarrinho: [],
 		produtosSegmento: null,
 		showCarrinho: false,
@@ -78,13 +81,16 @@ export default {
 		EmbarqueItem,
 	},
 	computed: {
-		getEmbarquesCarrinho() {
-			return this.itensCarrinho
-		}
+
 	},
     methods: {
-		getProdutosSegmento(segmentoId) {
-			return this.produtosSegmento.get(segmentoId);
+		getEmbarquesSegmento(segmento) {
+			return this.embarquesOption.filter((emb) => {
+                return emb.idSegmento == segmento.id;
+            });
+		},
+		getProdutosSegmento(segmento) {
+			return this.produtosSegmento.get(segmento.id);
 		},
 		showAddCarrinho() {
 			this.gerenciaVisualizacao(1);
@@ -101,8 +107,10 @@ export default {
 		},
 		atulizaEmbarques() {
 			EmbarqueDB.getInfosEmbarques(this.itensCarrinho).then((embarques) => {
-				this.embarques = embarques
-				this.$forceUpdate();
+				PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
+					this.embarques = embarques;
+					this.$forceUpdate();
+				});
 			});  
 		},
 		voltar() {
@@ -133,16 +141,16 @@ export default {
 				ProdutoUtils.getCarrinho().then(carrinho => {
 					this.itensCarrinho = carrinho;
 					EmbarqueDB.getInfosEmbarques(carrinho).then((embarques) => {
-						this.embarques = embarques;
-
-						console.log(embarques);
-						
-						SegmentoDB.getSegmentosCarrinho().then(segmentos => {
-							this.segmentos = segmentos;
-							ProdutoUtils.getProdutosSegmentos(segmentos, carrinho).then((produtosSegmento) => {
-								this.produtosSegmento = produtosSegmento;
-								this.showCarrinho = true;
-								resolve();
+						this.embarquesOption = embarques;
+						PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
+							this.embarques = embarques;
+							SegmentoDB.getSegmentosCarrinho().then(segmentos => {
+								this.segmentos = segmentos;
+								ProdutoUtils.getProdutosSegmentos(segmentos, carrinho).then((produtosSegmento) => {
+									this.produtosSegmento = produtosSegmento;
+									this.showCarrinho = true;
+									resolve();
+								});
 							});
 						});
 					});
@@ -161,10 +169,12 @@ export default {
 	},
 	updated() {
 		// this.gerenciaVisualizacao();
+		console.log('updated carrinho');
+		
 	},
 
 	errorCaptured(err, vm, info) {
-        ErrorDB.criarLog({ err, vm, info });
+        ErrorDB._criarLog({ err, vm, info });
         return true;
     }
 

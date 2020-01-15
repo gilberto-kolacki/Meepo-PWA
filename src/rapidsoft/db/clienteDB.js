@@ -30,27 +30,20 @@ const validarContatoDB = (contato) => {
         let retorno = {
             mensagem : "Campo obrigatório!"
         };
-        if (contato.nome === undefined || contato.nome === ""){
+        if (contato.nome == undefined || contato.nome === ""){
             retorno.campo = "nomeContato";
             reject(retorno);
         }
-        else if (contato.funcao === undefined || contato.funcao === ""){
-            retorno.campo = "funcao";
+        else if (contato.cargo == undefined || contato.cargo === ""){
+            retorno.campo = "cargo";
             reject(retorno);
         }
-        else if (contato.telefone === undefined || contato.telefone === ""){
-            retorno.campo = "telefoneContato";
-            reject(retorno);
-        }
-        else if (contato.celular === undefined || contato.celular === ""){
+        else if (contato.celular == undefined || contato.celular === ""){
             retorno.campo = "celularContato";
             reject(retorno);
+        } else {
+            resolve(contato);
         }
-        else if (contato.email === undefined || contato.email === ""){
-            retorno.campo = "emailContato";
-            reject(retorno);
-        }
-        resolve(contato);
     });
 };
 
@@ -171,6 +164,7 @@ const validarObjetoDB = (cliente) => {
             retorno.campo = "estado";
             reject(retorno);
         }
+
         else if (cliente.grupoCliente === undefined) {
             retorno.campo = "grupoCliente";
             reject(retorno);
@@ -201,13 +195,16 @@ class clienteDB extends BasicDB {
         super("cliente", true);
         this.indexes = ['endereco.idCidade', 'endereco.estado', 'cpfCnpj', 'nome'];
         this._createIndexes(this.indexes, 'search');
+        this._createIndex('clienteErp');
     }
 
     salvar(cliente) {
         return new Promise((resolve, reject) => {
             validarObjetoDB(cliente).then((resultCliente) => {
-                resultCliente._id = resultCliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
-                this._localDB.put(resultCliente).then((result) => {
+                resultCliente._id = resultCliente.cpfCnpj;
+                resultCliente.endereco.cep = resultCliente.endereco.cep.replace(/[^a-z0-9]/gi, "");
+                resultCliente.endereco.telefone = resultCliente.endereco.telefone.replace(/[^a-z0-9]/gi, "");
+                this._salvar(resultCliente).then((result) => {
                     resolve(result);
                 }).catch((erro) => {
                     this._criarLogDB({url:'db/clienteDB',method:'salvar().validarObjetoDB',message: erro,error:'Failed Request'});
@@ -223,12 +220,18 @@ class clienteDB extends BasicDB {
     salvarSinc(cliente) {
         return new Promise((resolve) => {
             cliente._id = cliente.cpfCnpj;
-            if (cliente.enderecos.length == 0) {
+            if (cliente.enderecos.length == 0 && cliente.endereco) {
                 let enderecoEntrega = _.clone(cliente.endereco);
                 enderecoEntrega.endEntrega = true;
                 cliente.enderecos.push(enderecoEntrega);
             }
+            if (cliente.nome == null) {
+                cliente.nome = cliente.nomeFantasia;
+            }
             cliente.clienteErp = true;
+
+            console.log(cliente);
+
             this._salvar(cliente).then(() => {
                 resolve();
             }).catch((erro) => {
@@ -333,16 +336,12 @@ class clienteDB extends BasicDB {
 
     buscaClientesSinc() {
         return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                const clientes = _.filter(resultDocs.rows, (cliente) => {
-                    return cliente.doc.clienteErp === false;
-                });
-                resolve(clientes.map((cliente) => {                    
-                    return _.cloneDeep(cliente.doc);
-                }));
-            }).catch((err) => {
-                this._criarLogDB({url:'db/clienteDB',method:'buscaClientesSinc',message: err,error:'Failed Request'});
-                resolve(err);
+            this._localDB.find({
+                selector: {
+                    clienteErp: {$eq: false}
+                },
+            }).then((result) => {
+                resolve(result.docs);
             });
         });
     }

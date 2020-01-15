@@ -156,7 +156,7 @@ export default {
                 }
             }
 
-            ErrorDB.criarLogErroSinc(sinc, error, mensagem).then(() => {
+            ErrorDB._criarLogErroSinc(sinc, error, mensagem).then(() => {
                 this.$vs.notify({
                     title: 'Erro!',
                     text: mensagem,
@@ -213,7 +213,7 @@ export default {
                 }).catch((error) => {
                     this.errorSinc(sinc, error);
                 });
-            })
+            });
         },
         sincParametro(sinc,all) {
             this.carregarSinc()
@@ -272,7 +272,7 @@ export default {
     },
 
     errorCaptured(err, vm, info) {
-        ErrorDB.criarLog({err, vm, info});
+        ErrorDB._criarLog({err, vm, info});
         return true;
     }
 }

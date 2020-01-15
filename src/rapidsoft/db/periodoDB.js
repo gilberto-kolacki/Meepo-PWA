@@ -5,8 +5,8 @@
   Author: Giba
 ==========================================================================================*/
 
-import BasicDB from './basicDB'
 import _ from 'lodash';
+import BasicDB from './basicDB';
 
 class periodoDB extends BasicDB {
 
@@ -25,7 +25,18 @@ class periodoDB extends BasicDB {
                 } else {
                     resolve();
                 }
-            })
+            });
+        });
+    }
+
+    getPeriodosToEmbarque(embarques) {
+        return new Promise((resolve) => {
+            const idsPeriodos = embarques.map((embarque) =>  embarque.periodos);
+
+            console.log("idsPeriodos", idsPeriodos);
+            
+
+            resolve(embarques);
         });
     }
 

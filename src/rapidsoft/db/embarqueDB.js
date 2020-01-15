@@ -69,7 +69,7 @@ class embarqueDB extends BasicDB {
                 embarque.valor = ((embarque.valor || 0 ) + produto.cor.precoVenda);
                 embarque.valor = _.round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
                 embarque.total = embarque.quantidade * embarque.valor;
-                embarque.dataEmbarque = new Date(_.toNumber(embarque.dataInicio));
+                embarque.dataEmbarque = embarque.dataInicio;
                 done();
             });
         });

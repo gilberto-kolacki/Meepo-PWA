@@ -36,7 +36,6 @@
                         <vs-td :data="data[indextr].estado">
                             {{ data[indextr].estado }}
                         </vs-td>
-
                     </vs-tr>
                 </template>
             </vs-table>
@@ -84,11 +83,12 @@ export default {
             })
         },
         deletar: function(parameters) {
-            console.log(parameters);
-            
             clienteDB.deletar(parameters).then(() => {
                 this.listar();
             });
+        },
+        getNomeCliente(cliente) {
+            return cliente.tipoPessoa == 1 ? cliente.nomeFantasia : cliente.nome;
         }
     },
     created() {

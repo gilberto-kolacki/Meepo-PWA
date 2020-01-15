@@ -1,7 +1,6 @@
 <template>
-    <div>
-        <div class="embarque-item" v-for="(embarqueItem, indexItem) in this.embarques" :key="indexItem">
-
+    <div id="embarque-itens" class="embarque-itens">
+        <div class="embarque-item" v-for="(embarqueItem, indexItem) in this.getEmbarquesBySegmento" :key="indexItem">
             <div class="vx-row">
                 <div class="vx-col w-full mb-2">
                     <label for="dataFundacao" class="vs-input--label">Embarque</label>
@@ -9,19 +8,22 @@
                         v-model="embarqueItem.id" 
                         value-field="id"
                         text-field="nome"
-                        :options="embarques" 
-                        disabled />
+                        :options="getEmbarques(embarqueItem)"
+                        v-on:change="getSelectedItem(embarqueItem)"
+                    />
                 </div>
                 <div class="vx-col sm:w-1/5 w-full mb-2">
                     <label for="dataEmbarque" class="vs-input--label">Data Embarque</label>
                     <datepicker
-                        @input="changeData(indexItem)"
+                        @input="changeData(embarqueItem)"
                         placeholder="DD/MM/AAAA" 
                         v-model="embarqueItem.dataEmbarque" 
                         format="dd/MM/yyyy" 
                         name="dataEmbarque" 
                         :language="langSettings"  
-                        input-class="vs-inputx vs-input--input normal rapid-input-date">
+                        :disabledDates="getDataDesabilitadas(embarqueItem)"
+                        input-class="vs-inputx vs-input--input normal rapid-input-date"
+                    >
                     </datepicker>
                 </div>
                 <div class="vx-col sm:w-1/3
@@ -37,11 +39,13 @@
 </template>
 <script>
 
-// import _ from "lodash";
+import _ from "lodash";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import Datepicker from 'vuejs-datepicker';
 import * as lang from "vuejs-datepicker/src/locale";
-// import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
+import SegmentoDB from '../db/segmentoDB';
+// import ProdutoUtils from '../../rapidsoft/utils/produtoUtils';
+
 export default {
     name: "embarque-item",
     model: {
@@ -53,21 +57,29 @@ export default {
             type: Array,
             required: true,
         },
+        embarquesOption: {
+            type: Array,
+            required: true,
+        },
     },
     data: () => ({
         langSettings: lang.ptBR,
-        dataEmbarque: "",
-        embarqueSelecionado:"",
-        produtosCarrinho:"",
-        listEmbarqueItems: [],
-        itensCarrinho: [],
+        embarqueSelecionado: null,
+        segmentos: [],
+        periodos: [],
     }),
+    watch: {
+    
+    },
     components: {
         Datepicker,
     },
     computed: {
         getEmbarquesSelect() {
             return [];
+        },
+        getEmbarquesBySegmento() {
+            return _.orderBy(this.embarques, ['idSegmento'], ['asc']);
         }
     },
     methods: {
@@ -75,25 +87,55 @@ export default {
 			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
         },
         carregaItensTela() {
+            console.log('aqui');
+            
         },
-        changeData(indexItem) {
-            this.embarques[indexItem].dataEmbarque = this.embarques[indexItem].dataEmbarque.getTime();
+        getSelectedItem(embarque) {
+            console.log(embarque);
+            
+
+        },
+        changeData(embarque) {
+            embarque.dataEmbarque = typeof embarque.dataEmbarque === 'number' ? embarque.dataEmbarque : embarque.dataEmbarque.getTime();
+        },
+        getSegmento(idSegmento) {
+            if (idSegmento) {
+                return _.find(this.segmentos, (segmento) => segmento.id === idSegmento);
+            }
+        },
+        getEmbarques(embarque) {
+            return this.embarquesOption.filter((emb) => {
+                return emb.idSegmento == embarque.idSegmento;
+            });
+        },
+        // caso o embarque tenha periodos, pegar a data ininial do promeiro periodo, e a data final do ultimo periodo
+        //  inativar as data que não estiverem no periodo
+        getDataDesabilitadas(embarque) {
+            console.log(embarque);
+            return { 
+                to: new Date(embarque.dataInicio),
+                days: [6, 0],
+                from: new Date(embarque.dataFim)
+            };
         }
     },
     beforeCreate() {
 
     },
     created() {
-        
+        console.log(this.embarques);
     },
     mounted() {
-    
+        SegmentoDB._getAll().then((segmentos) => {
+            this.segmentos = segmentos;
+        });
     },
     updated() {
         console.log("EmbarqueItem update");
+        
 	},
     errorCaptured(err, vm, info) {
-        ErrorDB.criarLog({ err, vm, info });
+        ErrorDB._criarLog({ err, vm, info });
         return true;
     }
 };
