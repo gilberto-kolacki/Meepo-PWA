@@ -5,7 +5,6 @@
                 <div class="vx-col w-full">
                     <h5><strong>{{ title }} : </strong>  {{produtoAdd.referencia +' - '+ produtoAdd.nome}}</h5>
                 </div>
-
             </div>
             <div class="vx-row">
                 <div class="vx-col w-2/3">
@@ -133,7 +132,13 @@
                     </div>
                 </div>
             </b-card-body>
+            <!-- <div style="margin-top:20px">
+                <complete-look :produtoAdd="this.produtoAdd">
+                </complete-look>
+            </div> -->
+
         </b-collapse>
+
     </div>    
 </template>    
 <script>
@@ -141,6 +146,7 @@
 import _ from 'lodash'
 import Storage from '../utils/storage'
 import UtilMask from '../utils/utilMask'
+// import CompleteLook  from '../../rapidsoft/components/CompleteLook'
 
 export default {
     name: 'add-item-carrinho-tem',
@@ -169,6 +175,9 @@ export default {
             type: Boolean,
             default: true,
         }
+    },
+    components: {
+        // CompleteLook,
     },
     data: () => ({
         maxHeight: '0px',
