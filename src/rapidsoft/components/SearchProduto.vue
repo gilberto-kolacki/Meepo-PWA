@@ -176,7 +176,7 @@ export default {
                 this.$vs.loading({ container: '#div-with-loading-search', scale: 0.6 });
 
                 const idsCategorias = this.categoriasSelecionadas.map((categoria) => {return categoria.id})
-                ProdutoDB.getProdutosSearch2(idsCategorias, this.textoSearch).then((result) => {
+                ProdutoDB.getProdutosSearch(idsCategorias, this.textoSearch).then((result) => {
                     this.listaProdutosPesquisa = result;
                     this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
                 });

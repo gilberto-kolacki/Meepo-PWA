@@ -12,11 +12,9 @@ import ImagemDB from './imagemDB';
 import CatalogoDB from './catalogoDB';
 import EmbarqueDB from './embarqueDB';
 
-const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
+const getProdutoToDBFilterCategoria = (produtos, idsCategorias, textoSearch) => {
     textoSearch = _.toUpper(textoSearch);
-    return rows.map((row) => { 
-        return _.clone(row.doc);
-    }).filter((produto) => {
+    return produtos.filter((produto) => {
         return textoSearch === null || textoSearch === "" || _.toUpper(produto.referencia).includes(textoSearch) || produto.nome.includes(textoSearch);
     }).filter((produto) => {
         return idsCategorias.length === 0 || produto.cores.some((cor) => {
@@ -27,12 +25,6 @@ const getProdutoToDBFilterCategoria = (rows, idsCategorias, textoSearch) => {
             });
         });
     });
-};
-
-const getProdutoToDB = (rows) => {
-    return rows.filter((produto) => {
-        return produto.doc['referencia'];
-    }).map((row) => row.doc);
 };
 
 const getCoresAtivas = (cores) => {
@@ -56,39 +48,17 @@ class produtoDB extends BasicDB {
 
     getAllProdutos() {
         return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(getProdutoToDB(resultDocs.rows))
-            }).catch((err) => {
-                this._criarLogDB({url:'db/produtoDB',method:'getAllProdutos',message: err,error:'Failed Request'})
-                resolve(err);
+            this._getFindCondition({referencia : {$gte : null}}).then((produtos) => {
+                resolve(produtos);
             });
-        });
-    }
-
-    getAllProdutosByCategorias(categorias) {
-        return new Promise((resolve) => {
-            const idCategorias = categorias.filter((categoria) => {return categoria.check}).map((categoria) => { return categoria.id });
-            if (idCategorias.length > 0) {
-                this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                    resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias));
-                }).catch((err) => {
-                    this._criarLogDB({url:'db/produtoDB',method:'getAllProdutosByCategorias',message: err,error:'Failed Request'});
-                    resolve(err);
-                });
-            } else {
-                resolve([]);
-            }
         });
     }
 
     getAllProdutosByIdCategorias(idCategorias, textoSearch) {
         return new Promise((resolve) => {
             if (idCategorias.length > 0 || textoSearch.length > 0) {
-                this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                    resolve(getProdutoToDBFilterCategoria(resultDocs.rows, idCategorias, textoSearch));
-                }).catch((err) => {
-                    this._criarLogDB({url:'db/produtoDB',method:'getAllProdutosByIdCategorias',message: err,error:'Failed Request'});
-                    resolve(err);
+                this.getAllProdutos().then((produtos) => {
+                    resolve(getProdutoToDBFilterCategoria(produtos, idCategorias, textoSearch));
                 });
             } else {
                 resolve([]);
@@ -100,7 +70,6 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             const tamanhoResult = [];
             const done = _.after(tamanhos.length, () => resolve(tamanhoResult));
-
             tamanhos.forEach(tamanho => {
                 const itemQuantidade = _.find(carrinho.itens, (item) => item.id === tamanho.id);
                 tamanho.quantidade = itemQuantidade ? itemQuantidade.quantidade : 0;
@@ -167,7 +136,6 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             const produtosCor = [];
             const refsCarrinho = getReferenciasCarrinho(carrinho);
-
             this._getFindCondition({referencia : {$in : refsCarrinho}}).then((produtos) => {
                 const done = _.after(produtos.length, () => resolve(_.flattenDeep(produtosCor)));                
                 produtos.forEach(produto => {
@@ -186,8 +154,8 @@ class produtoDB extends BasicDB {
             CatalogoDB.getById(idCatalogo).then((catalogo) =>{
                 this.getProdutosFromPaginas(_.orderBy(catalogo.paginas, ['pag'], ['asc'])).then((produtos) => {
                     resolve(produtos);
-                })
-            })
+                });
+            });
         });
     }
 
@@ -252,29 +220,9 @@ class produtoDB extends BasicDB {
     //     });
     // }
 
-    getProdutosSearch(categorias) {
+    getProdutosSearch(idsCategorias, textoSearch) {
         return new Promise((resolve) => {
-            this.getAllProdutosByCategorias(categorias).then((produtos) => {
-                produtos = _.take(produtos, 50);
-                if(produtos.length > 0) {
-                    produtos.forEach(produto => {
-                        if(produto.cores.length > 0) {
-                            ImagemDB.getFotoPrincipal(produto).then((result) => {
-                                produto.imagemPrincipal = result;
-                                if (_.last(produtos) === produto) resolve(produtos);
-                            })
-                        } else {
-                            if (_.last(produtos) === produto) resolve(produtos);
-                        }
-                    });
-                }
-            });
-        });
-    }
-
-    getProdutosSearch2(categorias, textoSearch) {
-        return new Promise((resolve) => {
-            this.getAllProdutosByIdCategorias(categorias, textoSearch).then((produtos) => {
+            this.getAllProdutosByIdCategorias(idsCategorias, textoSearch).then((produtos) => {
                 if(produtos.length > 0) {
                     const done = _.after(produtos.length, () => resolve(produtos));
                     produtos.forEach(produto => {
@@ -282,7 +230,7 @@ class produtoDB extends BasicDB {
                             ImagemDB.getFotoPrincipal(produto).then((result) => {
                                 produto.imagemPrincipal = result;
                                 done();
-                            })
+                            });
                         } else {
                             done();
                         }
@@ -454,9 +402,9 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             const dataResult = {fotos:[], selos:[], simbolos:[], cores:[]};
             this.getAllProdutos().then((produtos) => {
-                const done = _.after(produtos.length, function() {
+                const done = _.after(produtos.length, () => {
                     const qtdeImagens = dataResult.fotos.length + dataResult.cores.length + dataResult.selos.length + dataResult.simbolos.length;
-                    resolve({quantidade: qtdeImagens, data: dataResult})
+                    resolve({quantidade: qtdeImagens, data: dataResult});
                 });
                 produtos.forEach(produto => {
                     this.getIdsFotos(produto).then((idsImagens) => {

@@ -109,6 +109,7 @@ class imagemDB {
         });
     }
 
+
     getFotosProduto(cor) {
         return new Promise((resolve) => {
             if (cor.imagens && cor.imagens.length > 0) {
