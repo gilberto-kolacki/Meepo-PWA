@@ -1,5 +1,6 @@
 <template>
     <div id="page-customer">
+        
         <div class="vx-col w-full mb-base-button">
             <div class="btn-group centex">
                 <vs-button class="w-full" size="small" @click="scrollMeTo('enderecoCobranca')">Endereço de Cobrança</vs-button>
