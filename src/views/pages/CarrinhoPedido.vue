@@ -1,6 +1,6 @@
 <template>
     <div class="page-carrinho-pedido">
-        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-play" @click="gerarPedidosMessage()">Finalizar</vs-button>
+        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-play" @click="validarDadosPedido()">Finalizar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarCarrinho()" icon="icon-arrow-down">Carrinho</vs-button>
         <b-tabs content-class="mt-5" justified v-if="this.showPedido">
             <b-tab active>
@@ -11,6 +11,7 @@
                     </strong>
                 </template>
                 <div class="my-6" v-if="this.pedidoCapa">
+                    
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="2" vs-sm="3" vs-xs="12" >
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
@@ -47,14 +48,17 @@
                         </div>
                     </div>
                     <div class="vx-row" style="margin-top:20px">
-                        <vs-col vs-type="flex" vs-lg="4" vs-sm="4" vs-xs="12">
+                        <vs-col vs-type="flex" vs-lg="3" vs-sm="3" vs-xs="12">
                             <vs-input type="number" icon-pack="feather" label="Desconto 1" icon="icon-percent" v-model="pedidoCapa.desconto1" icon-after/>
                         </vs-col>
-                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="4" vs-sm="4" vs-xs="12">
+                        <vs-col vs-type="flex" vs-lg="3" vs-sm="3" vs-xs="12">
                             <vs-input type="number" icon-pack="feather" label="Desconto 2" icon="icon-percent" v-model="pedidoCapa.desconto2" icon-after/>
                         </vs-col>
-                        <vs-col style="display:flex;justify-content: flex-end;" vs-lg="4" vs-sm="4" vs-xs="12">
+                        <vs-col vs-type="flex" vs-lg="3" vs-sm="3" vs-xs="12">
                             <vs-input type="number" icon-pack="feather" label="Desconto 3" icon="icon-percent" v-model="pedidoCapa.desconto3" icon-after/>
+                        </vs-col>
+                        <vs-col vs-type="flex" vs-lg="3" vs-sm="3" vs-xs="12" vs-justify="center" vs-align="center">
+                            <vs-checkbox v-model="orcamento">Orçamento</vs-checkbox>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
                             <vs-textarea v-model="pedidoCapa.observacao" style="margin-top:30px" label="Observação" height="150" />
@@ -110,10 +114,6 @@
                                 <label>Enviar Cópia Por Email </label>
                                 <vs-checkbox v-model="embarqueItem.copiaEmail"></vs-checkbox>
                             </div>
-                            <div class="vx-row" style="justify-content: flex-end;">
-                                <label>Orçamento</label>
-                                <vs-checkbox v-model="embarqueItem.orcamento"></vs-checkbox>
-                            </div>
                         </vs-col>
                     </div>
                     <div v-if="!embarqueItem.brinde">
@@ -167,6 +167,7 @@ import vSelect from 'vue-select';
 export default {
 	data: () => ({
         pedidoCapa: null,
+        orcamento: false,
         showPedido: false,
         idPopUpSearch: 'popup-cliente-search',
         formasPagto: [],
@@ -255,6 +256,9 @@ export default {
         getCoinFormat(value) {
 			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
         },
+        validarDadosPedido() {
+            this.gerarPedidosMessage();
+        },
         gerarPedidosMessage() {
             this.$vs.dialog({
                 type:'confirm',
@@ -266,18 +270,20 @@ export default {
                 cancelText: 'Cancelar',
             });
         },
-
 		gerarPedidos() {
-            console.log(this.pedidoCapa);
-            
-            PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
-                const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
-                pedidos.forEach(pedido => {
-                    PedidoDB.salvarPedido(pedido).then(() => {
-                        done();
+            if (this.orcamento) {
+                console.log("orçamento", this.orcamento);
+                
+            } else {
+                PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
+                    const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
+                    pedidos.forEach(pedido => {
+                        PedidoDB.salvarPedido(pedido).then(() => {
+                            done();
+                        });
                     });
                 });
-            });
+            }
         },
         voltarCarrinho() {
             this.$router.go(-1);
@@ -321,7 +327,7 @@ export default {
         });
     },
 	errorCaptured(err, vm, info) {
-        ErrorDB.criarLog({ err, vm, info });
+        ErrorDB._criarLog({ err, vm, info });
         return true;
     }
 

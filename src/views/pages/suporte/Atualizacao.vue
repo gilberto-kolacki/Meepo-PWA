@@ -241,17 +241,21 @@ export default {
       window.alert(
         "Seu navegador não suporta uma versão estável do IndexedDB. Alguns recursos não estarão disponíveis."
       );
+    } else {
+        let banco = indexedDB.open(ClienteDB._localDB.name, 2)
+        console.log(banco);
+        
     }
   },
   beforeMount() {
-    // this.$vs.loading();
-    this.getCalcularArmazenamento().then(armazenamento => {
-      this.armazenamentoIndexedDB = armazenamento;
-      //     this.$vs.loading.close();
-    });
+        // this.$vs.loading();
+        this.getCalcularArmazenamento().then(armazenamento => {
+            this.armazenamentoIndexedDB = armazenamento;
+            //this.$vs.loading.close();
+        });
   },
   errorCaptured(err, vm, info) {
-    ErrorDB.criarLog({ err, vm, info });
+    ErrorDB._criarLog({ err, vm, info });
     return true;
   }
 };

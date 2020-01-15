@@ -818,7 +818,7 @@ export default {
         }, 200);
     },
     errorCaptured(err, vm, info) {
-        ErrorDB.criarLog({err, vm, info});
+        ErrorDB._criarLog({err, vm, info});
         return true;
     },
     afterMounted() {

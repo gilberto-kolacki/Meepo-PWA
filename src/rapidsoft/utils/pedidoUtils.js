@@ -34,9 +34,6 @@ class pedidoUtils {
 
 			itensCarrinhoStorage.forEach(itemStorage => {
                 const itemCarrinho = _.find(carrinho, (itemCarrinho) => itemCarrinho.cor.idProduto === itemStorage.idProduto);
-                
-                console.log(itemCarrinho.embarque);
-                
 				itemStorage.embarque = itemCarrinho.embarque;
 				done();
 			});

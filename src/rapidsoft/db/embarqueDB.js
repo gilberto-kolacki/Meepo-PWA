@@ -86,9 +86,9 @@ class embarqueDB extends BasicDB {
                 }
                 const embarque = embarques.get(produto.embarque.id);
                 embarque.brinde = false;
-                embarque.pedidoParcial = false;
-                embarque.antecipacaoPedido = false;
-                embarque.copiaEmail = false;
+                embarque.pedidoParcial = true;
+                embarque.antecipacaoPedido = true;
+                embarque.copiaEmail = true;
                 embarque.quantidade = (embarque.quantidade || 0 ) + produto.cor.quantidade;
                 embarque.valor = ((embarque.valor || 0 ) + produto.cor.precoVenda);
                 embarque.valor = _.round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
