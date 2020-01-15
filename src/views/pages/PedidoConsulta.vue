@@ -51,7 +51,6 @@
 // import _ from 'lodash';
 import PedidoDB from '../../rapidsoft/db/pedidoDB';
 import ErrorDB from '../../rapidsoft/db/errorDB';
-// import _ from 'lodash';
 
 export default {
     data() {

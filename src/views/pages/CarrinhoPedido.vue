@@ -259,7 +259,6 @@ export default {
 			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
         },
 		gerarPedidos() {
-            console.log("this.listPedidosEmbarque = ",this.listPedidosEmbarque);
             PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
                 const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
                 pedidos.forEach(pedido => {
