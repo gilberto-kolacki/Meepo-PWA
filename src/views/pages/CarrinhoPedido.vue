@@ -117,8 +117,8 @@
                         </vs-col>
                     </div>
                     <div v-if="!embarqueItem.brinde">
-                        <h4>Pagamento</h4>
-                        <div class="vx-row flex justify-between" style="padding:15px">
+                        <vs-divider>Pagamento</vs-divider>
+                        <div class="vx-row flex justify-between" style="padding-bottom:15px">
                             <vs-col vs-lg="5" vs-sm="6" vs-xs="12">
                                 <label>Forma de Pagamento</label>
                                 <v-select 
@@ -141,6 +141,11 @@
                                     :dir="$vs.rtl ? 'rtl' : 'ltr'"/>
                             </vs-col>
                         </div>
+                    </div>
+                    <div class="vx-row flex justify-between">
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
+                            <vs-textarea v-model="embarqueItem.observacao" label="Observação" height="100" />
+                        </vs-col>
                     </div>
                 </div>
             </b-tab>
