@@ -67,7 +67,7 @@
                                         </div>
                                     </th>
                                     <td v-for="(tamanho, indexTamanho) in getTamanhosProduto" :key="indexTamanho" style="padding: 0.3rem;">
-                                        <div v-if="produtoAdd.cores[indexCor].tamanhos[indexTamanho].ativo && tamanho.ativo &&  produtoAdd.produtoAddCores[indexCor].ativo">
+                                        <div v-if="(produtoAdd.cores[indexCor].tamanhos[indexTamanho] && produtoAdd.cores[indexCor].tamanhos[indexTamanho].ativo) && tamanho.ativo && produtoAdd.produtoAddCores[indexCor].ativo">
                                             <input 
                                                 type="number" 
                                                 :class="'input-quantidade-tam-'+tamanho.codigo+ ' input-quantidade-cor-'+cor.codigo" 
@@ -181,7 +181,7 @@ export default {
             return this.produtoAdd.cores;
         },
         getTamanhosProduto() {
-            return this.produtoAdd.produtoLabelTamanhos;
+            return _.orderBy(this.produtoAdd.produtoLabelTamanhos, ['seq'], ['asc'])
         },
         getPreco() {
             const percentual = _.toNumber(this.grupoCliente.porcentagem);
@@ -308,6 +308,8 @@ export default {
     },
     created() {
         this.grupoCliente = Storage.getGrupoCarrinho();
+        console.log(this.produtoAdd);
+        
     },
 }
 </script>    

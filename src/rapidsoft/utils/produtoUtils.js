@@ -14,7 +14,7 @@ class produtoUtils {
                     const tamanho = cor.tamanhos[index];
                     if (_.indexOf(tamanhos, tamanho.codigo) == -1) {
                         tamanhos.push(tamanho.codigo);
-                        labels.push({codigo: tamanho.codigo, ativo: true});
+                        labels.push({codigo: tamanho.codigo, ativo: true, seq: tamanho.seq});
                     }
                 }
             }
