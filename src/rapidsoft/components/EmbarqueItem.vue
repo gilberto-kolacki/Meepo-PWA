@@ -111,19 +111,38 @@ export default {
         // caso o embarque tenha periodos, pegar a data ininial do promeiro periodo, e a data final do ultimo periodo
         //  inativar as data que não estiverem no periodo
         getDataDesabilitadas(embarque) {
-            console.log(embarque);
-            return { 
-                to: new Date(embarque.dataInicio),
-                days: [6, 0],
-                from: new Date(embarque.dataFim)
-            };
+            const datasDesativadas = (ranges) => {
+                if (embarque.periodos) {
+                    return { 
+                        from: new Date(embarque.periodos[embarque.periodos.length-1].dataEmbarqueFim),
+                        to: new Date(embarque.periodos[0].dataEmbarqueInicio),
+                        days: [6, 0],
+                        ranges: ranges
+                    };
+                } else {
+                    return { 
+                        from: new Date(embarque.dataFim),
+                        to: new Date(embarque.dataInicio),
+                        days: [6, 0],
+                        ranges: ranges
+                    };
+                }
+            }
+
+            if (embarque.periodosExcecao) {
+                const ranges = embarque.periodosExcecao.map((periodoExcecao) => { return {from: new Date(periodoExcecao.dataEmbarqueInicio - 86400000), to: new Date(periodoExcecao.dataEmbarqueFim + 86400000)}});
+                return datasDesativadas(ranges);
+            } else {
+                return datasDesativadas([]);
+            }
+            
         }
     },
     beforeCreate() {
 
     },
     created() {
-        console.log(this.embarques);
+        
     },
     mounted() {
         SegmentoDB._getAll().then((segmentos) => {
