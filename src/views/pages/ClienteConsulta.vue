@@ -93,9 +93,9 @@ export default {
     },
     created() {
         if(navigator.platform === "iPad") {
-            this.isIpad= true;
+            this.isIpad = true;
         } else {
-            this.isIpad= false;
+            this.isIpad = false;
         }
 
         
