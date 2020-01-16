@@ -12,6 +12,7 @@ class pedidoUtils {
                 cpfCnpj: null,
                 nome: null,
             },
+            valorTotal: 0,
             itens: [],            
         }
     }
