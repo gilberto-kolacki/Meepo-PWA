@@ -133,7 +133,7 @@
                 </div>
             </b-card-body>
             <!-- <div style="margin-top:20px">
-                <complete-look :produtoAdd="this.produtoAdd">
+                <complete-look :produtoAdd="this.produtoAdd" v-if="title === 'Referencia A'">
                 </complete-look>
             </div> -->
 
@@ -317,6 +317,7 @@ export default {
     },
     created() {
         this.grupoCliente = Storage.getGrupoCarrinho();
+        console.log('add = ', this.produtoAdd)
     },
 }
 </script>    
