@@ -7,8 +7,8 @@
                 </template>
                 <template slot="thead">
                     <vs-th class="th-acoes">Ações</vs-th>
-                    <vs-th sort-key="cnpj" style="width: 30%">CNPJ</vs-th>
-                    <vs-th sort-key="nome" style="width: 40%">Nome</vs-th>
+                    <vs-th sort-key="cnpj" style="width: 25%">CNPJ</vs-th>
+                    <vs-th sort-key="nome" style="width: 35%">Nome</vs-th>
                     <vs-th sort-key="cidade" style="width: 20%">Cidade</vs-th>
                     <vs-th sort-key="estado" style="width: 10%">UF</vs-th>
                 </template> 
@@ -28,10 +28,10 @@
                             {{ data[indextr].cpfCnpj | cpfCnpj }}
                         </vs-td>
                         <vs-td :data="data[indextr].nome">
-                            {{ data[indextr].nome }}
+                            {{ data[indextr].nome | capitalize }}
                         </vs-td>
                         <vs-td :data="data[indextr].cidade">
-                            {{ data[indextr].cidade }}
+                            {{ data[indextr].cidade | capitalize }}
                         </vs-td>
                         <vs-td :data="data[indextr].estado">
                             {{ data[indextr].estado }}

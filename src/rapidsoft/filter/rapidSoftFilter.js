@@ -33,3 +33,10 @@ Vue.filter('cpfCnpj', (value) => {
         return value;
     } 
 });
+
+Vue.filter('capitalize', (value) => {
+    if (value) {
+        const capitalize = ((word) => word.length > 2 ? word.charAt(0).toUpperCase() + word.slice(1) : word);
+        return value.toLowerCase().split(' ').map(word => capitalize(word)).join(' ');
+    } 
+});

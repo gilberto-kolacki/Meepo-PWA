@@ -6,10 +6,10 @@
                 </template>
                 <template slot="thead">
                     <vs-th class="th-acoes">Ações</vs-th>
-                    <vs-th sort-key="cnpj">CNPJ</vs-th>
-                    <vs-th sort-key="nome">Nome</vs-th>
-                    <vs-th sort-key="cidade">Cidade</vs-th>
-                    <vs-th sort-key="estado">UF</vs-th>
+                    <vs-th sort-key="cnpj" style="width: 25%">CNPJ</vs-th>
+                    <vs-th sort-key="nome" style="width: 35%">Nome</vs-th>
+                    <vs-th sort-key="cidade" style="width: 10%">Itens</vs-th>
+                    <vs-th sort-key="estado" style="width: 20%">Valor</vs-th>
                 </template> 
                 <template slot-scope="{data}">
                     <vs-tr :state="data[indextr].ativo === 0 ? 'danger':data[indextr].inadimplente !== 0 ? 'warning':null" :key="indextr" v-for="(tr, indextr) in data">
@@ -18,7 +18,7 @@
                                 <div class="p-1">
                                     <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editar(data[indextr])" />
                                 </div>
-                                <div v-if="!data[indextr].clienteErp" class="p-1">
+                                <div class="p-1">
                                     <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarMessage(data[indextr])"/>
                                 </div>
                             </div>
