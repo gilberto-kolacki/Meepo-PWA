@@ -1,6 +1,9 @@
 // import _ from "lodash";
 import PedidoUtils from './pedidoUtils';
 
+const CARRINHO = "carrinho";
+const GRUPO_CLIENTE_CARRINHO = "grupoCliente";
+const CLIENTE_CARRINHO = "cliente";
 
 class storage {
 
@@ -17,19 +20,20 @@ class storage {
     }
 
     existeCarrinho() {
-        return localStorage.getItem('carrinho') != null ? true : false;
+        return localStorage.getItem(CARRINHO) != null ? true : false;
     }
 
     getCarrinho() {
-        if (localStorage.getItem('carrinho')) {
-            return JSON.parse(localStorage.getItem('carrinho'));
+        if (this.existeCarrinho()) {
+            return JSON.parse(localStorage.getItem(CARRINHO));
         } else {
             return PedidoUtils.newCarrinho();
         }
     }
 
     getSegmentosCarrinho() {
-        return this.getCarrinho().itens.map((produto) => produto.idSegmento ).sort().reduce((init, current) => {
+        const carrinho = this.getCarrinho();
+        return carrinho.itens.map((produto) => produto.idSegmento).sort().reduce((init, current) => {
             if (init.length === 0 || init[init.length - 1] !== current) {
                 init.push(current);
             }
@@ -38,16 +42,16 @@ class storage {
     }
 
     setCarrinho(carrinho) {
-        localStorage.setItem('carrinho', JSON.stringify(carrinho));
+        localStorage.setItem(CARRINHO, JSON.stringify(carrinho));
     }
 
     deleteCarrinho() {
-        localStorage.removeItem('carrinho');
+        localStorage.removeItem(CARRINHO);
     }
 
     getCarrinhoItens() {
-        if (localStorage.getItem('carrinho')) {
-            const carrinho = JSON.parse(localStorage.getItem('carrinho'));
+        if (this.existeCarrinho()) {
+            const carrinho = this.getCarrinho();
             return carrinho.itens;
         } else {
             return [];
@@ -56,45 +60,48 @@ class storage {
 
     setCarrinhoItens(itens) {
         const carrinho = this.getCarrinho();
-        carrinho.itens = itens
-        localStorage.setItem('carrinho', JSON.stringify(carrinho));
+        carrinho.itens = itens;
+        this.setCarrinho(carrinho);
     }
 
     getGrupoCarrinho() {
-        if (localStorage.getItem('grupoCarrinho')) {
-            return JSON.parse(localStorage.getItem('grupoCarrinho'));
-        } else {
-            return null;
-        }
+        const carrinho = this.getCarrinho();
+        return carrinho[GRUPO_CLIENTE_CARRINHO];
     }
 
-    setGrupoCarrinho(grupo) {
-        localStorage.setItem('grupoCarrinho', JSON.stringify(grupo));
+    setGrupoCarrinho(grupoCliente) {
+        const carrinho = this.getCarrinho();
+        carrinho[GRUPO_CLIENTE_CARRINHO] = grupoCliente;
+        this.setCarrinho(carrinho);
     }
 
     deleteGrupoCarrinho() {
-        localStorage.removeItem('grupoCarrinho');
+        if (this.existeCarrinho()) {
+            const carrinho = this.getCarrinho();
+            carrinho[GRUPO_CLIENTE_CARRINHO] = null;
+            this.setCarrinho(carrinho);
+        }
     }
 
     setClienteCarrinho(cliente) {
         delete cliente['_id'];
         delete cliente['_rev'];
-        localStorage.setItem('clienteCarrinho', JSON.stringify(cliente));
+        const carrinho = this.getCarrinho();
+        carrinho[CLIENTE_CARRINHO] = cliente;
+        this.setCarrinho(carrinho);
     }
 
     getClienteCarrinho() {
-        if (localStorage.getItem('clienteCarrinho')) return JSON.parse(localStorage.getItem('clienteCarrinho'));
-        else return {
-            cpfCnpj: null,
-            nome: null,
-            grupoCliente: {
-                nome: null
-            },
-        };
+        const carrinho = this.getCarrinho();
+        return carrinho[CLIENTE_CARRINHO];
     }
 
     deleteClienteCarrinho() {
-        localStorage.removeItem('clienteCarrinho');
+        if (this.existeCarrinho()) {
+            const carrinho = this.getCarrinho();
+            carrinho[CLIENTE_CARRINHO] = null;
+            this.setCarrinho(carrinho);
+        }
     }
 
     setUsuario(usuario) {

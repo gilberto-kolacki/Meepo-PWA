@@ -6,11 +6,11 @@
                     <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editar(null)">Novo</vs-button>
                 </template>
                 <template slot="thead">
-                    <vs-th>Ações</vs-th>
-                    <vs-th sort-key="cnpj">CNPJ</vs-th>
-                    <vs-th sort-key="nome">Nome</vs-th>
-                    <vs-th sort-key="cidade">Cidade</vs-th>
-                    <vs-th sort-key="estado">UF</vs-th>
+                    <vs-th class="th-acoes">Ações</vs-th>
+                    <vs-th sort-key="cnpj" style="width: 30%">CNPJ</vs-th>
+                    <vs-th sort-key="nome" style="width: 40%">Nome</vs-th>
+                    <vs-th sort-key="cidade" style="width: 20%">Cidade</vs-th>
+                    <vs-th sort-key="estado" style="width: 10%">UF</vs-th>
                 </template> 
                 <template slot-scope="{data}">
                     <vs-tr :state="data[indextr].ativo === 0 ? 'danger':data[indextr].inadimplente !== 0 ? 'warning':null" :key="indextr" v-for="(tr, indextr) in data">

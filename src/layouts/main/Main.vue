@@ -317,4 +317,8 @@ html, body {
     opacity: 1;
 }
 
+.th-acoes {
+    width: 10%;
+}
+
 </style>

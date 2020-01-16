@@ -1,6 +1,6 @@
 <template>
     <div class="page-carrinho-pedido">
-        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-play" @click="validarDadosPedido()">Finalizar</vs-button>
+        <vs-button class="btn-confirm" :color="this.orcamento ? 'warning' : 'success'" type="filled" icon-pack="feather" icon="icon-play" @click="validarDadosPedido()">Finalizar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarCarrinho()" icon="icon-arrow-down">Carrinho</vs-button>
         <b-tabs content-class="mt-5" justified v-if="this.showPedido">
             <b-tab active>
@@ -38,7 +38,7 @@
                             <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedidoCapa.cliente.emailNfe" class="w-full" type="email" />
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
-                            <vs-input label="Grupo Cliente" id="grupoCliente" name="grupoCliente" v-model="pedidoCapa.cliente.grupoCliente.nome" disabled class="w-full" type="text" />
+                            <vs-input label="Grupo Cliente" id="grupoCliente" name="grupoCliente" v-model="pedidoCapa.grupoCliente.nome" disabled class="w-full" type="text" />
                         </vs-col>
                     </div>
                     <div class="vx-row">
@@ -157,11 +157,13 @@
 import _ from "lodash";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
+import Storage from "../../rapidsoft/utils/storage";
 import SearchCliente  from '../../rapidsoft/components/SearchCliente'
 import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
+import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
 import vSelect from 'vue-select';
 
 export default {
@@ -257,6 +259,7 @@ export default {
 			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
         },
         validarDadosPedido() {
+            // criar validaçãov                 
             this.gerarPedidosMessage();
         },
         gerarPedidosMessage() {
@@ -272,8 +275,11 @@ export default {
         },
 		gerarPedidos() {
             if (this.orcamento) {
-                console.log("orçamento", this.orcamento);
-                
+                const carrinho = Storage.getCarrinho();
+                carrinho.emailEnviado = false;
+                CarrinhoDB.salvarCarrinho(carrinho).then(() => {
+                    PedidoUtils.concluirGeracaoPedidos(this);
+                });
             } else {
                 PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
                     const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
@@ -323,7 +329,9 @@ export default {
     mounted() {
         PedidoUtils.newPedido().then((pedido) => {
             this.pedidoCapa = pedido;
-            this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(pedido.cliente.enderecos, (endereco) => endereco.endEntrega ));
+            if (pedido.cliente) {
+                this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(pedido.cliente.enderecos, (endereco) => endereco.endEntrega ));
+            }
         });
     },
 	errorCaptured(err, vm, info) {

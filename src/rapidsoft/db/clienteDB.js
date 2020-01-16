@@ -99,7 +99,7 @@ const validarObjetoDB = (cliente) => {
                 retorno.campo = "razaoSocial";
                 reject(retorno);
             }
-            else if (cliente.fantasia === undefined || cliente.fantasia === "") {
+            else if (cliente.nomeFantasia === undefined || cliente.nomeFantasia === "") {
                 retorno.campo = "fantasia";
                 reject(retorno);
             }
@@ -203,7 +203,9 @@ class clienteDB extends BasicDB {
             validarObjetoDB(cliente).then((resultCliente) => {
                 resultCliente._id = resultCliente.cpfCnpj;
                 resultCliente.endereco.cep = resultCliente.endereco.cep.replace(/[^a-z0-9]/gi, "");
-                resultCliente.endereco.telefone = resultCliente.endereco.telefone.replace(/[^a-z0-9]/gi, "");
+                if (cliente.nome == null) {
+                    cliente.nome = cliente.nomeFantasia;
+                }
                 this._salvar(resultCliente).then((result) => {
                     resolve(result);
                 }).catch((erro) => {
@@ -229,9 +231,6 @@ class clienteDB extends BasicDB {
                 cliente.nome = cliente.nomeFantasia;
             }
             cliente.clienteErp = true;
-
-            console.log(cliente);
-
             this._salvar(cliente).then(() => {
                 resolve();
             }).catch((erro) => {

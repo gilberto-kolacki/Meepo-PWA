@@ -32,7 +32,7 @@ export default [
   },
   {
     url: "/cliente/consulta",
-    name: "Consulta Cliente",
+    name: "Clientes",
     slug: "Cliente",
     icon: "UsersIcon",
   }, 
@@ -47,16 +47,22 @@ export default [
     i18n: "Pedido",
   },
   {
-    url: "/pedido/consulta",
-    name: "Consulta Pedidos",
-    slug: "Pedido",
-    icon: "ShoppingCartIcon",
-  },
-  {
     url: "/catalogo",
     name: "Catálogo",
     slug: "Catálogo",
-    icon: "ShoppingBagIcon",
+    icon: "BookOpenIcon",
+  },
+  {
+    url: "/pedido/consulta",
+    name: "Pedidos",
+    slug: "Pedido",
+    icon: "PackageIcon",
+  },
+  {
+    url: "/orcamento/consulta",
+    name: "Orçamentos",
+    slug: "Orcamento",
+    icon: "FileTextIcon",
   },
   {
     header: "Suporte",

@@ -83,6 +83,25 @@ class basicDB {
         return this._locaErrolDB;
     }
 
+    _findLastId() {
+        return new Promise((resolve) => {
+            this._localDB.find({
+                selector: {
+                    id: {$gte: null}
+                },
+                sort: [{'id':'desc'}],
+                limit: 1
+            }).then((result) => {
+                if (result.docs.length == 1) {
+                    this._lastId = result.docs[0].id;
+                } else {
+                    this._lastId = 0;
+                }
+                resolve(this._lastId);
+            });
+        });
+    }
+
     _exists(array, value) {
         // return array.indexOf(value) >= 0 ? true : false;
         return _.findIndex(array, (object) => {

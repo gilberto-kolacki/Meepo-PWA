@@ -1,12 +1,17 @@
 import _ from "lodash";
 import Storage from '../utils/storage';
+// import CarrinhoDB from '../db/carrinhoDB';
 
 class pedidoUtils {
 
     newCarrinho() {
         return {
             numero: 0,
-            numeroERP: 0,
+            grupoCliente: null,
+            cliente: {
+                cpfCnpj: null,
+                nome: null,
+            },
             itens: [],            
         }
     }
@@ -15,6 +20,7 @@ class pedidoUtils {
         return new Promise((resolve) => {
             const pedido = {};
             pedido.cliente = Storage.getClienteCarrinho();
+            pedido.grupoCliente = Storage.getGrupoCarrinho();
             pedido.endEntrega = null;
             pedido.observacao = null;
             pedido.desconto1 = 0;
@@ -59,11 +65,15 @@ class pedidoUtils {
         });
     }
 
-    concluirGeracaoPedidos(view) {        
+    concluirGeracaoPedidos(view, carrinho = false) {        
         Storage.deleteCarrinho();
         Storage.deleteGrupoCarrinho();
         Storage.deleteClienteCarrinho();
-        view.$router.push({ name: 'pedidoConsulta'});
+        if (carrinho) {
+            view.$router.push({ name: 'orcamentoConsulta'});
+        } else {
+            view.$router.push({ name: 'pedidoConsulta'});
+        }
     }
 
         

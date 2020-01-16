@@ -152,6 +152,16 @@ const router = new Router({
                     },
                 },
                 {
+					path: '/orcamento/consulta',
+					name: 'orcamentoConsulta',
+					component: () => import('./views/pages/OrcamentoConsulta.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor',
+                        navBar: true,
+                    },
+                },
+                {
 					path: '/pages/sincronizacao',
 					name: 'sincronizacao',
 					component: () => import('./views/pages/Sincronizacao.vue'),
