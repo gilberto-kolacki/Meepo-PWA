@@ -1,40 +1,42 @@
 <template>
-    <div class="complete-look-itens" style="margin-bottom:40px">
-        <div style="display:flex;justify-content:center;">
-            <strong><h2 style="margin-top:10px;margin-bottom:20px">Complete o Look</h2></strong>
-        </div>
+    <div>
+        
+        <strong class="flex justify-center" style="margin-top:20px"><h2>Complete o Look:</h2></strong>
+        
+        <div class="complete-look-itens flex justify-center" style="margin-bottom:40px">
 
-        <div class="vx-row flex justify-cente">
-            
-            <swiper :options="swiperOption" :dir="$vs.rtl ? 'rtl' : 'ltr'" :key="$vs.rtl">
+            <div class="vx-row flex justify-center" style="width:90%">
                 
-                <swiper-slide v-for="(produto, indexproduto) in getProdutosLook" :key="indexproduto">
+                <swiper :options="swiperOption" :dir="$vs.rtl ? 'rtl' : 'ltr'" :key="$vs.rtl">
                     
-                    <div class="vx-col w-full">
+                    <swiper-slide v-for="(produto, indexproduto) in getProdutosLook" :key="indexproduto">
+                        
+                        <div class="vx-col w-full">
 
-                        <div class="vx-row flex justify-center">
-                            <img class=" responsive" style="max-width:80px" @click="addProduto(produto.produto)" :src="produto.imagem" alt="banner">
+                            <div class="vx-row flex justify-center">
+                                <img class=" responsive" style="max-width:80px" @click="addProduto(produto.produto)" :src="produto.imagem" alt="banner">
+                            </div>
+
+                            <div class="vx-row flex justify-center"  style="margin-top:10px;">
+                                <p class="flex justify-center" style="text-align:center ;max-width:150px;font-weight:bold;">
+                                    {{"Ref: " + produto.id}}
+                                </p>
+                            </div>
+
+                            <div class="vx-row flex justify-center">
+                                <p class="flex justify-center" style="align-items: stretch;text-align:center ;max-width:150px;font-weight:bold;">{{produto.produto.nome}}</p>
+                            </div>
+
                         </div>
 
-                        <div class="vx-row flex justify-center"  style="margin-top:10px;">
-                            <p class="flex justify-center" style="text-align:center ;max-width:150px;font-weight:bold;">
-                                {{"Ref: " + produto.id}}
-                            </p>
-                        </div>
+                    </swiper-slide>
+                    
+                    <div class="swiper-button-prev" slot="button-prev"></div>
+                    <div class="swiper-button-next" slot="button-next"></div>
 
-                        <div class="vx-row flex justify-center">
-                            <p class="flex justify-center" style="align-items: stretch;text-align:center ;max-width:150px;font-weight:bold;">{{produto.produto.nome}}</p>
-                        </div>
+                </swiper>
 
-                    </div>
-
-                </swiper-slide>
-                
-                <div class="swiper-button-prev" slot="button-prev"></div>
-                <div class="swiper-button-next" slot="button-next"></div>
-
-            </swiper>
-
+            </div>
         </div>
     </div>
 </template>
@@ -59,11 +61,11 @@ export default {
             },
             breakpoints: {
                 1024: {
-                    slidesPerView: 10,
-                    spaceBetween: 20,
+                    slidesPerView: 5,
+                    spaceBetween: 40,
                 },
                 768: {
-                    slidesPerView: 5,
+                    slidesPerView: 4,
                     spaceBetween: 20,
                 },
                 640: {
