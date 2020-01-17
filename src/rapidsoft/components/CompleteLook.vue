@@ -1,10 +1,5 @@
 <template>
     <div class="complete-look-itens" style="margin-bottom:40px">
-
-        <div id="page-catalogo-add" class="page-catalogo-add" v-if="showAddCarrinhoItem">
-            <add-item-carrinho @show-add-carrinho="showAddCarrinho(false)" :produtoAdd="this.produtoLookSelecionado"></add-item-carrinho>
-        </div>
-
         <div style="display:flex;justify-content:center;">
             <strong><h2 style="margin-top:10px;margin-bottom:20px">Complete o Look</h2></strong>
         </div>
@@ -17,8 +12,8 @@
                     
                     <div class="vx-col w-full">
 
-                        <div class="vx-row">
-                            <img class="responsive" @click="addProduto(produto.produto)" :src="produto.imagem" alt="banner">
+                        <div class="vx-row flex justify-center">
+                            <img class=" responsive" style="max-width:80px" @click="addProduto(produto.produto)" :src="produto.imagem" alt="banner">
                         </div>
 
                         <div class="vx-row flex justify-center"  style="margin-top:10px;">
@@ -49,13 +44,13 @@ import 'swiper/dist/css/swiper.min.css';
 import { swiper, swiperSlide } from 'vue-awesome-swiper';
 import ProdutoDB from '../../rapidsoft/db/produtoDB';
 // import _ from 'lodash';
-import AddItemCarrinho from "../../rapidsoft/components/AddItemCarrinho";
+// import AddItemCarrinho from "../../rapidsoft/components/AddItemCarrinho";
 
 export default {
     data: () => ({
         swiperOption: {
             slidesPerView: 5,
-            spaceBetween: 50,
+            spaceBetween: 20,
             // init: false,
             navigation: {
                 nextEl: '.swiper-button-next',
@@ -63,15 +58,15 @@ export default {
             },
             breakpoints: {
                 1024: {
-                    slidesPerView: 5,
-                    spaceBetween: 40,
+                    slidesPerView: 10,
+                    spaceBetween: 20,
                 },
                 768: {
-                    slidesPerView: 3,
-                    spaceBetween: 30,
+                    slidesPerView: 5,
+                    spaceBetween: 20,
                 },
                 640: {
-                    slidesPerView: 1,
+                    slidesPerView: 2,
                     spaceBetween: 20,
                 }
             }
@@ -79,12 +74,13 @@ export default {
         produtosLook:[],
         showAddCarrinhoItem:false,
         produtoLookSelecionado:{},
+        novoItemProduto: false,
 
     }),
 
     name: 'complete-look',
     props: {
-        produtoAdd: {
+        produtoA: {
             type: Object,
             required: true,
         }
@@ -92,7 +88,7 @@ export default {
     components: {
         swiper,
         swiperSlide,
-        AddItemCarrinho,
+        // AddItemCarrinho,
     },
     mounted() {
         this.ProdutosLook();
@@ -106,11 +102,12 @@ export default {
     methods: {
 
         addProduto(produto) {
-            
+            this.novoItemProduto = true;
             this.produtoLookSelecionado = {
                 produtoA: produto,
             };
             this.showAddCarrinhoItem = true;
+            this.$emit('produto-look',this.produtoLookSelecionado);
         },
         showAddCarrinho(show) {
             console.log("Show");
@@ -119,7 +116,7 @@ export default {
             this.produtoLookSelecionado=null;
         },
         ProdutosLook() {
-            this.produtoAdd.produtosLook.map((produtoLook) => {
+            this.produtoA.produtosLook.map((produtoLook) => {
                 ProdutoDB.getById(produtoLook).then((produto) => {
                     if (produto.existe) {
                         ProdutoDB.getImagensProduto(produto.result).then(() => {
