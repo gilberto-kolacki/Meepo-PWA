@@ -28,10 +28,10 @@
 </template>    
 <script>
 
-import _ from 'lodash'
-import AddItemCarrinhoItem  from '../../rapidsoft/components/AddItemCarrinhoItem'
-import Storage  from '../../rapidsoft/utils/storage'
-import ProdutoUtils  from '../../rapidsoft/utils/produtoUtils'
+import _ from 'lodash';
+import AddItemCarrinhoItem  from '../../rapidsoft/components/AddItemCarrinhoItem';
+import Storage  from '../../rapidsoft/utils/storage';
+import ProdutoUtils  from '../../rapidsoft/utils/produtoUtils';
 
 export default {
     name: 'add-item-carrinho',
@@ -42,8 +42,6 @@ export default {
         }
     },
     data: () => ({
-        maxHeight: '0px',
-        openItems: false,
         carrinho: null,
         produtoA: null,
         produtoB: null,

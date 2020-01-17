@@ -72,8 +72,6 @@ class storage {
 
     getGrupoCarrinho() {
         const carrinho = this.getCarrinho();
-        console.log(carrinho);
-        
         return carrinho[GRUPO_CLIENTE_CARRINHO];
     }
 
@@ -88,6 +86,19 @@ class storage {
             const carrinho = this.getCarrinho();
             carrinho[GRUPO_CLIENTE_CARRINHO] = null;
             this.setCarrinho(carrinho);
+        }
+    }
+
+    existeClienteCarrinho() {
+        if (this.existeCarrinho()) {
+            const carrinho = this.getCarrinho();
+            if (carrinho.cliente && carrinho.cliente.cpfCnpj) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
     }
 

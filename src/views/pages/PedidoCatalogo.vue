@@ -113,7 +113,7 @@ export default {
 
 	data() {
 		return {
-			isShowing: false,
+            isShowing: false,
 			idPopUpSearch: 'popup-cliente-search',
 			catalogos: [],
             grupoClientePadrao: null,
@@ -178,7 +178,9 @@ export default {
             return new Promise((resolve) => {
                 CatalogoDB._getAll().then((catalogos) => {
                     this.catalogos = catalogos;
-                    this.abrirPesquisaCliente();
+                    if (!Storage.existeClienteCarrinho()) {
+                        this.abrirPesquisaCliente();
+                    }
                     this.isShowing = true;
                     document.getElementById('loading-bg').style.display = "none";
                     resolve();
@@ -190,7 +192,6 @@ export default {
 		document.getElementById('loading-bg').style.display = null;
 	},
 	async created() {
-        Storage.deleteClienteCarrinho();
         await this.carregaItensTela();
 	},
 	beforeMount() {

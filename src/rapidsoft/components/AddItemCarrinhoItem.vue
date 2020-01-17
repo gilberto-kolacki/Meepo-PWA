@@ -43,7 +43,7 @@
                                                 size="small" 
                                                 icon-pack="feather" 
                                                 color="danger" 
-                                                icon="icon-chevrons-down" 
+                                                icon="icon-repeat" 
                                                 @click="replicarGrade(indexCor, indexTamanho)"
                                             />
                                             <vs-button 
@@ -110,7 +110,7 @@
                                                 size="small" 
                                                 icon-pack="feather" 
                                                 color="danger" 
-                                                icon="icon-chevrons-up" 
+                                                icon="icon-check-square" 
                                                 @click="replicarGradeRef()"
                                             />
                                         </div>
