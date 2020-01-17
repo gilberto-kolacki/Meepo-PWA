@@ -1,12 +1,11 @@
 import _ from "lodash";
 import Storage from '../utils/storage';
-// import CarrinhoDB from '../db/carrinhoDB';
 
 class pedidoUtils {
 
     newCarrinho() {
         return {
-            numero: 0,
+            id: 0,
             grupoCliente: null,
             cliente: {
                 cpfCnpj: null,
@@ -14,13 +13,12 @@ class pedidoUtils {
             },
             valorTotal: 0,
             itens: [],            
-        }
+        };
     }
 
     newPedido() {
         return new Promise((resolve) => {
             const pedido = {};
-            pedido.cliente = Storage.getClienteCarrinho();
             pedido.grupoCliente = Storage.getGrupoCarrinho();
             pedido.endEntrega = null;
             pedido.observacao = null;

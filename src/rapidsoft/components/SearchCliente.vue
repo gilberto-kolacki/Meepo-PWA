@@ -50,13 +50,13 @@
                             <p class="product-name font-medium">{{ tr.cpfCnpj | cpfCnpj }}</p>
                         </vs-td>
                         <vs-td :data="data[indextr].nome">
-                            <p class="product-name font-medium">{{ tr.nome }}</p>
+                            <p class="product-name font-medium">{{ tr.nome | capitalize }}</p>
                         </vs-td>
                         <vs-td :data="data[indextr].endereco">
                             <p class="product-name font-medium">{{ tr.endereco.endereco +', '+tr.endereco.numero+', '+tr.endereco.bairro }}</p>
                         </vs-td>
                         <vs-td :data="data[indextr].endereco">
-                            <p class="product-name font-medium">{{ tr.endereco.cidade }}</p>
+                            <p class="product-name font-medium">{{ tr.endereco.cidade | capitalize }}</p>
                         </vs-td>
                         <vs-td :data="data[indextr].endereco">
                             <p class="product-name font-medium">{{ tr.endereco.estado }}</p>

@@ -51,7 +51,7 @@
                                     {{this.carrinho.itens.length}}
                                 </vs-td>
                                 <vs-td style="text-align:right">
-                                    {{this.carrinho.valorTotal}}
+                                    {{this.carrinho.valorTotal | moneyy }}
                                 </vs-td>
                             </vs-tr>
                         </template>

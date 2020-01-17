@@ -1,6 +1,6 @@
 <template>
     <div class="page-carrinho-pedido">
-        <vs-button class="btn-confirm" :color="this.orcamento ? 'warning' : 'success'" type="filled" icon-pack="feather" icon="icon-play" @click="validarDadosPedido()">Finalizar</vs-button>
+        <vs-button class="btn-confirm" :color="this.orcamento ? 'warning' : 'success'" type="filled" icon-pack="feather" :icon="this.orcamento ? 'icon-file-text' : 'icon-play'" @click="validarDadosPedido()">Finalizar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarCarrinho()" icon="icon-arrow-down">Carrinho</vs-button>
         <b-tabs content-class="mt-5" justified v-if="this.showPedido">
             <b-tab active>
@@ -17,12 +17,12 @@
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="cpfCnpj" class="vs-input--label">CPF/CNPJ</label>
                                 <div class="vs-con-input">
-                                    <the-mask v-validate="'required|min:14'" id="cpfCnpj" disabled name="cpfCnpj" v-model="pedidoCapa.cliente.cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
+                                    <the-mask v-validate="'required|min:14'" id="cpfCnpj" disabled name="cpfCnpj" v-model="clienteCapa.cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
                                 </div>
                             </div>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="8" vs-sm="9" vs-xs="12">
-                            <vs-input v-validate="'required'" label="Nome" id="nome" name="nome" disabled v-model="pedidoCapa.cliente.nome" class="w-full input-line-group-rapid" />
+                            <vs-input v-validate="'required'" label="Nome" id="nome" name="nome" disabled v-model="clienteCapa.nome" class="w-full input-line-group-rapid" />
                             <vs-button
                                 color="primary"
                                 type="filled"
@@ -35,7 +35,7 @@
                     </div>
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
-                            <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedidoCapa.cliente.emailNfe" class="w-full" type="email" />
+                            <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="clienteCapa.emailNfe" class="w-full" type="email" />
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
                             <vs-input label="Grupo Cliente" id="grupoCliente" name="grupoCliente" v-model="pedidoCapa.grupoCliente.nome" disabled class="w-full" type="text" />
@@ -169,6 +169,7 @@ import vSelect from 'vue-select';
 export default {
 	data: () => ({
         pedidoCapa: null,
+        clienteCapa: null,
         orcamento: false,
         showPedido: false,
         idPopUpSearch: 'popup-cliente-search',
@@ -191,8 +192,8 @@ export default {
 	},
 	computed: {
         getEnderecosEntrega() {
-            if (this.pedidoCapa.cliente.enderecos && this.pedidoCapa.cliente.enderecos.length > 0) {
-                return this.pedidoCapa.cliente.enderecos.map((endereco) => {
+            if (this.clienteCapa.enderecos && this.clienteCapa.enderecos.length > 0) {
+                return this.clienteCapa.enderecos.map((endereco) => {
                     return {value: endereco, label: this.getLabelEndereco(endereco) };
                 });
             } else return [];
@@ -276,10 +277,15 @@ export default {
 		gerarPedidos() {
             if (this.orcamento) {
                 const carrinho = Storage.getCarrinho();
+                carrinho.pedido = this.pedidoCapa;
                 carrinho.emailEnviado = false;
-                CarrinhoDB.salvarCarrinho(carrinho).then(() => {
-                    PedidoUtils.concluirGeracaoPedidos(this);
-                });
+                console.log(carrinho);
+                
+                console.log(CarrinhoDB);
+                
+                // CarrinhoDB.salvarCarrinho(carrinho).then(() => {
+                //     PedidoUtils.concluirGeracaoPedidos(this);
+                // });
             } else {
                 PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
                     const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
@@ -298,8 +304,8 @@ export default {
 			this.$bvModal.show(this.idPopUpSearch);
         },
         selectSearchCliente(cliente) {
-            this.pedidoCapa.cliente = cliente;
-            this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(cliente.enderecos, (endereco) => endereco.endEntrega ));
+            this.clienteCapa = cliente;
+            this.clienteCapa.endEntrega = this.getLabelEndereco(_.find(cliente.enderecos, (endereco) => endereco.endEntrega ));
         },
         carregaItensTela() {
 			return new Promise((resolve) => {
@@ -329,8 +335,9 @@ export default {
     mounted() {
         PedidoUtils.newPedido().then((pedido) => {
             this.pedidoCapa = pedido;
+            this.clienteCapa = Storage.getClienteCarrinho();
             if (pedido.cliente) {
-                this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(pedido.cliente.enderecos, (endereco) => endereco.endEntrega ));
+                this.clienteCapa.endEntrega = this.getLabelEndereco(_.find(pedido.cliente.enderecos, (endereco) => endereco.endEntrega ));
             }
         });
     },

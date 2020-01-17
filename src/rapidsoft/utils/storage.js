@@ -20,12 +20,18 @@ class storage {
     }
 
     existeCarrinho() {
-        return localStorage.getItem(CARRINHO) != null ? true : false;
+        const carrinho = this.get(CARRINHO);
+        if (carrinho && carrinho.itens && carrinho.itens.length > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     getCarrinho() {
-        if (this.existeCarrinho()) {
-            return JSON.parse(localStorage.getItem(CARRINHO));
+        const carrinho = localStorage.getItem(CARRINHO);
+        if (carrinho) {
+            return JSON.parse(carrinho);
         } else {
             return PedidoUtils.newCarrinho();
         }
@@ -66,6 +72,8 @@ class storage {
 
     getGrupoCarrinho() {
         const carrinho = this.getCarrinho();
+        console.log(carrinho);
+        
         return carrinho[GRUPO_CLIENTE_CARRINHO];
     }
 

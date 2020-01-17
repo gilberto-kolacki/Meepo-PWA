@@ -196,6 +196,7 @@ class clienteDB extends BasicDB {
         this.indexes = ['endereco.idCidade', 'endereco.estado', 'cpfCnpj', 'nome'];
         this._createIndexes(this.indexes, 'search');
         this._createIndex('clienteErp');
+        this._createIndex('clienteAlterado');
     }
 
     salvar(cliente) {
@@ -228,9 +229,10 @@ class clienteDB extends BasicDB {
                 cliente.enderecos.push(enderecoEntrega);
             }
             if (cliente.nome == null) {
-                cliente.nome = cliente.nomeFantasia;
+                cliente.nome = (cliente.nomeFantasia ? cliente.nomeFantasia : cliente.razaoSocial).toUpperCase();
             }
             cliente.clienteErp = true;
+            cliente.clienteAlterado = false;
             this._salvar(cliente).then(() => {
                 resolve();
             }).catch((erro) => {
@@ -337,7 +339,7 @@ class clienteDB extends BasicDB {
         return new Promise((resolve) => {
             this._localDB.find({
                 selector: {
-                    clienteErp: {$eq: false}
+                    clienteAlterado: {$eq: true}
                 },
             }).then((result) => {
                 resolve(result.docs);
@@ -374,6 +376,57 @@ class clienteDB extends BasicDB {
                 fields: ['cpfCnpj', 'nome', 'endereco', 'inadimplente', 'ativo'],
             }).then((result) => {
                 resolve(result.docs);
+            });
+        });
+    }
+
+    _sincNuvem() {
+        return new Promise((resolve) => {
+            if (window.navigator.onLine) {
+                this.sincToNuvem().then(() => {
+                    this.sincFromNuvem().then(() => {
+                        resolve();        
+                    });
+                });
+            } else {
+                resolve();
+            }
+        });
+    }
+
+    sincFromNuvem() {
+        return new Promise((resolve) => {
+            if (window.navigator.onLine) {
+                this._remoteDB.allDocs({include_docs: true}).then((resultDocs) => {
+                    const clientesNuvem = resultDocs.rows.map((row) => row.doc);
+                    if (clientesNuvem.length > 0) {
+                        const done = _.after(clientesNuvem.length, () => resolve());      
+                        clientesNuvem.forEach(clienteNuvem => {
+                            this._salvar(clienteNuvem).then(() => {
+                                done();
+                            });
+                        });
+                    } else {
+                        resolve();
+                    }
+                }).catch((err) => {
+                    this._criarLogDB({url:'db/clienteDB',method:'sincFromNuvem',message: err, error:'Failed Request'});
+                    resolve();
+                });
+            } else {
+                resolve();
+            }
+        });
+    }
+
+    sincToNuvem() {
+        return new Promise((resolve) => {
+            this.buscaClientesSinc().then((clientes) => {
+                if (clientes.length > 0) {
+                    resolve();
+                } else {
+                    resolve();
+                }
             });
         });
     }

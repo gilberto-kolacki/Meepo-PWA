@@ -5,8 +5,8 @@
                 <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editar(null)">Novo</vs-button>
             </template> -->
             <template slot="thead">
-                <vs-th>Ações</vs-th>
-                <vs-th sort-key="cnpj">CNPJ</vs-th>
+                <vs-th class="th-acoes">Ações</vs-th>
+                <vs-th sort-key="cnpj" style="width: 25%">CNPJ</vs-th>
                 <vs-th sort-key="nome">Nome</vs-th>
                 <vs-th sort-key="nome">Status</vs-th>
             </template> 
@@ -23,10 +23,10 @@
                         </div>
                     </vs-td>
                     <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        {{ data[indextr].cliente.cpfCnpj }}
+                        {{ data[indextr].cliente.cpfCnpj | cpfCnpj }}
                     </vs-td>
                     <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        {{ data[indextr].cliente.nome }}
+                        {{ data[indextr].cliente.nome | capitalize }}
                     </vs-td>
                     <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
                         <vs-chip :color="getStatusColor(30)" class="product-order-status">{{ getNameStatus(30) }}</vs-chip>

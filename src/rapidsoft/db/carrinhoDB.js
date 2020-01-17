@@ -49,6 +49,17 @@ class carrinhoDB extends BasicDB {
         });
     }
 
+    deletar(carrinho) {
+        return new Promise((resolve) => {
+            this._localDB.remove(carrinho).then(() => {
+                resolve();
+            }).catch((err) => {
+                this._criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
+                resolve();
+            });
+        });
+    }
+
 }
 
 export default new carrinhoDB();

@@ -5,7 +5,6 @@
                 <div class="vx-col w-full">
                     <h5><strong>{{ title }} : </strong>  {{produtoAdd.referencia +' - '+ produtoAdd.nome}}</h5>
                 </div>
-
             </div>
             <div class="vx-row">
                 <div class="vx-col w-2/3">
@@ -138,9 +137,11 @@
 </template>    
 <script>
 
-import _ from 'lodash'
-import Storage from '../utils/storage'
-import UtilMask from '../utils/utilMask'
+import _ from 'lodash';
+import Storage from '../utils/storage';
+import ProdutoUtils from '../utils/produtoUtils';
+import UtilMask from '../utils/utilMask';
+
 
 export default {
     name: 'add-item-carrinho-tem',
@@ -184,10 +185,7 @@ export default {
             return _.orderBy(this.produtoAdd.produtoLabelTamanhos, ['seq'], ['asc'])
         },
         getPreco() {
-            const percentual = _.toNumber(this.grupoCliente.porcentagem);
-            const precoProduto = this.produtoAdd.cores[0].precoVenda;
-            const preco = _.round(precoProduto + ((percentual/100) * precoProduto), 2)
-            return UtilMask.getMoney(preco);
+            return UtilMask.getMoney(ProdutoUtils.calcularPreco(this.produtoAdd.cores[0]));
         }
     },
     methods: {
@@ -245,6 +243,7 @@ export default {
             const tamanho = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho];
             tamanho.ref = this.produtoAdd.referencia;
             tamanho.cor = this.produtoAdd.cores[indexCor].idCor;
+            tamanho.precoCusto = this.produtoAdd.cores[indexCor].precoCusto;
             tamanho.idProduto = this.produtoAdd.cores[indexCor].idProduto;
             tamanho.idSegmento = this.produtoAdd.segmento;
             return tamanho

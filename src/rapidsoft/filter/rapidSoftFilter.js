@@ -5,6 +5,7 @@
 
 import Vue from 'vue';
 import moment from 'moment';
+import UtilMask from '../utils/utilMask';
 
 
 Vue.filter('formatDateTime', (value) => {
@@ -38,5 +39,17 @@ Vue.filter('capitalize', (value) => {
     if (value) {
         const capitalize = ((word) => word.length > 2 ? word.charAt(0).toUpperCase() + word.slice(1) : word);
         return value.toLowerCase().split(' ').map(word => capitalize(word)).join(' ');
+    } 
+});
+
+Vue.filter('money', (value) => {
+    if (value) {
+        return UtilMask.getMoney(value);
+    } 
+});
+
+Vue.filter('moneyy', (value) => {
+    if (value) {
+        return UtilMask.getMoney(value, true);
     } 
 });

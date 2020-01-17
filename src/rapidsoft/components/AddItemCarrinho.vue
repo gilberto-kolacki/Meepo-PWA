@@ -59,8 +59,10 @@ export default {
             this.$emit('show-add-carrinho');
         },
         addReferenciaCarrinho() {
-            Storage.setCarrinho(this.carrinho);
-            this.$emit('show-add-carrinho');     
+            ProdutoUtils.calcularCarrinho(this.carrinho).then((carrinhoResult) => {
+                Storage.setCarrinho(carrinhoResult);
+                this.$emit('show-add-carrinho');     
+            });
         },
         atualizaQuantidadeItens(tamanho) {           
             const itens = _.remove(this.carrinho.itens, (item) => item.id != tamanho.id );

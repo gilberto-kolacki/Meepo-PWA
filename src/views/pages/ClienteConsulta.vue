@@ -87,9 +87,6 @@ export default {
                 this.listar();
             });
         },
-        getNomeCliente(cliente) {
-            return cliente.tipoPessoa == 1 ? cliente.nomeFantasia : cliente.nome;
-        }
     },
     created() {
         if(navigator.platform === "iPad") {
@@ -97,7 +94,6 @@ export default {
         } else {
             this.isIpad = false;
         }
-
         
     },
     mounted() {

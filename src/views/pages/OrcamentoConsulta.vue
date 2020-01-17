@@ -3,16 +3,18 @@
         <div id="page-orcamento-consulta-lista">
             <vs-table pagination max-items="10" search :data="orcamentos">            
                 <template slot="header">
+                    <h3>Orçamentos</h3>
                 </template>
                 <template slot="thead">
                     <vs-th class="th-acoes">Ações</vs-th>
-                    <vs-th sort-key="cnpj" style="width: 25%">CNPJ</vs-th>
-                    <vs-th sort-key="nome" style="width: 35%">Nome</vs-th>
-                    <vs-th sort-key="cidade" style="width: 10%">Itens</vs-th>
+                    <vs-th sort-key="numero" style="width: 10%">Nr.</vs-th>
+                    <vs-th sort-key="nome" style="width: 35%">Cliente</vs-th>
+                    <vs-th sort-key="cidade" style="width: 10%">Grupo</vs-th>
+                    <vs-th sort-key="estado" style="width: 20%">Itens</vs-th>
                     <vs-th sort-key="estado" style="width: 20%">Valor</vs-th>
                 </template> 
                 <template slot-scope="{data}">
-                    <vs-tr :state="data[indextr].ativo === 0 ? 'danger':data[indextr].inadimplente !== 0 ? 'warning':null" :key="indextr" v-for="(tr, indextr) in data">
+                    <vs-tr v-for="(tr, indextr) in data" :key="indextr">
                         <vs-td>
                             <div class="flex">
                                 <div class="p-1">
@@ -23,17 +25,20 @@
                                 </div>
                             </div>
                         </vs-td>
-                        <vs-td :data="data[indextr].cpfCnpj">
-                            {{ data[indextr].cpfCnpj | cpfCnpj }}
+                        <vs-td :data="data[indextr].id">
+                            {{ data[indextr].id }}
                         </vs-td>
-                        <vs-td :data="data[indextr].nome">
-                            {{ data[indextr].nome }}
+                        <vs-td :data="data[indextr].cliente.nome">
+                            {{ data[indextr].cliente.nome }}
                         </vs-td>
-                        <vs-td :data="data[indextr].cidade">
-                            {{ data[indextr].cidade }}
+                        <vs-td :data="data[indextr].grupoCliente.nome">
+                            {{ data[indextr].grupoCliente.nome }}
                         </vs-td>
                         <vs-td :data="data[indextr].estado">
                             {{ data[indextr].estado }}
+                        </vs-td>
+                        <vs-td >
+                            {{ data[indextr].valorTotal }}
                         </vs-td>
                     </vs-tr>
                 </template>
@@ -44,6 +49,9 @@
 </template>
 <script>
 
+import ErrorDB from '../../rapidsoft/db/errorDB';
+import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
+
 export default {
     data() {
         return { 
@@ -51,7 +59,57 @@ export default {
         }
     },
     methods: {
+        editar(orcamento) {
+            console.log(orcamento);
+            if (orcamento) {
+                this.$router.push({ name: 'clienteEditar', params: {clienteId: orcamento._id } });
+            } else {
+                this.$router.push('/orcamento/cadastro');
+            }
+        },
+        listar() {
+            CarrinhoDB._getAll().then((orcamentos) => {
+                console.log(orcamentos);
+                
+                this.orcamentos = Object.assign(orcamentos);
+            })
+        },
+        deletarMessage(data) {
+            this.$vs.dialog({
+                type:'confirm',
+                color:'danger',
+                title:'Deseja excluir?',
+                text:'Você esta prestes a excluir este Orçamento. Deseja continuar?',
+                accept:this.deletar,
+                acceptText: 'Continuar',
+                cancelText: 'Cancelar',
+                parameters: data
+            })
+        },
+        deletar(orcamento) {
+            CarrinhoDB.deletar(orcamento).then(() => {
+                this.listar();
+            });
+        },
     
+    },
+    created() {
+        if(navigator.platform === "iPad") {
+            this.isIpad = true;
+        } else {
+            this.isIpad = false;
+        }
+        
+    },
+    mounted() {
+        this.listar();
+    },
+    errorCaptured(err, vm, info) {
+        ErrorDB._criarLog({err, vm, info});
+        return true;
+    },
+    beforeCreate() {
+        
     }
     
 }

@@ -158,12 +158,8 @@ class basicDB {
     _getAll() {
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((row) => {
-                    if (row.doc['_id']) {
-                        delete row.doc['_rev'];
-                        return row.doc;
-                    }
-                }))
+                const rows = resultDocs.rows.filter((row) => row.doc.language !== "query");
+                resolve(rows.map((row) => row.doc));
             }).catch((err) => {
                 this._criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
                 resolve(err);

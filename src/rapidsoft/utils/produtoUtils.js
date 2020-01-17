@@ -1,6 +1,6 @@
-import _ from 'lodash'
-import Storage from '../utils/storage'
-import ProdutoDB from '../db/produtoDB'
+import _ from 'lodash';
+import Storage from '../utils/storage';
+import ProdutoDB from '../db/produtoDB';
 
 class produtoUtils {
 
@@ -96,7 +96,25 @@ class produtoUtils {
             resolve(produtosSegmentos);
         });
     }
-    
+
+    calcularPreco(itemCor) {
+        const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
+        const precoProduto = itemCor.precoCusto;
+        return _.round(precoProduto + ((percentual/100) * precoProduto), 2);
+    }
+
+    calcularCarrinho(carrinho) {
+        return new Promise((resolve) => {
+            carrinho.valorTotal = 0;
+            const done = _.after(carrinho.itens.length, () => resolve(carrinho));
+            carrinho.itens.forEach((item) => {
+                const precoProduto = this.calcularPreco(item);
+                carrinho.valorTotal = _.round(carrinho.valorTotal + (item.quantidade * precoProduto), 2);
+                done();
+            });
+        });
+    }
+
 }
 
 export default new produtoUtils();
