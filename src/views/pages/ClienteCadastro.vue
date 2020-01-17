@@ -210,7 +210,7 @@
                         <div class="vx-col my-5-top w-full">
                             <!-- <vs-button color="success" class="mr-3 mb-2 pull-right" v-if="!clienteEdit.clienteErp" @click="salvarCliente">Salvar</vs-button> -->
                             <!-- <vs-button color="danger" type="border" class="mr-2 mb-2 pull-right"  @click="cancelarCliente">Voltar</vs-button> -->
-                            <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-plus" @click="salvarCliente">Adicionar</vs-button>
+                            <vs-button class="btn-confirm" color="success" type="filled" v-if="!clienteEdit.clienteErp" icon-pack="feather" icon="icon-plus" @click="salvarCliente">Adicionar</vs-button>
                             <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" icon="icon-x" @click="cancelarCliente">Voltar</vs-button>
   
                         </div>
@@ -302,7 +302,7 @@
                                 <vs-td>
                                     <div class="flex">
                                         <div class="p-1 mr-1">
-                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarContato(data[indextr], indextr)" />
+                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" :disabled ="clienteEdit.clienteErp" @click="editarContato(data[indextr], indextr)" />
                                         </div>
                                         <div class="p-1 mr-1">
                                             <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" v-if="!clienteEdit.clienteErp" @click="deletarContato(data[indextr], indextr)"/>
@@ -324,39 +324,40 @@
                                 <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('cadEndereco'), consultaCepEnd(enderecoEdit.cep)">
                                     <label for="cadCepEndereco" class="vs-input--label">CEP*</label>
                                     <div class="vs-con-input">
-                                        <the-mask v-validate="'required'" id="cadCepEndereco" name="cadCepEndereco" v-model="enderecoEdit.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true"/>
+                                        <the-mask :disabled="!newEndereco" v-validate="'required'" id="cadCepEndereco" name="cadCepEndereco" v-model="enderecoEdit.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true"/>
                                     </div>
                                     <span class="text-danger text-sm">{{ errors.first('cadCepEndereco') }}</span>
                                 </div>
                             </div>
                             <div class="vx-col sm:w-3/4 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Endereço*" id="cadEndereco" name="cadEndereco" v-model="enderecoEdit.endereco" class="w-full" v-on:keyup.enter="proximoCampo('cadNumeroEndereco')"/>
+                                <vs-input :disabled="!newEndereco" v-validate="'required|alpha_spaces'" label="Endereço*" id="cadEndereco" name="cadEndereco" v-model="enderecoEdit.endereco" class="w-full" v-on:keyup.enter="proximoCampo('cadNumeroEndereco')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadEndereco') }}</span>
                             </div>
                         </div>
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/6 w-full mb-2">
-                                <vs-input v-validate="'required|numeric'" label="Numero*" id="cadNumeroEndereco" name="cadNumeroEndereco" v-model="enderecoEdit.numero" class="w-full" v-on:keyup.enter="proximoCampo('cadComplemento')"/>
+                                <vs-input :disabled="!newEndereco" v-validate="'required|numeric'" label="Numero*" id="cadNumeroEndereco" name="cadNumeroEndereco" v-model="enderecoEdit.numero" class="w-full" v-on:keyup.enter="proximoCampo('cadComplemento')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadNumeroEndereco') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/2 w-full mb-2">
-                                <vs-input v-validate="'regex:.'" label="Complemento" id="cadComplemento" name="cadComplemento" v-model="enderecoEdit.complemento" class="w-full" v-on:keyup.enter="proximoCampo('cadBairro')"/>
+                                <vs-input :disabled="!newEndereco" v-validate="'regex:.'" label="Complemento" id="cadComplemento" name="cadComplemento" v-model="enderecoEdit.complemento" class="w-full" v-on:keyup.enter="proximoCampo('cadBairro')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadComplemento') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/3 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Bairro*" id="cadBairro" name="cadBairro" v-model="enderecoEdit.bairro" class="w-full" v-on:keyup.enter="proximoCampo('cadEstado')"/>
+                                <vs-input :disabled="!newEndereco" v-validate="'required|alpha_spaces'" label="Bairro*" id="cadBairro" name="cadBairro" v-model="enderecoEdit.bairro" class="w-full" v-on:keyup.enter="proximoCampo('cadEstado')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadBairro') }}</span>
                             </div>
                         </div>
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/6 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="cadEstado" name="cadEstado" v-model="enderecoEdit.estado" class="w-full" v-on:keyup.enter="cidadesPorEstado(enderecoEdit.estado)"/>
+                                <vs-input :disabled="!newEndereco" v-validate="'required|alpha_spaces'" label="Estado*" id="cadEstado" name="cadEstado" v-model="enderecoEdit.estado" class="w-full" v-on:keyup.enter="cidadesPorEstado(enderecoEdit.estado)"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadEstado') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/2 w-full mb-2">
                                 <!-- <vs-input v-validate="'required|alpha_spaces'" label="Cidade*" id="cadCidade" name="cadCidade" v-model="enderecoEdit.cidade" class="w-full" v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')"/> -->
                                 <label for="" class="vs-input--label">Cidade*</label>
                                 <v-select v-validate="'required'" id="cidade" name="cidade" 
+                                    :disabled="!newEndereco"
                                     v-model="enderecoEdit.cidade" 
                                     v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')"
                                     :options="getCitySelect"
@@ -367,7 +368,7 @@
                                 <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                     <label for="cadEnderecoTelefone" class="vs-input--label">Telefone*</label>
                                     <div class="vs-con-input">
-                                        <the-mask v-validate="'required'" type="tel" id="cadEnderecoTelefone" name="cadEnderecoTelefone" v-model="enderecoEdit.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
+                                        <the-mask :disabled="!newEndereco" v-validate="'required'" type="tel" id="cadEnderecoTelefone" name="cadEnderecoTelefone" v-model="enderecoEdit.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
                                     </div>
                                     <span class="text-danger text-sm">{{ errors.first('cadEnderecoTelefone') }}</span>
                                 </div>
@@ -389,7 +390,7 @@
                         <template slot="header">
                             <div class="mb-base-button">
                                 <!-- <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarEndereco(null)" v-if="!clienteEdit.clienteErp">Novo</vs-button> -->
-                                <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarEndereco(null)">Novo</vs-button>
+                                <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarEndereco(null,null,true)">Novo</vs-button>
                             </div>
                         </template>
                         <template slot="thead">
@@ -428,7 +429,7 @@
                                 <vs-td>
                                     <div class="flex">
                                         <div class="p-1">
-                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarEndereco(data[indextr], indextr)" />
+                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarEndereco(data[indextr], indextr,false)" />
                                         </div>
                                         <div class="p-1">
                                             <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" v-if="!clienteEdit.clienteErp" @click="deletarEndereco(data[indextr], indextr)"/>
@@ -490,6 +491,8 @@ export default {
             grupoClientes: [],
             listCidades: [],
             cidadeCliente:null,
+            newEndereco:true,
+            newContato:true,
         }
     },
     components: {
@@ -557,6 +560,17 @@ export default {
         }
     },
     methods: {
+        disabledEnderecoEntrega(idEnderecoEdit,listEnderecos) {
+            for (let i = 0; i < listEnderecos.length; i++) {
+                if (listEnderecos[i].cep === idEnderecoEdit.cep 
+                    && listEnderecos[i].endereco === idEnderecoEdit.endereco 
+                        && listEnderecos[i].numero === idEnderecoEdit.numero  ) {
+                    listEnderecos[i].endEntrega = true;
+                }else{
+                    listEnderecos[i].endEntrega = false;
+                }
+            }
+        },
         cidadesPorEstado(uf) {
             const estado = uf
             CidadeDB.getCidadesFromEstado(estado).then((cidades) => {
@@ -626,8 +640,10 @@ export default {
                 this.proximoCampo('nomeContato');
             }, 100);
         },
-        editarEndereco(endereco, index) {
+        editarEndereco(endereco, index, newEndereco) {
             this.isEditEndereco = true;
+            this.newEndereco = newEndereco;
+            
             if (endereco === null) {
                 this.enderecoEdit = {};
             } else {
@@ -729,6 +745,9 @@ export default {
             ClienteDB.validarContato(_.cloneDeep(this.contatoEdit)).then(() => {
                 this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
                 this.isEditContato = false;
+                if (this.clienteEdit.clienteErp) {
+                    ClienteDB.updateCliente(this.clienteEdit);
+                }
             }).catch((erro) => {
                 this.$validator.validate();       
                 if (erro.campo) {
@@ -744,9 +763,18 @@ export default {
             });
         },
         salvarEndereco() {
+
+            console.log("Endereco Edit: ", this.enderecoEdit)
+            console.log("Cliente Edit: ", this.clienteEdit)
+
+            this.disabledEnderecoEntrega(this.enderecoEdit,this.clienteEdit.enderecos);
+
             ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
                 this.clienteEdit.enderecos.push(_.clone(result));
                 this.isEditEndereco = false;
+                if (this.clienteEdit.clienteErp) {
+                    ClienteDB.updateCliente(this.clienteEdit);
+                }
             }).catch((erro) => {
                 this.$validator.validate();
                 if (erro.campo) {

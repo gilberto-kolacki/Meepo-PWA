@@ -202,7 +202,31 @@ class clienteDB extends BasicDB {
         super("cliente", true);
     }
 
+    updateCliente(cliente) {
+        console.log('Cliente ', cliente.enderecos);
+
+
+
+        return new Promise((resolve) => {
+            this._getById(cliente._id,true).then((clienteById) => {
+                console.log(`clienteById = `, clienteById);
+                if (clienteById.existe) {
+
+                    clienteById.result.enderecos = cliente.enderecos;
+                    clienteById.result.contatos = cliente.contatos;
+                    this._salvar(clienteById.result).then(() => {
+                        resolve();
+                    })
+                }
+            })
+            
+        });
+
+    }
+
     salvar(cliente) {
+        console.log("Salvar ClienteDb");
+        
         return new Promise((resolve, reject) => {
             validarObjetoDB(cliente).then((resultCliente) => {
                 resultCliente._id = resultCliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
