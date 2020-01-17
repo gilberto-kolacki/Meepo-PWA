@@ -354,8 +354,6 @@ export default {
             await this.carregaItensTela();
         }
     },
-    created() {
-    },
     beforeMount() {
         
     },

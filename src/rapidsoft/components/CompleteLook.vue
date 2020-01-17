@@ -40,6 +40,7 @@
 </template>
 
 <script>
+
 import 'swiper/dist/css/swiper.min.css';
 import { swiper, swiperSlide } from 'vue-awesome-swiper';
 import ProdutoDB from '../../rapidsoft/db/produtoDB';
