@@ -764,9 +764,6 @@ export default {
         },
         salvarEndereco() {
 
-            console.log("Endereco Edit: ", this.enderecoEdit)
-            console.log("Cliente Edit: ", this.clienteEdit)
-
             this.disabledEnderecoEntrega(this.enderecoEdit,this.clienteEdit.enderecos);
 
             ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
