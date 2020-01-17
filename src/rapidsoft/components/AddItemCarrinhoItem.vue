@@ -132,7 +132,13 @@
                     </div>
                 </div>
             </b-card-body>
+            <!-- <div style="margin-top:20px">
+                <complete-look :produtoAdd="this.produtoAdd" v-if="title === 'Referencia A'">
+                </complete-look>
+            </div> -->
+
         </b-collapse>
+
     </div>    
 </template>    
 <script>
@@ -141,7 +147,6 @@ import _ from 'lodash';
 import Storage from '../utils/storage';
 import ProdutoUtils from '../utils/produtoUtils';
 import UtilMask from '../utils/utilMask';
-
 
 export default {
     name: 'add-item-carrinho-tem',
@@ -170,6 +175,9 @@ export default {
             type: Boolean,
             default: true,
         }
+    },
+    components: {
+        // CompleteLook,
     },
     data: () => ({
         maxHeight: '0px',

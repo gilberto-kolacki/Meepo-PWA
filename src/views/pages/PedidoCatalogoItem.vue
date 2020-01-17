@@ -1,7 +1,7 @@
 <template>
     <!-- Adicao de itens -->
     <div id="page-catalogo-add" class="page-catalogo-add" v-if="popupAddProduto">
-        <add-item-carrinho @show-add-carrinho="showAddCarrinho(false)" :produtoAdd="this.produtoAdd"></add-item-carrinho>
+        <add-item-carrinho @search-selected="selectSearchProduto" @show-add-carrinho="showAddCarrinho(false)" :produtoAdd="this.produtoAdd"></add-item-carrinho>
     </div>
     <div id="page-catalogo" class="page-catalogo" v-else>
         <div v-if="this.produtoA">
@@ -320,6 +320,7 @@ export default {
             });
         },
         selectSearchProduto(produto) {
+            this.popupAddProduto = false;
             ProdutoUtils.addProdutoSearchFromPages(this.paginas, produto).then((paginas) => {
                 this.$bvModal.hide(this.idPopUpSearch);
                 this.paginas = paginas;                
@@ -352,6 +353,8 @@ export default {
             this.grupoCliente = Storage.getGrupoCarrinho();
             await this.carregaItensTela();
         }
+    },
+    created() {
     },
     beforeMount() {
         
