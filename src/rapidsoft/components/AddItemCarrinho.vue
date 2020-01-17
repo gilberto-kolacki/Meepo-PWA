@@ -24,6 +24,12 @@
                 >
             </add-item-carrinho-item>
         </div>
+        <div>
+            <complete-look 
+                @produto-look="openLook"
+                :produtoA="this.produtoA">
+            </complete-look>
+        </div>    
     </div>    
 </template>    
 <script>
@@ -32,6 +38,7 @@ import _ from 'lodash'
 import AddItemCarrinhoItem  from '../../rapidsoft/components/AddItemCarrinhoItem'
 import Storage  from '../../rapidsoft/utils/storage'
 import ProdutoUtils  from '../../rapidsoft/utils/produtoUtils'
+import CompleteLook  from '../../rapidsoft/components/CompleteLook'
 
 export default {
     name: 'add-item-carrinho',
@@ -50,11 +57,16 @@ export default {
     }),
     components: {
         AddItemCarrinhoItem,
+        CompleteLook,
     },
     computed: {
 
     },
     methods: {
+        openLook(produto) {
+            this.$emit('search-selected', produto.produtoA);
+        },
+
         cancelarAdd () {
             this.$emit('show-add-carrinho');
         },
