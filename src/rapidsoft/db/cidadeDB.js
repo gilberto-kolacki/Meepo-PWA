@@ -130,6 +130,17 @@ class cidadeDB extends BasicDB {
         });
     }
 
+    getCidadesRelacionadas() {
+        return new Promise((resolve) => {
+            this._localDB.find({
+                selector: {'rel': {$eq: 1}},
+                fields: ['idCidade', 'nome'],
+            }).then((result) => {
+                resolve(result.docs);
+            });
+        });
+    }
+
     getEstados() {
         return new Promise((resolve) => {
             const estados = [
