@@ -12,6 +12,7 @@ class imagemFotoDB extends BasicDB {
 
     constructor() {
         super("foto");
+        this._createIndex('id');
     }   
 
     salvarFotos(fotos) {

@@ -1,7 +1,8 @@
-import _ from 'lodash'
+import _ from 'lodash';
 import ImagemService from '../service/imagemService';
 import CidadeService from '../service/cidadeService';
 import ImagemDB from '../db/imagemDB';
+import ProdutoDB from '../db/produtoDB';
 import CidadeDB from '../db/cidadeDB';
 import SincDataDB from '../db/sincDataDB';
 
@@ -30,13 +31,13 @@ class sincUtils {
 
             setTimeout(()=> {
                 tela.$vs.loading.close("#button-with-loading-"+sinc.type+" > .con-vs-loading");
+                if (sinc.percent >= 99) sinc.percent = 100;
+                sinc.ativo = false;
                 if (all) {
-                    if (sinc.type == "imagem") tela.$vs.loading.close();
+                    if (sinc.type == "pedido") tela.$vs.loading.close();
                 } else {
                     tela.$vs.loading.close();
                 }
-                if (sinc.percent >= 99) sinc.percent = 100;
-                sinc.ativo = false;
             }, 1000);
         });
     }
@@ -103,6 +104,22 @@ class sincUtils {
                 }); 
             }
         });
+    }
+
+    verificaProdutosSemImagens() {
+        return new Promise((resolve) => {
+            ProdutoDB.existeNovasImagens().then((result) => {
+                resolve(result);
+            });
+        }); 
+    }
+
+    removeImagensSemProduto() {
+        return new Promise((resolve) => {
+            ProdutoDB.removeImagensSemProduto().then(() => {
+                resolve();
+            });
+        }); 
     }
     
         

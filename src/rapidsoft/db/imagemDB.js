@@ -150,6 +150,107 @@ class imagemDB {
         });
     }
 
+    getIdsNovasFotos(Ids) {
+        return new Promise((resolve) => {
+            ImagemFotoDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                const idsBanco = resultDocs.rows.map((row) => row.id);
+                const idsNovasFotos = _.difference(Ids, idsBanco);
+                resolve(idsNovasFotos);
+            });
+        });
+    }
+
+    getIdsNovasCores(Ids) {
+        return new Promise((resolve) => {
+            ImagemCorDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                const idsBanco = resultDocs.rows.map((row) => row.id);
+                const idsNovos = _.difference(Ids, idsBanco);
+                resolve(idsNovos);
+            });
+        });
+    }
+
+    getIdsNovosSelos(Ids) {
+        return new Promise((resolve) => {
+            ImagemSeloDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                const idsBanco = resultDocs.rows.map((row) => row.id);
+                const idsNovos = _.difference(Ids, idsBanco);
+                resolve(idsNovos);
+            });
+        });
+    }
+
+    getIdsNovosSimbolos(Ids) {
+        return new Promise((resolve) => {
+            ImagemSimboloDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                const idsBanco = resultDocs.rows.map((row) => row.id);
+                const idsNovos = _.difference(Ids, idsBanco);
+                resolve(idsNovos);
+            });
+        });
+    }
+
+    deletarImagens(idsOld) {
+        return new Promise((resolve) => {
+            if (idsOld.length > 0) {
+                const done = _.after(idsOld.length, () => resolve());
+                idsOld.forEach(idRemove => {
+                    ImagemSeloDB._deletar(idRemove).then(() => done());
+                });
+            } else {
+                resolve();
+            }
+        });
+    }
+    
+    getIdsFotosSemProduto(Ids) {
+        return new Promise((resolve) => {
+            ImagemFotoDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                const idsBanco = resultDocs.rows.filter((row) => !row.id.includes("_design")).map((row) => row.id);
+                const idsOld = _.difference(idsBanco, Ids);
+                this.deletarImagens(idsOld).then(() => {
+                    resolve();
+                });
+            });
+        });
+    }
+
+    getIdsCoresSemProduto(Ids) {
+        return new Promise((resolve) => {
+            ImagemCorDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                const idsBanco = resultDocs.rows.filter((row) => !row.id.includes("_design")).map((row) => row.id);
+                const idsOld = _.difference(idsBanco, Ids);
+                this.deletarImagens(idsOld).then(() => {
+                    resolve();
+                });
+            });
+        });
+    }
+
+    getIdsSelosSemProduto(Ids) {
+        return new Promise((resolve) => {
+            ImagemSeloDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                const idsBanco = resultDocs.rows.filter((row) => !row.id.includes("_design")).map((row) => row.id);
+                const idsOld = _.difference(idsBanco, Ids);
+                this.deletarImagens(idsOld).then(() => {
+                    resolve();
+                });
+            });
+        });
+    }
+
+    getIdsSimbolosSemProduto(Ids) {
+        return new Promise((resolve) => {
+            ImagemSimboloDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                const idsBanco = resultDocs.rows.filter((row) => !row.id.includes("_design")).map((row) => row.id);
+                const idsOld = _.difference(idsBanco, Ids);
+                this.deletarImagens(idsOld).then(() => {
+                    resolve();
+                });
+            });
+        });
+    }
+
 }
 
 export default new imagemDB();

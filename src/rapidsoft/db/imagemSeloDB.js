@@ -11,6 +11,7 @@ class nameSeloDB extends BasicDB {
 
     constructor() {
         super("selo");
+        this._createIndex('id');
     }
 
     salvarSelos(selos) {

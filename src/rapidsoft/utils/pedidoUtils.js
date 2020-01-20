@@ -19,7 +19,6 @@ class pedidoUtils {
     newPedido() {
         return new Promise((resolve) => {
             const pedido = {};
-            pedido.grupoCliente = Storage.getGrupoCarrinho();
             pedido.endEntrega = null;
             pedido.observacao = null;
             pedido.desconto1 = 0;

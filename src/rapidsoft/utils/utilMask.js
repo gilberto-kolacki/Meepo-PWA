@@ -13,10 +13,11 @@ class utilMask {
     } [moeda] || {locale: 'pt-BR', formato: {style: 'currency', currency: 'BRL'}});
 
 
-    getMoney(value, sifrao = false) {        
+    getMoney(value, sifrao = false, grupoCliente=null) {        
         let mask = null;
-        if (sifrao) mask = this.getCurrencySifrao(Storage.getGrupoCarrinho().moeda);
-        else mask = this.getCurrency(Storage.getGrupoCarrinho().moeda);
+        const grupo = grupoCliente ? grupoCliente.moeda : Storage.getGrupoCarrinho();
+        if (sifrao) mask = this.getCurrencySifrao(grupo.moeda);
+        else mask = this.getCurrency(grupo.moeda);
         return value.toLocaleString(mask.locale, mask.formato);
     }
     
