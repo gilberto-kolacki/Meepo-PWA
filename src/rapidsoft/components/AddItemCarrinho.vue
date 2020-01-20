@@ -25,7 +25,8 @@
             </add-item-carrinho-item>
         </div>
         <div>
-            <complete-look 
+            <complete-look
+                v-if="this.produtoA" 
                 @produto-look="openLook"
                 :produtoA="this.produtoA">
             </complete-look>

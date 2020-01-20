@@ -1,7 +1,6 @@
 <template>
-    <div>
-        
-        <strong class="flex justify-center" style="margin-top:20px"><h2>Complete o Look:</h2></strong>
+    <div v-if="showProdutosLook && getProdutosLook.length > 0">
+        <strong class="flex justify-center" style="margin-top:20px" ><h2>Complete o Look:</h2></strong>
         
         <div class="complete-look-itens flex justify-center" style="margin-bottom:40px">
 
@@ -77,7 +76,7 @@ export default {
         produtosLook:[],
         showAddCarrinhoItem:false,
         produtoLookSelecionado:{},
-        novoItemProduto: false,
+        showProdutosLook: false,
 
     }),
 
@@ -105,7 +104,6 @@ export default {
     methods: {
 
         addProduto(produto) {
-            this.novoItemProduto = true;
             this.produtoLookSelecionado = {
                 produtoA: produto,
             };
@@ -128,6 +126,9 @@ export default {
                                 produto: produto.result,
                                 imagem:produto.result.cores[0].imagens[0].base64
                             });
+                            setTimeout(() => {
+                                this.showProdutosLook = true;
+                            }, 500)
                         });
                     }
                 });

@@ -147,16 +147,12 @@
                             <vs-input :disabled="clienteEdit.clienteErp" v-validate="'regex:.'" label="Complemento" id="complemento" name="complemento" v-model="clienteEdit.endereco.complemento" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('complemento') }}</span>
                         </div>
-                        <div class="vx-col sm:w-1/3 w-full mb-2" v-on:keyup.enter="proximoCampo('estado')">
+                        <div class="vx-col sm:w-1/3 w-full mb-2" v-on:keyup.enter="proximoCampo('cidade')">
                             <vs-input :disabled="clienteEdit.clienteErp" v-validate="'required|alpha_spaces'" label="Bairro*" id="bairro" name="bairro" v-model="clienteEdit.endereco.bairro" class="w-full" />
                             <span class="text-danger text-sm">{{ errors.first('bairro') }}</span>
                         </div>
                     </div>
                     <div class="vx-row">
-                        <div class="vx-col sm:w-1/6 w-full mb-2" v-on:keyup.enter="proximoCampo('cidade')">
-                            <vs-input :disabled="clienteEdit.clienteErp" v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" @change="getGroupClient(clienteEdit.endereco.estado)" class="w-full"/>
-                            <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
-                        </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('estado')">
                             <!-- <vs-input v-validate="'required|alpha_spaces'" label="Cidade*" id="cidade" name="cidade" v-model="clienteEdit.endereco.cidade" class="w-full"/> -->
                             <label for="" class="vs-input--label">Cidade*</label>
@@ -166,6 +162,10 @@
                             ></v-select>
                             
                             <span class="text-danger text-sm">{{ errors.first('cidade') }}</span>
+                        </div>
+                        <div class="vx-col sm:w-1/6 w-full mb-2" v-on:keyup.enter="proximoCampo('referenciaComercial')">
+                            <vs-input :disabled="clienteEdit.clienteErp" v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" @change="getGroupClient(clienteEdit.endereco.estado)" class="w-full"/>
+                            <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2">
                             <label for="" class="vs-input--label">Grupo de Clientes*</label>
@@ -346,10 +346,6 @@
                             </div>
                         </div>
                         <div class="vx-row">
-                            <div class="vx-col sm:w-1/6 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="cadEstado" name="cadEstado" v-model="enderecoEdit.estado" class="w-full" v-on:keyup.enter="cidadesPorEstado(enderecoEdit.estado)"/>
-                                <span class="text-danger text-sm">{{ errors.first('cadEstado') }}</span>
-                            </div>
                             <div class="vx-col sm:w-1/2 w-full mb-2">
                                 <!-- <vs-input v-validate="'required|alpha_spaces'" label="Cidade*" id="cadCidade" name="cadCidade" v-model="enderecoEdit.cidade" class="w-full" v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')"/> -->
                                 <label for="" class="vs-input--label">Cidade*</label>
@@ -359,6 +355,10 @@
                                     :options="getCitySelect"
                                 ></v-select>
                                 <span class="text-danger text-sm">{{ errors.first('cadCidade') }}</span>
+                            </div>
+                            <div class="vx-col sm:w-1/6 w-full mb-2">
+                                <vs-input v-validate="'required|alpha_spaces'" label="Estado*" id="cadEstado" name="cadEstado" v-model="enderecoEdit.estado" class="w-full" v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')"/>
+                                <span class="text-danger text-sm">{{ errors.first('cadEstado') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/3 w-full mb-2">
                                 <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
@@ -546,14 +546,9 @@ export default {
         }
     },
     methods: {
-        cidadesPorEstado(uf) {
-            const estado = uf
-            CidadeDB.getCidadesFromEstado(estado).then((cidades) => {
-                this.listCidades = cidades;
-            });
-        },
         getGroupClient(uf){
-            this.cidadesPorEstado(uf);
+            console.log("getGroupClient(uf) = ", uf);
+            
             return this.grupoClientes.map((item) => {
                 item.estados.map((estado) => {
                     if (estado === uf) {
@@ -815,7 +810,7 @@ export default {
         },
 
         listaCidades(callback) {
-            CidadeDB._getAll().then((cidades) => {
+            CidadeDB.getCidadesRelacionadas().then((cidades) => {
                 this.listCidades = cidades;
                 callback();
             })
@@ -850,6 +845,7 @@ export default {
                     if (this.idCliente) {
                         this.findById(this.idCliente);
                     }
+                    
                 })
             })
         });
