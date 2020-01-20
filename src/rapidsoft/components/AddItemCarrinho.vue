@@ -9,9 +9,28 @@
                 idColapse="accordion-ref-a" 
                 :toggle="true" 
                 title="Referencia A" 
+                v-model="this.produtoA"
+                @replica-todas-grades='replicarTodasGrades'
+            >
+            </add-item-carrinho-item>
+            <add-item-carrinho-item 
+                v-if="this.produtoB"
+                @atualiza-qtde-itens="atualizaQuantidadeItens" 
+                idColapse="accordion-ref-b" 
+                :toggle="false" 
+                title="Referencia B" 
+                v-model="this.produtoB"
+                @replica-todas-grades='replicarTodasGrades'
+            >
+            <!-- <add-item-carrinho-item 
+                v-if="this.produtoA"
+                @atualiza-qtde-itens="atualizaQuantidadeItens" 
+                idColapse="accordion-ref-a" 
+                :toggle="true" 
+                title="Referencia A" 
                 :produtoAdd="this.produtoA"
-                :quantRef="this.produtoB"
-                >
+                @replica-todas-grades='replicarTodasGrades'
+            >
             </add-item-carrinho-item>
             <add-item-carrinho-item 
                 v-if="this.produtoB"
@@ -20,8 +39,8 @@
                 :toggle="false" 
                 title="Referencia B" 
                 :produtoAdd="this.produtoB"
-                :quantRef="this.produtoA"
-                >
+                @replica-todas-grades='replicarTodasGrades'
+            > -->
             </add-item-carrinho-item>
         </div>
         <div>
@@ -62,6 +81,81 @@ export default {
 
     },
     methods: {
+        // const done = _.after(tamanhos.length, () => resolve(tamanhoResult));
+        // this.produtoAdd[key].cores.map((itemCor,indexCor) => {
+        //     const listaProdutosCores = _.find(produto.cores, function(cor) { return cor.idCor == itemCor.idCor; });
+        //     if (listaProdutosCores) {
+        //         itemCor.tamanhos.map((produtoTamanho,indexTamanho) => {
+        //             const listaProdutosTamanhos = _.find(listaProdutosCores.tamanhos, function(tam) { 
+        //                 return tam.codigo == produtoTamanho.codigo; 
+        //             });
+        //             this.produtoAdd[key].cores[indexCor].tamanhos[indexTamanho].quantidade = _.clone(listaProdutosTamanhos ? listaProdutosTamanhos.quantidade : 0);
+        //             this.atualizarGrade(indexCor, indexTamanho,key);
+        //         });
+        //     }
+        // })
+
+        replicarTodasGrades(produto) {
+
+            this.$forceUpdate();
+
+            return new Promise(() => {
+                // const done = _.after(Object.keys(this.produtoAdd).length, () => resolve(this.update()));
+                
+                for (const key in this.produtoAdd) {
+                    
+                    // const done = _.after(this.produtoAdd[key].cores.length, () => resolve(this.update()));
+                    
+                    if (this.produtoAdd.hasOwnProperty(key)) {
+                        
+                        this.produtoAdd[key].cores.forEach((itemCor,indexCor) => {
+                            const listaProdutosCores = _.find(produto.cores, function(cor) { return cor.idCor == itemCor.idCor; });
+                            if (listaProdutosCores) {
+                                itemCor.tamanhos.forEach((itemTamanho,indexTamanho) => {
+
+                                    const listaProdutosTamanhos = _.find(listaProdutosCores.tamanhos, function(tam) { 
+                                        return tam.codigo == itemTamanho.codigo; 
+                                    });
+                                    itemTamanho.quantidade = listaProdutosTamanhos ? _.clone(listaProdutosTamanhos.quantidade) : 0;
+                                    this.atualizarGrade(indexCor,indexTamanho,key)
+                                    // done();
+                                })
+                            }
+                        });
+                        
+                    }
+                    //  done();
+                }
+            
+                setTimeout(() => {this.$forceUpdate()}, 1000);
+            
+            });
+            
+
+        },
+
+        update() {
+            console.log("done");
+            this.$forceUpdate();
+        },
+
+        atualizarGrade(indexCor, indexTamanho,key) {
+            const tamanho = this.criaTamanho(indexCor, indexTamanho,key);
+            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 
+                0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade);
+            this.atualizaQuantidadeItens(_.clone(tamanho))
+        },
+
+        criaTamanho(indexCor, indexTamanho, key) {
+            const tamanho = this.produtoAdd[key].cores[indexCor].tamanhos[indexTamanho];
+            tamanho.ref = this.produtoAdd[key].referencia;
+            tamanho.cor = this.produtoAdd[key].cores[indexCor].idCor;
+            tamanho.precoCusto = this.produtoAdd[key].cores[indexCor].precoCusto;
+            tamanho.idProduto = this.produtoAdd[key].cores[indexCor].idProduto;
+            tamanho.idSegmento = this.produtoAdd[key].segmento;
+            return tamanho
+        },
+
         openLook(produto) {
             this.$emit('search-selected', produto.produtoA);
         },
@@ -75,12 +169,14 @@ export default {
                 this.$emit('show-add-carrinho');     
             });
         },
-        atualizaQuantidadeItens(tamanho) {           
+        atualizaQuantidadeItens(tamanho) {
             const itens = _.remove(this.carrinho.itens, (item) => item.id != tamanho.id );
-            if (tamanho.ativo && tamanho.quantidade > 0) {
-                delete tamanho['ativo'];
-                delete tamanho['estoque'];
-                itens.push(tamanho);
+            if (tamanho.quantidade) {
+                if (tamanho.ativo && tamanho.quantidade > 0) {
+                    delete tamanho['ativo'];
+                    delete tamanho['estoque'];
+                    itens.push(tamanho);
+                }
             }
             this.carrinho.itens = itens;
         },
@@ -99,7 +195,6 @@ export default {
     },
     mounted() {
         this.carrinho = Storage.getCarrinho();
-    
     }
 }
 </script>    

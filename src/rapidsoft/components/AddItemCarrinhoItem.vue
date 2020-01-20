@@ -17,6 +17,7 @@
         </b-card-header>
         <b-collapse :id="idColapse" visible accordion="my-accordion" role="tabpanel">
             <b-card-body>
+                {{this.produtoAdd.cores[1].tamanhos[0]}}
                 <div class="row">
                     <div class="table-responsive">    
                         <table class="table table-striped table-bordered" id="table-add-produto-a">
@@ -44,7 +45,7 @@
                                                 icon-pack="feather" 
                                                 color="danger" 
                                                 icon="icon-repeat" 
-                                                @click="replicarGrade(indexCor, indexTamanho)"
+                                                @click="replicarGrade(indexCor)"
                                             />
                                             <vs-button 
                                                 v-if="getCoresProduto.length <= 1"
@@ -54,7 +55,7 @@
                                                 icon-pack="feather" 
                                                 color="danger" 
                                                 icon="icon-chevrons-down" 
-                                                @click="replicarGrade(indexCor, indexTamanho)"
+                                                @click="replicarGrade(indexCor)"
                                             />
                                         </div>
                                     </td>
@@ -103,17 +104,7 @@
                             <tfoot>
                                 <tr>
                                     <th>
-                                        <div class="flex w-full items-center justify-center">
-                                            <vs-button 
-                                                v-if="quantRef"
-                                                type="filled" 
-                                                size="small" 
-                                                icon-pack="feather" 
-                                                color="danger" 
-                                                icon="icon-check-square" 
-                                                @click="replicarGradeRef()"
-                                            />
-                                        </div>
+                                        
                                     </th>
                                     <th><strong>Totais</strong></th>
                                     <th v-for="(tamanho, indexTamanho) in getTamanhosProduto" :key="indexTamanho">
@@ -129,6 +120,18 @@
                                 </tr>
                             </tfoot>
                         </table>
+                    </div>
+                    <div class="flex w-full items-center justify-center">
+                        <vs-button 
+                            type="filled" 
+                            icon-pack="feather" 
+                            color="danger" 
+                            icon="icon-check-square" 
+                            @click="replicarGradeRef()"
+                            class="w-full"
+                        >
+                            Replicar Grade Para Todas Referências
+                        </vs-button>
                     </div>
                 </div>
             </b-card-body>
@@ -150,16 +153,15 @@ import UtilMask from '../utils/utilMask';
 
 export default {
     name: 'add-item-carrinho-tem',
+    model: {
+        prop: 'produtoAdd',
+    },
     props: {
         produtoAdd: {
             type: Object,
             required: true,
         },
         quantRef: {
-            type: Object,
-            required: false,
-        },
-        quantRefB: {
             type: Object,
             required: false,
         },
@@ -200,16 +202,8 @@ export default {
         // 2-tamanho, 1-cor
         replicarGradeRef() {
             
-            const listaBaseGrade = this.quantRef.cores[0];
-            for (let i = 0; i < this.produtoAdd.cores.length; i++) {
-                this.produtoAdd.cores[i].tamanhos.map((itemTamanho,indexTamanho) => {
-                    const produtoCodigo = _.find(listaBaseGrade.tamanhos, function (pedidoItemTamanho) {
-                        return pedidoItemTamanho.codigo === itemTamanho.codigo
-                    })
-                    itemTamanho.quantidade = _.clone(parseInt(produtoCodigo.quantidade))
-                    this.atualizarGrade(i,indexTamanho);
-                })
-            }   
+            this.$emit('replica-todas-grades', this.produtoAdd);
+
         },
         replicarGrade(indexCor){
             const listaBaseGrade = this.produtoAdd.cores[indexCor];
@@ -219,8 +213,10 @@ export default {
                     const produtoCodigo = _.find(listaBaseGrade.tamanhos, function (pedidoItemTamanho) {
                         return pedidoItemTamanho.codigo === itemTamanho.codigo
                     })
-                    itemTamanho.quantidade = _.clone(parseInt(produtoCodigo.quantidade))
-                    this.atualizarGrade(i,indexTamanho);
+                    if(produtoCodigo.quantidade) {
+                        itemTamanho.quantidade = _.clone(parseInt(produtoCodigo.quantidade))
+                        this.atualizarGrade(i,indexTamanho);
+                    }
                 })
             }            
         },
@@ -248,6 +244,7 @@ export default {
             this.$forceUpdate();
         },
         criaTamanho(indexCor, indexTamanho) {
+            
             const tamanho = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho];
             tamanho.ref = this.produtoAdd.referencia;
             tamanho.cor = this.produtoAdd.cores[indexCor].idCor;
