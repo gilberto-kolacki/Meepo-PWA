@@ -402,25 +402,29 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             const dataResult = {fotos:[], selos:[], simbolos:[], cores:[]};
             this.getAllProdutos().then((produtos) => {
-                const done = _.after(produtos.length, () => {
-                    const qtdeImagens = dataResult.fotos.length + dataResult.cores.length + dataResult.selos.length + dataResult.simbolos.length;
-                    resolve({quantidade: qtdeImagens, data: dataResult});
-                });
-                produtos.forEach(produto => {
-                    this.getIdsFotos(produto).then((idsImagens) => {
-                        dataResult.fotos = _.uniq(_.concat(dataResult.fotos, idsImagens));
-                        this.getIdsCores(produto).then((idsCores) => {
-                            dataResult.cores = _.uniq(_.concat(dataResult.cores, idsCores));
-                            this.getIdsSelos(produto).then((idsSelos) => {
-                                dataResult.selos = _.uniq(_.concat(dataResult.selos, idsSelos));
-                                this.getIdsSimbolos(produto).then((idsSimbolos) => {
-                                    dataResult.simbolos = _.uniq(_.concat(dataResult.simbolos, idsSimbolos));
-                                    done();
+                if (produtos.length > 0) {
+                    const done = _.after(produtos.length, () => {
+                        const qtdeImagens = dataResult.fotos.length + dataResult.cores.length + dataResult.selos.length + dataResult.simbolos.length;
+                        resolve({quantidade: qtdeImagens, data: dataResult});
+                    });
+                    produtos.forEach(produto => {
+                        this.getIdsFotos(produto).then((idsImagens) => {
+                            dataResult.fotos = _.uniq(_.concat(dataResult.fotos, idsImagens));
+                            this.getIdsCores(produto).then((idsCores) => {
+                                dataResult.cores = _.uniq(_.concat(dataResult.cores, idsCores));
+                                this.getIdsSelos(produto).then((idsSelos) => {
+                                    dataResult.selos = _.uniq(_.concat(dataResult.selos, idsSelos));
+                                    this.getIdsSimbolos(produto).then((idsSimbolos) => {
+                                        dataResult.simbolos = _.uniq(_.concat(dataResult.simbolos, idsSimbolos));
+                                        done();
+                                    });
                                 });
                             });
                         });
                     });
-                });
+                } else {
+                    resolve({quantidade: 0, data: null})
+                }
             });
         });
     }
@@ -440,20 +444,24 @@ class produtoDB extends BasicDB {
     existeNovasImagens() {
         return new Promise((resolve) => {
             this.getIdsImagens().then((idsImagens) => {
-                ImagemDB.getIdsNovasFotos(idsImagens.data.fotos).then((idsNovasFotos) => {
-                    idsImagens.data.fotos = idsNovasFotos;
-                    ImagemDB.getIdsNovasCores(idsImagens.data.cores).then((idsNovasCores) => {
-                        idsImagens.data.cores = idsNovasCores;
-                        ImagemDB.getIdsNovosSelos(idsImagens.data.selos).then((idsNovosSelos) => {
-                            idsImagens.data.selos = idsNovosSelos;
-                            ImagemDB.getIdsNovosSimbolos(idsImagens.data.simbolos).then((idsNovosSimbolos) => {
-                                idsImagens.data.simbolos = idsNovosSimbolos;
-                                idsImagens.quantidade = idsImagens.data.fotos.length + idsImagens.data.cores.length + idsImagens.data.selos.length + idsImagens.data.simbolos.length;
-                                resolve(idsImagens);
+                if (idsImagens.data) {
+                    ImagemDB.getIdsNovasFotos(idsImagens.data.fotos).then((idsNovasFotos) => {
+                        idsImagens.data.fotos = idsNovasFotos;
+                        ImagemDB.getIdsNovasCores(idsImagens.data.cores).then((idsNovasCores) => {
+                            idsImagens.data.cores = idsNovasCores;
+                            ImagemDB.getIdsNovosSelos(idsImagens.data.selos).then((idsNovosSelos) => {
+                                idsImagens.data.selos = idsNovosSelos;
+                                ImagemDB.getIdsNovosSimbolos(idsImagens.data.simbolos).then((idsNovosSimbolos) => {
+                                    idsImagens.data.simbolos = idsNovosSimbolos;
+                                    idsImagens.quantidade = idsImagens.data.fotos.length + idsImagens.data.cores.length + idsImagens.data.selos.length + idsImagens.data.simbolos.length;
+                                    resolve(idsImagens);
+                                });
                             });
                         });
                     });
-                });
+                } else {
+                    resolve(idsImagens);
+                }
             });
         });
     }
