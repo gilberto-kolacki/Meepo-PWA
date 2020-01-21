@@ -422,6 +422,8 @@ class clienteDB extends BasicDB {
     sincToNuvem() {
         return new Promise((resolve) => {
             this.buscaClientesSinc().then((clientes) => {
+                console.log(clientes);
+                
                 if (clientes.length > 0) {
                     resolve();
                 } else {

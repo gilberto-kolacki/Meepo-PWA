@@ -12,6 +12,7 @@ class imagemCorDB extends BasicDB {
 
     constructor() {
         super("cor");
+        this._createIndex('id');
     }
 
     salvarCores(cores) {

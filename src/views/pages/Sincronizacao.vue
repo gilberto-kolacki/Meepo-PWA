@@ -50,7 +50,6 @@ import ClienteService from '../../rapidsoft/service/clienteService'
 import ParametroService from '../../rapidsoft/service/parametroService'
 import SincDataDB from '../../rapidsoft/db/sincDataDB'
 import ProdutoDB from '../../rapidsoft/db/produtoDB'
-import ImagemDB from '../../rapidsoft/db/imagemDB'
 import ClienteDB from '../../rapidsoft/db/clienteDB'
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
 import CategoriaDB from '../../rapidsoft/db/categoriaDB'
@@ -69,6 +68,11 @@ export default {
         return {
             tabelasSincronizacao: [],
             sincAtivo: false,
+            sincImagemObject: null,
+            downloadImagem: {
+                quantidade: 0,
+                data: null,
+            }
             // tabelasSincronizadas: []
         }
     },
@@ -108,7 +112,9 @@ export default {
             this.tabelasSincronizacao.forEach(sinc => {        
                 sinc.parcial = 0;
                 sinc.percent = 0;
-                _.defer(() => this.sincronizar(sinc, true));
+                if (sinc.type !== "imagem") {
+                    _.defer(() => this.sincronizar(sinc, true));
+                }
             });
         },
         sincronizar(sinc, all = false) {
@@ -126,18 +132,7 @@ export default {
 
                     if (sinc.methodo && sinc.methodo != "") {
                         this.sincAtivo = true;
-                        if (sinc.methodo !== 'sincImagem') {
-                            _.defer(() => this[sinc.methodo](sinc, all));
-                        }else{                        
-                            if (_.find(this.tabelasSincronizacao, (sinc) => sinc.methodo === "sincProduto").total  >= 0  ) {
-                                _.defer(() => this[sinc.methodo](sinc, all));
-                            }else{
-                                _.defer(() => SincUtils.closeLoading(this, sinc, all));
-                                setTimeout(()=> {
-                                  _.defer(() => this.openErroSincronizarImgAlert());
-                                }, 1000);
-                            }
-                        }
+                        _.defer(() => this[sinc.methodo](sinc, all));
                     } else {
                         _.defer(() => SincUtils.closeLoading(this, sinc));
                     }
@@ -172,7 +167,15 @@ export default {
             ProdutoService.sincProduto().then((produtos) => {
                 sinc.total = produtos.length;
                 ProdutoDB._limparBase().then(() => {
-                    const done = _.after(produtos.length, () => SincUtils.closeLoading(this, sinc, all));
+                    const done = _.after(produtos.length, () => {
+                        SincUtils.verificaProdutosSemImagens().then((result) => {
+                            this.downloadImagem = result;
+                            if (this.downloadImagem.quantidade > 0) {
+                                _.defer(() => this.sincronizar(this.sincImagemObject, true));
+                            }
+                            SincUtils.closeLoading(this, sinc, all)
+                        });
+                    });
                     produtos.forEach(produto => {
                         ProdutoDB.salvar(produto).then(() => {
                             SincUtils.atuaizaParcialSinc(sinc, 1);            
@@ -185,19 +188,26 @@ export default {
             });
         },
         sincImagem(sinc, all) {
-            this.carregarSinc()
-            ProdutoDB.getIdsImagens().then((retorno) => {
+            this.carregarSinc();
+            SincUtils.verificaProdutosSemImagens().then((result) => {
+                this.downloadImagem = result;
                 sinc.parcial = 0;
-                sinc.total = retorno.quantidade;
-                ImagemDB.limparBase().then(() => {
-                    SincUtils.downloadImagensFromData(sinc, retorno.data).then(() => {
+                sinc.total = this.downloadImagem.quantidade;
+                if (this.downloadImagem.quantidade > 0) {
+                    SincUtils.downloadImagensFromData(sinc, this.downloadImagem.data).then(() => {
+                        SincUtils.removeImagensSemProduto().then(() => {
+                            SincUtils.closeLoading(this, sinc, all);
+                        });
+                    });
+                } else {
+                    SincUtils.removeImagensSemProduto().then(() => {
                         SincUtils.closeLoading(this, sinc, all);
-                    })
-                })
+                    });
+                }
             });
         },
         sincCliente(sinc,all) {
-            this.carregarSinc()
+            this.carregarSinc();
             ClienteDB.buscaClientesSinc().then((clientesSinc) => {
                 ClienteService.sincCliente(clientesSinc).then((clientes) => {
                     sinc.total = clientes.length;
@@ -267,7 +277,11 @@ export default {
         this.$vs.loading();
         SincDataDB.getAll().then((sinData) => {
             this.tabelasSincronizacao = _.orderBy(sinData, ['order']);
-            this.$vs.loading.close();
+            this.sincImagemObject = _.find(this.tabelasSincronizacao, (sincTab) => sincTab.type === "imagem" );
+            SincUtils.verificaProdutosSemImagens().then((result) => {
+                this.downloadImagem = result;
+                this.$vs.loading.close();
+            });        
         });
     },
 

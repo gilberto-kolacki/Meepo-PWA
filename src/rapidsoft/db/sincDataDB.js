@@ -102,8 +102,7 @@ class sincDataDB extends BasicDB {
     }
 
     zerar(sincData) {
-        sincData = _.clone(sincData);
-        sincData.order = _.toNumber(sincData._id);
+        sincData.order = Number(sincData._id);
         sincData.parcial = 0;
         sincData.percent = 0;
         sincData.ativo = false;
@@ -112,13 +111,9 @@ class sincDataDB extends BasicDB {
 
     getAll() {        
         return new Promise((resolve) => {
-            const sincDados = []
             this._getAll().then((sincs) => {
-                const done = _.after(sincs.length, () => resolve(sincDados));
-                sincs.forEach(sinc => {
-                    sincDados.push(this.zerar(sinc));
-                    done();
-                });
+                const sincDados = sincs.map((sinc) => this.zerar(sinc));
+                resolve(sincDados);
             });
         });
     }

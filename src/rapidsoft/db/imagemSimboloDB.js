@@ -6,12 +6,13 @@
 ==========================================================================================*/
 
 import _ from 'lodash';
-import BasicDB from './basicDB'
+import BasicDB from './basicDB';
 
 class imagemSimboloDB extends BasicDB {
 
     constructor() {
         super("simbolo");
+        this._createIndex('id');
     }
 
     salvarSimbolos(simbolos) {

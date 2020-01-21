@@ -8,10 +8,10 @@
                 <template slot="thead">
                     <vs-th class="th-acoes">Ações</vs-th>
                     <vs-th sort-key="numero" style="width: 10%">Nr.</vs-th>
-                    <vs-th sort-key="nome" style="width: 35%">Cliente</vs-th>
-                    <vs-th sort-key="cidade" style="width: 10%">Grupo</vs-th>
-                    <vs-th sort-key="estado" style="width: 20%">Itens</vs-th>
-                    <vs-th sort-key="estado" style="width: 20%">Valor</vs-th>
+                    <vs-th sort-key="nome" style="width: 30%">Cliente</vs-th>
+                    <vs-th sort-key="grupoCliente.nome" style="width: 20%">Grupo</vs-th>
+                    <vs-th sort-key="itens.length" style="width: 10%">Itens</vs-th>
+                    <vs-th sort-key="valorTotal" style="width: 20%">Valor</vs-th>
                 </template> 
                 <template slot-scope="{data}">
                     <vs-tr v-for="(tr, indextr) in data" :key="indextr">
@@ -34,11 +34,11 @@
                         <vs-td :data="data[indextr].grupoCliente.nome">
                             {{ data[indextr].grupoCliente.nome }}
                         </vs-td>
-                        <vs-td :data="data[indextr].estado">
-                            {{ data[indextr].estado }}
+                        <vs-td :data="data[indextr].itens.length" style="text-align:right">
+                            {{ data[indextr].itens.length }}
                         </vs-td>
-                        <vs-td >
-                            {{ data[indextr].valorTotal }}
+                        <vs-td style="text-align:right">
+                            {{ getValorTotal(data[indextr]) }}
                         </vs-td>
                     </vs-tr>
                 </template>
@@ -51,6 +51,7 @@
 
 import ErrorDB from '../../rapidsoft/db/errorDB';
 import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
+import UtilMask from '../../rapidsoft/utils/utilMask';
 
 export default {
     data() {
@@ -61,11 +62,6 @@ export default {
     methods: {
         editar(orcamento) {
             console.log(orcamento);
-            if (orcamento) {
-                this.$router.push({ name: 'clienteEditar', params: {clienteId: orcamento._id } });
-            } else {
-                this.$router.push('/orcamento/cadastro');
-            }
         },
         listar() {
             CarrinhoDB._getAll().then((orcamentos) => {
@@ -91,6 +87,9 @@ export default {
                 this.listar();
             });
         },
+        getValorTotal(orcamento) {
+            return UtilMask.getMoney(orcamento.valorTotal, true, orcamento.grupoCliente) ;
+        }
     
     },
     created() {

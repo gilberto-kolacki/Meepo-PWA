@@ -37,16 +37,6 @@ class storage {
         }
     }
 
-    getSegmentosCarrinho() {
-        const carrinho = this.getCarrinho();
-        return carrinho.itens.map((produto) => produto.idSegmento).sort().reduce((init, current) => {
-            if (init.length === 0 || init[init.length - 1] !== current) {
-                init.push(current);
-            }
-            return init;
-        }, []);
-    }
-
     setCarrinho(carrinho) {
         localStorage.setItem(CARRINHO, JSON.stringify(carrinho));
     }

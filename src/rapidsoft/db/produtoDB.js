@@ -160,7 +160,7 @@ class produtoDB extends BasicDB {
             this._getFindCondition({referencia : {$in : refsCarrinho}}).then((produtos) => {
                 const done = _.after(produtos.length, () => resolve(_.flattenDeep(produtosCor)));                
                 produtos.forEach(produto => {
-                    produto.cores = _.filter(produto.cores, (cor) => _.findIndex(carrinho.itens, (item) => item.cor === cor.idCor) >= 0 );
+                    produto.cores = produto.cores.filter((cor) => _.findIndex(carrinho.itens, (item) => item.cor === cor.idCor) >= 0 );
                     this.getProdutoFromCarrinho(produto, carrinho).then((produtoCor) => {
                         produtosCor.push(produtoCor);
                         done();
@@ -383,39 +383,39 @@ class produtoDB extends BasicDB {
 
     getIdsFotos(produto) {
         return new Promise((resolve) => {
-            const cores = produto['cores'];
-            resolve(_.flattenDeep(getCoresAtivas(cores).map((cor) => {
+            const IdsFotos = _.flattenDeep(getCoresAtivas(produto.cores).map((cor) => {
                 return cor.imagens.map((imagem) => {
-                    return imagem.id;
-                })
-            })));
+                    return imagem.id.toString();
+                });
+            }));
+            resolve(IdsFotos);
         });
     }
 
     getIdsCores(produto) {
         return new Promise((resolve) => {
-            const cores = produto['cores'];
-            resolve(_.flattenDeep(getCoresAtivas(cores).map((cor) => {
-                if(cor != undefined && cor.idCor) return cor.idCor;
-            })));
+            const IdsCores = _.flattenDeep(getCoresAtivas(produto.cores).filter((cor) => cor != undefined && cor.idCor).map((cor) => {
+                return cor.idCor.toString();
+            }));
+            resolve(IdsCores);
         });
     }
 
     getIdsSelos(produto) {
         return new Promise((resolve) => {
-            const cores = produto['cores'];
-            resolve(_.flattenDeep(getCoresAtivas(cores).map((cor) => {
-                if(cor != undefined && _.isArray(cor.selos)) return cor.selos;
-            })));
+            const IdsSelos = _.flattenDeep(getCoresAtivas(produto.cores).filter((cor) => cor != undefined && _.isArray(cor.selos)).map((cor) => {
+                return cor.selos.map((selo) => selo.toString());
+            }));
+            resolve(IdsSelos);
         });
     }
 
     getIdsSimbolos(produto) {
         return new Promise((resolve) => {
-            const cores = _.clone(produto['cores']);
-            resolve(_.flattenDeep(getCoresAtivas(cores).map((cor) => {
-                if(cor != undefined && _.isArray(cor.simbolos)) return cor.simbolos;
-            })));
+            const IdsSimbolos = _.flattenDeep(getCoresAtivas(produto.cores).filter((cor) => cor != undefined && _.isArray(cor.simbolos)).map((cor) => {
+                return cor.simbolos.map((simbolo) => simbolo.toString());
+            }));
+            resolve(IdsSimbolos);
         });
     }
 
@@ -454,6 +454,43 @@ class produtoDB extends BasicDB {
                         return cor.categorias;
                     });
                 }))));
+            });
+        });
+    }
+
+    existeNovasImagens() {
+        return new Promise((resolve) => {
+            this.getIdsImagens().then((idsImagens) => {
+                ImagemDB.getIdsNovasFotos(idsImagens.data.fotos).then((idsNovasFotos) => {
+                    idsImagens.data.fotos = idsNovasFotos;
+                    ImagemDB.getIdsNovasCores(idsImagens.data.cores).then((idsNovasCores) => {
+                        idsImagens.data.cores = idsNovasCores;
+                        ImagemDB.getIdsNovosSelos(idsImagens.data.selos).then((idsNovosSelos) => {
+                            idsImagens.data.selos = idsNovosSelos;
+                            ImagemDB.getIdsNovosSimbolos(idsImagens.data.simbolos).then((idsNovosSimbolos) => {
+                                idsImagens.data.simbolos = idsNovosSimbolos;
+                                idsImagens.quantidade = idsImagens.data.fotos.length + idsImagens.data.cores.length + idsImagens.data.selos.length + idsImagens.data.simbolos.length;
+                                resolve(idsImagens);
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    }
+
+    removeImagensSemProduto() {
+        return new Promise((resolve) => {
+            this.getIdsImagens().then((idsImagens) => {
+                ImagemDB.getIdsFotosSemProduto(idsImagens.data.fotos).then(() => {
+                    ImagemDB.getIdsCoresSemProduto(idsImagens.data.cores).then(() => {
+                        ImagemDB.getIdsSelosSemProduto(idsImagens.data.selos).then(() => {
+                            ImagemDB.getIdsSimbolosSemProduto(idsImagens.data.simbolos).then(() => {
+                                resolve();
+                            });
+                        });
+                    });
+                });
             });
         });
     }

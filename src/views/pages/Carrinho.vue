@@ -49,8 +49,7 @@ import AddItemCarrinho from "../../rapidsoft/components/AddItemCarrinho";
 import CarrinhoItem from "../../rapidsoft/components/CarrinhoItem";
 import EmbarqueItem from "../../rapidsoft/components/EmbarqueItem";
 import ProdutoUtils from "../../rapidsoft/utils/produtoUtils";
-// import Storage from "../../rapidsoft/utils/storage";
-import PedidoUtils from '../../rapidsoft/utils/pedidoUtils';
+import CarrinhoUtils from "../../rapidsoft/utils/carrinhoUtils";
 
 export default {
 	data: () => ({
@@ -97,7 +96,7 @@ export default {
 			this.produtoAdd=null;
 		},
 		showPedidos() {
-			PedidoUtils.setEmbarqueItensCarrinho(this.itensCarrinho).then(() => {
+			CarrinhoUtils.setEmbarqueItensCarrinho(this.itensCarrinho).then(() => {
 				this.$router.push({ name: 'carrinhoPedido'});
 			});
 		},
@@ -138,13 +137,13 @@ export default {
 		},
 		carregaItensTela() {
 			return new Promise((resolve) => {
-				ProdutoUtils.getCarrinho().then(carrinho => {
+				CarrinhoUtils.getCarrinho().then(carrinho => {
 					this.itensCarrinho = carrinho;
 					EmbarqueDB.getInfosEmbarques(carrinho).then((embarques) => {
 						this.embarquesOption = embarques;
 						PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
 							this.embarques = embarques;
-							SegmentoDB.getSegmentosCarrinho().then(segmentos => {
+							SegmentoDB.getSegmentosCarrinho(this.itensCarrinho).then((segmentos) => {
 								this.segmentos = segmentos;
 								ProdutoUtils.getProdutosSegmentos(segmentos, carrinho).then((produtosSegmento) => {
 									this.produtosSegmento = produtosSegmento;
@@ -158,9 +157,6 @@ export default {
 			});
 		},
 	},
-	beforeCreate() {
-		
-	},
 	async created() {
 		await this.carregaItensTela();
 	},
@@ -168,8 +164,6 @@ export default {
         
 	},
 	updated() {
-		// this.gerenciaVisualizacao();
-		console.log('updated carrinho');
 		
 	},
 

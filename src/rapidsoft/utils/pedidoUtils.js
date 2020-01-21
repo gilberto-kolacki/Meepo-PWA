@@ -19,29 +19,12 @@ class pedidoUtils {
     newPedido() {
         return new Promise((resolve) => {
             const pedido = {};
-            pedido.grupoCliente = Storage.getGrupoCarrinho();
             pedido.endEntrega = null;
             pedido.observacao = null;
             pedido.desconto1 = 0;
             pedido.desconto2 = 0;
             pedido.desconto3 = 0;
             resolve(pedido);
-        });
-    }
-
-    setEmbarqueItensCarrinho(carrinho) {
-        return new Promise((resolve) => {
-            const itensCarrinhoStorage = Storage.getCarrinhoItens();
-			const done = _.after(itensCarrinhoStorage.length, () => {
-				Storage.setCarrinhoItens(itensCarrinhoStorage);
-				resolve();
-			});        
-
-			itensCarrinhoStorage.forEach(itemStorage => {
-                const itemCarrinho = _.find(carrinho, (itemCarrinho) => itemCarrinho.cor.idProduto === itemStorage.idProduto);
-				itemStorage.embarque = itemCarrinho.embarque;
-				done();
-			});
         });
     }
 
@@ -74,7 +57,6 @@ class pedidoUtils {
             view.$router.push({ name: 'pedidoConsulta'});
         }
     }
-
         
 }
 
