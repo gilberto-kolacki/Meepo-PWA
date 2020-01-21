@@ -158,8 +158,9 @@ import _ from "lodash";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
 import Storage from "../../rapidsoft/utils/storage";
-import SearchCliente  from '../../rapidsoft/components/SearchCliente'
-import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
+import SearchCliente  from '../../rapidsoft/components/SearchCliente';
+// import ProdutoUtils from '../../rapidsoft/utils/produtoUtils';
+import CarrinhoUtils from '../../rapidsoft/utils/carrinhoUtils';
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
@@ -307,7 +308,7 @@ export default {
 			return new Promise((resolve) => {
                 FormaPagtoDB._getAll().then((formaPagto) => {
                     this.formasPagto = formaPagto;
-                    ProdutoUtils.getCarrinho().then(carrinho => {
+                    CarrinhoUtils.getCarrinho().then(carrinho => {
                         this.itensCarrinho = carrinho;
                         EmbarqueDB.getPedidosPorEmbarques(carrinho).then((embarques) => {
                             this.listPedidosEmbarque = embarques;
@@ -332,6 +333,9 @@ export default {
         PedidoUtils.newPedido().then((pedido) => {
             this.pedidoCapa = pedido;
             this.clienteCapa = Storage.getClienteCarrinho();
+            if (!this.clienteCapa.grupoCliente) {
+                this.clienteCapa.grupoCliente = Storage.getGrupoCarrinho();
+            }
             if (pedido.cliente) {
                 this.clienteCapa.endEntrega = this.getLabelEndereco(_.find(pedido.cliente.enderecos, (endereco) => endereco.endEntrega ));
             }

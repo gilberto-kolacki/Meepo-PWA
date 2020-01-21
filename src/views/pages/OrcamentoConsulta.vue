@@ -65,10 +65,8 @@ export default {
         },
         listar() {
             CarrinhoDB._getAll().then((orcamentos) => {
-                console.log(orcamentos);
-                
                 this.orcamentos = Object.assign(orcamentos);
-            })
+            });
         },
         deletarMessage(data) {
             this.$vs.dialog({
@@ -88,7 +86,7 @@ export default {
             });
         },
         getValorTotal(orcamento) {
-            return UtilMask.getMoney(orcamento.valorTotal, true, orcamento.grupoCliente) ;
+            return UtilMask.getMoney(orcamento.valorTotal, true, orcamento.grupoCliente);
         }
     
     },
