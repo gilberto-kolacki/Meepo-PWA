@@ -28,22 +28,6 @@ class pedidoUtils {
         });
     }
 
-    setEmbarqueItensCarrinho(carrinho) {
-        return new Promise((resolve) => {
-            const itensCarrinhoStorage = Storage.getCarrinhoItens();
-			const done = _.after(itensCarrinhoStorage.length, () => {
-				Storage.setCarrinhoItens(itensCarrinhoStorage);
-				resolve();
-			});        
-
-			itensCarrinhoStorage.forEach(itemStorage => {
-                const itemCarrinho = _.find(carrinho, (itemCarrinho) => itemCarrinho.cor.idProduto === itemStorage.idProduto);
-				itemStorage.embarque = itemCarrinho.embarque;
-				done();
-			});
-        });
-    }
-
     gerarPedidosPorEmbarques(pedido, embarques) {
         return new Promise((resolve) => {
             const pedidosNew = [];
@@ -73,7 +57,6 @@ class pedidoUtils {
             view.$router.push({ name: 'pedidoConsulta'});
         }
     }
-
         
 }
 

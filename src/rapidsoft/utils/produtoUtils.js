@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import Storage from '../utils/storage';
-import ProdutoDB from '../db/produtoDB';
 
 class produtoUtils {
 
@@ -72,14 +71,6 @@ class produtoUtils {
             this.criaPaginaProdutoSearch(produto).then((pagina) => {
                 paginas.push(pagina);
                 resolve(paginas);
-            });
-        });
-    }
-
-    getCarrinho() {
-        return new Promise((resolve) => {
-            ProdutoDB.getProdutosFromCarrinho(Storage.getCarrinho()).then((carrinho) => {
-                resolve(carrinho);
             });
         });
     }

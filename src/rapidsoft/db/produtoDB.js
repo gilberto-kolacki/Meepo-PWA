@@ -139,7 +139,7 @@ class produtoDB extends BasicDB {
             this._getFindCondition({referencia : {$in : refsCarrinho}}).then((produtos) => {
                 const done = _.after(produtos.length, () => resolve(_.flattenDeep(produtosCor)));                
                 produtos.forEach(produto => {
-                    produto.cores = _.filter(produto.cores, (cor) => _.findIndex(carrinho.itens, (item) => item.cor === cor.idCor) >= 0 );
+                    produto.cores = produto.cores.filter((cor) => _.findIndex(carrinho.itens, (item) => item.cor === cor.idCor) >= 0 );
                     this.getProdutoFromCarrinho(produto, carrinho).then((produtoCor) => {
                         produtosCor.push(produtoCor);
                         done();

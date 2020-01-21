@@ -52,6 +52,7 @@
 import ErrorDB from '../../rapidsoft/db/errorDB';
 import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
 import UtilMask from '../../rapidsoft/utils/utilMask';
+import Storage from '../../rapidsoft/utils/storage';
 
 export default {
     data() {
@@ -62,11 +63,6 @@ export default {
     methods: {
         editar(orcamento) {
             console.log(orcamento);
-            if (orcamento) {
-                this.$router.push({ name: 'clienteEditar', params: {clienteId: orcamento._id } });
-            } else {
-                this.$router.push('/orcamento/cadastro');
-            }
         },
         listar() {
             CarrinhoDB._getAll().then((orcamentos) => {

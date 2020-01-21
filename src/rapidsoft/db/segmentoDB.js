@@ -7,7 +7,6 @@
 
 import _ from 'lodash';
 import BasicDB from './basicDB';
-import Storage from '../utils/storage';
 
 class segmentoDB extends BasicDB {
 
@@ -25,9 +24,18 @@ class segmentoDB extends BasicDB {
         });
     }
 
-    getSegmentosCarrinho() {
+    getSegmentosItens(itens) {
+        return itens.map((produto) => produto.segmento).sort().reduce((init, current) => {
+            if (init.length === 0 || init[init.length - 1] !== current) {
+                init.push(current);
+            }
+            return init;
+        }, []);
+    }
+
+    getSegmentosCarrinho(itensCarrinho) {
         return new Promise((resolve) => {
-            const idsSegmentos = Storage.getSegmentosCarrinho();
+            const idsSegmentos = this.getSegmentosItens(itensCarrinho);
             const arraySegmentos = [];
             const done = _.after(idsSegmentos.length, () => resolve(arraySegmentos));
             idsSegmentos.forEach(idSegmento => {
