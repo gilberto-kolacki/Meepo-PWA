@@ -52,7 +52,6 @@
 import ErrorDB from '../../rapidsoft/db/errorDB';
 import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
 import UtilMask from '../../rapidsoft/utils/utilMask';
-import Storage from '../../rapidsoft/utils/storage';
 
 export default {
     data() {
