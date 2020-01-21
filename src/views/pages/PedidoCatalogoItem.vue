@@ -93,7 +93,24 @@
                     </div>
                     <div class="vx-row mt-base-top2">
                     </div>
+                    <div class="vx-row mt-top3">
+                        <vs-collapse style="margin-left:-20px">
+                            <vs-collapse-item>
+                                <div slot="header" style="margin-bottom:-20px">
+                                    <h4>Categorias</h4>
+                                </div>
+                                <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll">
+                                    <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasSearch" :key="index+categoria">
+                                        <vs-button class="w-full" v-if="filtro.categoria.id === categoria.id" color="primary" icon-pack="feather">{{categoria.label}}</vs-button>
+                                        <vs-button class="w-full" v-else color="primary" @click.stop="categoriasSelecionadas(categoria.id,index)" type="border" icon-pack="feather">{{categoria.label}}</vs-button>
+                                    </div>
+                                </div>
+                            </vs-collapse-item>
+                        </vs-collapse>
+                        
+                    </div>
                 </div>
+
             </div>
 
         </vs-col>
@@ -116,6 +133,8 @@ import AddItemCarrinho  from '../../rapidsoft/components/AddItemCarrinho';
 import SearchProduto  from '../../rapidsoft/components/SearchProduto';
 import ZoomProduto  from '../../rapidsoft/components/ZoomProduto';
 import ErrorDB from '../../rapidsoft/db/errorDB';
+import vSelect from 'vue-select';
+import CategoriaDB from '../../rapidsoft/db/categoriaDB';
 
 export default {
 
@@ -159,6 +178,7 @@ export default {
             produtoZoomShow: false,
             grupoCliente: null,
             catalogo: null,
+            categoriasFiltro: [],
         }
     },
     components: {
@@ -166,6 +186,7 @@ export default {
         AddItemCarrinho,
         SearchProduto,
         ZoomProduto,
+        'v-select': vSelect,
     },
     watch: {
     },
@@ -197,6 +218,22 @@ export default {
     },
     methods: {
         // tela
+        categoriasSelecionadas(id, index) {
+
+            if (id !== 99999) {
+
+                const temp = this.categoriasFiltro[1];
+                this.categoriasFiltro[1] = this.categoriasFiltro[index];
+                this.categoriasFiltro[index] = temp;
+
+                ProdutoDB.getProdutosByIdCategorias(id).then((produtos)=>{
+                    console.log("Produtos Por Categoria ",produtos)
+                })
+            
+            }
+            
+        },
+
         viewPreco() {
             let texto = 'REF A: ' +this.calcularPrecoProduto(this.produtoA);
             if (this.produtoB) {
@@ -304,17 +341,25 @@ export default {
             ProdutoDB.getProdutoPaginaCatalogo(pagina).then((result) => {
                 if (result) {
                     this.$vs.loading();
-                    console.log(result);
                     
                     this.popupSearchProdutos = false;
                     this.produtoA = result.produtoA;
                     this.produtoB = result.produtoB;
                     this.produtoC = result.produtoC;
                     ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
-                        this.imagemProdutoPrincipal = result;
-                        this.corSelecionada = 0;
-                        document.getElementById("produto-image-gallery").scrollTop = 0;
-                        this.$vs.loading.close();
+                        CategoriaDB.getAllBySegmento(this.produtoA.segmento).then((categorias) => {
+                            
+                            // console.log(categorias);
+                            this.categoriasFiltro.push({id:99999,label:'Todos'})
+                            categorias.forEach(categoria => {
+                                this.categoriasFiltro.push(_.cloneDeep({id:categoria.id,label:categoria.nome}));
+                            });
+
+                            this.imagemProdutoPrincipal = result;
+                            this.corSelecionada = 0;
+                            document.getElementById("produto-image-gallery").scrollTop = 0;
+                            this.$vs.loading.close();
+                        });
                     });
                 }
             });
