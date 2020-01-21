@@ -26,23 +26,27 @@ class errorDB extends BasicDB {
 
     _sincNuvem() {
         return new Promise((resolve) => {
-            this._localErroDB.replicate.to(this._remoteErroDB).then((result) => {
-                if (result.ok) {
-                    this._localErroDB.replicate.from(this._remoteErroDB).then((result) => {
-                        if (result.ok) {
-                            resolve();
-                        } else {
-                            this._sincNuvem().then(() => {
-                                resolve();
-                            });
-                        }
+            if (window.navigator.onLine) {
+                this.sincToNuvem().then(() => {
+                    this.sincFromNuvem().then(() => {
+                        resolve();        
                     });
-                } else {
-                    this._sincNuvem().then(() => {
-                        resolve();
-                    });
-                }
-            });
+                });
+            } else {
+                resolve();
+            }
+        });
+    }
+
+    sincToNuvem() {
+        return new Promise((resolve) => {
+            resolve();
+        });
+    }
+
+    sincFromNuvem() {
+        return new Promise((resolve) => {
+            resolve();
         });
     }
 
