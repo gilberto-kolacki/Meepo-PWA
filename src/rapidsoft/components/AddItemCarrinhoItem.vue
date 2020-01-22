@@ -17,7 +17,6 @@
         </b-card-header>
         <b-collapse :id="idColapse" visible accordion="my-accordion" role="tabpanel">
             <b-card-body>
-                {{this.produtoAdd.cores[1].tamanhos[0]}}
                 <div class="row">
                     <div class="table-responsive">    
                         <table class="table table-striped table-bordered" id="table-add-produto-a">
