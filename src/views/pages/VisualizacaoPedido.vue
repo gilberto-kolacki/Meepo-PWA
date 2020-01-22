@@ -126,6 +126,7 @@ import ErrorDB from '../../rapidsoft/db/errorDB'
 import UtilMask from '../../rapidsoft/utils/utilMask';
 import ProdutoDB from '../../rapidsoft/db/produtoDB';
 import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
+import _ from 'lodash';
 
 Validator.localize('pt', validatePtBR);
 
@@ -154,16 +155,12 @@ export default {
         carregaItensTela() {
             return new Promise((resolve) => {
                 CarrinhoDB._getById(this.$route.params.orcamento.id).then((orcamento) => {
-                    this.orcamento = orcamento.value;
-
-                    this.orcamento.itens.forEach(item => {
-                        console.log(item, "s");
-                        
+                    const done = _.after(orcamento.value.itens.length,() => resolve(orcamento));
+                    orcamento.value.itens.forEach(item => {
                         ProdutoDB._getById(item.ref).then((produto) => {
-                            console.log(produto);
                             item.nome = produto.value.nome;
-                            resolve();
                         })
+                        done();
                     });
                 });
             });
@@ -198,7 +195,11 @@ export default {
         }
     },
     mounted() {
-        this.carregaItensTela();
+        this.carregaItensTela().then((orcamento) => {
+            this.orcamento = orcamento.value;
+            console.log(':) ',this.orcamento);
+        });
+        
         this.$emit("setAppClasses", "invoice-page")
     },
     beforeCreate() {
