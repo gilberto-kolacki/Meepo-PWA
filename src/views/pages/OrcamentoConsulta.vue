@@ -69,6 +69,8 @@ export default {
         },
         listar() {
             CarrinhoDB._getAll().then((orcamentos) => {
+                console.log("This orcs: ", orcamentos);
+                
                 this.orcamentos = Object.assign(orcamentos);
             });
         },
