@@ -102,7 +102,7 @@
                                 <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll">
                                     <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasSearch" :key="index+categoria">
                                         <vs-button class="w-full" v-if="filtro.categoria.id === categoria.id" color="primary" icon-pack="feather">{{categoria.label}}</vs-button>
-                                        <vs-button class="w-full" v-else color="primary" @click.stop="categoriasSelecionadas(categoria.id,index)" type="border" icon-pack="feather">{{categoria.label}}</vs-button>
+                                        <vs-button class="w-full" v-else color="primary" @click.stop="categoriasSelecionadas(categoria.id)" type="border" icon-pack="feather">{{categoria.label}}</vs-button>
                                     </div>
                                 </div>
                             </vs-collapse-item>
@@ -218,18 +218,19 @@ export default {
     },
     methods: {
         // tela
-        categoriasSelecionadas(id, index) {
+        categoriasSelecionadas(id) {
 
             if (id !== 99999) {
 
-                const temp = this.categoriasFiltro[1];
-                this.categoriasFiltro[1] = this.categoriasFiltro[index];
-                this.categoriasFiltro[index] = temp;
-
                 ProdutoDB.getProdutosByIdCategorias(id).then((produtos)=>{
-                    console.log("Produtos Por Categoria ",produtos)
-                })
-            
+                    produtos.map((produto) => {
+                        const filt = this.paginas.filter((pagina) => {
+                            return pagina.produtoA.ref === produto.referencia
+                        })
+                        console.log(filt);
+                    });
+                });
+                
             }
             
         },
