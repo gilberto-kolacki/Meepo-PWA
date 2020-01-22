@@ -109,7 +109,7 @@ class produtoDB extends BasicDB {
                             ImagemDB.getFotoById(imagemPrincipal.id).then(imagem => {
                                 produtoCor.imagemPrincipal = imagem;
                                 EmbarqueDB.getEmbarqueProduto(produtoCor).then((embarque) => {
-                                    produtoCor.embarque = embarque;
+                                    produtoCor.embarque = embarque.id;
                                     produtoCor.segmento = produtoCor.segmento[0];
                                     delete produtoCor['cores'];
                                     delete produtoCor['video'];

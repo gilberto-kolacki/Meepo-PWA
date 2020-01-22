@@ -1,6 +1,56 @@
 import _ from "lodash";
 import Storage from '../utils/storage';
 
+const validarPedido = (pedido) => {
+    return new Promise((resolve, reject) => {
+        try {
+            if (_.isNil(pedido.cliente) || pedido.cliente === ""){
+                throw { campo: "nomeCliente", label: "Cliente" };
+            }
+            else if (_.isNil(pedido.emailNfe) || pedido.emailNfe === ""){
+                throw { campo: "emailNfe", label: "E-mail Nfe" };
+            }
+            else if (_.isNil(pedido.grupoCliente) || pedido.grupoCliente === ""){
+                throw { campo: "grupoCliente", label: "Grupo de Cliente" };
+            } 
+            else if (_.isNil(pedido.endEntrega) || pedido.endEntrega === ""){
+                throw { campo: "endEntrega", label: "Endereço de entrega" };
+            } 
+            
+            resolve(pedido);
+        } catch (exception) {
+            exception.mensagem = "Campo "+ exception.label +" obrigatório!";
+            reject(exception);
+        }
+    });
+};
+
+const validarItens = (pedidos) => {
+    return new Promise((resolve, reject) => {
+        try {
+            const done = _.after(pedidos.length, () => resolve());
+            pedidos.forEach(pedido => {
+
+                console.log(pedido);
+                
+                if (_.isNil(pedido.formaPagamento) || pedido.formaPagamento === ""){
+                    throw { campo: "formaPgto", label: "Forma de pagamento" };
+                } else {
+                    if (pedido.formaPagamento.condicoes.length > 0 &&  (_.isNil(pedido.condicaoPagamento) || pedido.condicaoPagamento == "")) {
+                        throw { campo: "condicaoPgto", label: "Condição de pagamento" };
+                    }
+                }
+                
+                done();
+            });
+
+        } catch (exception) {
+            exception.mensagem = "Campo "+ exception.label +" obrigatório!";
+            reject(exception);
+        }
+    });
+};
+
 class pedidoUtils {
 
     newCarrinho() {
@@ -57,6 +107,20 @@ class pedidoUtils {
             view.$router.push({ name: 'pedidoConsulta'});
         }
     }
+
+    validarPedido(pedido, itens) {
+        return new Promise((resolve, reject) => {
+            validarPedido(pedido).then(() => {
+                validarItens(itens).then(() => {
+                    resolve();
+                }).catch((err) => {                
+                    reject(err);
+                });
+            }).catch((err) => {                
+                reject(err);
+            });
+        });
+    }    
         
 }
 

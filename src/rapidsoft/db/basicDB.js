@@ -167,6 +167,24 @@ class basicDB {
         });
     }
 
+    _getAllMap() {
+        return new Promise((resolve) => {
+            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                const rows = resultDocs.rows.filter((row) => row.doc.language !== "query");
+                const result = rows.reduce((map, row) => {
+                    map[row.doc.id] = row.doc;
+                    return map;
+                }, {});
+                resolve(result);
+            }).catch((err) => {
+                this._criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
+                resolve(err);
+            });
+        });
+    }
+
+    
+
     _getIds() {
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: false}).then((resultDocs) => {

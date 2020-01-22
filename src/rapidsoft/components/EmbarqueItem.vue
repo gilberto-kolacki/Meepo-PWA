@@ -10,6 +10,7 @@
                         text-field="nome"
                         :options="getEmbarques(embarqueItem)"
                         v-on:change="getSelectedItem(embarqueItem)"
+                        disabled
                     />
                 </div>
                 <div class="vx-col sm:w-1/5 w-full mb-2">
@@ -31,7 +32,7 @@
                     <strong>Qtde Itens: </strong>{{embarqueItem.quantidade}}
                 </div>
                 <div class="vx-col sm:w-1/3 w-full mb-2">
-                    <strong>Total: </strong>{{embarqueItem.total}}
+                    <strong>Total: </strong>{{embarqueItem.total | moneyy}}
                 </div>
             </div>
         </div>
@@ -97,6 +98,7 @@ export default {
         },
         changeData(embarque) {
             embarque.dataEmbarque = typeof embarque.dataEmbarque === 'number' ? embarque.dataEmbarque : embarque.dataEmbarque.getTime();
+            this.$emit('change-data-embarque', { id: embarque.id, dataEmbarque: embarque.dataEmbarque, segmento: embarque.idSegmento });
         },
         getSegmento(idSegmento) {
             if (idSegmento) {

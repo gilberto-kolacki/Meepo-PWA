@@ -15,7 +15,11 @@
 								Embarques
 							</strong>
 						</template>
-						<embarque-item v-model="this.embarques" :embarquesOption="this.embarquesOption" />
+						<embarque-item 
+							v-model="this.embarques" 
+							@change-data-embarque="atualizaDataItensEmbarque"
+							:embarquesOption="this.embarquesOption" 
+						/>
 					</b-tab>
 					<b-tab v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento">
 						<template v-slot:title>
@@ -84,9 +88,12 @@ export default {
 	},
     methods: {
 		getEmbarquesSegmento(segmento) {
-			return this.embarquesOption.filter((emb) => {
-                return emb.idSegmento == segmento.id;
-            });
+			return this.embarquesOption.filter((embarque) => {
+                return embarque.idSegmento == segmento.id;
+            }).reduce((map, embarque) => {
+				map[embarque.id] = embarque;
+				return map;
+			}, {});
 		},
 		getProdutosSegmento(segmento) {
 			return this.produtosSegmento.get(segmento.id);
@@ -111,6 +118,14 @@ export default {
 					this.$forceUpdate();
 				});
 			});  
+		},
+		atualizaDataItensEmbarque(embarque) {
+			const produtos = this.produtosSegmento.get(embarque.segmento);
+			produtos.forEach(produto => {
+				if (produto.embarque.id === embarque.id) {
+					produto.dataEmbarque = embarque.dataEmbarque;
+				}
+			});
 		},
 		voltar() {
 			this.$router.go(-1);

@@ -766,11 +766,8 @@ export default {
                     })
                 }).catch((erro) => {
                     this.$validator.validate();
-                    console.log(erro);
-                    
                     if (erro.campo) {
                         this.proximoCampo(erro.campo);
-                        console.log(erro.campo)
                     }
                     this.$vs.notify({
                         title: 'Erro!',

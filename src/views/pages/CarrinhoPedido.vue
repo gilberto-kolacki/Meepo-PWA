@@ -17,12 +17,12 @@
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="cpfCnpj" class="vs-input--label">CPF/CNPJ</label>
                                 <div class="vs-con-input">
-                                    <the-mask v-validate="'required|min:14'" id="cpfCnpj" disabled name="cpfCnpj" v-model="clienteCapa.cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
+                                    <the-mask v-validate="'required|min:14'" id="cpfCnpj" disabled name="cpfCnpj" v-model="pedidoCapa.cliente.cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
                                 </div>
                             </div>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="8" vs-sm="9" vs-xs="12">
-                            <vs-input v-validate="'required'" label="Nome" id="nome" name="nome" disabled v-model="clienteCapa.nome" class="w-full input-line-group-rapid" />
+                            <vs-input v-validate="'required'" label="Nome" id="nomeCliente" name="nomeCliente" disabled v-model="pedidoCapa.cliente.nome" class="w-full input-line-group-rapid" />
                             <vs-button
                                 color="primary"
                                 type="filled"
@@ -35,10 +35,10 @@
                     </div>
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
-                            <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="clienteCapa.emailNfe" class="w-full" type="email" />
+                            <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedidoCapa.emailNfe" class="w-full" type="email" />
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
-                            <vs-input label="Grupo Cliente" id="grupoCliente" name="grupoCliente" v-model="clienteCapa.grupoCliente.nome" disabled class="w-full" type="text" />
+                            <vs-input label="Grupo Cliente" id="grupoCliente" name="grupoCliente" v-model="pedidoCapa.grupoCliente.nome" disabled class="w-full" type="text" />
                         </vs-col>
                     </div>
                     <div class="vx-row">
@@ -73,22 +73,22 @@
                         Pedidos
                     </strong>
                 </template>
-                <div class="embarque-item" style="padding:20px" v-for="(embarqueItem, indexItem) in this.listPedidosEmbarque" :key="indexItem">
+                <div class="embarque-item" style="padding:20px" v-for="(pedido, indexItem) in this.listPedidosEmbarque" :key="indexItem">
                     <div class="vx-row flex justify-between">
                         <vs-col vs-type="flex" vs-lg="12" vs-sm="12" vs-xs="12">
-                            <h4><strong>Pedido:</strong> {{embarqueItem.nome}}</h4>
+                            <h4><strong>Pedido:</strong> {{pedido.nome}}</h4>
                         </vs-col>
                     </div>
                     <div class="vx-row flex justify-between" style="margin-top:20px;padding-left:15px">
                         <vs-col vs-lg="6" vs-sm="6" vs-xs="12">
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label>Data Embarque: {{embarqueItem.dataEmbarque | formatDate}}</label>
+                                <label>Data Embarque: {{ pedido.dataEmbarque | formatDate }}</label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label>Quantidade: {{embarqueItem.quantidade}} </label>
+                                <label>Quantidade: {{ pedido.quantidade }} </label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label>Subtotal: {{getCoinFormat(embarqueItem.total)}} </label>
+                                <label>Subtotal: {{ pedido.total | moneyy }} </label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
                                 <label>Descontos: {{somarDescontos() + "%"}} </label>
@@ -100,51 +100,53 @@
                         <vs-col vs-lg="6" vs-sm="6" vs-xs="12">
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Brinde </label>
-                                <vs-checkbox @input="setBrinde(indexItem)" v-model="embarqueItem.brinde"></vs-checkbox>
+                                <vs-checkbox @input="setBrinde(pedido)" v-model="pedido.brinde"></vs-checkbox>
                             </div>
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Aceita Pedido Parcial</label>
-                                <vs-checkbox v-model="embarqueItem.pedidoParcial"></vs-checkbox>
+                                <vs-checkbox v-model="pedido.pedidoParcial"></vs-checkbox>
                             </div>
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Aceita Antecipação do Pedido </label>
-                                <vs-checkbox v-model="embarqueItem.antecipacaoPedido"></vs-checkbox>
+                                <vs-checkbox v-model="pedido.antecipacaoPedido"></vs-checkbox>
                             </div>
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Enviar Cópia Por Email </label>
-                                <vs-checkbox v-model="embarqueItem.copiaEmail"></vs-checkbox>
+                                <vs-checkbox v-model="pedido.copiaEmail"></vs-checkbox>
                             </div>
                         </vs-col>
                     </div>
-                    <div v-if="!embarqueItem.brinde">
+                    <div v-if="!pedido.brinde">
                         <vs-divider>Pagamento</vs-divider>
                         <div class="vx-row flex justify-between" style="padding-bottom:15px">
                             <vs-col vs-lg="5" vs-sm="6" vs-xs="12">
                                 <label>Forma de Pagamento</label>
                                 <v-select 
-                                    @input="selecionarCondicaoPagamento(indexItem)"
-                                    id="formaPgto" 
+                                    @input="selecionarCondicaoPagamento(pedido)"
+                                    id="formaPgto"
+                                    label="nome"  
                                     style="width:100%" 
                                     :clearable=false 
-                                    v-model="embarqueItem.formaPagamento" 
-                                    :options="getFormasPagto" 
+                                    v-model="pedido.formaPagamento" 
+                                    :options="formasPagto" 
                                     :dir="$vs.rtl ? 'rtl' : 'ltr'"/>
                             </vs-col>
                             <vs-col vs-lg="5" vs-sm="6" vs-xs="12" v-if="condicoesPagto">
                                 <label>Condição de Pagamento</label>
                                 <v-select 
                                     id="condicaoPgto" 
+                                    label="nome"
                                     style="width:100%" 
                                     :clearable=false
-                                    v-model="embarqueItem.condicaoPagamento" 
-                                    :options="getCondPagtoFormaPagto(embarqueItem.formaPagamento)" 
+                                    v-model="pedido.condicaoPagamento" 
+                                    :options="condicoesPagto[pedido.id]" 
                                     :dir="$vs.rtl ? 'rtl' : 'ltr'"/>
                             </vs-col>
                         </div>
                     </div>
                     <div class="vx-row flex justify-between">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
-                            <vs-textarea v-model="embarqueItem.observacao" label="Observação" height="100" />
+                            <vs-textarea v-model="pedido.observacao" label="Observação" height="100" />
                         </vs-col>
                     </div>
                 </div>
@@ -159,7 +161,6 @@ import ErrorDB from "../../rapidsoft/db/errorDB";
 import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
 import Storage from "../../rapidsoft/utils/storage";
 import SearchCliente  from '../../rapidsoft/components/SearchCliente';
-// import ProdutoUtils from '../../rapidsoft/utils/produtoUtils';
 import CarrinhoUtils from '../../rapidsoft/utils/carrinhoUtils';
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
@@ -170,22 +171,20 @@ import vSelect from 'vue-select';
 export default {
 	data: () => ({
         pedidoCapa: null,
-        clienteCapa: null,
         orcamento: false,
         showPedido: false,
         idPopUpSearch: 'popup-cliente-search',
         formasPagto: [],
-        condicoesPagto: [],
+        condicoesPagto: null,
         embarques:[],
         listPedidosEmbarque:[],
         dataEmbarque:[],
-        condicaoPagamento: [],
         observacao:'',
         condigoBrinde: 5,
         condigoBoleto: 1,
     }),
     watch: {
-
+        
     },
 	components: {
         SearchCliente,
@@ -193,38 +192,35 @@ export default {
 	},
 	computed: {
         getEnderecosEntrega() {
-            if (this.clienteCapa.enderecos && this.clienteCapa.enderecos.length > 0) {
-                return this.clienteCapa.enderecos.map((endereco) => {
+            if (this.pedidoCapa.cliente.enderecos && this.pedidoCapa.cliente.enderecos.length > 0) {
+                return this.pedidoCapa.cliente.enderecos.map((endereco) => {
                     return {value: endereco, label: this.getLabelEndereco(endereco) };
                 });
             } else return [];
-        },        
-        getFormasPagto() {
-            return this.formasPagto.map((formaPagto) => this.getValueSelectFormaPagto(formaPagto));
         },
 	},
     methods: {
-        selecionarCondicaoPagamento(indexItem) {
-            const formaPagto = this.listPedidosEmbarque[indexItem].formaPagamento.formaPgto;
+        selecionarCondicaoPagamento(pedido) {
+            const formaPagto = pedido.formaPagamento;
             if (formaPagto.id == this.condigoBrinde) {
-                this.listPedidosEmbarque[indexItem].brinde = true;
+                pedido.brinde = true;
                 this.condicoesPagto = null;
-                this.listPedidosEmbarque[indexItem].condicaoPagamento = null;
-            } else if (formaPagto.id == this.condigoBoleto) {
-                this.condicoesPagto = null;
-                this.listPedidosEmbarque[indexItem].condicaoPagamento = null;
+                pedido.condicaoPagamento = null;
+            // } else if (formaPagto.id == this.condigoBoleto) {
+            //     this.condicoesPagto = null;
+            //     pedido.condicaoPagamento = null;
             } else {
-                this.listPedidosEmbarque[indexItem].condicoesPagamento = [];
+                pedido.condicoesPagamento = [];
                 const condicoes = formaPagto.condicoes && formaPagto.condicoes.length > 0 ? formaPagto.condicoes : [];
-                this.condicoesPagto = condicoes;
+                this.condicoesPagto = {};
+                this.condicoesPagto[pedido.id] = condicoes;
                 if (condicoes.length > 0) {
-                    this.listPedidosEmbarque[indexItem].condicaoPagamento = {
-                        value: condicoes[0].id,
-                        label:condicoes[0].nome,
-                        parcelas:condicoes[0].parcelas
-                    };
+                    pedido.condicaoPagamento = condicoes[0];
                 }
             }
+        },
+        proximoCampo(refName) {                  
+            document.getElementById(refName).focus();
         },
         getLabelEndereco(endereco) {
             return endereco ? endereco.endereco +' - '+ endereco.numero +', CEP: '+ endereco.cep : null;
@@ -245,24 +241,26 @@ export default {
         },
         setDescontos(){
         },
-        getValueSelectFormaPagto(formaPagto) {
-            return {label:formaPagto.nome, value:formaPagto.id, formaPgto:formaPagto};
-        },
-        setBrinde(indexItem){
-            if (this.listPedidosEmbarque[indexItem].brinde) {
-                const brinde = _.find(this.formasPagto, (formaPagto) => formaPagto.id == this.condigoBrinde );
-                this.listPedidosEmbarque[indexItem].formaPagamento = this.getValueSelectFormaPagto(brinde);
+        setBrinde(pedido){
+            if (pedido.brinde) {
+                pedido.formaPagamento = _.find(this.formasPagto, (formaPagto) => formaPagto.id == this.condigoBrinde );
             } else {
-                this.listPedidosEmbarque[indexItem].formaPagamento = null;
+                pedido.formaPagamento = this.formasPagto[0];
             }
-            this.listPedidosEmbarque[indexItem].condicaoPagamento = null;
-        },
-        getCoinFormat(value) {
-			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
+            pedido.condicaoPagamento = null;
         },
         validarDadosPedido() {
-            // criar validaçãov                 
-            this.gerarPedidosMessage();
+            PedidoUtils.validarPedido(this.pedidoCapa, this.listPedidosEmbarque).then(() => {
+                this.gerarPedidosMessage();
+            }).catch((erro) => {                
+                this.$vs.notify({
+                    title: 'Erro!',
+                    text: erro.mensagem,
+                    color: 'danger',
+                    iconPack: 'feather',
+                    icon: 'icon-alert-circle'
+                })
+            });
         },
         gerarPedidosMessage() {
             this.$vs.dialog({
@@ -285,12 +283,15 @@ export default {
                 });
             } else {
                 PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
-                    const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
-                    pedidos.forEach(pedido => {
-                        PedidoDB.salvarPedido(pedido).then(() => {
-                            done();
-                        });
-                    });
+                    console.log(pedidos);
+                    console.log(PedidoDB);
+                    
+                    // const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
+                    // pedidos.forEach(pedido => {
+                    //     PedidoDB.salvarPedido(pedido).then(() => {
+                    //         done();
+                    //     });
+                    // });
                 });
             }
         },
@@ -301,8 +302,9 @@ export default {
 			this.$bvModal.show(this.idPopUpSearch);
         },
         selectSearchCliente(cliente) {
-            this.clienteCapa = cliente;
-            this.clienteCapa.endEntrega = this.getLabelEndereco(_.find(cliente.enderecos, (endereco) => endereco.endEntrega ));
+            this.pedidoCapa.cliente = cliente;
+            this.pedidoCapa.emailNfe = cliente.emailNfe;
+            this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(cliente.enderecos, (endereco) => endereco.endEntrega ));
         },
         carregaItensTela() {
 			return new Promise((resolve) => {
@@ -311,9 +313,19 @@ export default {
                     CarrinhoUtils.getCarrinho().then(carrinho => {
                         this.itensCarrinho = carrinho;
                         EmbarqueDB.getPedidosPorEmbarques(carrinho).then((embarques) => {
-                            this.listPedidosEmbarque = embarques;
-                            this.showPedido = true;
-                            resolve();
+                            const done = _.after(embarques.length, () => {
+                                this.listPedidosEmbarque = embarques;
+                                this.showPedido = true;
+                                resolve();
+                            });
+
+                            embarques.forEach(embarque => {
+                                embarque.formaPagamento = this.formasPagto[0];
+                                embarque.condicaoPagamento = this.formasPagto[0].condicoes[0];
+                                this.condicoesPagto = this.condicoesPagto == null ? {} : this.condicoesPagto;
+                                this.condicoesPagto[embarque.id] = this.formasPagto[0].condicoes;
+                                done();
+                            });
                         });
                     });
                 })
@@ -331,13 +343,14 @@ export default {
     },
     mounted() {
         PedidoUtils.newPedido().then((pedido) => {
-            this.pedidoCapa = pedido;
-            this.clienteCapa = Storage.getClienteCarrinho();
-            if (!this.clienteCapa.grupoCliente) {
-                this.clienteCapa.grupoCliente = Storage.getGrupoCarrinho();
-            }
-            if (pedido.cliente) {
-                this.clienteCapa.endEntrega = this.getLabelEndereco(_.find(pedido.cliente.enderecos, (endereco) => endereco.endEntrega ));
+            this.pedidoCapa = _.cloneDeep(pedido);
+            this.pedidoCapa.cliente = Storage.getClienteCarrinho();
+            if (this.pedidoCapa.cliente) {
+                this.pedidoCapa.emailNfe = _.cloneDeep(this.pedidoCapa.cliente.emailNfe);
+                this.pedidoCapa.grupoCliente = this.pedidoCapa.cliente.grupoCliente;
+                this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(this.pedidoCapa.cliente.enderecos, (endereco) => endereco.endEntrega ));
+            } else {
+                this.pedidoCapa.grupoCliente = Storage.getGrupoCarrinho();
             }
         });
     },

@@ -234,7 +234,7 @@ html, body {
     border-bottom-left-radius: 0 !important;
     border-top-right-radius: 50% !important;
     border-bottom-right-radius: 50% !important;
-    z-index: 300001;
+    z-index: 1000;
     height: 6vw !important;
 }
 
@@ -246,8 +246,8 @@ html, body {
     border-bottom-right-radius: 0 !important;
     border-top-left-radius: 50% !important;
     border-bottom-left-radius: 50% !important;
-    // z-index: 1000;
-    z-index: 300001;
+    z-index: 1000;
+    // z-index: 300001;
     height: 6vw !important;
 }
 
@@ -260,6 +260,7 @@ html, body {
     z-index: 1000;
     width: 10rem;
     transform: rotate(-90deg);
+    margin-right: -5px;
 }
 
 .btn-cancel {
@@ -271,6 +272,7 @@ html, body {
     z-index: 1000;
     width: 10rem;
     transform: rotate(90deg);
+    margin-left: -5px;
 }
 
 .btn-carrinho {

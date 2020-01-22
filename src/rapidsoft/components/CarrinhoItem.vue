@@ -62,16 +62,8 @@
             </div>
             <div class="vx-col w-2/12 mx-5" style="justify-content:center;margin:auto">
                 <div class="vx-row" style="display=flex;justify-content:center;">
-                    <!-- <vs-select v-model="produtoCor.embarque.id">
-                        <vs-select-item
-                            :key="index"
-                            :value="embarque.id"
-                            :text="embarque.nome"
-                            v-for="(embarque, index) in getEmbarquesProdutos()"
-                        />
-                    </vs-select> -->
                     <b-form-select 
-                        v-model="produtoCor.embarque.id" 
+                        v-model="produtoCor.embarque" 
                         :options="getEmbarquesSelect(produtoCor.embarque)"
                         value-field="id"
                         text-field="nome"
@@ -80,7 +72,7 @@
                         class="mt-3"
                     >
                         <template v-slot:first>
-                            <option value="" disabled>-- Please select an option --</option>
+                            <option value="" disabled>Selecione...</option>
                         </template>
                     </b-form-select>
                 </div>
@@ -124,7 +116,7 @@ export default {
             required: true,
         },
         embarques: {
-            type: Array,
+            type: Object,
             required: true,
         }
     },
@@ -145,9 +137,12 @@ export default {
 	},
     methods: {
         getEmbarquesSelect(embarque) {
-            return this.embarques.filter((emb) => {
+            const mapEmbarques = new Map(Object.entries(this.embarques));
+            const embarqueProduto = mapEmbarques.get(String(embarque))
+            
+            return [...mapEmbarques.values()].filter((emb) => {
                 return (emb.dataInicio > this.dataAtual || emb.dataFim < this.dataAtual) 
-                    && (emb.dataInicio >= embarque.dataInicio || emb.dataFim <= embarque.dataFim);
+                    && (emb.dataInicio >= embarqueProduto.dataInicio || emb.dataFim <= embarqueProduto.dataFim);
             });
         },
 		getTamanhosProduto(index) {

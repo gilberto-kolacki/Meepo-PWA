@@ -42,10 +42,10 @@
                         <template>
                             <vs-tr>
                                 <vs-td>
-                                    {{this.carrinho.cliente ? this.carrinho.cliente.nome : " - "}}
+                                    {{this.carrinho.cliente ? this.carrinho.cliente.nome : " - " | capitalize }}
                                 </vs-td>
                                 <vs-td>
-                                    {{this.carrinho.grupoCliente ? this.carrinho.grupoCliente.nome : " - "}}
+                                    {{this.carrinho.grupoCliente ? this.carrinho.grupoCliente.nome : " - " | capitalize}}
                                 </vs-td>
                                 <vs-td style="text-align:right">
                                     {{this.carrinho.itens.length}}

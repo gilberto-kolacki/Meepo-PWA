@@ -9,22 +9,6 @@
 import BasicDB from './basicDB';
 import _ from 'lodash';
 
-// let localDB = null;
-// let remoteDB = null;
-
-// const createDB = () => {
-//     BasicDB.createDBLocal("cliente").then((dataBaseLocal) => {
-//         if (dataBaseLocal) {
-//             localDB = new PouchDB(dataBaseLocal, {revs_limit: 1, auto_compaction: true});
-//             BasicDB.createDBRemote(dataBaseLocal).then((dataBaseRemote) => {
-//                 remoteDB = new PouchDB(dataBaseRemote, {ajax: {cache: false, timeout: 10000 }});
-//             })
-//         }
-//     })
-// };
-
-// createDB();
-
 const validarContatoDB = (contato) => {
     return new Promise((resolve, reject) => {
         let retorno = {
@@ -318,7 +302,6 @@ class clienteDB extends BasicDB {
             validarContatoDB(contato).then((result) => {
                 resolve(result);
             }).catch((err) => {
-                this._criarLogDB({url:'db/clienteDB',method:'validarContato',message: err,error:'Failed Request'});
                 reject(err);
             });
         });
