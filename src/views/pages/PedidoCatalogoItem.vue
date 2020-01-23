@@ -93,7 +93,32 @@
                     </div>
                     <div class="vx-row mt-base-top2">
                     </div>
+                    <div class="vx-row mt-top3">
+                        <vs-collapse style="padding:0px;margin-left:-10px">
+                            <vs-collapse-item>
+                                <div slot="header" class="vx-row" style="margin-bottom:-20px">
+                                    <feather-icon icon="FilterIcon" style="margin-top:-10px;color:warning;" class="cursor-pointer"/>
+                                    <h4 style="display:flex;margin:auto;margin-left:5px;margin-top:-10px">Categorias</h4>
+                                </div>
+                                <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll">
+                                    <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasSearch" :key="index+categoria">
+                                        
+                                        <button style="background-color: rgb(228,28,64);color:rgb(228,255,255)" v-if="filtro.categoria.id === categoria.id" class="input_filter" @click.stop="categoriasSelecionadas(categoria.id)">
+                                            <p class="flex justify-center" style="margin:auto">{{categoria.label}}</p>
+                                        </button>
+                                        <button v-else class="input_filter" style="background-color: rgb(255,255,255);"  @click.stop="categoriasSelecionadas(categoria.id)">
+                                            <p class="flex justify-center" style="margin:auto">{{categoria.label}}</p>
+                                        </button>
+                                        <!-- <vs-button class="w-full" :id="index" v-if="filtro.categoria.id === categoria.id" color="primary">{{categoria.label}}</vs-button>
+                                        <vs-button class="w-full" :id="index" v-else color="primary" style="border: 1px solid rgb(255, 129, 129)" @click.stop="categoriasSelecionadas(categoria.id)">{{categoria.label}}</vs-button> -->
+                                    </div>
+                                </div>
+                            </vs-collapse-item>
+                        </vs-collapse>
+                        
+                    </div>
                 </div>
+
             </div>
 
         </vs-col>
@@ -116,6 +141,8 @@ import AddItemCarrinho  from '../../rapidsoft/components/AddItemCarrinho';
 import SearchProduto  from '../../rapidsoft/components/SearchProduto';
 import ZoomProduto  from '../../rapidsoft/components/ZoomProduto';
 import ErrorDB from '../../rapidsoft/db/errorDB';
+import vSelect from 'vue-select';
+import CategoriaDB from '../../rapidsoft/db/categoriaDB';
 
 export default {
 
@@ -140,7 +167,7 @@ export default {
             },
             produtoAddOpen: false,
             filtro:{
-                categoria: 0
+                categoria: {id: 99999}
             },
             corSelecionada: 0,
             imagens: [],
@@ -159,6 +186,7 @@ export default {
             produtoZoomShow: false,
             grupoCliente: null,
             catalogo: null,
+            categoriasFiltro: [],
         }
     },
     components: {
@@ -166,6 +194,7 @@ export default {
         AddItemCarrinho,
         SearchProduto,
         ZoomProduto,
+        'v-select': vSelect,
     },
     watch: {
     },
@@ -197,6 +226,27 @@ export default {
     },
     methods: {
         // tela
+        categoriasSelecionadas(idCategoria) {
+            this.filtro = {};
+            const filtro = {categoria:{id:idCategoria}};
+            this.filtro = filtro;
+            if (idCategoria !== 99999) {
+                ProdutoUtils.getCatalogoByIdCategoria(this.catalogo.idCatalogo,idCategoria).then((paginas) => {
+                    this.paginas = paginas;
+
+                    this.paginas ?
+                        this.selectProduto(paginas[0])
+                    :
+                        this.carregaItensTela();
+                });      
+            } else {
+                const filtro = {categoria:{id:99999}};
+                this.filtro = filtro;
+                this.carregaItensTela();
+            }
+            
+        },
+
         viewPreco() {
             let texto = 'REF A: ' +this.calcularPrecoProduto(this.produtoA);
             if (this.produtoB) {
@@ -304,17 +354,23 @@ export default {
             ProdutoDB.getProdutoPaginaCatalogo(pagina).then((result) => {
                 if (result) {
                     this.$vs.loading();
-                    console.log(result);
                     
                     this.popupSearchProdutos = false;
                     this.produtoA = result.produtoA;
                     this.produtoB = result.produtoB;
                     this.produtoC = result.produtoC;
                     ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
-                        this.imagemProdutoPrincipal = result;
-                        this.corSelecionada = 0;
-                        document.getElementById("produto-image-gallery").scrollTop = 0;
-                        this.$vs.loading.close();
+                        CategoriaDB.getAllBySegmento(this.produtoA.segmento).then((categorias) => {
+                            this.categoriasFiltro = [];
+                            this.categoriasFiltro.push({id:99999,label:'Todos'});
+                            categorias.forEach(categoria => {
+                                this.categoriasFiltro.push(_.cloneDeep({id:categoria.id,label:categoria.nome}));
+                            });
+                            this.imagemProdutoPrincipal = result;
+                            this.corSelecionada = 0;
+                            document.getElementById("produto-image-gallery").scrollTop = 0;
+                            this.$vs.loading.close();
+                        });
                     });
                 }
             });
@@ -380,9 +436,23 @@ html {
   height: 100%
 }
 
-// .page-catalogo{
-//   -webkit-overflow-scrolling: touch;
-// }
+.input_filter {
+    padding: 10px;
+    border-radius: 5px; 
+    // border-bottom-left-radius:0px;
+    border:1.5px solid rgb(228, 28, 64); 
+    color:rgb(228, 28, 64);
+    width: 150px;
+    font-size: x-small;
+    font-weight: bold;
+	cursor: pointer;
+	display: inline-block;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+	transition: all 0.3s;
+}
+// /button
+
 
 .mt-base-bottom {
     margin-bottom: 2rem !important

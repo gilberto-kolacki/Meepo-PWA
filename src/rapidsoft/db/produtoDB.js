@@ -13,6 +13,7 @@ import CatalogoDB from './catalogoDB';
 import EmbarqueDB from './embarqueDB';
 
 const getProdutoToDBFilterCategoria = (produtos, idsCategorias, textoSearch) => {
+    
     textoSearch = _.toUpper(textoSearch);
     return produtos.filter((produto) => {
         return textoSearch === null || textoSearch === "" || _.toUpper(produto.referencia).includes(textoSearch) || produto.nome.includes(textoSearch);
@@ -22,6 +23,16 @@ const getProdutoToDBFilterCategoria = (produtos, idsCategorias, textoSearch) => 
                 return idsCategorias.some((idCategoria) => {
                     return categoria === idCategoria;
                 });
+            });
+        });
+    });
+};
+
+const getProdutoToDBCategoria = (produtos, idCategoria) => {
+    return produtos.filter((produto) => {
+        return idCategoria.length === 0 || produto.cores.some((cor) => {
+            return cor.categorias.some((categoria) => {
+                return categoria === idCategoria;
             });
         });
     });
@@ -54,7 +65,17 @@ class produtoDB extends BasicDB {
         });
     }
 
+    getProdutosByIdCategorias(idCategoria) {
+        
+        return new Promise((resolve) => {
+                this.getAllProdutos().then((produtos) => {
+                    resolve(getProdutoToDBCategoria(produtos, idCategoria));
+                });
+        });
+    }
+
     getAllProdutosByIdCategorias(idCategorias, textoSearch) {
+        
         return new Promise((resolve) => {
             if (idCategorias.length > 0 || textoSearch.length > 0) {
                 this.getAllProdutos().then((produtos) => {
