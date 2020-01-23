@@ -187,9 +187,10 @@ class clienteDB extends BasicDB {
         return new Promise((resolve, reject) => {
             validarObjetoDB(cliente).then((resultCliente) => {
                 resultCliente._id = resultCliente.cpfCnpj;
+                resultCliente.clienteAlterado = true;
                 resultCliente.endereco.cep = resultCliente.endereco.cep.replace(/[^a-z0-9]/gi, "");
-                if (cliente.nome == null) {
-                    cliente.nome = cliente.nomeFantasia;
+                if (resultCliente.nome == null) {
+                    resultCliente.nome = resultCliente.nomeFantasia;
                 }
                 this._salvar(resultCliente).then((result) => {
                     resolve(result);
