@@ -359,8 +359,6 @@ export default {
                     ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
                         CategoriaDB.getAllBySegmento(this.produtoA.segmento).then((categorias) => {
                             this.categoriasFiltro = categorias;
-                            console.log(this.categoriasFiltro);
-                            
                             this.imagemProdutoPrincipal = result;
                             this.corSelecionada = 0;
                             document.getElementById("produto-image-gallery").scrollTop = 0;
@@ -374,7 +372,7 @@ export default {
             this.popupAddProduto = false;
             ProdutoUtils.addProdutoSearchFromPages(this.paginas, produto).then((paginas) => {
                 this.$bvModal.hide(this.idPopUpSearch);
-                this.paginas = paginas;                
+                this.paginas = paginas;  
                 this.selectProduto(this.paginas[this.paginas.length-1]);
             });
         },
@@ -386,6 +384,25 @@ export default {
                 document.getElementById('loading-bg').style.display = null;
                 ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo).then(paginas => {
                     this.paginas = paginas;
+                    let catF = [];
+                    
+                    this.paginas.map((pagina) => {
+                        for (const key in pagina) {
+                            if (pagina.hasOwnProperty(key) && key !== 'idFoto' && key !== 'pag') {
+                                pagina[key].cat.map((categoria) => {
+                                    catF.push(categoria);
+                                    // Eliminar elementos duplicados no array com reduce
+                                })
+                            }
+                        }
+                    });
+
+                    var uniqueProducts = catF.filter( function( elem, i, array ) {
+                        return array.indexOf( elem ) === i;
+                    } );
+                    
+                    console.log("Cat F ", uniqueProducts);
+
                     this.selectProduto(paginas[0]);
                     document.getElementById('loading-bg').style.display = "none";
                     resolve();
