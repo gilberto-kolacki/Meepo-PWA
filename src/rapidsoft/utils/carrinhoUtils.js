@@ -34,6 +34,20 @@ class carrinhoUtils {
         });
     }
 
+    getCarrinhoNomeProdutoById(orcamentoId) {
+        return new Promise((resolve) => {
+            CarrinhoDB._getById(orcamentoId).then((orcamento) => {
+                const done = _.after(orcamento.value.itens.length,() => resolve(orcamento));
+                orcamento.value.itens.forEach(item => {
+                    ProdutoDB._getById(item.ref).then((produto) => {
+                        item.nome = produto.value.nome;
+                        done();
+                    })
+                });
+            });
+        });
+    }
+
     getCarrinho(orcamentoId = null) {
         return new Promise((resolve) => {
             const getProdutos = (carrinho) => {

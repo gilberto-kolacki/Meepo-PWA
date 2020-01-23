@@ -124,9 +124,10 @@ import { Validator } from 'vee-validate';
 import validatePtBR from '../../rapidsoft/validate/validate_ptBR'
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import UtilMask from '../../rapidsoft/utils/utilMask';
-import ProdutoDB from '../../rapidsoft/db/produtoDB';
-import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
-import _ from 'lodash';
+// import ProdutoDB from '../../rapidsoft/db/produtoDB';
+// import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
+import CarrinhoUtils from '../../rapidsoft/utils/carrinhoUtils';
+// import _ from 'lodash';
 
 Validator.localize('pt', validatePtBR);
 
@@ -153,18 +154,11 @@ export default {
         },
 
         carregaItensTela() {
-            return new Promise((resolve) => {
-                CarrinhoDB._getById(this.$route.params.orcamento.id).then((orcamento) => {
-                    const done = _.after(orcamento.value.itens.length,() => resolve(orcamento));
-                    orcamento.value.itens.forEach(item => {
-                        ProdutoDB._getById(item.ref).then((produto) => {
-                            item.nome = produto.value.nome;
-                        })
-                        done();
-                    });
-                });
+
+            CarrinhoUtils.getCarrinhoNomeProdutoById(this.$route.params.orcamento.id).then((orcamento) => {
+                this.orcamento = orcamento.value
             });
-            
+
         },
 
         getValorTotal(quantidade, valor) {
@@ -195,10 +189,7 @@ export default {
         }
     },
     mounted() {
-        this.carregaItensTela().then((orcamento) => {
-            this.orcamento = orcamento.value;
-            console.log(':) ',this.orcamento);
-        });
+        this.carregaItensTela();
         
         this.$emit("setAppClasses", "invoice-page")
     },
