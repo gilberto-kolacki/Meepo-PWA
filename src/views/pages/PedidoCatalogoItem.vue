@@ -93,29 +93,26 @@
                     </div>
                     <div class="vx-row mt-base-top2">
                     </div>
-                    <div class="vx-row mt-top3">
-                        <vs-collapse style="padding:0px;margin-left:-10px">
-                            <vs-collapse-item>
-                                <div slot="header" class="vx-row" style="margin-bottom:-20px">
-                                    <feather-icon icon="FilterIcon" style="margin-top:-10px;color:warning;" class="cursor-pointer"/>
-                                    <h4 style="display:flex;margin:auto;margin-left:5px;margin-top:-10px">Categorias</h4>
-                                </div>
-                                <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll">
-                                    <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasSearch" :key="index+categoria">
-                                        
-                                        <button style="background-color: rgb(228,28,64);color:rgb(228,255,255)" v-if="filtro.categoria.id === categoria.id" class="input_filter" @click.stop="categoriasSelecionadas(categoria.id)">
-                                            <p class="flex justify-center" style="margin:auto">{{categoria.label}}</p>
-                                        </button>
-                                        <button v-else class="input_filter" style="background-color: rgb(255,255,255);"  @click.stop="categoriasSelecionadas(categoria.id)">
-                                            <p class="flex justify-center" style="margin:auto">{{categoria.label}}</p>
-                                        </button>
-                                        <!-- <vs-button class="w-full" :id="index" v-if="filtro.categoria.id === categoria.id" color="primary">{{categoria.label}}</vs-button>
-                                        <vs-button class="w-full" :id="index" v-else color="primary" style="border: 1px solid rgb(255, 129, 129)" @click.stop="categoriasSelecionadas(categoria.id)">{{categoria.label}}</vs-button> -->
+                    <div class="vx-row mt-base-top3">
+                        <div class="btn-group centex mt-base-top1 w-full">
+                            <vs-collapse>
+                                <vs-collapse-item>
+                                    <div slot="header" class="vx-row" style="margin-bottom:-20px">
+                                        <h5 class="title-ref" style="display:flex;margin:auto;margin-left:5px;margin-top:-10px">Categorias</h5>
                                     </div>
-                                </div>
-                            </vs-collapse-item>
-                        </vs-collapse>
-                        
+                                    <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll">
+                                        <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasSearch" :key="index+categoria">
+                                            <button style="background-color: rgb(228,28,64);color:rgb(228,255,255)" v-if="filtro.categoria.id === categoria.id" class="input_filter" @click.stop="categoriasSelecionadas(categoria.id)">
+                                                <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
+                                            </button>
+                                            <button v-else class="input_filter" style="background-color: rgb(255,255,255);"  @click.stop="categoriasSelecionadas(categoria.id)">
+                                                <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </vs-collapse-item>
+                            </vs-collapse>
+                        </div>
                     </div>
                 </div>
 
@@ -361,11 +358,9 @@ export default {
                     this.produtoC = result.produtoC;
                     ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
                         CategoriaDB.getAllBySegmento(this.produtoA.segmento).then((categorias) => {
-                            this.categoriasFiltro = [];
-                            this.categoriasFiltro.push({id:99999,label:'Todos'});
-                            categorias.forEach(categoria => {
-                                this.categoriasFiltro.push(_.cloneDeep({id:categoria.id,label:categoria.nome}));
-                            });
+                            this.categoriasFiltro = categorias;
+                            console.log(this.categoriasFiltro);
+                            
                             this.imagemProdutoPrincipal = result;
                             this.corSelecionada = 0;
                             document.getElementById("produto-image-gallery").scrollTop = 0;
@@ -439,7 +434,6 @@ html {
 .input_filter {
     padding: 10px;
     border-radius: 5px; 
-    // border-bottom-left-radius:0px;
     border:1.5px solid rgb(228, 28, 64); 
     color:rgb(228, 28, 64);
     width: 150px;
@@ -451,8 +445,6 @@ html {
 	-moz-transition: all 0.3s;
 	transition: all 0.3s;
 }
-// /button
-
 
 .mt-base-bottom {
     margin-bottom: 2rem !important
