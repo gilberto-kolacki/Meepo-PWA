@@ -96,22 +96,23 @@
                     <div class="vx-row mt-base-top3">
                         <div class="btn-group centex mt-base-top1 w-full">
                             <vs-collapse>
-                                <vs-collapse-item>
+                                <vs-collapse-item style="padding:0px" class="w-full paddingZero" icon-pack="feather" icon-arrow="icon-filter">
                                     <div slot="header" class="vx-row" style="margin-bottom:-20px">
-                                        <h5 class="title-ref" style="display:flex;margin:auto;margin-left:5px;margin-top:-10px">Categorias</h5>
+                                        <h5 class="title-ref" style="margin-top: -8px">Categorias</h5>
+                                        <!-- <h5 class="title-ref" style="margin-top:-10px;width:100%">Categorias</h5> -->
                                     </div>
-                                    <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll">
-                                            <button class="input_filter" style="background-color: rgb(255,255,255);" v-if="filtro.categoria.id"  @click.stop="categoriasSelecionadas(null)">
-                                                <p class="flex justify-center" style="margin:auto">Todos</p>
-                                            </button>
-                                            <button class="input_filter" style="background-color: rgb(228,28,64);color:rgb(228,255,255)" v-else>
-                                                <p class="flex justify-center" style="margin:auto">Todos</p>
-                                            </button>
+                                    <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll;">
+                                        <button class="w-full input_filter" style="background-color: rgb(255,255,255);" v-if="filtro.categoria.id"  @click.stop="categoriasSelecionadas(null)">
+                                            <p class="flex justify-center" style="margin:auto">Todos</p>
+                                        </button>
+                                        <button class="w-full input_filter" style="background-color: rgb(228,28,64);color:rgb(228,255,255)" v-else>
+                                            <p class="flex justify-center" style="margin:auto">Todos</p>
+                                        </button>
                                         <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasCatalogo" :key="index+categoria">
-                                            <button style="background-color: rgb(228,28,64);color:rgb(228,255,255)" v-if="filtro.categoria.id === categoria.id" class="input_filter" @click.stop="categoriasSelecionadas(categoria.id)">
+                                            <button style="w-full background-color: rgb(228,28,64);color:rgb(228,255,255)" v-if="filtro.categoria.id === categoria.id" class="input_filter" @click.stop="categoriasSelecionadas(categoria.id)">
                                                 <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
                                             </button>
-                                            <button v-else class="input_filter" style="background-color: rgb(255,255,255);"  @click.stop="categoriasSelecionadas(categoria.id)">
+                                            <button v-else class="w-full input_filter" style="background-color: rgb(255,255,255);"  @click.stop="categoriasSelecionadas(categoria.id)">
                                                 <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
                                             </button>
                                         </div>
@@ -436,10 +437,10 @@ html {
 
 .input_filter {
     padding: 10px;
-    border-radius: 5px; 
+    border-radius: 5px;
+    width:160px; 
     border:1.5px solid rgb(228, 28, 64); 
     color:rgb(228, 28, 64);
-    width: 150px;
     font-size: x-small;
     font-weight: bold;
 	cursor: pointer;
@@ -581,6 +582,12 @@ html {
     top: 2rem;
 }
 
+</style>
 
-
+<style lang="stylus">
+    .paddingZero {
+        .con-content--item {
+            padding: 0px !important;
+        }
+    }
 </style>
