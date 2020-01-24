@@ -299,7 +299,9 @@ class basicDB {
 
     _criarLog(erro) {
         return new Promise((resolve) => {
-            const logger = newLog('tela', erro.vm.id, erro.vm.$el.baseURI, erro.info, erro.err.message);
+            console.log(erro);
+            const caminho = erro.vm.$el ? erro.vm.$el.baseURI : erro.vm.$vnode.tag;
+            const logger = newLog('tela', erro.vm.id, caminho, erro.info, erro.err.message);
             this.__salvarErro(logger).then((result) => {
                 resolve(result);
             });
