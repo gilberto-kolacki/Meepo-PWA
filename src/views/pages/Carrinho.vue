@@ -4,7 +4,7 @@
 		<vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltar()" icon="icon-x">Voltar</vs-button>
 		<b-tabs content-class="mt-5" justified v-if="this.showCarrinho" lazy no-fade >
 			<b-tab id="tab-embarques">
-				<template v-slot:title>
+				<template v-slot:title :active="'true'">
 					<strong>
 						<feather-icon icon="BoxIcon" style="color:warning;" class="cursor-pointer"/>
 						Embarques

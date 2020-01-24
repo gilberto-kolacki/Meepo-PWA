@@ -122,7 +122,9 @@ export default {
 
     },
     mounted() {
-        UsuarioDB.limparBase();
+        UsuarioDB.limparBase().then(() => {
+            
+        });
     },
     errorCaptured(err, vm, info) {
         ErrorDB._criarLog({err, vm, info});

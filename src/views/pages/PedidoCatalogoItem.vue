@@ -319,7 +319,7 @@ export default {
         },
         addProduto() {
             const produtos = [this.produtoA, this.produtoB, this.produtoC];
-            this.$router.push({ name: 'carrinhoAdd', params: {produtos: produtos } });
+            this.$router.push({ name: 'carrinhoAdd', params: {produtos: produtos, pag: this.paginaAtual } });
         },
         selectProduto(pagina) {
             this.paginaAtual = pagina;
@@ -356,6 +356,9 @@ export default {
         },
         carregaItensTela() {
             return new Promise((resolve) => {
+
+                console.log("carregaItensTela");
+                
                 document.getElementById('loading-bg').style.display = null;
 
                 if (!this.filtro.categoria.id) {
@@ -561,12 +564,4 @@ html {
     top: 2rem;
 }
 
-</style>
-
-<style lang="stylus">
-    .paddingZero {
-        .con-content--item {
-            padding: 0px !important;
-        }
-    }
 </style>

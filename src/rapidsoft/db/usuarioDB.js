@@ -38,17 +38,11 @@ class usuarioDB extends BasicDB {
 
     signOut() {
         return new Promise((resolve, reject) => {
-            SegmentoDB._limparBase().then(() => {
-                this._localDB.destroy().then(() => {
-                    localStorage.removeItem('userInfo')
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('tokenExpiry');
-                    localStorage.removeItem('userRole');
-                    resolve(new usuarioDB());
-                }).catch((err) => {
-                    this._criarLogDB({url:'db/usuarioDB',method:'signOut',message: err,error:'Failed Request'});
-                    reject(err);
-                });
+            this.limparBase().then(() => {
+                resolve();
+            }).catch((err) => {
+                this._criarLogDB({url:'db/usuarioDB',method:'signOut',message: err,error:'Failed Request'});
+                reject(err);
             });
         });
     }
@@ -59,9 +53,7 @@ class usuarioDB extends BasicDB {
                 store.dispatch('updateUserActive', user);
                 resolve(user);
             }).catch((err) => {
-                console.log(err);
-                
-                // this._criarLogDB({url:'db/usuarioDB',method:'onAuthStateChanged',message: err,error:'Failed Request'});
+                this._criarLogDB({url:'db/usuarioDB',method:'onAuthStateChanged',message: err,error:'Failed Request'});
                 reject(err);
             });
         });
@@ -69,19 +61,22 @@ class usuarioDB extends BasicDB {
 
     isAuthenticated() {
       return new Promise((resolve) => {
-        if(Auth.isAuthenticated()) {
-          console.log('entrou')
-          resolve('/');
-        } else {
-          resolve({authenticated: false, path: '/login'});
-        }
-      });
+            if(Auth.isAuthenticated()) {
+                resolve('/');
+            } else {
+                resolve({authenticated: false, path: '/login'});
+            }
+        });
     }
 
     limparBase() {
         return new Promise((resolve) => {
             SegmentoDB._limparBase().then(() => {
                 this._limparBase().then(() => {
+                    localStorage.removeItem('userInfo');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('tokenExpiry');
+                    localStorage.removeItem('userRole');
                     resolve();
                 }).catch((err) => {
                     this._criarLogDB({url:'db/usuarioDB',method:'limparBase',message: err,error:'Failed Request'});

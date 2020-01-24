@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
-import router from '@/router'
-import usuarioDB from '../db/usuarioDB'
+import router from '@/router';
+import UsuarioDB from '../db/usuarioDB';
 
 const localStorageKey = 'token';
 const tokenExpiryKey = 'tokenExpiry';
@@ -18,7 +18,7 @@ class AuthService extends EventEmitter {
     }
 
     logOut(callback) {
-        usuarioDB.signOut().then(() => {
+        UsuarioDB.signOut().then(() => {
             this.emit(loginEvent, { loggedIn: false });
             router.go(0);
             callback();
@@ -26,15 +26,15 @@ class AuthService extends EventEmitter {
     }
 
     isAuthenticated() {
-      if (window.navigator.onLine === false) {
-        return true;
-      } else {
-        if(new Date(Date.now()) < new Date(parseInt(localStorage.getItem(tokenExpiryKey))) && localStorage.getItem(localStorageKey) != "") {
-          return true;
+        if (window.navigator.onLine === false) {
+            return true;
         } else {
-          return false;
+            if(new Date(Date.now()) < new Date(parseInt(localStorage.getItem(tokenExpiryKey))) && localStorage.getItem(localStorageKey) != "") {
+                return true;
+            } else {
+                return false;
+            }
         }
-      }
     }
 }
 

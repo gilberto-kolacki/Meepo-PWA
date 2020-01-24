@@ -69,10 +69,13 @@ class basicDB {
         this._name = name;
         this._remote = remote;
         this._lastId = null;        
+        this.createBases();
+    }
+
+    createBases() {
         create(this._name, this._remote, (localDB, remoteDB) => {
             this._localDB = localDB;
             this._remoteDB = remoteDB;
-            this.__IndexedError(localDB);
             create("erros", true, (localErroDB, remoteErroDB) => {
                 this._localErroDB = localErroDB;
                 this._remoteErroDB = remoteErroDB;
@@ -119,11 +122,8 @@ class basicDB {
     _limparBase() {
         return new Promise((resolve) => {
             this._localDB.destroy().then(() => {
-                create(this._name, this._remote, (localDB, remoteDB) => {
-                    this._localDB = localDB;
-                    this._remoteDB = remoteDB;
-                    resolve();
-                });
+                this.createBases();
+                resolve();
             }).catch((err) => {
                 this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: err,error:'Failed Request'});
                 resolve(err);
@@ -286,12 +286,16 @@ class basicDB {
 
     __salvarErro(value) {
         return new Promise((resolve, reject) => {
-            this._localErroDB.put(value).then((result) => {
-                resolve(_.toNumber(result.id));
-            }).catch((erro) => {
-                this._criarLogDB({url:'db/basicDB',method:'_salvar',message: erro, error:'Failed Request'});
-                reject(erro);
-            });
+            if (this._localErroDB) {
+                this._localErroDB.put(value).then((result) => {
+                    resolve(_.toNumber(result.id));
+                }).catch((erro) => {
+                    this._criarLogDB({url:'db/basicDB',method:'_salvar',message: erro, error:'Failed Request'});
+                    reject(erro);
+                });
+            } else {
+                resolve();
+            }
         });
     }
 
@@ -334,19 +338,21 @@ class basicDB {
     }
 
     __IndexedError(localDB) {
-        const request = indexedDB.open(localDB.__opts.name);
+        console.log(localDB);
+        
+        // const request = indexedDB.open(localDB.__opts.name);
  
-        request.onupgradeneeded = () => {
-            console.log("//fazer a criação das tabelas, indices e popular o banco se necessário");
-        };
+        // request.onupgradeneeded = () => {
+        //     console.log("//fazer a criação das tabelas, indices e popular o banco se necessário");
+        // };
         
-        request.onsuccess = () => { 
-            console.log("sucesso ao criar/abrir o banco de dados");
-        };
+        // request.onsuccess = () => { 
+        //     console.log("sucesso ao criar/abrir o banco de dados");
+        // };
         
-        request.onerror = () => { 
-            console.log("//erro ao criar/abrir o banco de dados");
-        };
+        // request.onerror = () => { 
+        //     console.log("//erro ao criar/abrir o banco de dados");
+        // };
     }
 
     

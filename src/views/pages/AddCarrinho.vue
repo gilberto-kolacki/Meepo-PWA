@@ -125,6 +125,11 @@ export default {
         },
         carregaItensTela() {
             return new Promise((resolve) => {
+				console.log('carrega');
+
+				console.log(this.$route.params.pag);
+				
+				
                 this.carrinho = Storage.getCarrinho();
                 ProdutoUtils.createProdutosAddCarrinho(this.$route.params.produtos).then((produtos) => {
                     this.produtos = produtos;
