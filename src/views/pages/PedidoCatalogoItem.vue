@@ -1,9 +1,6 @@
 <template>
     <!-- Adicao de itens -->
-    <div id="page-catalogo-add" class="page-catalogo-add" v-if="popupAddProduto">
-        <add-item-carrinho @search-selected="selectSearchProduto" @show-add-carrinho="showAddCarrinho(false)" :produtoAdd="this.produtoAdd"></add-item-carrinho>
-    </div>
-    <div id="page-catalogo" class="page-catalogo" v-else>
+    <div id="page-catalogo" class="page-catalogo">
         <div v-if="this.produtoA">
             <vs-button @click.stop="prevRef" color="primary" type="filled" class="btn-left" icon="chevron_left"></vs-button>
             <vs-button @click.stop="nextRef" color="primary" type="filled" class="btn-right" icon="chevron_right"></vs-button>
@@ -137,7 +134,6 @@ import ImagemDB from '../../rapidsoft/db/imagemDB';
 import ProdutoUtils from '../../rapidsoft/utils/produtoUtils';
 import Storage from '../../rapidsoft/utils/storage';
 import UtilMask from '../../rapidsoft/utils/utilMask';
-import AddItemCarrinho  from '../../rapidsoft/components/AddItemCarrinho';
 import SearchProduto  from '../../rapidsoft/components/SearchProduto';
 import ZoomProduto  from '../../rapidsoft/components/ZoomProduto';
 import ErrorDB from '../../rapidsoft/db/errorDB';
@@ -156,15 +152,6 @@ export default {
             produtoC: null,
             produtoD: null,
             produtoSearch: null,
-            popupAddProduto: false,
-            produtoAdd: {
-                produtoA: {
-                    cores:[]
-                },
-                produtoB: {
-                    cores:[]
-                }
-            },
             produtoAddOpen: false,
             filtro:{
                 categoria: {id: 99999}
@@ -191,7 +178,6 @@ export default {
     },
     components: {
         Vue2InteractDraggable,
-        AddItemCarrinho,
         SearchProduto,
         ZoomProduto,
         'v-select': vSelect,
@@ -339,15 +325,8 @@ export default {
             this.$bvModal.show(this.idPopUpSearch);
         },
         addProduto() {
-            this.produtoAdd = {
-                produtoA: this.produtoA,
-                produtoB: this.produtoB
-            };
-            this.popupAddProduto = true;
-        },
-        showAddCarrinho(show) {
-            this.popupAddProduto = show;
-            this.produtoAdd=null;
+            const produtos = [this.produtoA, this.produtoB, this.produtoC];
+            this.$router.push({ name: 'carrinhoAdd', params: {produtos: produtos } });
         },
         selectProduto(pagina) {
             this.paginaAtual = pagina;

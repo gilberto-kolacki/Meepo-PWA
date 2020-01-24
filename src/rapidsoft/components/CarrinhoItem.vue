@@ -155,11 +155,7 @@ export default {
         },
 		setPopupAddProduto(produto){
 			ProdutoDB.getProdutoEdicaoCarrinho(produto).then((result) => {
-				const produtoEdicao = {
-					produtoA: result,
-					produtoB: null,
-                };
-                this.$emit('edicao-item-carrinho', produtoEdicao);
+                this.$emit('edicao-item-carrinho', result);
             });
 		},
 		getCoinFormat(value) {

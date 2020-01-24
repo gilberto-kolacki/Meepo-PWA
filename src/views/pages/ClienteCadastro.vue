@@ -94,7 +94,12 @@
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2">
                             <label for="" class="vs-input--label">Segmentos*</label>
-                            <v-select :disabled="clienteEdit.clienteErp" multiple v-validate="'required'" id="segmento" name="segmento" v-model="segmentosCliente" :options="getSegmentosCheckBox"></v-select>
+                            <v-select 
+                                :disabled="clienteEdit.clienteErp" 
+                                multiple v-validate="'required'" 
+                                id="segmento" name="segmento" 
+                                v-model="segmentosCliente" 
+                                :options="this.getSegmentosCheckBox"></v-select>
                             <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
                         </div>
                     </div>
@@ -453,7 +458,6 @@ Validator.localize('pt', validatePtBR);
 export default {
     data() {
         return {    
-            idCliente: null,  
             cpfCnpj: null, 
             tipoPessoa: 1,
             grupoCliente: null,
@@ -785,24 +789,22 @@ export default {
         },
 
         findById(idCliente) {
-            ClienteDB.findById(idCliente).then((cliente) => {
-
-                console.log(cliente);
-                
-                this.clienteEdit = _.cloneDeep(cliente);
-                this.cpfCnpj = this.clienteEdit.cpfCnpj;
-                if (_.isNil(this.clienteEdit.grupoCliente)) {
-                    this.grupoCliente = _.find(this.getGrupoClientesSelect, (grupo) => { return grupo.padrao });
-                } else {
-                    this.grupoCliente = _.clone(_.find(this.getGrupoClientesSelect, (grupo) => { return grupo.value === this.clienteEdit.grupoCliente }));
-                }
-                if (this.clienteEdit.segmentos && this.clienteEdit.segmentos.length > 0) {
-                    this.segmentosCliente = _.flattenDeep(this.clienteEdit.segmentos.map((segmentoCliente) => {
-                        return _.filter(this.getSegmentosCheckBox, (segmento) => { 
-                            return _.toString(segmentoCliente) == _.toString(segmento.value)
+            return new Promise((resolve) => {
+                ClienteDB.findById(idCliente).then((cliente) => {
+                    this.clienteEdit = _.cloneDeep(cliente);
+                    this.cpfCnpj = this.clienteEdit.cpfCnpj;
+                    if (_.isNil(this.clienteEdit.grupoCliente)) {
+                        this.grupoCliente = _.find(this.getGrupoClientesSelect, (grupo) => { return grupo.padrao });
+                    } else {
+                        this.grupoCliente = _.clone(_.find(this.getGrupoClientesSelect, (grupo) => { return grupo.value === this.clienteEdit.grupoCliente }));
+                    }
+                    if (this.clienteEdit.segmentos && this.clienteEdit.segmentos.length > 0) {
+                        this.segmentosCliente = this.clienteEdit.segmentos.map((segmentoCliente) => {
+                            return _.find(this.getSegmentosCheckBox, (segmento) => segmentoCliente.toString() == segmento.value.toString());
                         });
-                    }));
-                }
+                    }
+                    resolve();
+                });
             });
         },
 
@@ -825,7 +827,18 @@ export default {
                 callback();
             })
         },
-        
+        carregaItensTela() {
+            return new Promise((resolve) => {
+                this.buscaGrupos(() => {
+                    this.buscaSegmentos(() => {
+                        this.listaCidades(() => {
+                            this.findById(this.$route.params.clienteId);
+                                resolve();
+                        });
+                    });
+                });
+            });
+        },        
     },
     created() {
         if(navigator.platform === "iPad") {
@@ -834,18 +847,8 @@ export default {
             this.isIpad= false;
         }
     },
-    mounted() {
-        this.buscaGrupos(() => {
-            this.buscaSegmentos(() => {
-                this.listaCidades(() => {
-                    this.idCliente = this.$route.params.clienteId;
-                    if (this.idCliente) {
-                        this.findById(this.idCliente);
-                    }
-                    
-                })
-            })
-        });
+    async mounted() {
+        await this.carregaItensTela()
     },
     beforeCreate() {
         setTimeout(() => {

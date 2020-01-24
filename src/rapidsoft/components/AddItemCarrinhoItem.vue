@@ -46,16 +46,7 @@
                                                 icon="icon-repeat" 
                                                 @click="replicarGrade(indexCor)"
                                             />
-                                            <vs-button 
-                                                v-if="getCoresProduto.length <= 1"
-                                                disabled
-                                                type="filled" 
-                                                size="small" 
-                                                icon-pack="feather" 
-                                                color="danger" 
-                                                icon="icon-chevrons-down" 
-                                                @click="replicarGrade(indexCor)"
-                                            />
+                                            <vs-button v-else disabled type="filled" size="small" icon-pack="feather" color="danger" icon="icon-repeat" />
                                         </div>
                                     </td>
                                     <th scope="row">
@@ -134,11 +125,6 @@
                     </div>
                 </div>
             </b-card-body>
-            <!-- <div style="margin-top:20px">
-                <complete-look :produtoAdd="this.produtoAdd" v-if="title === 'Referencia A'">
-                </complete-look>
-            </div> -->
-
         </b-collapse>
 
     </div>    
@@ -178,7 +164,7 @@ export default {
         }
     },
     components: {
-        // CompleteLook,
+        
     },
     data: () => ({
         maxHeight: '0px',
@@ -200,29 +186,24 @@ export default {
     methods: {
         // 2-tamanho, 1-cor
         replicarGradeRef() {
-            
             this.$emit('replica-todas-grades', this.produtoAdd);
-
         },
         replicarGrade(indexCor){
-            const listaBaseGrade = this.produtoAdd.cores[indexCor];
+            const listaBaseGrade2 = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos.reduce((grade, tamanho) => {
+				grade[tamanho.codigo] = tamanho.quantidade ? tamanho.quantidade : 0;
+				return grade;
+            }, {});
             
             for (let i = 0; i < this.produtoAdd.cores.length; i++) {
-                this.produtoAdd.cores[i].tamanhos.map((itemTamanho,indexTamanho) => {
-                    const produtoCodigo = _.find(listaBaseGrade.tamanhos, function (pedidoItemTamanho) {
-                        return pedidoItemTamanho.codigo === itemTamanho.codigo
-                    })
-                    if(produtoCodigo.quantidade) {
-                        itemTamanho.quantidade = _.clone(parseInt(produtoCodigo.quantidade))
-                        this.atualizarGrade(i,indexTamanho);
-                    }
+                this.produtoAdd.cores[i].tamanhos.map((itemTamanho, indexTamanho) => {
+                    itemTamanho.quantidade = parseInt(listaBaseGrade2[itemTamanho.codigo]);
+                    this.atualizarGrade(i,indexTamanho);
                 })
-            }            
+            } 
         },
         atualizarGrade(indexCor, indexTamanho) {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
-            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 
-                0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade);
+            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade);
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
@@ -243,7 +224,6 @@ export default {
             this.$forceUpdate();
         },
         criaTamanho(indexCor, indexTamanho) {
-            
             const tamanho = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho];
             tamanho.ref = this.produtoAdd.referencia;
             tamanho.cor = this.produtoAdd.cores[indexCor].idCor;
@@ -264,56 +244,57 @@ export default {
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
+
         getTotalPecasCor(cor) {
-            let totalCor = 0;
             if (cor.ativo) {
-                for (let index = 0; index < cor.produtoAddTamanhos.length; index++) {
-                    const tamanho = cor.produtoAddTamanhos[index];
+                return cor.produtoAddTamanhos.reduce((totalCor, tamanho) => {
                     if (tamanho.ativo && tamanho.quantidade) {
-                        totalCor = totalCor + parseInt(tamanho.quantidade);
+                        return totalCor + parseInt(tamanho.quantidade);
+                    } else {
+                        return totalCor;
                     }
-                }
-                return totalCor;
-            } 
+                }, 0)
+            } else {
+                return 0;
+            }
         },
         getTotalPecasTamanho(tamanho) {
-            let totalTamanho = 0;
             if (tamanho.ativo) {
-                for (let index = 0; index < this.produtoAdd.produtoAddCores.length; index++) {
-                    const cor = this.produtoAdd.produtoAddCores[index];
+                return this.produtoAdd.produtoAddCores.reduce((totalTamanho, cor ) => {
                     if (cor.ativo) {
-                        for (let index2 = 0; index2 < cor.produtoAddTamanhos.length; index2++) {
-                            const tamanhoCor = cor.produtoAddTamanhos[index2];
+                        return totalTamanho + cor.produtoAddTamanhos.reduce((totalCor, tamanhoCor) => {
                             if (tamanho.codigo === tamanhoCor.codigo && tamanhoCor.quantidade) {
-                                totalTamanho = totalTamanho + parseInt(tamanhoCor.quantidade);
+                                return totalCor + parseInt(tamanhoCor.quantidade);
+                            } else {
+                                return totalCor;
                             }
-                        }
+                        }, 0)
                     }
-                }
-                return totalTamanho;
+                }, 0);
+            } else {
+                return 0;
             }
         },
         getTotalPecas() {
-            let totalCorTamanho = 0;
-            for (let index = 0; index < this.produtoAdd.produtoAddCores.length; index++) {
-                const cor = this.produtoAdd.produtoAddCores[index];
+            return this.produtoAdd.produtoAddCores.reduce((totalTamanho, cor ) => {
                 if (cor.ativo) {
-                    for (let index2 = 0; index2 < cor.produtoAddTamanhos.length; index2++) {
-                        const tamanho = cor.produtoAddTamanhos[index2];
+                    return totalTamanho + cor.produtoAddTamanhos.reduce((totalCor, tamanho) => {
                         if (tamanho.ativo && tamanho.quantidade) {
-                            totalCorTamanho = parseInt(totalCorTamanho) + parseInt(tamanho.quantidade);
+                            return totalCor + parseInt(tamanho.quantidade);
+                        } else {
+                            return totalCor;
                         }
-                    }
+                    }, 0)
                 }
-            }
-            return totalCorTamanho;
+            }, 0);
         }
     },
     created() {
         this.grupoCliente = Storage.getGrupoCarrinho();
-        console.log(this.produtoAdd);
-        
     },
+    mounted() {
+        
+    }
 }
 </script>    
 

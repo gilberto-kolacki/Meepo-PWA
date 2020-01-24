@@ -13,6 +13,8 @@
                         disabled
                     />
                 </div>
+            </div>
+            <div class="vx-row">
                 <div class="vx-col sm:w-1/5 w-full mb-2">
                     <label for="dataEmbarque" class="vs-input--label">Data Embarque</label>
                     <datepicker
@@ -27,8 +29,7 @@
                     >
                     </datepicker>
                 </div>
-                <div class="vx-col sm:w-1/3
-                 w-full mb-2">
+                <div class="vx-col sm:w-1/3 w-full mb-2">
                     <strong>Qtde Itens: </strong>{{embarqueItem.quantidade}}
                 </div>
                 <div class="vx-col sm:w-1/3 w-full mb-2">
@@ -93,7 +94,6 @@ export default {
         },
         getSelectedItem(embarque) {
             console.log(embarque);
-            
 
         },
         changeData(embarque) {

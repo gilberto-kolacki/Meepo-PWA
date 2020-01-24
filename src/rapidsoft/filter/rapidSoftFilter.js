@@ -53,3 +53,5 @@ Vue.filter('moneyy', (value) => {
         return UtilMask.getMoney(value, true);
     } 
 });
+
+

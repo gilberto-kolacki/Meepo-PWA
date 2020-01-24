@@ -1,77 +1,35 @@
 <template>
-    <div class="parentx">
+	<div id="page-catalogo-add" class="page-catalogo-add">
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-plus" @click="addReferenciaCarrinho()">Adicionar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
-        <div>
-            <add-item-carrinho-item 
-                v-if="this.produtoA"
+        <div v-if="this.isShow"> 
+            <add-item-carrinho-item v-for="(prodduto, indexProd) in this.produtos" :key="indexProd"
                 @atualiza-qtde-itens="atualizaQuantidadeItens" 
-                idColapse="accordion-ref-a" 
-                :toggle="true" 
-                title="Referencia A" 
-                v-model="this.produtoA"
+                :idColapse="'accordion-ref-'+indexProd" 
+                :toggle="indexProd == 0 ? true : false" 
+                :title="'Referencia '+(indexProd+1)" 
+                v-model="produtos[indexProd]"
                 @replica-todas-grades='replicarTodasGrades'
             >
             </add-item-carrinho-item>
-            <add-item-carrinho-item 
-                v-if="this.produtoB"
-                @atualiza-qtde-itens="atualizaQuantidadeItens" 
-                idColapse="accordion-ref-b" 
-                :toggle="false" 
-                title="Referencia B" 
-                v-model="this.produtoB"
-                @replica-todas-grades='replicarTodasGrades'
-            >
-            <!-- <add-item-carrinho-item 
-                v-if="this.produtoA"
-                @atualiza-qtde-itens="atualizaQuantidadeItens" 
-                idColapse="accordion-ref-a" 
-                :toggle="true" 
-                title="Referencia A" 
-                :produtoAdd="this.produtoA"
-                @replica-todas-grades='replicarTodasGrades'
-            >
-            </add-item-carrinho-item>
-            <add-item-carrinho-item 
-                v-if="this.produtoB"
-                @atualiza-qtde-itens="atualizaQuantidadeItens" 
-                idColapse="accordion-ref-b" 
-                :toggle="false" 
-                title="Referencia B" 
-                :produtoAdd="this.produtoB"
-                @replica-todas-grades='replicarTodasGrades'
-            > -->
-            </add-item-carrinho-item>
+            <complete-look v-if="this.isShow" @produto-look="openLook" :produtoA="produtos[0]"/>
         </div>
-        <div>
-            <complete-look
-                v-if="this.produtoA" 
-                @produto-look="openLook"
-                :produtoA="this.produtoA">
-            </complete-look>
-        </div>    
-    </div>    
-</template>    
+    </div> 
+</template>
 <script>
 
-import _ from 'lodash'
-import AddItemCarrinhoItem  from '../../rapidsoft/components/AddItemCarrinhoItem'
-import Storage  from '../../rapidsoft/utils/storage'
-import ProdutoUtils  from '../../rapidsoft/utils/produtoUtils'
-import CompleteLook  from '../../rapidsoft/components/CompleteLook'
+import ErrorDB from "../../rapidsoft/db/errorDB";
+import _ from 'lodash';
+import AddItemCarrinhoItem  from '../../rapidsoft/components/AddItemCarrinhoItem';
+import Storage  from '../../rapidsoft/utils/storage';
+import ProdutoUtils  from '../../rapidsoft/utils/produtoUtils';
+import CompleteLook  from '../../rapidsoft/components/CompleteLook';
 
 export default {
-    name: 'add-item-carrinho',
-    props: {
-        produtoAdd: {
-            type: Object,
-            required: true,
-        }
-    },
-    data: () => ({
+	data: () => ({
         carrinho: null,
-        produtoA: null,
-        produtoB: null,
+        produtos: [],
+        isShow: false,
     }),
     components: {
         AddItemCarrinhoItem,
@@ -81,20 +39,6 @@ export default {
 
     },
     methods: {
-        // const done = _.after(tamanhos.length, () => resolve(tamanhoResult));
-        // this.produtoAdd[key].cores.map((itemCor,indexCor) => {
-        //     const listaProdutosCores = _.find(produto.cores, function(cor) { return cor.idCor == itemCor.idCor; });
-        //     if (listaProdutosCores) {
-        //         itemCor.tamanhos.map((produtoTamanho,indexTamanho) => {
-        //             const listaProdutosTamanhos = _.find(listaProdutosCores.tamanhos, function(tam) { 
-        //                 return tam.codigo == produtoTamanho.codigo; 
-        //             });
-        //             this.produtoAdd[key].cores[indexCor].tamanhos[indexTamanho].quantidade = _.clone(listaProdutosTamanhos ? listaProdutosTamanhos.quantidade : 0);
-        //             this.atualizarGrade(indexCor, indexTamanho,key);
-        //         });
-        //     }
-        // })
-
         replicarTodasGrades(produto) {
 
             this.$forceUpdate();
@@ -159,14 +103,13 @@ export default {
         openLook(produto) {
             this.$emit('search-selected', produto.produtoA);
         },
-
         cancelarAdd () {
-            this.$emit('show-add-carrinho');
+            this.$router.go(-1);
         },
         addReferenciaCarrinho() {
             ProdutoUtils.calcularCarrinho(this.carrinho).then((carrinhoResult) => {
                 Storage.setCarrinho(carrinhoResult);
-                this.$emit('show-add-carrinho');     
+				this.$router.go(-1);  
             });
         },
         atualizaQuantidadeItens(tamanho) {
@@ -180,27 +123,35 @@ export default {
             }
             this.carrinho.itens = itens;
         },
-        buscaProdutosPagina() {
-            this.produtoA = ProdutoUtils.createProdutoAdd(this.produtoAdd.produtoA);
-            if(!_.isNil(this.produtoAdd.produtoB)) {
-                this.produtoB = ProdutoUtils.createProdutoAdd(this.produtoAdd.produtoB);
-            }
+        carregaItensTela() {
+            return new Promise((resolve) => {
+                this.carrinho = Storage.getCarrinho();
+                ProdutoUtils.createProdutosAddCarrinho(this.$route.params.produtos).then((produtos) => {
+                    this.produtos = produtos;
+                    this.isShow = true;
+                    resolve();
+                });
+            });
         }
     },
     beforeCreate() {       
         
     },
-    created() {        
-        this.buscaProdutosPagina();
+    async created() {        
+        await this.carregaItensTela();
     },
     mounted() {
-        this.carrinho = Storage.getCarrinho();
+        
+    },
+	errorCaptured(err, vm, info) {
+        ErrorDB._criarLog({ err, vm, info });
+        return true;
     }
-}
-</script>    
+
+};
+</script>
 
 <style lang="scss">
 
 
-    
 </style>

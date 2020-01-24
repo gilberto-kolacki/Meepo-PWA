@@ -191,6 +191,16 @@ const router = new Router({
                         navBar: true,
                     },
                 },
+                {
+					path: '/carrinho/add',
+					name: 'carrinhoAdd',
+					component: () => import('./views/pages/AddCarrinho.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor',
+                        navBar: false,
+                    },
+                },
 			],
 		},
         // =============================================================================

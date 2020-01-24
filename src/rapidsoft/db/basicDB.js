@@ -68,10 +68,11 @@ class basicDB {
     constructor(name, remote = false) {
         this._name = name;
         this._remote = remote;
-        this._lastId = null;
+        this._lastId = null;        
         create(this._name, this._remote, (localDB, remoteDB) => {
             this._localDB = localDB;
             this._remoteDB = remoteDB;
+            this.__IndexedError(localDB);
             create("erros", true, (localErroDB, remoteErroDB) => {
                 this._localErroDB = localErroDB;
                 this._remoteErroDB = remoteErroDB;
@@ -137,8 +138,14 @@ class basicDB {
             this._localDB.put(value).then((result) => {
                 resolve(_.toNumber(result.id));
             }).catch((erro) => {
-                this._criarLogDB({url:'db/basicDB',method:'_salvar',message: erro,error:'Failed Request'});
-                reject(erro);
+                if (erro.name == "QuotaExceededError") {
+                    alert('QuotaExceededError');
+                    console.log(erro);
+                    reject(erro);
+                } else {
+                    this._criarLogDB({url:'db/basicDB',method:'_salvar',message: erro,error:'Failed Request'});
+                    reject(erro);
+                }
             });
         });
     }
@@ -325,6 +332,24 @@ class basicDB {
             });
         });
     }
+
+    __IndexedError(localDB) {
+        const request = indexedDB.open(localDB.__opts.name);
+ 
+        request.onupgradeneeded = () => {
+            console.log("//fazer a criação das tabelas, indices e popular o banco se necessário");
+        };
+        
+        request.onsuccess = () => { 
+            console.log("sucesso ao criar/abrir o banco de dados");
+        };
+        
+        request.onerror = () => { 
+            console.log("//erro ao criar/abrir o banco de dados");
+        };
+    }
+
+    
 
 }
 
