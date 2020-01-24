@@ -310,7 +310,7 @@ export default {
 			return new Promise((resolve) => {
                 FormaPagtoDB._getAll().then((formaPagto) => {
                     this.formasPagto = formaPagto;
-                    CarrinhoUtils.getCarrinho().then(carrinho => {
+                    CarrinhoUtils.getCarrinho(this.$route.params.orcamentoId ? this.$route.params.orcamentoId : null).then(carrinho => {
                         this.itensCarrinho = carrinho;
                         EmbarqueDB.getPedidosPorEmbarques(carrinho).then((embarques) => {
                             const done = _.after(embarques.length, () => {
