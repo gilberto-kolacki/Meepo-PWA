@@ -11,6 +11,8 @@ import BasicDB from './basicDB';
 import ImagemDB from './imagemDB';
 import CatalogoDB from './catalogoDB';
 import EmbarqueDB from './embarqueDB';
+import CategoriaDB from './categoriaDB';
+
 
 const getProdutoToDBFilterCategoria = (produtos, idsCategorias, textoSearch) => {
     
@@ -170,11 +172,55 @@ class produtoDB extends BasicDB {
         });
     }
 
-    getPaginasCatalogo(idCatalogo) {
+    getPaginasByCategorias(idCategoria, paginas) {
+        return new Promise((resolve) => {
+
+            const paginasCategoria = [];
+
+            paginas.map((pagina) => {
+                pagina.categorias.map((categoria) => {
+                    if (categoria === idCategoria) {
+                        paginasCategoria.push(pagina); 
+                    }
+                });
+            });
+            resolve(paginasCategoria);
+        });
+    }
+
+    getPaginasCatalogo(idCatalogo, idCategoria = null) {
         return new Promise((resolve) => {
             CatalogoDB.getById(idCatalogo).then((catalogo) =>{
+                
                 this.getProdutosFromPaginas(_.orderBy(catalogo.paginas, ['pag'], ['asc'])).then((produtos) => {
-                    resolve(produtos);
+                    let categoriasPagina = [];
+                    produtos.map((pagina) => {
+                        pagina.categorias = [];
+                        for (const key in pagina) {
+                            if (pagina.hasOwnProperty(key) && key !== 'idFoto' && key !== 'pag') {
+                                categoriasPagina = _.concat(categoriasPagina,pagina[key].cat);
+                                pagina.categorias = _.concat(pagina.categorias,pagina[key].cat);
+                            }
+                        }
+                    });
+                    
+                    categoriasPagina = categoriasPagina.filter( function( categoria, indice, array ) {
+                        return array.indexOf( categoria ) === indice;
+                    } );
+
+                    if (idCategoria) {
+                        this.getPaginasByCategorias(idCategoria,catalogo.paginas).then((paginas) => {
+                            produtos = paginas;
+                        });
+                    }
+
+                    produtos.categorias = categoriasPagina
+                    
+                    CategoriaDB.getByIds(categoriasPagina).then((cat) => {
+                        produtos.categorias = cat;
+                        resolve(produtos);
+                    });
+
                 });
             });
         });
@@ -322,8 +368,6 @@ class produtoDB extends BasicDB {
 
     getProdutoPaginaCatalogo(pagina) {
         return new Promise((resolve) => {
-            console.log(pagina);
-            
             let item = {};
             this.getByProdPaginaCatalogo(pagina.produtoA).then((resultProdutoA) => {
                 if (resultProdutoA) {

@@ -101,7 +101,7 @@ const router = new Router({
                         navBar: true,
                     },
                 },
-            {
+                {
 					path: '/pedido/cadastro',
 					name: 'pedidoCadastro',
 					component: () => import('./views/pages/PedidoCadastro.vue'),
@@ -149,6 +149,16 @@ const router = new Router({
                         requiresAuth: true,
                         rule: 'editor',
                         navBar: false,
+                    },
+                },
+                {
+					path: '/pedido/visualizao',
+					name: 'visualizacaoPedido',
+					component: () => import('./views/pages/VisualizacaoPedido.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor',
+                        navBar: true,
                     },
                 },
                 {

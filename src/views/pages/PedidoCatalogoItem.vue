@@ -90,29 +90,33 @@
                     </div>
                     <div class="vx-row mt-base-top2">
                     </div>
-                    <div class="vx-row mt-top3">
-                        <vs-collapse style="padding:0px;margin-left:-10px">
-                            <vs-collapse-item>
-                                <div slot="header" class="vx-row" style="margin-bottom:-20px">
-                                    <feather-icon icon="FilterIcon" style="margin-top:-10px;color:warning;" class="cursor-pointer"/>
-                                    <h4 style="display:flex;margin:auto;margin-left:5px;margin-top:-10px">Categorias</h4>
-                                </div>
-                                <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll">
-                                    <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasSearch" :key="index+categoria">
-                                        
-                                        <button style="background-color: rgb(228,28,64);color:rgb(228,255,255)" v-if="filtro.categoria.id === categoria.id" class="input_filter" @click.stop="categoriasSelecionadas(categoria.id)">
-                                            <p class="flex justify-center" style="margin:auto">{{categoria.label}}</p>
-                                        </button>
-                                        <button v-else class="input_filter" style="background-color: rgb(255,255,255);"  @click.stop="categoriasSelecionadas(categoria.id)">
-                                            <p class="flex justify-center" style="margin:auto">{{categoria.label}}</p>
-                                        </button>
-                                        <!-- <vs-button class="w-full" :id="index" v-if="filtro.categoria.id === categoria.id" color="primary">{{categoria.label}}</vs-button>
-                                        <vs-button class="w-full" :id="index" v-else color="primary" style="border: 1px solid rgb(255, 129, 129)" @click.stop="categoriasSelecionadas(categoria.id)">{{categoria.label}}</vs-button> -->
+                    <div class="vx-row mt-base-top3">
+                        <div class="btn-group centex mt-base-top1 w-full">
+                            <vs-collapse>
+                                <vs-collapse-item style="padding:0px" class="w-full paddingZero" icon-pack="feather" icon-arrow="icon-filter">
+                                    <div slot="header" class="vx-row" style="margin-bottom:-20px">
+                                        <h5 class="title-ref" style="margin-top: -8px">Categorias</h5>
+                                        <!-- <h5 class="title-ref" style="margin-top:-10px;width:100%">Categorias</h5> -->
                                     </div>
-                                </div>
-                            </vs-collapse-item>
-                        </vs-collapse>
-                        
+                                    <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll;">
+                                        <button class="w-full input_filter" style="background-color: rgb(255,255,255);" v-if="filtro.categoria.id"  @click.stop="categoriasSelecionadas(null)">
+                                            <p class="flex justify-center" style="margin:auto">Todos</p>
+                                        </button>
+                                        <button class="w-full input_filter" style="background-color: rgb(228,28,64);color:rgb(228,255,255)" v-else>
+                                            <p class="flex justify-center" style="margin:auto">Todos</p>
+                                        </button>
+                                        <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasCatalogo" :key="index+categoria">
+                                            <button style="w-full background-color: rgb(228,28,64);color:rgb(228,255,255)" v-if="filtro.categoria.id === categoria.id" class="input_filter" @click.stop="categoriasSelecionadas(categoria.id)">
+                                                <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
+                                            </button>
+                                            <button v-else class="w-full input_filter" style="background-color: rgb(255,255,255);"  @click.stop="categoriasSelecionadas(categoria.id)">
+                                                <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </vs-collapse-item>
+                            </vs-collapse>
+                        </div>
                     </div>
                 </div>
 
@@ -154,7 +158,7 @@ export default {
             produtoSearch: null,
             produtoAddOpen: false,
             filtro:{
-                categoria: {id: 99999}
+                categoria: {id: null}
             },
             corSelecionada: 0,
             imagens: [],
@@ -195,6 +199,11 @@ export default {
                 return categoria;
             });
         },
+        getCategoriasCatalogo() {
+            return this.paginas.categorias.map((categoria) => {
+                return categoria;
+            });
+        },
         getImagensCorProduto() {
             if (this.produtoA) {
                 return this.produtoA.cores[this.corSelecionada].imagens;
@@ -212,25 +221,9 @@ export default {
     },
     methods: {
         // tela
-        categoriasSelecionadas(idCategoria) {
-            this.filtro = {};
-            const filtro = {categoria:{id:idCategoria}};
-            this.filtro = filtro;
-            if (idCategoria !== 99999) {
-                ProdutoUtils.getCatalogoByIdCategoria(this.catalogo.idCatalogo,idCategoria).then((paginas) => {
-                    this.paginas = paginas;
-
-                    this.paginas ?
-                        this.selectProduto(paginas[0])
-                    :
-                        this.carregaItensTela();
-                });      
-            } else {
-                const filtro = {categoria:{id:99999}};
-                this.filtro = filtro;
-                this.carregaItensTela();
-            }
-            
+        async categoriasSelecionadas(idCategoria) {
+            this.filtro.categoria = {id:idCategoria};
+            await this.carregaItensTela();
         },
 
         viewPreco() {
@@ -340,11 +333,7 @@ export default {
                     this.produtoC = result.produtoC;
                     ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
                         CategoriaDB.getAllBySegmento(this.produtoA.segmento).then((categorias) => {
-                            this.categoriasFiltro = [];
-                            this.categoriasFiltro.push({id:99999,label:'Todos'});
-                            categorias.forEach(categoria => {
-                                this.categoriasFiltro.push(_.cloneDeep({id:categoria.id,label:categoria.nome}));
-                            });
+                            this.categoriasFiltro = categorias;
                             this.imagemProdutoPrincipal = result;
                             this.corSelecionada = 0;
                             document.getElementById("produto-image-gallery").scrollTop = 0;
@@ -358,7 +347,7 @@ export default {
             this.popupAddProduto = false;
             ProdutoUtils.addProdutoSearchFromPages(this.paginas, produto).then((paginas) => {
                 this.$bvModal.hide(this.idPopUpSearch);
-                this.paginas = paginas;                
+                this.paginas = paginas;  
                 this.selectProduto(this.paginas[this.paginas.length-1]);
             });
         },
@@ -368,12 +357,22 @@ export default {
         carregaItensTela() {
             return new Promise((resolve) => {
                 document.getElementById('loading-bg').style.display = null;
-                ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo).then(paginas => {
-                    this.paginas = paginas;
-                    this.selectProduto(paginas[0]);
-                    document.getElementById('loading-bg').style.display = "none";
-                    resolve();
-                });
+
+                if (!this.filtro.categoria.id) {
+                    ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo).then(paginas => {
+                        this.paginas = paginas;
+                        this.selectProduto(paginas[0]);
+                        document.getElementById('loading-bg').style.display = "none";
+                        resolve();
+                    });
+                } else {
+                    ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo, this.filtro.categoria.id).then(paginas => {
+                        this.paginas = paginas;
+                        this.selectProduto(paginas[0]);
+                        document.getElementById('loading-bg').style.display = "none";
+                        resolve();
+                    });
+                }
             });
         }
     },
@@ -417,11 +416,10 @@ html {
 
 .input_filter {
     padding: 10px;
-    border-radius: 5px; 
-    // border-bottom-left-radius:0px;
+    border-radius: 5px;
+    width:160px; 
     border:1.5px solid rgb(228, 28, 64); 
     color:rgb(228, 28, 64);
-    width: 150px;
     font-size: x-small;
     font-weight: bold;
 	cursor: pointer;
@@ -430,8 +428,6 @@ html {
 	-moz-transition: all 0.3s;
 	transition: all 0.3s;
 }
-// /button
-
 
 .mt-base-bottom {
     margin-bottom: 2rem !important
@@ -565,6 +561,12 @@ html {
     top: 2rem;
 }
 
+</style>
 
-
+<style lang="stylus">
+    .paddingZero {
+        .con-content--item {
+            padding: 0px !important;
+        }
+    }
 </style>
