@@ -98,23 +98,30 @@
                             <vs-collapse>
                                 <vs-collapse-item style="padding:0px" class="w-full paddingZero" icon-pack="feather" icon-arrow="icon-filter">
                                     <div slot="header" class="vx-row" style="margin-bottom:-20px">
-                                        <h5 class="title-ref" style="margin-top: -8px">Categorias</h5>
+                                        <h6 class="title-ref" style="margin-top: -8px">Categorias</h6>
                                         <!-- <h5 class="title-ref" style="margin-top:-10px;width:100%">Categorias</h5> -->
                                     </div>
                                     <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll;">
-                                        <button class="w-full input_filter" style="background-color: rgb(255,255,255);" v-if="filtro.categoria.id"  @click.stop="categoriasSelecionadas(null)">
+                                        <!-- Botões Todos -->
+                                        <button class="w-full notHaveFilter" v-if="filtro.categoria.id"  @click.stop="categoriasSelecionadas(null)">
                                             <p class="flex justify-center" style="margin:auto">Todos</p>
                                         </button>
-                                        <button class="w-full input_filter" style="background-color: rgb(228,28,64);color:rgb(228,255,255)" v-else>
+
+                                        <button class="w-full input_filter" v-else>
                                             <p class="flex justify-center" style="margin:auto">Todos</p>
                                         </button>
+
+                                        <!-- Botões categorias -->
                                         <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasCatalogo" :key="index+categoria">
-                                            <button style="w-full background-color: rgb(228,28,64);color:rgb(228,255,255)" v-if="filtro.categoria.id === categoria.id" class="input_filter" @click.stop="categoriasSelecionadas(categoria.id)">
+                                            
+                                            <button v-if="filtro.categoria.id === categoria.id" class="w-full input_filter">
                                                 <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
                                             </button>
-                                            <button v-else class="w-full input_filter" style="background-color: rgb(255,255,255);"  @click.stop="categoriasSelecionadas(categoria.id)">
+
+                                            <button v-else class="w-full notHaveFilter" @click.stop="categoriasSelecionadas(categoria.id)">
                                                 <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
                                             </button>
+                                            
                                         </div>
                                     </div>
                                 </vs-collapse-item>
@@ -236,6 +243,8 @@ export default {
     methods: {
         // tela
         async categoriasSelecionadas(idCategoria) {
+            console.log("Click");
+            
             this.filtro.categoria = {id:idCategoria};
             await this.carregaItensTela();
         },
@@ -435,12 +444,27 @@ html {
   height: 100%
 }
 
-.input_filter {
+.input_filter{
+    background-color: rgb(228,28,64);
+    color:rgb(228,255,255);
     padding: 10px;
     border-radius: 5px;
-    width:160px; 
     border:1.5px solid rgb(228, 28, 64); 
-    color:rgb(228, 28, 64);
+    font-size: x-small;
+    font-weight: bold;
+	cursor: pointer;
+	display: inline-block;
+	-webkit-transition: all 0.3s;
+	-moz-transition: all 0.3s;
+	transition: all 0.3s;
+}
+
+.notHaveFilter{
+    color: rgb(228,28,64);
+    background-color:rgb(255,255,255);
+    padding: 10px;
+    border-radius: 5px;
+    border:1.5px solid rgb(228, 28, 64); 
     font-size: x-small;
     font-weight: bold;
 	cursor: pointer;
