@@ -101,7 +101,13 @@
                                         <h5 class="title-ref" style="display:flex;margin:auto;margin-left:5px;margin-top:-10px">Categorias</h5>
                                     </div>
                                     <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll">
-                                        <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasSearch" :key="index+categoria">
+                                            <button class="input_filter" style="background-color: rgb(255,255,255);" v-if="filtro.categoria.id"  @click.stop="categoriasSelecionadas(null)">
+                                                <p class="flex justify-center" style="margin:auto">Todos</p>
+                                            </button>
+                                            <button class="input_filter" style="background-color: rgb(228,28,64);color:rgb(228,255,255)" v-else>
+                                                <p class="flex justify-center" style="margin:auto">Todos</p>
+                                            </button>
+                                        <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasCatalogo" :key="index+categoria">
                                             <button style="background-color: rgb(228,28,64);color:rgb(228,255,255)" v-if="filtro.categoria.id === categoria.id" class="input_filter" @click.stop="categoriasSelecionadas(categoria.id)">
                                                 <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
                                             </button>
@@ -164,7 +170,7 @@ export default {
             },
             produtoAddOpen: false,
             filtro:{
-                categoria: {id: 99999}
+                categoria: {id: null}
             },
             corSelecionada: 0,
             imagens: [],
@@ -206,6 +212,11 @@ export default {
                 return categoria;
             });
         },
+        getCategoriasCatalogo() {
+            return this.paginas.categorias.map((categoria) => {
+                return categoria;
+            });
+        },
         getImagensCorProduto() {
             if (this.produtoA) {
                 return this.produtoA.cores[this.corSelecionada].imagens;
@@ -223,25 +234,9 @@ export default {
     },
     methods: {
         // tela
-        categoriasSelecionadas(idCategoria) {
-            this.filtro = {};
-            const filtro = {categoria:{id:idCategoria}};
-            this.filtro = filtro;
-            if (idCategoria !== 99999) {
-                ProdutoUtils.getCatalogoByIdCategoria(this.catalogo.idCatalogo,idCategoria).then((paginas) => {
-                    this.paginas = paginas;
-
-                    this.paginas ?
-                        this.selectProduto(paginas[0])
-                    :
-                        this.carregaItensTela();
-                });      
-            } else {
-                const filtro = {categoria:{id:99999}};
-                this.filtro = filtro;
-                this.carregaItensTela();
-            }
-            
+        async categoriasSelecionadas(idCategoria) {
+            this.filtro.categoria = {id:idCategoria};
+            await this.carregaItensTela();
         },
 
         viewPreco() {
@@ -382,31 +377,22 @@ export default {
         carregaItensTela() {
             return new Promise((resolve) => {
                 document.getElementById('loading-bg').style.display = null;
-                ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo).then(paginas => {
-                    this.paginas = paginas;
-                    let catF = [];
-                    
-                    this.paginas.map((pagina) => {
-                        for (const key in pagina) {
-                            if (pagina.hasOwnProperty(key) && key !== 'idFoto' && key !== 'pag') {
-                                pagina[key].cat.map((categoria) => {
-                                    catF.push(categoria);
-                                    // Eliminar elementos duplicados no array com reduce
-                                })
-                            }
-                        }
+
+                if (!this.filtro.categoria.id) {
+                    ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo).then(paginas => {
+                        this.paginas = paginas;
+                        this.selectProduto(paginas[0]);
+                        document.getElementById('loading-bg').style.display = "none";
+                        resolve();
                     });
-
-                    var uniqueProducts = catF.filter( function( elem, i, array ) {
-                        return array.indexOf( elem ) === i;
-                    } );
-                    
-                    console.log("Cat F ", uniqueProducts);
-
-                    this.selectProduto(paginas[0]);
-                    document.getElementById('loading-bg').style.display = "none";
-                    resolve();
-                });
+                } else {
+                    ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo, this.filtro.categoria.id).then(paginas => {
+                        this.paginas = paginas;
+                        this.selectProduto(paginas[0]);
+                        document.getElementById('loading-bg').style.display = "none";
+                        resolve();
+                    });
+                }
             });
         }
     },
