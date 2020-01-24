@@ -1,34 +1,36 @@
 import _ from 'lodash';
 import Storage from '../utils/storage';
-import ProdutoDB from '../../rapidsoft/db/produtoDB';
+// import ProdutoDB from '../../rapidsoft/db/produtoDB';
 
-class produtoUtils {
+class produtoUtils{
 
-    getCatalogoByIdCategoria(idCatalogo,idCategoria) {
-        return new Promise((resolve) => {
-            ProdutoDB.getPaginasCatalogo(idCatalogo).then(paginas => {
-                ProdutoDB.getProdutosByIdCategorias(idCategoria).then((produtos)=>{
-                    
-                    let paginasCategoria = [];
+    // getCatalogoByIdCategoria(paginas,idCategoria) {
+    //     return new Promise((resolve) => {
 
-                    produtos.map((produto) => {
-                        const produtoPagina = paginas.filter((pagina) => {
-                            return pagina.produtoA.ref === produto.referencia
-                        })
-                        produtoPagina.map((pagina) => {
-                            paginasCategoria.push(pagina);
-                        })
-                    });
+    //         resolve();
+    //         ProdutoDB.getPaginasCatalogo(idCatalogo).then(paginas => {
+    //             ProdutoDB.getProdutosByIdCategorias(idCategoria).then((produtos)=>{
                     
-                    paginasCategoria.map((pagina, index) => {
-                        pagina.pag = index;
-                    })
+    //                 let paginasCategoria = [];
+
+    //                 produtos.map((produto) => {
+    //                     const produtoPagina = paginas.filter((pagina) => {
+    //                         return pagina.produtoA.ref === produto.referencia
+    //                     })
+    //                     produtoPagina.map((pagina) => {
+    //                         paginasCategoria.push(pagina);
+    //                     })
+    //                 });
                     
-                    resolve(paginasCategoria);
-                });
-            });
-        });
-    }
+    //                 paginasCategoria.map((pagina, index) => {
+    //                     pagina.pag = index;
+    //                 })
+                    
+    //                 resolve(paginasCategoria);
+    //             });
+    //         });
+    //     });
+    // }
 
     getTamanhosLabelProduto(produto) {
         const tamanhos = [];

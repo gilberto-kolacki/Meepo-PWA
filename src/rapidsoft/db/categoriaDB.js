@@ -13,6 +13,7 @@ class categoriaDB extends BasicDB {
 
     constructor() {
         super("categoria");
+        this._createIndex('id');
     }
 
     salvarSinc(categorias) {
