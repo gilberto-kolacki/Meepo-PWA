@@ -283,7 +283,6 @@ class basicDB {
     }
 
     // logs
-
     __salvarErro(value) {
         return new Promise((resolve, reject) => {
             if (this._localErroDB) {
