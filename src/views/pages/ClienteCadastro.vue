@@ -479,6 +479,8 @@ export default {
             grupoClientes: [],
             listCidades: [],
             cidadeCliente:null,
+            indexEditEndereco: null,
+            indexEditContato: null,
         }
     },
     components: {
@@ -547,8 +549,6 @@ export default {
     },
     methods: {
         getGroupClient(uf){
-            console.log("getGroupClient(uf) = ", uf);
-            
             return this.grupoClientes.map((item) => {
                 item.estados.map((estado) => {
                     if (estado === uf) {
@@ -604,23 +604,50 @@ export default {
                 this.contatoEdit = {};
             } else {
                 this.contatoEdit = contato;
-                this.clienteEdit.contatos.splice(index, 1);
+                this.indexEditContato = index;
+                // this.clienteEdit.contatos.splice(index, 1);
             }
             setTimeout(() => {
                 this.proximoCampo('nomeContato');
             }, 100);
         },
         editarEndereco(endereco, index) {
+            this.enderecoTemporaria = {ObjEnd: this.clienteEdit.enderecos, index};
             this.isEditEndereco = true;
             if (endereco === null) {
                 this.enderecoEdit = {};
             } else {
                 this.enderecoEdit = endereco;
-                this.clienteEdit.enderecos.splice(index, 1)
+                this.indexEditEndereco = index;
             }
             setTimeout(() => {
                 this.proximoCampo('cadCepEndereco');
             }, 100);
+        },
+        salvarEndereco() {
+            ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
+                if (this.indexEditEndereco !== null) {
+                    this.clienteEdit.enderecos.splice(this.indexEditEndereco, 1);
+                }
+                this.clienteEdit.enderecos.push(_.clone(result));
+                this.isEditEndereco = false;
+            }).catch((erro) => {
+                this.$validator.validate();
+                if (erro.campo) {
+                    this.proximoCampo(erro.campo);
+                }
+                this.$vs.notify({
+                    title: 'Erro!',
+                    text: erro.mensagem,
+                    color: 'danger',
+                    iconPack: 'feather',
+                    icon: 'icon-alert-circle'
+                })
+            });
+        },
+        cancelarEndereco() {
+            this.indexEditEndereco = null;
+            this.isEditEndereco = false;
         },
         deletarContato(data, index) {
             this.clienteEdit.contatos.splice(index, 1);
@@ -629,10 +656,8 @@ export default {
             this.clienteEdit.enderecos.splice(index, 1)
         },
         cancelarContato() {
+            this.indexEditContato = null;
             this.isEditContato = false;
-        },
-        cancelarEndereco() {
-            this.isEditEndereco = false;
         },
         erroPermissaoCidade() {
             this.$vs.notify({
@@ -712,28 +737,15 @@ export default {
         salvarContato() {          
             ClienteDB.validarContato(this.contatoEdit).then(() => {
                 this.contatoEdit.id = this.contatoEdit.id ? this.contatoEdit.id : 0;
+                
+                if (this.indexEditContato !== null) {
+                    this.clienteEdit.contatos.splice(this.indexEditContato, 1);
+                }
+
                 this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
                 this.isEditContato = false;
             }).catch((erro) => {
                 this.$validator.validate();       
-                if (erro.campo) {
-                    this.proximoCampo(erro.campo);
-                }
-                this.$vs.notify({
-                    title: 'Erro!',
-                    text: erro.mensagem,
-                    color: 'danger',
-                    iconPack: 'feather',
-                    icon: 'icon-alert-circle'
-                })
-            });
-        },
-        salvarEndereco() {
-            ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
-                this.clienteEdit.enderecos.push(_.clone(result));
-                this.isEditEndereco = false;
-            }).catch((erro) => {
-                this.$validator.validate();
                 if (erro.campo) {
                     this.proximoCampo(erro.campo);
                 }
