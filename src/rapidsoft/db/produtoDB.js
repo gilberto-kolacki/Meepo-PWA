@@ -174,53 +174,36 @@ class produtoDB extends BasicDB {
 
     getPaginasByCategorias(idCategoria, paginas) {
         return new Promise((resolve) => {
-
-            const paginasCategoria = [];
-
-            paginas.map((pagina) => {
-                pagina.categorias.map((categoria) => {
-                    if (categoria === idCategoria) {
-                        paginasCategoria.push(pagina); 
-                    }
-                });
-            });
-            resolve(paginasCategoria);
+            if (idCategoria) {
+                resolve(paginas.filter((pagina) => {
+                    return pagina.produtos.some((produto) => _.indexOf(produto.cat, idCategoria) >= 0)
+                }));
+            } else {
+                resolve(paginas);
+            }
         });
     }
 
     getPaginasCatalogo(idCatalogo, idCategoria = null) {
         return new Promise((resolve) => {
-            CatalogoDB.getById(idCatalogo).then((catalogo) =>{
+            CatalogoDB.getById(idCatalogo).then((catalogo) => {
+                let categoriasPagina = [];
+
+                catalogo.paginas.map((pagina) => {
+                    pagina.produtos.map((produto) => {
+                        categoriasPagina = _.concat(categoriasPagina, produto['cat']);
+                    });
+                });
                 
-                this.getProdutosFromPaginas(_.orderBy(catalogo.paginas, ['pag'], ['asc'])).then((produtos) => {
-                    let categoriasPagina = [];
-                    produtos.map((pagina) => {
-                        pagina.categorias = [];
-                        for (const key in pagina) {
-                            if (pagina.hasOwnProperty(key) && key !== 'idFoto' && key !== 'pag') {
-                                categoriasPagina = _.concat(categoriasPagina,pagina[key].cat);
-                                pagina.categorias = _.concat(pagina.categorias,pagina[key].cat);
-                            }
-                        }
-                    });
-                    
-                    categoriasPagina = categoriasPagina.filter( function( categoria, indice, array ) {
-                        return array.indexOf( categoria ) === indice;
-                    } );
-
-                    if (idCategoria) {
-                        this.getPaginasByCategorias(idCategoria,catalogo.paginas).then((paginas) => {
-                            produtos = paginas;
+                this.getPaginasByCategorias(idCategoria, catalogo.paginas).then((paginas) => {
+                    catalogo.paginas = paginas;
+                    this.getProdutosFromPaginas(_.orderBy(_.cloneDeep(catalogo.paginas), ['pag'], ['asc'])).then((produtos) => {
+                        produtos.categorias = _.uniq(categoriasPagina);
+                        CategoriaDB.getByIds(produtos.categorias).then((cat) => {
+                            produtos.categorias = cat;
+                            resolve(produtos);
                         });
-                    }
-
-                    produtos.categorias = categoriasPagina
-                    
-                    CategoriaDB.getByIds(categoriasPagina).then((cat) => {
-                        produtos.categorias = cat;
-                        resolve(produtos);
                     });
-
                 });
             });
         });
