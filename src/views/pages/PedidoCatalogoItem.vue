@@ -93,33 +93,41 @@
                     <div class="vx-row mt-base-top3">
                         <div class="btn-group centex mt-base-top1 w-full">
                             <vs-collapse>
-                                <vs-collapse-item style="padding:0px" class="w-full paddingZero" icon-pack="feather" icon-arrow="icon-filter">
+                                <vs-collapse-item style="padding:0px;margin-top:-20px" class="w-full paddingZero" icon-pack="feather" icon-arrow="icon-filter">
                                     <div slot="header" class="vx-row" style="margin-bottom:-20px">
-                                        <h6 class="title-ref" style="margin-top: -8px">Categorias</h6>
+                                        <h6 class="title-ref" style="margin-top: -8px;margin-right:20px">Categorias</h6>
                                         <!-- <h5 class="title-ref" style="margin-top:-10px;width:100%">Categorias</h5> -->
                                     </div>
-                                    <div class="mt-base-top1 w-full" style="max-height:34rem;overflow-y: scroll;">
-                                        <!-- Botões Todos -->
-                                        <button class="w-full notHaveFilter" v-if="filtro.categoria.id"  @click.stop="categoriasSelecionadas(null)">
-                                            <p class="flex justify-center" style="margin:auto">Todos</p>
-                                        </button>
+                                    <div class="mt-base-top1 w-full" style="height:768px">
+                                        <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button produto-image-gallery-button-up" @click="scrollUpCategoria" style="margin-bottom: -2px" />
+                                        <div id="categoria-gallery" class="produto-image-gallery w-full">
+                                            <div class="produto-image-gallery-item" @click="categoriasSelecionadas(categoria.id)">
+                                                <div class="mt-base-top1 flex justify-center" style="width:75%">
+                                                    
+                                                    <button class="w-full notHaveFilter" v-if="filtro.categoria.id"  @click.stop="categoriasSelecionadas(null)">
+                                                        <p class="flex justify-center" style="margin:auto">Todos</p>
+                                                    </button>
+                                                    <button class="w-full input_filter" v-else>
+                                                        <p class="flex justify-center" style="margin:auto">Todos</p>
+                                                    </button>
 
-                                        <button class="w-full input_filter" v-else>
-                                            <p class="flex justify-center" style="margin:auto">Todos</p>
-                                        </button>
+                                                </div>
+                                            </div>
+                                            <div class="produto-image-gallery-item" v-for="(categoria, index) in getCategoriasCatalogo" :key="index" @click="categoriasSelecionadas(categoria.id)">
+                                                <div class="mt-base-top1 flex justify-center" style="width:75%">
 
-                                        <!-- Botões categorias -->
-                                        <div class="w-full mt-base-top1" v-for="(categoria, index) in getCategoriasCatalogo" :key="index+categoria">
-                                            
-                                            <button v-if="filtro.categoria.id === categoria.id" class="w-full input_filter">
-                                                <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
-                                            </button>
+                                                    <button v-if="filtro.categoria.id === categoria.id" class="w-full input_filter">
+                                                        <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
+                                                    </button>
 
-                                            <button v-else class="w-full notHaveFilter" @click.stop="categoriasSelecionadas(categoria.id)">
-                                                <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
-                                            </button>
-                                            
+                                                    <button v-else class="w-full notHaveFilter" @click.stop="categoriasSelecionadas(categoria.id)">
+                                                        <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
+                                                    </button>
+
+                                                </div>
+                                            </div>
                                         </div>
+                                        <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button produto-image-gallery-button-down" @click="scrollDownCategoria" style="margin-bottom: -10px; margin-top: 10px" />
                                     </div>
                                 </vs-collapse-item>
                             </vs-collapse>
@@ -276,6 +284,14 @@ export default {
         },
         scrollDown() {
             let gallery = document.getElementById("produto-image-gallery");
+            gallery.scrollTop = gallery.scrollTop + 80;
+        },
+        scrollUpCategoria() {
+            let gallery = document.getElementById("categoria-gallery");
+            gallery.scrollTop = gallery.scrollTop - 80;
+        },
+        scrollDownCategoria() {
+            let gallery = document.getElementById("categoria-gallery");
             gallery.scrollTop = gallery.scrollTop + 80;
         },
         hideCard() {
@@ -439,6 +455,8 @@ html {
 	-webkit-transition: all 0.3s;
 	-moz-transition: all 0.3s;
 	transition: all 0.3s;
+    width:70%;
+    min-width:80%
 }
 
 .notHaveFilter{
@@ -454,6 +472,7 @@ html {
 	-webkit-transition: all 0.3s;
 	-moz-transition: all 0.3s;
 	transition: all 0.3s;
+    width:70%
 }
 
 .mt-base-bottom {
