@@ -134,7 +134,7 @@
                             </div>
                         </div>
                         <div class="vx-col sm:w-3/4 w-full mb-2" v-on:keyup.enter="proximoCampo('numeroEndereco')">
-                            <vs-input :disabled="clienteEdit.clienteErp" v-validate="'required|alpha_spaces'" label="Endereço*" id="endereco" name="endereco" v-model="clienteEdit.endereco.endereco" class="w-full"/>
+                            <vs-input :disabled="clienteEdit.clienteErp" v-validate="'required'" label="Endereço*" id="endereco" name="endereco" v-model="clienteEdit.endereco.endereco" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('endereco') }}</span>
                         </div>
                     </div>
@@ -327,7 +327,7 @@
                                 </div>
                             </div>
                             <div class="vx-col sm:w-3/4 w-full mb-2">
-                                <vs-input v-validate="'required|alpha_spaces'" label="Endereço*" id="cadEndereco" name="cadEndereco" v-model="enderecoEdit.endereco" class="w-full" v-on:keyup.enter="proximoCampo('cadNumeroEndereco')"/>
+                                <vs-input v-validate="'required'" label="Endereço*" id="cadEndereco" name="cadEndereco" v-model="enderecoEdit.endereco" class="w-full" v-on:keyup.enter="proximoCampo('cadNumeroEndereco')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadEndereco') }}</span>
                             </div>
                         </div>
