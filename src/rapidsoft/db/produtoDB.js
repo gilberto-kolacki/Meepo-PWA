@@ -197,7 +197,7 @@ class produtoDB extends BasicDB {
                 
                 this.getPaginasByCategorias(idCategoria, catalogo.paginas).then((paginas) => {
                     catalogo.paginas = paginas;
-                    this.getProdutosFromPaginas(_.orderBy(_.cloneDeep(catalogo.paginas), ['pag'], ['asc'])).then((produtos) => {
+                    this.getProdutosFromPaginas(_.orderBy(catalogo.paginas, ['pag'], ['asc'])).then((produtos) => {
                         produtos.categorias = _.uniq(categoriasPagina);
                         CategoriaDB.getByIds(produtos.categorias).then((cat) => {
                             produtos.categorias = cat;
