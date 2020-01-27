@@ -172,15 +172,27 @@ export default {
 		},
 		deleteItemsChart() {
             const itensCarrinho = Storage.getCarrinhoItens();
+
             const itensCarrinhoNew = itensCarrinho.filter(produto => {
                 return !this.itensSelecionados.some(item => {
                     return produto.idProduto === item.cor.idProduto ;
                 });
             });
+
             Storage.setCarrinhoItens(itensCarrinhoNew);
+            this.produtosCarrinho = this.getProdutosListNew();
             this.itensSelecionados = [];
-            this.carregaItensTela();
+            this.$emit('atualiza-lista-produtos');
+            this.$forceUpdate();
+
         },
+        getProdutosListNew(){
+            return this.produtosCarrinho.filter(produto => {
+                return !this.itensSelecionados.some(item => {
+                    return produto.cor.idProduto === item.cor.idProduto ;
+                });
+            });
+        }
 	},
 	beforeCreate() {		
 	},
