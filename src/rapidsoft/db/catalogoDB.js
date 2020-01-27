@@ -21,6 +21,12 @@ class catalogoDB extends BasicDB {
                     const done = _.after(catalogos.length, () => resolve());
                     catalogos.forEach(catalogo => {
                         catalogo._id = _.toString(catalogo.idCatalogo);
+                        const categorias = catalogo.paginas.map((pagina) => {
+                            return pagina.produtos.map((produto) => {
+                                return produto['cat'];
+                            });
+                        });
+                        catalogo.categorias = _.uniq(_.flattenDeep(categorias));
                         this._salvar(catalogo).then(() => done()).catch(() => done());
                     });
                 } else {

@@ -187,20 +187,12 @@ class produtoDB extends BasicDB {
     getPaginasCatalogo(idCatalogo, idCategoria = null) {
         return new Promise((resolve) => {
             CatalogoDB.getById(idCatalogo).then((catalogo) => {
-                let categoriasPagina = [];
-
-                catalogo.paginas.map((pagina) => {
-                    pagina.produtos.map((produto) => {
-                        categoriasPagina = _.concat(categoriasPagina, produto['cat']);
-                    });
-                });
-                
                 this.getPaginasByCategorias(idCategoria, catalogo.paginas).then((paginas) => {
                     catalogo.paginas = paginas;
+
                     this.getProdutosFromPaginas(_.orderBy(catalogo.paginas, ['pag'], ['asc'])).then((produtos) => {
-                        produtos.categorias = _.uniq(categoriasPagina);
-                        CategoriaDB.getByIds(produtos.categorias).then((cat) => {
-                            produtos.categorias = cat;
+                        CategoriaDB.getByIds(catalogo.categorias).then((categorias) => {
+                            produtos.categorias = categorias;
                             resolve(produtos);
                         });
                     });

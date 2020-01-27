@@ -6,8 +6,8 @@
 ==========================================================================================*/
 
 import _ from 'lodash';
-import BasicDB from './basicDB'
-import ProdutoDB from './produtoDB'
+import BasicDB from './basicDB';
+import ProdutoDB from './produtoDB';
 
 class categoriaDB extends BasicDB {
 
@@ -33,11 +33,9 @@ class categoriaDB extends BasicDB {
 
     getByIds(idsCategorias) {
         return new Promise((resolve) => {
-            this._getAll().then((categorias) => {
-                resolve(categorias.filter((categoria) => {
-                    return _.indexOf(idsCategorias, categoria.id) >= 0;
-                }))
-            })
+            this._getFindCondition({id : {$in : idsCategorias}}).then((categorias) => {
+                resolve(categorias);
+            });
         });
     }
 
@@ -46,8 +44,8 @@ class categoriaDB extends BasicDB {
             ProdutoDB.getIdsCategoria().then((idsCategorias) => {
                 this.getByIds(idsCategorias).then((categorias) => {
                     resolve(categorias.filter((categoria) => { return categoria.idSegmento === idSegmento }));
-                })
-            })
+                });
+            });
         });
     }
 

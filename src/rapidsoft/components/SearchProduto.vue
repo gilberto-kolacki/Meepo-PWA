@@ -193,9 +193,9 @@ export default {
         SegmentoDB._getAll().then((segmentos) => {
             this.segmentosFiltro = _.cloneDeep(segmentos);
             this.segmentoSelecionado = _.find(segmentos, (segmento) => { return segmento.id === Storage.getCatalogo().idSegmento });
-            CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
-                this.categoriasFiltro = _.cloneDeep(categorias);
-            });
+            // CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
+            //     this.categoriasFiltro = _.cloneDeep(categorias);
+            // });
         });
     },
     mounted() {
