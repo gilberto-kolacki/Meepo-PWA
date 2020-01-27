@@ -149,7 +149,6 @@ import SearchProduto  from '../../rapidsoft/components/SearchProduto';
 import ZoomProduto  from '../../rapidsoft/components/ZoomProduto';
 import ErrorDB from '../../rapidsoft/db/errorDB';
 import vSelect from 'vue-select';
-import CategoriaDB from '../../rapidsoft/db/categoriaDB';
 
 export default {
 
@@ -184,7 +183,6 @@ export default {
             produtoZoomShow: false,
             grupoCliente: null,
             catalogo: null,
-            categoriasFiltro: [],
         }
     },
     components: {
@@ -199,11 +197,6 @@ export default {
         getSegmentosSearch() {
             return this.segmentosFiltro.map((segmento) => {
                 return segmento;
-            });
-        },
-        getCategoriasSearch() {
-            return this.categoriasFiltro.map((categoria) => {
-                return categoria;
             });
         },
         getCategoriasCatalogo() {
@@ -341,13 +334,10 @@ export default {
                     this.produtoB = result.produtoB;
                     this.produtoC = result.produtoC;
                     ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
-                        CategoriaDB.getAllBySegmento(this.produtoA.segmento).then((categorias) => {
-                            this.categoriasFiltro = categorias;
-                            this.imagemProdutoPrincipal = result;
-                            this.corSelecionada = 0;
-                            document.getElementById("produto-image-gallery").scrollTop = 0;
-                            this.$vs.loading.close();
-                        });
+                        this.imagemProdutoPrincipal = result;
+                        this.corSelecionada = 0;
+                        document.getElementById("produto-image-gallery").scrollTop = 0;
+                        this.$vs.loading.close();
                     });
                 }
             });
