@@ -163,7 +163,6 @@ export default {
     data() {
         return {
             idSegmento: null,
-            clientePedido: null,
             imagemProdutoPrincipal: null,
             produtoA: null,
             produtoB: null,
@@ -337,7 +336,9 @@ export default {
         },
         addProduto() {
             const produtos = [this.produtoA, this.produtoB, this.produtoC];
-            this.$router.push({ name: 'carrinhoAdd', params: {produtos: produtos, pag: this.paginaAtual } });
+            this.$router.push({ name: 'carrinhoAdd', 
+                params: {produtos: produtos, tela: 'catalogoItem', pag: this.paginaAtual}
+            });
         },
         selectProduto(pagina) {
             this.paginaAtual = pagina;
@@ -367,30 +368,26 @@ export default {
             });
         },
         abrirCarrinho() {
-            this.$router.push({ name: 'carrinho'});
+            this.$router.push({ name: 'carrinho',
+                params: {tela: 'catalogoItem'}
+            });
         },
         carregaItensTela() {
             return new Promise((resolve) => {
-
-                console.log("carregaItensTela");
-                
                 document.getElementById('loading-bg').style.display = null;
-
-                if (!this.filtro.categoria.id) {
-                    ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo).then(paginas => {
-                        this.paginas = paginas;
+                this.paginaAtual = this.$route.params.pag ? this.$route.params.pag : null;
+                const idCategoria = this.filtro.categoria.id ? this.filtro.categoria.id : null;
+                ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo, idCategoria).then(paginas => {
+                    this.paginas = paginas;
+                    if (this.paginaAtual) {
+                        this.$route.params.pag = null;
+                        this.selectProduto(this.paginaAtual);
+                    } else {
                         this.selectProduto(paginas[0]);
-                        document.getElementById('loading-bg').style.display = "none";
-                        resolve();
-                    });
-                } else {
-                    ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo, this.filtro.categoria.id).then(paginas => {
-                        this.paginas = paginas;
-                        this.selectProduto(paginas[0]);
-                        document.getElementById('loading-bg').style.display = "none";
-                        resolve();
-                    });
-                }
+                    }
+                    document.getElementById('loading-bg').style.display = "none";
+                    resolve();
+                });
             });
         }
     },

@@ -3,7 +3,7 @@
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-plus" @click="addReferenciaCarrinho()">Adicionar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
         <div v-if="this.isShow"> 
-            <add-item-carrinho-item v-for="(prodduto, indexProd) in this.produtos" :key="indexProd"
+            <add-carrinho-item v-for="(prodduto, indexProd) in this.produtos" :key="indexProd"
                 @atualiza-qtde-itens="atualizaQuantidadeItens" 
                 :idColapse="'accordion-ref-'+indexProd" 
                 :toggle="indexProd == 0 ? true : false" 
@@ -11,7 +11,7 @@
                 v-model="produtos[indexProd]"
                 @replica-todas-grades='replicarTodasGrades'
             >
-            </add-item-carrinho-item>
+            </add-carrinho-item>
             <complete-look v-if="this.isShow" @produto-look="openLook" :produtoA="produtos[0]"/>
         </div>
     </div> 
@@ -20,7 +20,7 @@
 
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import _ from 'lodash';
-import AddItemCarrinhoItem  from '../../rapidsoft/components/AddItemCarrinhoItem';
+import AddCarrinhoItem  from '../../rapidsoft/components/AddCarrinhoItem';
 import Storage  from '../../rapidsoft/utils/storage';
 import ProdutoUtils  from '../../rapidsoft/utils/produtoUtils';
 import CompleteLook  from '../../rapidsoft/components/CompleteLook';
@@ -32,7 +32,7 @@ export default {
         isShow: false,
     }),
     components: {
-        AddItemCarrinhoItem,
+        AddCarrinhoItem,
         CompleteLook,
     },
     computed: {
@@ -104,12 +104,17 @@ export default {
             this.$emit('search-selected', produto.produtoA);
         },
         cancelarAdd () {
-            this.$router.go(-1);
+            this.voltarCatalogo();
         },
         addReferenciaCarrinho() {
             ProdutoUtils.calcularCarrinho(this.carrinho).then((carrinhoResult) => {
                 Storage.setCarrinho(carrinhoResult);
-				this.$router.go(-1);  
+				this.voltarCatalogo();
+            });
+        },
+        voltarCatalogo() {
+            this.$router.push({ name: this.$route.params.tela, 
+                params: {pag: this.$route.params.pag}
             });
         },
         atualizaQuantidadeItens(tamanho) {
@@ -125,11 +130,7 @@ export default {
         },
         carregaItensTela() {
             return new Promise((resolve) => {
-				console.log('carrega');
-
-				console.log(this.$route.params.pag);
-				
-				
+                this.catalogo = Storage.getCatalogo();
                 this.carrinho = Storage.getCarrinho();
                 ProdutoUtils.createProdutosAddCarrinho(this.$route.params.produtos).then((produtos) => {
                     this.produtos = produtos;

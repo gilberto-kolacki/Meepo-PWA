@@ -137,7 +137,7 @@ import ProdutoUtils from '../utils/produtoUtils';
 import UtilMask from '../utils/utilMask';
 
 export default {
-    name: 'add-item-carrinho-tem',
+    name: 'add-carrinho-item',
     model: {
         prop: 'produtoAdd',
     },

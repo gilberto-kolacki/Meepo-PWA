@@ -83,12 +83,19 @@ export default {
 			this.produtosAdd=null;
 		},
 		showPedidos() {
+
+			console.log(this.itensCarrinho);
+			console.log(this.embarques);
+			
+			
 			CarrinhoUtils.setEmbarqueItensCarrinho(this.itensCarrinho).then(() => {
-				this.$router.push({ name: 'carrinhoPedido'});
+				// this.$router.push({ name: 'carrinhoPedido'});
 			});
 		},
 		showEditCarrinho(produto) {
-            this.$router.push({ name: 'carrinhoAdd', params: {produtos: [produto]}});
+			this.$router.push({ name: 'carrinhoAdd', 
+				params: {tela: 'carrinho', produtos: [produto], pag: 0}
+			});
 		},
 		atulizaEmbarques() {
 			EmbarqueDB.getInfosEmbarques(this.itensCarrinho).then((embarques) => {
@@ -107,7 +114,7 @@ export default {
 			});
 		},
 		voltar() {
-			this.$router.go(-1);
+			this.$router.push({ name: 'catalogoItem'});
 		},	
 		voltarCarrinho() {
 			this.gerenciaVisualizacao(1);

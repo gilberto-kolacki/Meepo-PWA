@@ -152,8 +152,8 @@ export default {
 			}
 		},
 		carregarCatalogo(catalogo) {
+            Storage.setCatalogo(catalogo);
             setTimeout(() => {
-                Storage.setCatalogo(catalogo);
 				this.$router.push({ name: 'catalogoItem', params: {idCatalogo: catalogo.idCatalogo, idSegmento: catalogo.idSegmento }});
 			}, 10);
 		},

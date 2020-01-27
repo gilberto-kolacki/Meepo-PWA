@@ -74,6 +74,8 @@ class produtoUtils{
     createProdutosAddCarrinho(produtos) {
         return new Promise((resolve) => {
             produtos = produtos.filter((produto) => !_.isNil(produto));
+            
+            console.log(produtos);
         
             const done = _.after(produtos.length, () => resolve(produtos));
             produtos.forEach(produto => {

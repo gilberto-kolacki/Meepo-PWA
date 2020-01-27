@@ -27,7 +27,7 @@ class categoriaDB extends BasicDB {
                 } else {
                     resolve();
                 }
-            })
+            });
         });
     }
 
