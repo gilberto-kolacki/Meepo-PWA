@@ -27,6 +27,7 @@
 					@show-add-carrinho="showAddCarrinho"
 					@edicao-item-carrinho="showEditCarrinho"
 					@atuliza-embarques="atulizaEmbarques"
+					@atualiza-lista-produtos="atualizaListaProdutos"
 					:segmento="segmento"
 					:embarques="getEmbarquesSegmento(segmento)"
 					:produtos="getProdutosSegmento(segmento)"/>
@@ -66,6 +67,10 @@ export default {
 
 	},
     methods: {
+		atualizaListaProdutos() {
+			this.carregaItensTela();
+			this.$forceUpdate();
+		},
 		getEmbarquesSegmento(segmento) {
 			return this.embarquesOption.filter((embarque) => {
                 return embarque.idSegmento == segmento.id;
