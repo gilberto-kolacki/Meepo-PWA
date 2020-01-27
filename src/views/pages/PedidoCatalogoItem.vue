@@ -98,7 +98,7 @@
                                         <h6 class="title-ref" style="margin-top: -8px;margin-right:20px">Categorias</h6>
                                         <!-- <h5 class="title-ref" style="margin-top:-10px;width:100%">Categorias</h5> -->
                                     </div>
-                                    <div class="mt-base-top1 w-full" style="height:768px">
+                                    <div class="mt-base-top1 w-full">
                                         <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button produto-image-gallery-button-up" @click="scrollUpCategoria" style="margin-bottom: -2px" />
                                         <div id="categoria-gallery" class="produto-image-gallery w-full">
                                             <div class="produto-image-gallery-item" @click="categoriasSelecionadas(categoria.id)">
@@ -127,7 +127,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button produto-image-gallery-button-down" @click="scrollDownCategoria" style="margin-bottom: -10px; margin-top: 10px" />
+                                        <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button produto-image-gallery-button-down" @click="scrollDownCategoria" style="margin-top: 10px" />
                                     </div>
                                 </vs-collapse-item>
                             </vs-collapse>
