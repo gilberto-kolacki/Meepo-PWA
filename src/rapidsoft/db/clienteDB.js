@@ -403,6 +403,29 @@ class clienteDB extends BasicDB {
         });
     }
 
+    getCidadesComClientes(estado) {
+
+        return new Promise((resolve) => {
+            const selectorFilter = {'endereco.estado': {$eq: estado}};
+            
+            this._localDB.find({
+                selector: selectorFilter,
+                fields: ['endereco'],
+            }).then((result) => {
+                const cidades = result.docs.map((cliente) => {
+                    const cidade = {idCidade:cliente.endereco["idCidade"],nome:this.getNameCidade(cliente.endereco["cidade"])};
+                    return cidade;
+                });
+                resolve(_.uniqBy(cidades,'idCidade'));
+            });
+
+        });
+    }
+
+    getNameCidade(cidade) {
+        return _.upperCase(cidade);
+    }
+
     sincToNuvem() {
         return new Promise((resolve) => {
             this.buscaClientesSinc().then((clientes) => {
