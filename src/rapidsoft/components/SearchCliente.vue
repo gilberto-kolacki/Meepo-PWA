@@ -21,7 +21,7 @@
             </div>
             <div class="vx-col sm:w-1/2 w-full mb-2">
                 <label for="cidadesFiltro" class="vs-input--label">Cidade</label>
-                <v-select id="cidadesFiltro" name="cidade" v-model="cidadeSelecionada" :options="getCidadesSearch"/>
+                <v-select id="cidadesFiltro" name="cidade" v-model="cidadeSelecionada" :clearable=false :options="getCidadesSearch"/>
             </div>
         </div>
         <div class="vx-row">
@@ -126,9 +126,9 @@ export default {
             });
         },
         getCidadesSearch() {
-            return _.sortedUniq(this.cidadesFiltro.map((cidade) => {
+            return this.cidadesFiltro.map((cidade) => {
                 return {value: cidade.idCidade, label: cidade.nome};
-            }));
+            });
         }
     },
     methods: {
@@ -154,11 +154,18 @@ export default {
         },
         searchCidades(callback) {
             this.cidadeSelecionada = null;
-            CidadeDB.getCidadesFromEstado(this.estadoSelecionado.uf).then((cidades) => {
+            ClienteDB.getCidadesComClientes(this.estadoSelecionado.uf).then((cidades) => {
                 this.cidadesFiltro = cidades;
                 this.cidadeSelecionada = this.getCidadesSearch[0];
                 callback();
-            });
+            })
+            // CidadeDB.getCidadesFromEstado(this.estadoSelecionado.uf).then((cidades) => {
+            //     console.log("Cidades: ",cidades);
+                
+            //     this.cidadesFiltro = cidades;
+            //     this.cidadeSelecionada = this.getCidadesSearch[0];
+            //     callback();
+            // });
         },
         searchFindCliente() {
             if ((this.estadoSelecionado && this.cidadeSelecionada && this.cidadeSelecionada.value != null) || (this.cnpjCpfSearch && this.cnpjCpfSearch.length >= 3) || (this.nomeSearch && this.nomeSearch.length >= 3)) {
