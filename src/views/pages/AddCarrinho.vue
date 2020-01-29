@@ -6,8 +6,8 @@
             <add-carrinho-item v-for="(prodduto, indexProd) in this.produtos" :key="indexProd"
                 @atualiza-qtde-itens="atualizaQuantidadeItens" 
                 :idColapse="'accordion-ref-'+indexProd" 
-                :toggle="indexProd == 0 ? true : false" 
                 :title="'Referencia '+(indexProd+1)" 
+                :index="indexProd"
                 v-model="produtos[indexProd]"
                 @replica-todas-grades='replicarTodasGrades'
             >
@@ -39,50 +39,22 @@ export default {
 
     },
     methods: {
-        replicarTodasGrades(produto) {
+        replicarTodasGrades(index) {
+            const quantidades = this.produtos[index].produtoAddCores.reduce((map, corAdd) => {
+                map[corAdd.codigo] = corAdd.produtoAddTamanhos.reduce((map, tamanhoAdd) => {
+                    map[tamanhoAdd.codigo] = tamanhoAdd.quantidade ? tamanhoAdd.quantidade : 0;
+                    return map;
+                },{});
+                return map;
+            },{});
 
-            this.$forceUpdate();
-
-            return new Promise(() => {
-                // const done = _.after(Object.keys(this.produtoAdd).length, () => resolve(this.update()));
-                
-                for (const key in this.produtoAdd) {
-                    
-                    // const done = _.after(this.produtoAdd[key].cores.length, () => resolve(this.update()));
-                    
-                    if (this.produtoAdd.hasOwnProperty(key)) {
-                        
-                        this.produtoAdd[key].cores.forEach((itemCor,indexCor) => {
-                            const listaProdutosCores = _.find(produto.cores, function(cor) { return cor.idCor == itemCor.idCor; });
-                            if (listaProdutosCores) {
-                                itemCor.tamanhos.forEach((itemTamanho,indexTamanho) => {
-
-                                    const listaProdutosTamanhos = _.find(listaProdutosCores.tamanhos, function(tam) { 
-                                        return tam.codigo == itemTamanho.codigo; 
-                                    });
-                                    itemTamanho.quantidade = listaProdutosTamanhos ? _.clone(listaProdutosTamanhos.quantidade) : 0;
-                                    this.atualizarGrade(indexCor,indexTamanho,key)
-                                    // done();
-                                })
-                            }
-                        });
-                        
-                    }
-                    //  done();
+            const addCarrinhoItens = this.$children.filter(component => component.$options.name === "add-carrinho-item");
+            addCarrinhoItens.forEach(addCarrinhoItem => {
+                if (addCarrinhoItem.index !== index) {
+                    addCarrinhoItem.replicarGradeRefs(quantidades);
                 }
-            
-                setTimeout(() => {this.$forceUpdate()}, 1000);
-            
             });
-            
-
         },
-
-        update() {
-            console.log("done");
-            this.$forceUpdate();
-        },
-
         atualizarGrade(indexCor, indexTamanho,key) {
             const tamanho = this.criaTamanho(indexCor, indexTamanho,key);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 

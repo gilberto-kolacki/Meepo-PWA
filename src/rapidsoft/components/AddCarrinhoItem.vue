@@ -158,9 +158,9 @@ export default {
             type: String,
             required: true,
         },
-        toggle: {
-            type: Boolean,
-            default: true,
+        index: {
+            type: Number,
+            required: true,
         }
     },
     components: {
@@ -186,7 +186,7 @@ export default {
     methods: {
         // 2-tamanho, 1-cor
         replicarGradeRef() {
-            this.$emit('replica-todas-grades', this.produtoAdd);
+            this.$emit('replica-todas-grades', this.index,  this.produtoAdd);
         },
         replicarGrade(indexCor){
             const listaBaseGrade2 = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos.reduce((grade, tamanho) => {
@@ -198,7 +198,7 @@ export default {
                 this.produtoAdd.cores[i].tamanhos.map((itemTamanho, indexTamanho) => {
                     itemTamanho.quantidade = parseInt(listaBaseGrade2[itemTamanho.codigo]);
                     this.atualizarGrade(i,indexTamanho);
-                })
+                });
             } 
         },
         atualizarGrade(indexCor, indexTamanho) {
@@ -287,6 +287,20 @@ export default {
                     }, 0)
                 }
             }, 0);
+        },
+
+        replicarGradeRefs(quantidades) {
+            this.produtoAdd.produtoAddCores.forEach(corAdd => {
+                if (quantidades[corAdd.codigo]) {
+                    corAdd.produtoAddTamanhos.forEach(tamanhoAdd => {
+                        if (quantidades[corAdd.codigo][tamanhoAdd.codigo]) {
+                            tamanhoAdd.quantidade = quantidades[corAdd.codigo][tamanhoAdd.codigo];
+                            this.$emit('atualiza-qtde-itens', _.clone(tamanhoAdd));
+                            this.$forceUpdate();
+                        }
+                    });
+                }
+            });
         }
     },
     created() {
