@@ -33,7 +33,7 @@
                     <strong>Qtde Itens: </strong>{{embarqueItem.quantidade}}
                 </div>
                 <div class="vx-col sm:w-1/3 w-full mb-2">
-                    <strong>Total: </strong>{{embarqueItem.total | moneyy}}
+                    <strong>Sub Total: </strong>{{embarqueItem.subTotal | moneyy}}
                 </div>
             </div>
         </div>
@@ -81,7 +81,7 @@ export default {
             return [];
         },
         getEmbarquesBySegmento() {
-            return _.orderBy(this.embarques, ['idSegmento'], ['asc']);
+            return _.orderBy(this.embarques, ['idSegmento', 'nome'], ['asc', 'asc']);
         }
     },
     methods: {

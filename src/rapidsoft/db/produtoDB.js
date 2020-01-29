@@ -176,7 +176,7 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             if (idCategoria) {
                 resolve(paginas.filter((pagina) => {
-                    return pagina.produtos.some((produto) => _.indexOf(produto.cat, idCategoria) >= 0)
+                    return pagina.produtos.some((produto) => _.indexOf(produto.cat, idCategoria) >= 0);
                 }));
             } else {
                 resolve(paginas);

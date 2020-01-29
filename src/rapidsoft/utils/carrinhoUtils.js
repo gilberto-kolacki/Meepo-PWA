@@ -18,19 +18,32 @@ class carrinhoUtils {
         };
     }
 
-    setEmbarqueItensCarrinho(carrinho) {
-        return new Promise((resolve) => {
-            const itensCarrinhoStorage = Storage.getCarrinhoItens();
-			const done = _.after(itensCarrinhoStorage.length, () => {
-				Storage.setCarrinhoItens(itensCarrinhoStorage);
-				resolve();
-			});        
+    newPedido() {
+        const pedido = {};
+        pedido.endEntrega = null;
+        pedido.observacao = null;
+        pedido.desconto1 = 0;
+        pedido.desconto2 = 0;
+        pedido.desconto3 = 0;
+        pedido.quantidade = 0;
+        pedido.totalLiquido = 0;
+        pedido.totalBruto = 0;
+        pedido.dataPedido = new Date().getTime();
+        pedido.dataEmbarque = null;
+        pedido.cliente = Storage.getClienteCarrinho();
+        return pedido;
+    }
 
-			itensCarrinhoStorage.forEach(itemStorage => {
-                const itemCarrinho = _.find(carrinho, (itemCarrinho) => itemCarrinho.cor.idProduto === itemStorage.idProduto);
-				itemStorage.embarque = itemCarrinho.embarque;
-				done();
-			});
+    setItensToPedidoEmbarques(embarques, itensCarrinho) {
+        return new Promise((resolve) => {
+            const pedido = this.newPedido();
+            pedido.listEmbarques = embarques;
+
+            const done = _.after(embarques.length,() => resolve(pedido));
+            pedido.listEmbarques.forEach(embarque => {
+                embarque.itensPedido = itensCarrinho.filter((itemCarrinho) => itemCarrinho.embarque === embarque.id);
+                done();
+            });
         });
     }
 

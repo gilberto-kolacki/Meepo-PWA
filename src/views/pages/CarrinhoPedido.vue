@@ -88,7 +88,7 @@
                                 <label>Quantidade: {{ pedido.quantidade }} </label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label>Subtotal: {{ pedido.total | moneyy }} </label>
+                                <label>Subtotal: {{ pedido.subTotal | moneyy }} </label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
                                 <label>Descontos: {{somarDescontos() + "%"}} </label>
@@ -131,7 +131,7 @@
                                     :options="formasPagto" 
                                     :dir="$vs.rtl ? 'rtl' : 'ltr'"/>
                             </vs-col>
-                            <vs-col vs-lg="5" vs-sm="6" vs-xs="12" v-if="condicoesPagto">
+                            <vs-col vs-lg="5" vs-sm="6" vs-xs="12" v-if="condicoesPagto[pedido.id]">
                                 <label>Condição de Pagamento</label>
                                 <v-select 
                                     id="condicaoPgto" 
@@ -161,7 +161,6 @@ import ErrorDB from "../../rapidsoft/db/errorDB";
 import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
 import Storage from "../../rapidsoft/utils/storage";
 import SearchCliente  from '../../rapidsoft/components/SearchCliente';
-import CarrinhoUtils from '../../rapidsoft/utils/carrinhoUtils';
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
@@ -243,11 +242,13 @@ export default {
         },
         setBrinde(pedido){
             if (pedido.brinde) {
-                pedido.formaPagamento = _.find(this.formasPagto, (formaPagto) => formaPagto.id == this.condigoBrinde );
+                pedido.formaPagamento = this.formasPagto.find((formaPagto) => formaPagto.id == this.condigoBrinde );
+                pedido.condicaoPagamento = null;
             } else {
                 pedido.formaPagamento = this.formasPagto[0];
+                pedido.condicaoPagamento = this.formasPagto[0].condicoes[0];
             }
-            pedido.condicaoPagamento = null;
+            this.$forceUpdate();
         },
         validarDadosPedido() {
             PedidoUtils.validarPedido(this.pedidoCapa, this.listPedidosEmbarque).then(() => {
@@ -310,24 +311,21 @@ export default {
 			return new Promise((resolve) => {
                 FormaPagtoDB._getAll().then((formaPagto) => {
                     this.formasPagto = formaPagto;
-                    CarrinhoUtils.getCarrinho(this.$route.params.orcamentoId ? this.$route.params.orcamentoId : null).then(carrinho => {
-                        this.itensCarrinho = carrinho;
-                        EmbarqueDB.getPedidosPorEmbarques(carrinho).then((embarques) => {
-                            const done = _.after(embarques.length, () => {
-                                this.listPedidosEmbarque = embarques;
-                                this.showPedido = true;
-                                resolve();
-                            });
-
-                            embarques.forEach(embarque => {
-                                embarque.formaPagamento = this.formasPagto[0];
-                                embarque.condicaoPagamento = this.formasPagto[0].condicoes[0];
-                                this.condicoesPagto = this.condicoesPagto == null ? {} : this.condicoesPagto;
-                                this.condicoesPagto[embarque.id] = this.formasPagto[0].condicoes;
-                                done();
-                            });
+                    EmbarqueDB.getEmbarquesPedido(this.pedidoCapa).then((pedido) => {
+                        const done = _.after(pedido.listEmbarques.length,() => {
+                            this.listPedidosEmbarque = _.orderBy(pedido.listEmbarques, ['dataEmbarque', 'nome'], ['asc', 'asc']);
+                            this.showPedido = true;
+                            resolve();
                         });
-                    });
+
+                        pedido.listEmbarques.forEach(embarque => {
+                            embarque.formaPagamento = this.formasPagto[0];
+                            embarque.condicaoPagamento = this.formasPagto[0].condicoes[0];
+                            this.condicoesPagto = this.condicoesPagto == null ? {} : this.condicoesPagto;
+                            this.condicoesPagto[embarque.id] = this.formasPagto[0].condicoes;
+                            done();
+                        });
+                    });                    
                 })
             });
         }
@@ -336,23 +334,20 @@ export default {
     
     },
 	async created() {
+        this.pedidoCapa = this.$route.params.pedidoEmbarques;
         await this.carregaItensTela();
     },
     beforeMount() {
     
     },
     mounted() {
-        PedidoUtils.newPedido().then((pedido) => {
-            this.pedidoCapa = _.cloneDeep(pedido);
-            this.pedidoCapa.cliente = Storage.getClienteCarrinho();
-            if (this.pedidoCapa.cliente) {
-                this.pedidoCapa.emailNfe = _.cloneDeep(this.pedidoCapa.cliente.emailNfe);
-                this.pedidoCapa.grupoCliente = this.pedidoCapa.cliente.grupoCliente;
-                this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(this.pedidoCapa.cliente.enderecos, (endereco) => endereco.endEntrega ));
-            } else {
-                this.pedidoCapa.grupoCliente = Storage.getGrupoCarrinho();
-            }
-        });
+        if (this.pedidoCapa.cliente) {
+            this.pedidoCapa.emailNfe = _.cloneDeep(this.pedidoCapa.cliente.emailNfe);
+            this.pedidoCapa.grupoCliente = this.pedidoCapa.cliente.grupoCliente;
+            this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(this.pedidoCapa.cliente.enderecos, (endereco) => endereco.endEntrega ));
+        } else {
+            this.pedidoCapa.grupoCliente = Storage.getGrupoCarrinho();
+        }
     },
 	errorCaptured(err, vm, info) {
         ErrorDB._criarLog({ err, vm, info });

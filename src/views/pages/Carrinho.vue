@@ -88,13 +88,10 @@ export default {
 			this.produtosAdd=null;
 		},
 		showPedidos() {
-
-			console.log(this.itensCarrinho);
-			console.log(this.embarques);
-			
-			
-			CarrinhoUtils.setEmbarqueItensCarrinho(this.itensCarrinho).then(() => {
-				// this.$router.push({ name: 'carrinhoPedido'});
+			CarrinhoUtils.setItensToPedidoEmbarques(this.embarques, this.itensCarrinho).then((pedidoEmbarques) => {
+				this.$router.push({ name: 'carrinhoPedido',
+					params: {pedidoEmbarques: pedidoEmbarques}
+				});
 			});
 		},
 		showEditCarrinho(produto) {
@@ -132,7 +129,7 @@ export default {
 						this.embarquesOption = embarques;
 						PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
 							this.embarques = embarques;
-							SegmentoDB.getSegmentosCarrinho(this.itensCarrinho).then((segmentos) => {
+							SegmentoDB.getSegmentosCarrinho(carrinho).then((segmentos) => {
 								this.segmentos = segmentos;
 								ProdutoUtils.getProdutosSegmentos(segmentos, carrinho).then((produtosSegmento) => {
 									this.produtosSegmento = produtosSegmento;

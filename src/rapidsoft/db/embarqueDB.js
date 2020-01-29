@@ -66,9 +66,9 @@ class embarqueDB extends BasicDB {
                     const calculaEmbarque = (idEmbarque) => {
                         const embarque = embarques.get(idEmbarque);
                         embarque.quantidade = (embarque.quantidade || 0 ) + produto.cor.quantidade;
-                        embarque.valor = ((embarque.valor || 0 ) + produto.cor.precoVenda);
+                        embarque.valor = ((embarque.valor || 0 ) + produto.cor.precoCusto);
                         embarque.valor = _.round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
-                        embarque.total = embarque.quantidade * embarque.valor;
+                        embarque.subTotal = _.round((embarque.quantidade * embarque.valor), 2);
                         embarque.dataEmbarque = embarque.dataInicio;
                         done();
                     };
@@ -84,39 +84,35 @@ class embarqueDB extends BasicDB {
         });
     }
 
-    getPedidosPorEmbarques(carrinho) {
+    getQuantidadeEmbarque(itensEmbarque) {
+        return itensEmbarque.reduce((total, item) => {
+            return total + item.cor.quantidade;
+        }, 0);
+    }
+
+    getValorEmbarque(itensEmbarque) {
+        return itensEmbarque.reduce((total, item) => {
+            return total + item.cor.precoCusto;
+        }, 0);
+    }
+
+    getEmbarquesPedido(pedido) {
         return new Promise((resolve) => {
-            const grupo = Storage.getGrupoCarrinho();
-            this._getAllMap().then((embarquesDB) => {
-                const embarques = new Map();
-                const done = _.after(carrinho.length, () => resolve([...embarques.values()]));
-                carrinho.forEach(produto => {
+            const grupo = pedido.grupoCliente;
+            const done = _.after(pedido.listEmbarques.length,() => resolve(pedido));
 
-                    const calculaEmbarque = (idEmbarque) => {
-                        const embarque = embarques.get(idEmbarque);
-                        embarque.brinde = false;
-                        embarque.pedidoParcial = true;
-                        embarque.antecipacaoPedido = true;
-                        embarque.copiaEmail = true;
-                        embarque.formaPagamento = null;
-                        embarque.condicaoPagamento = null;
-                        embarque.quantidade = (embarque.quantidade || 0 ) + produto.cor.quantidade;
-                        embarque.valor = ((embarque.valor || 0 ) + produto.cor.precoCusto);
-                        embarque.valor = _.round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
-                        embarque.total = embarque.quantidade * embarque.valor;
-                        embarque.dataEmbarque = new Date(_.toNumber(embarque.dataInicio));
-                        done();
-                    };
-                    
-                    if (embarques.has(produto.embarque)) {
-                        calculaEmbarque(produto.embarque);
-                    } else {
-                        embarques.set(produto.embarque, embarquesDB[produto.embarque]);
-                        calculaEmbarque(produto.embarque);
-                    }
-                });
+            pedido.listEmbarques.forEach(embarque => {
+                embarque.brinde = false;
+                embarque.pedidoParcial = true;
+                embarque.antecipacaoPedido = true;
+                embarque.copiaEmail = true;
+                embarque.formaPagamento = null;
+                embarque.condicaoPagamento = null;
+                embarque.quantidade = this.getQuantidadeEmbarque(embarque.itensPedido);
+                embarque.valor = this.getValorEmbarque(embarque.itensPedido);
+                embarque.subTotal = _.round(embarque.quantidade * (embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor)), 2);
+                done();
             });
-
         });
     }
 
