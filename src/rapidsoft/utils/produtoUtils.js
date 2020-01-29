@@ -1,36 +1,7 @@
 import _ from 'lodash';
 import Storage from '../utils/storage';
-// import ProdutoDB from '../../rapidsoft/db/produtoDB';
 
 class produtoUtils{
-
-    // getCatalogoByIdCategoria(paginas,idCategoria) {
-    //     return new Promise((resolve) => {
-
-    //         resolve();
-    //         ProdutoDB.getPaginasCatalogo(idCatalogo).then(paginas => {
-    //             ProdutoDB.getProdutosByIdCategorias(idCategoria).then((produtos)=>{
-                    
-    //                 let paginasCategoria = [];
-
-    //                 produtos.map((produto) => {
-    //                     const produtoPagina = paginas.filter((pagina) => {
-    //                         return pagina.produtoA.ref === produto.referencia
-    //                     })
-    //                     produtoPagina.map((pagina) => {
-    //                         paginasCategoria.push(pagina);
-    //                     })
-    //                 });
-                    
-    //                 paginasCategoria.map((pagina, index) => {
-    //                     pagina.pag = index;
-    //                 })
-                    
-    //                 resolve(paginasCategoria);
-    //             });
-    //         });
-    //     });
-    // }
 
     getTamanhosLabelProduto(produto) {
         const tamanhos = [];
@@ -85,9 +56,6 @@ class produtoUtils{
                 });
                 done();
             });
-
-
-
         });
     }
 

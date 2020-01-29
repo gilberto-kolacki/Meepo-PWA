@@ -290,17 +290,18 @@ export default {
         },
 
         replicarGradeRefs(quantidades) {
-            this.produtoAdd.produtoAddCores.forEach(corAdd => {
+            for (let indexCor = 0; indexCor < this.produtoAdd.produtoAddCores.length; indexCor++) {
+                const corAdd = this.produtoAdd.produtoAddCores[indexCor];
                 if (quantidades[corAdd.codigo]) {
-                    corAdd.produtoAddTamanhos.forEach(tamanhoAdd => {
+                    for (let indexTamanho = 0; indexTamanho < corAdd.produtoAddTamanhos.length; indexTamanho++) {
+                        const tamanhoAdd = corAdd.produtoAddTamanhos[indexTamanho];
                         if (quantidades[corAdd.codigo][tamanhoAdd.codigo]) {
-                            tamanhoAdd.quantidade = quantidades[corAdd.codigo][tamanhoAdd.codigo];
-                            this.$emit('atualiza-qtde-itens', _.clone(tamanhoAdd));
-                            this.$forceUpdate();
+                            tamanhoAdd.quantidade = parseInt(quantidades[corAdd.codigo][tamanhoAdd.codigo]);
+                            this.atualizarGrade(indexCor, indexTamanho);
                         }
-                    });
+                    }
                 }
-            });
+            }
         }
     },
     created() {
