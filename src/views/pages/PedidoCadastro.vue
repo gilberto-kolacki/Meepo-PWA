@@ -102,23 +102,24 @@
                         <vs-col vs-lg="5" vs-sm="6" vs-xs="12">
                             <label style="font-size:smaller">Forma de Pagamento</label>
                             <v-select 
-                                @input="selecionarCondicaoPagamento()"
+                                @input="setFormaDePagamento()"
                                 id="formaPgto" 
                                 style="width:100%" 
                                 :clearable=false 
-                                v-model="pedido.formaPagamento" 
+                                v-model="formaDePagamentoSelecionada" 
                                 :options="getFormasPagto" 
                                 :dir="$vs.rtl ? 'rtl' : 'ltr'"
                             />
                         </vs-col>
-                        <vs-col vs-lg="5" vs-sm="6" vs-xs="12">
+                        <vs-col vs-lg="5" vs-sm="6" vs-xs="12" v-if="temCondicaoDePagamento" >
                             <label style="font-size:smaller">Condição de Pagamento</label>
-                            <v-select 
+                            <v-select
+                                @input="setCondicaoDePagamento()"
                                 id="condicaoPgto" 
                                 style="width:100%" 
                                 :clearable=false
-                                v-model="pedido.condicaoPagamento" 
-                                :options="getCondPagtoFormaPagto(pedido.formaPagamento)" 
+                                v-model="condicaoDePagamentoSelecionada" 
+                                :options="getCondicoesDePagamento" 
                                 :dir="$vs.rtl ? 'rtl' : 'ltr'"
                             />
                         </vs-col>
@@ -140,8 +141,7 @@
                         <div class="flex carrinho-item" v-if="!item.remove">
                             <div class="vx-col w-3/12 mx-6" style="justify-content:center;margin:auto">
                                 <div class="vx-row" style="font-weight:bold;">
-                                    <!-- {{"Data: " + getDateFromStringDate(item.embarque)}} -->
-                                    Data: {{ item.embarque.dataEmbarque | formatDate}}
+                                    Data: {{ pedido.dataEmbarque | formatDate}}
                                 </div>
                                 <div class="vx-row" style="font-weight:bold;">
                                     {{item.sku}}
@@ -152,11 +152,12 @@
                             </div>
                             <div class="vx-col w-2/12 mx-10" style="justify-content:center;margin:auto">
                                 <div class="vx-row">Tamanho</div>
-                                <div class="vx-row" style="font-weight:bold;">{{item.codigo}}</div>
+                                <div class="vx-row" style="font-weight:bold;">{{item.tamanho}}</div>
                             </div>
                             <div class="vx-col w-3/12 mx-10" style="justify-content:center;margin:auto">
                                 <div class="vx-row" style="font-weight:bold;">
-                                    <vs-input-number color="primary" v-model="item.quantidade" label="Qnt"/>
+                                    <vs-input-number v-if="pedido.status == 10" color="primary" v-model="item.quantidade" label="Qnt"/>
+                                    <vs-input-number v-else disabled color="primary" v-model="item.quantidade" label="Qnt"/>
                                 </div>
                             </div>
                             <div class="vx-col w-3/12 mx-10" style="justify-content:center;margin:auto">
@@ -164,7 +165,8 @@
                                 <div class="vx-row" style="font-weight:bold;">R$ 58,90</div>
                             </div>
                             <div class="vx-col w-1/12 mx-10" style="justify-content:center;margin:auto">
-                                <vs-button type="filled" size="small" icon-pack="feather" color="primary" icon="icon-x" @click="deletarMessage(item)"/>
+                                <vs-button v-if="pedido.status == 10" type="filled" size="small" icon-pack="feather" color="primary" icon="icon-x" @click="deletarMessage(item)"/>
+                                <vs-button v-else disabled type="filled" size="small" icon-pack="feather" color="primary" icon="icon-x"/>
                             </div>
                         </div>
                     </div>
@@ -201,6 +203,9 @@ export default {
             condigoBrinde: 5,
             condigoBoleto: 1,
             itensPedido: [],
+            formaDePagamentoSelecionada: {value:1,label:'Boleto',condicoes:[{value:2,label:'30 Dias'}]},
+            condicaoDePagamentoSelecionada: {value:2,label:'30 Dias'},
+            temCondicaoDePagamento: true,
         }
     },
     components: {
@@ -214,7 +219,17 @@ export default {
     computed:{
 
         getFormasPagto() {
-            return this.formasPagto.map((formaPagto) => this.getValueSelectFormaPagto(formaPagto));
+            return this.formasPagto.map((formaPagto) => {
+                return {value:formaPagto.id, label:formaPagto.nome, condicoes: formaPagto.condicoes};
+            });
+        },
+
+        getCondicoesDePagamento() {
+            if (this.formaDePagamentoSelecionada && this.formaDePagamentoSelecionada.condicoes.length > 0) {
+                return this.formaDePagamentoSelecionada.condicoes.map((condicaoDePagamento) => {
+                    return {value:condicaoDePagamento.id, label:condicaoDePagamento.nome};
+                });
+            } else return [];
         },
 
         getEnderecosEntrega() {
@@ -236,51 +251,29 @@ export default {
             this.$bvModal.show(this.idPopUpSearch);
         },
 
-        setBrinde(){
-            if (this.pedido.brinde) {
-                const brinde = _.find(this.formasPagto, (formaPagto) => formaPagto.id == this.condigoBrinde );
-                this.pedido.formaPagamento = this.getValueSelectFormaPagto(brinde);
-            } else {
-                this.pedido.formaPagamento = null;
-            }
-            this.pedido.condicaoPagamento = null;
+        setCondicaoDePagamento() {
+            this.pedido.condicaoPagamento = this.condicaoDePagamentoSelecionada.value;
         },
 
-        getCondPagtoFormaPagto(formaPagamento) {
-            if (formaPagamento) {
-                return formaPagamento.formaPgto.condicoes.map((condPagto) => {
-                    return {label:condPagto.nome, value:condPagto.id, formaPgto:condPagto}
-                });
-            }
-        },
-
-        selecionarCondicaoPagamento() {
-            
-            const formaPagto = this.pedido.formaPagamento.formaPgto;
-            
-            if (formaPagto.id === this.condigoBrinde) {
+        setFormaDePagamento() {
+            this.pedido.formaPagamento = this.formaDePagamentoSelecionada.value;
+            if (this.formaDePagamentoSelecionada.value == this.condigoBrinde) {
                 this.pedido.brinde = true;
-                this.condicoesPagto = null;
-                this.pedido.condicaoPagamento = null;
-            } else if (formaPagto.id == this.condigoBoleto) {
-                this.condicoesPagto = null;
-                this.pedido.condicaoPagamento = null;
+                this.setBrinde();
             } else {
-                this.pedido.condicoesPagamento = [];
-                const condicoes = formaPagto.condicoes && formaPagto.condicoes.length > 0 ? formaPagto.condicoes : [];
-                this.condicoesPagto = condicoes;
-                if (condicoes.length > 0) {
-                    this.pedido.condicaoPagamento = {
-                        value: condicoes[0].id,
-                        label:condicoes[0].nome,
-                        parcelas:condicoes[0].parcelas
-                    };
-                }
+                this.condicaoDePagamentoSelecionada = {
+                    value: this.formaDePagamentoSelecionada.condicoes[0].id,
+                    label:this.formaDePagamentoSelecionada.condicoes[0].nome,
+                };
+                this.pedido.brinde = false;
+                this.temCondicaoDePagamento = true;
             }
         },
 
-        getValueSelectFormaPagto(formaPagto) {
-            return {label:formaPagto.nome, value:formaPagto.id, formaPgto:formaPagto};
+        setBrinde(){
+            this.temCondicaoDePagamento = !this.pedido.brinde;
+            this.pedido.formaPagamento = this.pedido.brinde ? this.condigoBrinde : null;
+            this.pedido.condicaoPagamento = null
         },
 
         carregaItensTela() {
@@ -289,13 +282,21 @@ export default {
                 FormaPagtoDB._getAll().then((formaPagto) => {
                     this.formasPagto = formaPagto;
                     PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
-
-                        console.log(pedido);
-                        
                         this.pedido = pedido;
-                        this.itensPedido = pedido.itens;
-                        document.getElementById('loading-bg').style.display = "none";
-                        resolve();
+                        FormaPagtoDB._getById(this.pedido.formaPagamento).then((formaDePagamento) => {
+                            this.formaDePagamentoSelecionada = {
+                                value:formaDePagamento.value.id,
+                                label: formaDePagamento.value.nome,
+                                condicoes: formaDePagamento.value.condicoes,
+                            }
+                            this.condicaoDePagamentoSelecionada = {
+                                value:this.formaDePagamentoSelecionada.condicoes[this.pedido.condicaoPagamento].id,
+                                label:this.formaDePagamentoSelecionada.condicoes[this.pedido.condicaoPagamento].nome,
+                            }
+                            this.itensPedido = pedido.itens;
+                            document.getElementById('loading-bg').style.display = "none";
+                            resolve();
+                        });
                     })
                 })
             });
@@ -314,7 +315,7 @@ export default {
             })
         },
         deletarItemPedido(parametersItemPedido) {
-            this.pedido.itens = _.remove(this.pedido.itens, (itemPedido) => itemPedido.id !== parametersItemPedido.id);
+            this.pedido.itens = _.remove(this.pedido.itens, (itemPedido) => itemPedido.sku !== parametersItemPedido.sku);
             PedidoDB.deletarItemPedido(this.pedido).then(() => {
                 this.carregaItensTela();
             });
@@ -323,14 +324,6 @@ export default {
             PedidoDB.atualizarPedido(pedido).then(() => {
                 this.voltarPedido();
             });
-        },
-        getDateFromStringDate(inputFormat) {
-            if (inputFormat.dataEmbarque) {
-                const date = inputFormat.dataEmbarque.substring(0,10);
-                return date.split('-').reverse().join('/');
-            } else {
-                return '-';
-            }
         },
         voltarPedido() {
             this.$router.go(-1);
