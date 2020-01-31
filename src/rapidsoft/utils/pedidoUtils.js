@@ -15,7 +15,7 @@ const validarPedido = (pedidos) => {
 
                 valorMinimo = valorMinimo ? valorMinimo.val : 0;
                 
-                if (_.isNil(pedido.cliente) || pedido.cliente === ""){
+                if (_.isNil(pedido.cliente) || _.isNil(pedido.cliente.cpfCnpj)){
                     throw { campo: "nomeCliente", label: "Cliente" };
                 }                
                 else if (_.isNil(pedido.emailNfe) || pedido.emailNfe === ""){

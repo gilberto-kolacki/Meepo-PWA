@@ -314,21 +314,21 @@ export default {
 	beforeCreate() {
     
     },
-	async created() {
-        this.pedidoCapa = this.$route.params.pedidoEmbarques;
-        await this.carregaItensTela();
+	created() {
+        this.pedidoCapa = this.$route.params.pedidoEmbarques;        
     },
     beforeMount() {
     
     },
-    mounted() {
-        if (this.pedidoCapa.cliente) {
+    async mounted() {
+        if (this.pedidoCapa.cliente && this.pedidoCapa.cliente.cpfCnpj) {
             this.pedidoCapa.emailNfe = _.cloneDeep(this.pedidoCapa.cliente.emailNfe);
             this.pedidoCapa.grupoCliente = this.pedidoCapa.cliente.grupoCliente;
             this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(this.pedidoCapa.cliente.enderecos, (endereco) => endereco.endEntrega ));
         } else {
             this.pedidoCapa.grupoCliente = Storage.getGrupoCarrinho();
         }
+        await this.carregaItensTela();
     },
 	errorCaptured(err, vm, info) {
         ErrorDB._criarLog({ err, vm, info });
