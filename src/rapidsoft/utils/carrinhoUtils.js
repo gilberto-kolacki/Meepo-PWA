@@ -37,13 +37,25 @@ class carrinhoUtils {
     setItensToPedidoEmbarques(embarques, itensCarrinho) {
         return new Promise((resolve) => {
             const pedido = this.newPedido();
-            pedido.listEmbarques = embarques;
-
-            const done = _.after(embarques.length,() => resolve(pedido));
-            pedido.listEmbarques.forEach(embarque => {
+            pedido.listEmbarques = embarques.map((embarque) => {
                 embarque.itensPedido = itensCarrinho.filter((itemCarrinho) => itemCarrinho.embarque === embarque.id);
-                done();
+                embarque.itensPedido = embarque.itensPedido.map((item) => {
+                    const itemCor = {};
+                    itemCor.referencia = item.referencia;
+                    itemCor.segmento = item.segmento;
+                    itemCor.idCor = item.cor.idCor;
+                    itemCor.codigo = item.cor.nome;
+                    itemCor.idProduto = item.cor.idProduto;
+                    itemCor.quantidade = item.cor.quantidade;
+                    itemCor.precoVenda = item.cor.precoVenda;
+                    itemCor.precoCusto = item.cor.precoCusto;
+                    itemCor.tamanhos = item.cor.tamanhos;
+                    itemCor.categorias = item.cor.categorias;
+                    return itemCor;
+                });
+                return embarque;
             });
+            resolve(pedido);
         });
     }
 

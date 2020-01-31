@@ -1,6 +1,6 @@
 <template>
     <div id="page-orders">
-        <vs-table pagination max-items="10" search :data="pedidos" v-if="this.pedidos.length > 0">            
+        <vs-table pagination max-items="10" search :data="pedidos">            
             <!-- <template slot="header">
                 <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editar(null)">Novo</vs-button>
             </template> -->
@@ -8,7 +8,7 @@
                 <vs-th class="th-acoes">Ações</vs-th>
                 <vs-th sort-key="cnpj" style="width: 25%">CNPJ</vs-th>
                 <vs-th sort-key="nome">Nome</vs-th>
-                <vs-th sort-key="nome">Status</vs-th>
+                <vs-th sort-key="nome" style="width: 20%" >Status</vs-th>
             </template> 
             <template slot-scope="{data}">
                 <vs-tr :key="indextr" v-for="(tr, indextr) in data">
@@ -28,8 +28,8 @@
                     <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
                         {{ data[indextr].cliente.nome | capitalize }}
                     </vs-td>
-                    <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
-                        <vs-chip :color="getStatusColor(30)" class="product-order-status">{{ getNameStatus(30) }}</vs-chip>
+                    <vs-td :data="data[indextr]" v-if="data[indextr].status">
+                        <vs-chip :color="getStatusColor(data[indextr].status)" class="product-order-status">{{ getNameStatus(data[indextr].status) }}</vs-chip>
                     </vs-td>
                 </vs-tr>
             </template>
@@ -52,14 +52,12 @@ export default {
     methods: {
         getNameStatus(status) {
             if(status == 10) return "Digitação"
-            if(status == 20) return "Sincronização"
-            if(status == 30) return "Orçamento"
+            if(status == 50) return "Sincronização"            
             return ""
         },
         getStatusColor(status) {
             if(status == 10) return "warning"
-            if(status == 20) return "success"
-            if(status == 30) return "danger"
+            if(status == 50) return "success"
             return "primary"
         },
         editar(pedido) {

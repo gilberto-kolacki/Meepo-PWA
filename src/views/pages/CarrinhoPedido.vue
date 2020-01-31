@@ -73,7 +73,7 @@
                         Pedidos
                     </strong>
                 </template>
-                <div class="embarque-item" style="padding:20px" v-for="(pedido, indexItem) in this.listPedidosEmbarque" :key="indexItem">
+                <div class="embarque-item" style="padding:20px" v-for="(pedido, indexItem) in this.pedidoCapa.listEmbarques" :key="indexItem">
                     <div class="vx-row flex justify-between">
                         <vs-col vs-type="flex" vs-lg="12" vs-sm="12" vs-xs="12">
                             <h4><strong>Pedido:</strong> {{pedido.nome}}</h4>
@@ -88,13 +88,13 @@
                                 <label>Quantidade: {{ pedido.quantidade }} </label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label>Subtotal: {{ pedido.subTotal | moneyy }} </label>
+                                <label>Subtotal: {{ pedido.totalBruto | moneyy }} </label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label>Descontos: {{somarDescontos() + "%"}} </label>
+                                <label>Descontos: ({{pedidoCapa.desconto1}}%) ({{pedidoCapa.desconto2}}%) ({{pedidoCapa.desconto3}}%) </label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <label><strong>Total:</strong> </label>
+                                <label><strong>Total: {{getTotalPedido(pedido) | moneyy }}</strong> </label>
                             </div>
                         </vs-col>
                         <vs-col vs-lg="6" vs-sm="6" vs-xs="12">
@@ -176,7 +176,7 @@ export default {
         formasPagto: [],
         condicoesPagto: null,
         embarques:[],
-        listPedidosEmbarque:[],
+        // listPedidosEmbarque:[],
         dataEmbarque:[],
         observacao:'',
         condigoBrinde: 5,
@@ -205,9 +205,6 @@ export default {
                 pedido.brinde = true;
                 this.condicoesPagto = null;
                 pedido.condicaoPagamento = null;
-            // } else if (formaPagto.id == this.condigoBoleto) {
-            //     this.condicoesPagto = null;
-            //     pedido.condicaoPagamento = null;
             } else {
                 pedido.condicoesPagamento = [];
                 const condicoes = formaPagto.condicoes && formaPagto.condicoes.length > 0 ? formaPagto.condicoes : [];
@@ -218,27 +215,13 @@ export default {
                 }
             }
         },
-        proximoCampo(refName) {                  
-            document.getElementById(refName).focus();
-        },
         getLabelEndereco(endereco) {
             return endereco ? endereco.endereco +' - '+ endereco.numero +', CEP: '+ endereco.cep : null;
         },
-        getCondPagtoFormaPagto(formaPagamento) {
-            if (formaPagamento) {
-                return formaPagamento.formaPgto.condicoes.map((condPagto) => {
-                    return {label:condPagto.nome, value:condPagto.id, formaPgto:condPagto}
-                });
-            }
-        },
-        somarValorTotal(total, descontos,indexItem){
-            this.listPedidosEmbarque[indexItem].valueBeforeDiscount = total - (total * descontos / 100);
-            return total - (total * descontos / 100);
-        },
-        somarDescontos(){
-            return parseInt(this.pedidoCapa.desconto1) + parseInt(this.pedidoCapa.desconto2) + parseInt(this.pedidoCapa.desconto3);
-        },
         setDescontos(){
+        },
+        getTotalPedido(pedido) {
+            return PedidoUtils.calcularDesconto(this.pedidoCapa.desconto3, PedidoUtils.calcularDesconto(this.pedidoCapa.desconto2, PedidoUtils.calcularDesconto(this.pedidoCapa.desconto1, pedido.totalBruto)));
         },
         setBrinde(pedido){
             if (pedido.brinde) {
@@ -251,30 +234,33 @@ export default {
             this.$forceUpdate();
         },
         validarDadosPedido() {
-            PedidoUtils.validarPedido(this.pedidoCapa, this.listPedidosEmbarque).then(() => {
-                this.gerarPedidosMessage();
-            }).catch((erro) => {                
-                this.$vs.notify({
-                    title: 'Erro!',
-                    text: erro.mensagem,
-                    color: 'danger',
-                    iconPack: 'feather',
-                    icon: 'icon-alert-circle'
-                })
+            PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa).then((pedidos) => {
+                PedidoUtils.validarPedido(pedidos).then(() => {
+                    this.gerarPedidosMessage(pedidos);
+                }).catch((erro) => {                
+                    this.$vs.notify({
+                        title: 'Erro!',
+                        text: erro.mensagem,
+                        color: 'danger',
+                        iconPack: 'feather',
+                        icon: 'icon-alert-circle'
+                    })
+                });
             });
         },
-        gerarPedidosMessage() {
+        gerarPedidosMessage(pedidos) {
             this.$vs.dialog({
                 type:'confirm',
                 color:'warning',
                 title:'Atenção!',
                 text:'Serão gerados pedidos diferentes para cada Embarque, e se carrinho será apagado!. Deseja continuar?',
-                accept: this.gerarPedidos,
                 acceptText: 'Sim',
                 cancelText: 'Cancelar',
+                accept: this.gerarPedidos,
+                parameters: pedidos
             });
         },
-		gerarPedidos() {
+		gerarPedidos(pedidos) {
             if (this.orcamento) {
                 const carrinho = Storage.getCarrinho();
                 carrinho.pedido = this.pedidoCapa;
@@ -283,16 +269,11 @@ export default {
                     PedidoUtils.concluirGeracaoPedidos(this, true);
                 });
             } else {
-                PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa, this.listPedidosEmbarque).then((pedidos) => {
-                    console.log(pedidos);
-                    console.log(PedidoDB);
-                    
-                    // const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
-                    // pedidos.forEach(pedido => {
-                    //     PedidoDB.salvarPedido(pedido).then(() => {
-                    //         done();
-                    //     });
-                    // });
+                const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
+                pedidos.forEach(pedido => {
+                    PedidoDB.salvarPedido(pedido).then(() => {
+                        done();
+                    });
                 });
             }
         },
@@ -313,7 +294,7 @@ export default {
                     this.formasPagto = formaPagto;
                     EmbarqueDB.getEmbarquesPedido(this.pedidoCapa).then((pedido) => {
                         const done = _.after(pedido.listEmbarques.length,() => {
-                            this.listPedidosEmbarque = _.orderBy(pedido.listEmbarques, ['dataEmbarque', 'nome'], ['asc', 'asc']);
+                            this.pedidoCapa = pedido;
                             this.showPedido = true;
                             resolve();
                         });

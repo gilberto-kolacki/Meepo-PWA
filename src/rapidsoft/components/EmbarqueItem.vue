@@ -33,7 +33,7 @@
                     <strong>Qtde Itens: </strong>{{embarqueItem.quantidade}}
                 </div>
                 <div class="vx-col sm:w-1/3 w-full mb-2">
-                    <strong>Sub Total: </strong>{{embarqueItem.subTotal | moneyy}}
+                    <strong>Sub Total: </strong>{{embarqueItem.totalBruto | moneyy}}
                 </div>
             </div>
         </div>

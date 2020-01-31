@@ -93,7 +93,7 @@
                         <vs-table hoverFlat class="w-2/3 ml-auto mt-4">
                             <vs-tr>
                                 <vs-th>SUBTOTAL</vs-th>
-                                <vs-td>{{ getValorTotal(orcamento.valorTotal,1) }}</vs-td>
+                                <vs-td>{{ getValorTotal(orcamento.totalBruto,1) }}</vs-td>
                             </vs-tr>
                             <!-- <vs-tr>
                                 <vs-th>DISCOUNT ({{ invoiceData.discountPercentage }}%)</vs-th>

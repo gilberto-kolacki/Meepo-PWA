@@ -68,7 +68,7 @@ class embarqueDB extends BasicDB {
                         embarque.quantidade = (embarque.quantidade || 0 ) + produto.cor.quantidade;
                         embarque.valor = ((embarque.valor || 0 ) + produto.cor.precoCusto);
                         embarque.valor = _.round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
-                        embarque.subTotal = _.round((embarque.quantidade * embarque.valor), 2);
+                        embarque.totalBruto = _.round((embarque.quantidade * embarque.valor), 2);
                         embarque.dataEmbarque = embarque.dataInicio;
                         done();
                     };
@@ -86,13 +86,13 @@ class embarqueDB extends BasicDB {
 
     getQuantidadeEmbarque(itensEmbarque) {
         return itensEmbarque.reduce((total, item) => {
-            return total + item.cor.quantidade;
+            return total + item.quantidade;
         }, 0);
     }
 
     getValorEmbarque(itensEmbarque) {
         return itensEmbarque.reduce((total, item) => {
-            return total + item.cor.precoCusto;
+            return total + item.precoCusto;
         }, 0);
     }
 
@@ -100,7 +100,8 @@ class embarqueDB extends BasicDB {
         return new Promise((resolve) => {
             const grupo = pedido.grupoCliente;
             const done = _.after(pedido.listEmbarques.length,() => resolve(pedido));
-
+            
+            pedido.listEmbarques = _.orderBy(pedido.listEmbarques, ['dataEmbarque', 'nome'], ['asc', 'asc']);
             pedido.listEmbarques.forEach(embarque => {
                 embarque.brinde = false;
                 embarque.pedidoParcial = true;
@@ -110,7 +111,7 @@ class embarqueDB extends BasicDB {
                 embarque.condicaoPagamento = null;
                 embarque.quantidade = this.getQuantidadeEmbarque(embarque.itensPedido);
                 embarque.valor = this.getValorEmbarque(embarque.itensPedido);
-                embarque.subTotal = _.round(embarque.quantidade * (embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor)), 2);
+                embarque.totalBruto = _.round(embarque.quantidade * (embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor)), 2);
                 done();
             });
         });
