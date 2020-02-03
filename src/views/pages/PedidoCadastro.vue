@@ -329,7 +329,7 @@ export default {
             });
         },
         voltarPedido() {
-            this.$router.go(-1);
+            this.$router.push('/pedido/consulta');
         },
     },
     created() {
