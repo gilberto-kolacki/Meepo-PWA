@@ -18,7 +18,10 @@
                                 <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editar(data[indextr])" />
                             </div>
                             <div class="p-1">
-                                <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarMessage(data[indextr])"/>
+                                <vs-button type="filled" v-if="data[indextr].status == 10" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarMessage(data[indextr])"/>
+                            </div>
+                            <div class="p-1">
+                                <vs-button type="filled" v-if="data[indextr].status == 10" size="small" icon-pack="feather" color="success" icon="icon-check-circle" @click="mudarStatusMessage(data[indextr])"/>
                             </div>
                         </div>
                     </vs-td>
@@ -50,6 +53,10 @@ export default {
         }
     },
     methods: {
+        alterarStatus(pedido) {
+            pedido.status = 50;
+            PedidoDB.atualizarPedido(pedido,true);
+        },
         getNameStatus(status) {
             if(status == 10) return "Digitação"
             if(status == 20) return "A Enviar"            
@@ -82,8 +89,20 @@ export default {
                 type:'confirm',
                 color:'danger',
                 title:'Deseja excluir?',
-                text:'Você esta prestes a excluir um cliente. Deseja continuar?',
+                text:'Você esta prestes a excluir um pedido. Deseja continuar?',
                 accept:this.deletar,
+                acceptText: 'Continuar',
+                cancelText: 'Cancelar',
+                parameters: pedido
+            })
+        },
+       mudarStatusMessage(pedido) {
+            this.$vs.dialog({
+                type:'confirm',
+                color:'danger',
+                title:'Deseja finalizar?',
+                text:'Você esta prestes a finalizar o pedido. Deseja continuar?',
+                accept:this.alterarStatus,
                 acceptText: 'Continuar',
                 cancelText: 'Cancelar',
                 parameters: pedido
