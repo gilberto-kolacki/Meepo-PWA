@@ -276,6 +276,8 @@ export default {
                                 label:this.formaDePagamentoSelecionada.condicoes[this.pedido.condicaoPagamento].nome,
                             }
                             this.itensPedido = pedido.itens;
+                            console.log(this.pedido);
+                            
                             document.getElementById('loading-bg').style.display = "none";
                             resolve();
                         });
@@ -308,7 +310,7 @@ export default {
             });
         },
         voltarPedido() {
-            this.$router.go(-1);
+            this.$router.push('/pedido/consulta');
         },
     },
     created() {

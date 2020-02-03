@@ -102,6 +102,7 @@ class pedidoUtils {
     }
 
     gerarPedidosPorEmbarques(pedido) {
+        
         return new Promise((resolve) => {
             const pedidos = pedido.listEmbarques.map((item) => {
                 const newPedido = {};
@@ -128,6 +129,10 @@ class pedidoUtils {
                 newPedido.embarque = item.id;
                 newPedido.segmento = item.idSegmento;
                 newPedido.itens = this.getItemTamanho(item.itensPedido);
+                newPedido.pedidoParcial = item.pedidoParcial;
+                newPedido.copiaEmail = item.copiaEmail;
+                newPedido.antecipacaoPedido = item.antecipacaoPedido;
+
                 return newPedido;
             });
             resolve(pedidos);

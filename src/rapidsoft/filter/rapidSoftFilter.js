@@ -48,9 +48,9 @@ Vue.filter('money', (value) => {
     } 
 });
 
-Vue.filter('moneyy', (value) => {
+Vue.filter('moneyy', (value, grupoCliente = null) => {
     if (value) {
-        return UtilMask.getMoney(value, true);
+        return UtilMask.getMoney(value, true, grupoCliente);
     } 
 });
 
