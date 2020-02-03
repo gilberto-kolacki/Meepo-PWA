@@ -60,8 +60,7 @@ class pedidoDB extends BasicDB {
         return new Promise((resolve) => {
             this._getById(pedido.id,true).then((pedidoById) => {
                 if (pedidoById.existe) {
-                    pedidoById.result = pedido
-                    this._salvar(pedidoById.result).then(() => {
+                    this._salvar(pedido).then(() => {
                         resolve();
                     });
                 }
