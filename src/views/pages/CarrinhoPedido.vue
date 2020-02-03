@@ -253,7 +253,7 @@ export default {
                 type:'confirm',
                 color:'warning',
                 title:'Atenção!',
-                text:'Serão gerados pedidos diferentes para cada Embarque, e se carrinho será apagado!. Deseja continuar?',
+                text:'Serão gerados pedidos diferentes para cada Embarque, e seu carrinho será apagado!. Deseja continuar?',
                 acceptText: 'Sim',
                 cancelText: 'Cancelar',
                 accept: this.gerarPedidos,
@@ -272,6 +272,8 @@ export default {
                 const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
                 pedidos.forEach(pedido => {
                     PedidoDB.salvarPedido(pedido).then(() => {
+                        console.log('aqui 1');
+                        
                         done();
                     });
                 });

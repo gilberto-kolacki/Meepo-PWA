@@ -162,6 +162,16 @@ const router = new Router({
                     },
                 },
                 {
+					path: '/orcamento/visualizar',
+					name: 'orcamentoVisualizar',
+					component: () => import('./views/pages/OrcamentoVisualizar.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor',
+                        navBar: true,
+                    },
+                },
+                {
 					path: '/pages/sincronizacao',
 					name: 'sincronizacao',
 					component: () => import('./views/pages/Sincronizacao.vue'),

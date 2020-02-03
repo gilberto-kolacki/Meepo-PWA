@@ -8,7 +8,7 @@
                 <vs-th class="th-acoes">Ações</vs-th>
                 <vs-th sort-key="cnpj" style="width: 25%">CNPJ</vs-th>
                 <vs-th sort-key="nome">Nome</vs-th>
-                <vs-th sort-key="nome" style="width: 20%" >Status</vs-th>
+                <vs-th sort-key="status" style="width: 20%" >Status</vs-th>
             </template> 
             <template slot-scope="{data}">
                 <vs-tr :key="indextr" v-for="(tr, indextr) in data">
@@ -54,17 +54,18 @@ export default {
     },
     methods: {
         alterarStatus(pedido) {
-            pedido.status = 50;
-            PedidoDB.atualizarPedido(pedido,true);
+            pedido.status = 20;
+            PedidoDB.atualizarPedido(pedido, true);
         },
         getNameStatus(status) {
             if(status == 10) return "Digitação"
-            if(status == 20) return "A Enviar"            
+            if(status == 20) return "Enviar"            
             return ""
         },
         getStatusColor(status) {
             if(status == 10) return "warning"
-            if(status == 20) return "success"
+            if(status == 20) return "#24c1a0"
+            if(status == 50) return "success"
             return "primary"
         },
         editar(pedido) {

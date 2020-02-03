@@ -155,7 +155,10 @@ export default {
 
         carregaItensTela() {
 
-            CarrinhoUtils.getCarrinhoNomeProdutoById(this.$route.params.orcamento.id).then((orcamento) => {
+            CarrinhoUtils.getCarrinhoNomeProdutoById(this.$route.params.orcamentoId).then((orcamento) => {
+
+                console.log(orcamento);
+                
                 this.orcamento = orcamento.value
             });
 

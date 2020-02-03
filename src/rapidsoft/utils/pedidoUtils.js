@@ -114,6 +114,10 @@ class pedidoUtils {
                 newPedido.desconto3 = Number(pedido.desconto3);
                 newPedido.emailNfe = pedido.emailNfe;
                 newPedido.nome = item.nome;
+                newPedido.pedidoParcial = item.pedidoParcial;
+                newPedido.antecipacaoPedido = item.antecipacaoPedido;
+                newPedido.brinde = item.brinde;
+                newPedido.copiaEmail = item.copiaEmail;
                 newPedido.formaPagamento = item.formaPagamento.id;
                 newPedido.condicaoPagamento = item.condicaoPagamento.id;
                 newPedido.quantidade = item.quantidade;

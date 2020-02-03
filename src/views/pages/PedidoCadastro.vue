@@ -62,40 +62,26 @@
                     </div>
                 
                     <div class="vx-row flex justify-between" style="margin-left:20px;margin-right:20px;padding-top:20px">
-                        
                         <vs-col vs-lg="5" vs-sm="5" vs-xs="12">
-                            
                             <div class="vx-row" style="justify-content: flex-start;">
                                 <vs-checkbox v-model="pedido.pedidoParcial"></vs-checkbox>
                                 <label>Aceita Pedido Parcial</label>
                             </div>
-
                             <div class="vx-row" style="justify-content: flex-start;">
                                 <vs-checkbox v-model="pedido.antecipacaoPedido"></vs-checkbox>
                                 <label>Aceita Antecipação do Pedido </label>
                             </div>
-
                             <div class="vx-row" style="justify-content: flex-start;">
                                 <vs-checkbox @input="setBrinde()" v-model="pedido.brinde"></vs-checkbox>
                                 <label>Brinde </label>
                             </div>
-
                         </vs-col>
-
                         <vs-col vs-lg="5" vs-sm="5" vs-xs="12">
-
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Enviar Cópia Por Email </label>
                                 <vs-checkbox v-model="pedido.copiaEmail"></vs-checkbox>
                             </div>
-
-                            <div class="vx-row" style="justify-content: flex-end;">
-                                <label>Orçamento</label>
-                                <vs-checkbox v-model="pedido.orcamento"></vs-checkbox>
-                            </div>
-
                         </vs-col>
-
                     </div>
 
                     <div class="vx-row" style="margin-top:10px;padding-right:25px;padding-left:25px">
@@ -179,18 +165,14 @@
 
 <script>
 
-import { Validator } from 'vee-validate';
-import validatePtBR from '../../rapidsoft/validate/validate_ptBR'
+import _ from 'lodash';
 import Datepicker from 'vuejs-datepicker';
 import vSelect from 'vue-select';
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
-import _ from 'lodash'
 import ErrorDB from '../../rapidsoft/db/errorDB'
-import SearchCliente  from '../../rapidsoft/components/SearchCliente'
+import SearchCliente  from '../../rapidsoft/components/SearchCliente';
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
 // import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
-
-Validator.localize('pt', validatePtBR);
 
 export default {
     data() {

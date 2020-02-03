@@ -74,6 +74,9 @@ class pedidoDB extends BasicDB {
     salvarPedido(pedido) {
         return new Promise((resolve) => {
             this.getNextIdPedido().then((idPedido) => {
+
+                console.log(idPedido);
+                
                 pedido.id = idPedido;
                 this._salvar(pedido).then(() => {
                     resolve();
