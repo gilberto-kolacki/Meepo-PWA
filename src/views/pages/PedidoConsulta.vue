@@ -52,12 +52,12 @@ export default {
     methods: {
         getNameStatus(status) {
             if(status == 10) return "Digitação"
-            if(status == 50) return "Sincronização"            
+            if(status == 20) return "A Enviar"            
             return ""
         },
         getStatusColor(status) {
             if(status == 10) return "warning"
-            if(status == 50) return "success"
+            if(status == 20) return "success"
             return "primary"
         },
         editar(pedido) {

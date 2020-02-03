@@ -475,7 +475,6 @@ export default {
             },
             contatoEdit: {},
             enderecoEdit: {},
-            isIpad: false,
             isEditContato: false,
             isEditEndereco: false,
             langSettings: lang.ptBR,
@@ -803,18 +802,15 @@ export default {
         findById(idCliente) {
             return new Promise((resolve) => {
                 ClienteDB.findById(idCliente).then((cliente) => {
-                    this.clienteEdit = _.cloneDeep(cliente);
-                    this.cpfCnpj = this.clienteEdit.cpfCnpj;
-                    if (_.isNil(this.clienteEdit.grupoCliente)) {
-                        this.grupoCliente = _.find(this.getGrupoClientesSelect, (grupo) => { return grupo.padrao });
-                    } else {
-                        this.grupoCliente = _.clone(_.find(this.getGrupoClientesSelect, (grupo) => { return grupo.value === this.clienteEdit.grupoCliente }));
-                    }
-                    if (this.clienteEdit.segmentos && this.clienteEdit.segmentos.length > 0) {
-                        this.segmentosCliente = this.clienteEdit.segmentos.map((segmentoCliente) => {
-                            return _.find(this.getSegmentosCheckBox, (segmento) => segmentoCliente.toString() == segmento.value.toString());
+                    this.grupoCliente = this.getGrupoClientesSelect.find((grupo) => grupo.value === cliente.grupoCliente );
+                    if (cliente.segmentos && cliente.segmentos.length > 0) {
+                        this.segmentosCliente = cliente.segmentos.map((segmentoCliente) => {
+                            return this.getSegmentosCheckBox.find((segmento) => segmentoCliente.toString() == segmento.value.toString());
                         });
                     }
+
+                    this.clienteEdit = cliente;
+                    this.cpfCnpj = cliente.cpfCnpj;
                     resolve();
                 });
             });
@@ -844,36 +840,25 @@ export default {
                 this.buscaGrupos(() => {
                     this.buscaSegmentos(() => {
                         this.listaCidades(() => {
-                            this.findById(this.$route.params.clienteId);
+                            this.findById(this.$route.params.clienteId).then(() => {
+                                setTimeout(() => {
+                                    this.proximoCampo('cpfCnpj');
+                                }, 200);
                                 resolve();
+                            });
                         });
                     });
                 });
             });
         },        
     },
-    created() {
-        if(navigator.platform === "iPad") {
-            this.isIpad= true;
-        } else {
-            this.isIpad= false;
-        }
-    },
     async mounted() {
         await this.carregaItensTela()
-    },
-    beforeCreate() {
-        setTimeout(() => {
-            this.proximoCampo('cpfCnpj');
-        }, 200);
     },
     errorCaptured(err, vm, info) {
         ErrorDB._criarLog({err, vm, info});
         return true;
     },
-    afterMounted() {
-        
-    }
 }
 
 </script>

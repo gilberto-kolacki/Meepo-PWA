@@ -43,25 +43,26 @@
 
 <script>
 
-import _ from 'lodash'
-import SincUtils from '../../rapidsoft/utils/sincUtils'
-import ProdutoService from '../../rapidsoft/service/produtoService'
-import ClienteService from '../../rapidsoft/service/clienteService'
-import ParametroService from '../../rapidsoft/service/parametroService'
-import SincDataDB from '../../rapidsoft/db/sincDataDB'
-import ProdutoDB from '../../rapidsoft/db/produtoDB'
-import ClienteDB from '../../rapidsoft/db/clienteDB'
-import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
-import CategoriaDB from '../../rapidsoft/db/categoriaDB'
-import ProntaEntregaDB from '../../rapidsoft/db/prontaEntregaDB'
-import PeriodoDB from '../../rapidsoft/db/periodoDB'
-import EmbarqueDB from '../../rapidsoft/db/embarqueDB'
-import FormaPagtoDB from '../../rapidsoft/db/formaPagtoDB'
-import CidadeDB from '../../rapidsoft/db/cidadeDB'
-import CatalogoDB from '../../rapidsoft/db/catalogoDB'
-import RefComercialDB from '../../rapidsoft/db/referenciaComercialDB'
-import ErrorDB from '../../rapidsoft/db/errorDB'
-import PedidoDB from '../../rapidsoft/db/pedidoDB'
+import _ from 'lodash';
+import SincUtils from '../../rapidsoft/utils/sincUtils';
+import ProdutoService from '../../rapidsoft/service/produtoService';
+import ClienteService from '../../rapidsoft/service/clienteService';
+import PedidoService from '../../rapidsoft/service/pedidoService';
+import ParametroService from '../../rapidsoft/service/parametroService';
+import SincDataDB from '../../rapidsoft/db/sincDataDB';
+import ProdutoDB from '../../rapidsoft/db/produtoDB';
+import ClienteDB from '../../rapidsoft/db/clienteDB';
+import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
+import CategoriaDB from '../../rapidsoft/db/categoriaDB';
+import ProntaEntregaDB from '../../rapidsoft/db/prontaEntregaDB';
+import PeriodoDB from '../../rapidsoft/db/periodoDB';
+import EmbarqueDB from '../../rapidsoft/db/embarqueDB';
+import FormaPagtoDB from '../../rapidsoft/db/formaPagtoDB';
+import CidadeDB from '../../rapidsoft/db/cidadeDB';
+import CatalogoDB from '../../rapidsoft/db/catalogoDB';
+import RefComercialDB from '../../rapidsoft/db/referenciaComercialDB';
+import ErrorDB from '../../rapidsoft/db/errorDB';
+import PedidoDB from '../../rapidsoft/db/pedidoDB';
 
 export default {
     data() {
@@ -73,7 +74,6 @@ export default {
                 quantidade: 0,
                 data: null,
             }
-            // tabelasSincronizadas: []
         }
     },
     components: {
@@ -263,12 +263,22 @@ export default {
             CidadeDB._limparBase().then(() => {
                 SincUtils.downloadCidadesFromData(sinc).then(() => {
                     SincUtils.closeLoading(this, sinc, all);
-                })
+                });
             });
         },
         sincPedido(sinc, all) {
-            PedidoDB._limparBase().then(() => {
-                SincUtils.closeLoading(this, sinc, all);
+            PedidoDB.buscaPedidosSinc().then((pedidosSinc) => {
+                PedidoService.sincPedido(pedidosSinc).then((pedidos) => {
+
+                    console.log(pedidos);
+                    const done = _.after(pedidos.length, () => SincUtils.closeLoading(this, sinc, all));
+                    pedidos.forEach(pedido => {
+                        PedidoDB.salvarSinc(pedido).then(() => {
+                            SincUtils.atuaizaParcialSinc(sinc, 1);
+                            done();
+                        });
+                    });
+                });
             });
         }     
     },

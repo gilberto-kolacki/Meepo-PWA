@@ -227,30 +227,21 @@ class clienteDB extends BasicDB {
         });
     }
     listarConsulta() {
-        let docDados = {};
         return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((cliente) => {
-                    if (_.isUndefined(cliente.doc.endereco) || (_.isObject(cliente.doc.endereco) && _.isUndefined(cliente.doc.endereco.cep))) {
-                        cliente.doc.endereco = {};
-                        cliente.doc.endereco.cidade = "";
-                        cliente.doc.endereco.estado = "";
-                    }
-                    docDados.cpfCnpj = cliente.doc.cpfCnpj;
-                    docDados.nome = cliente.doc.nome;
-                    docDados.cidade = cliente.doc.endereco.cidade;
-                    docDados.estado = cliente.doc.endereco.estado;
-                    docDados.clienteErp = cliente.doc.clienteErp;
-                    docDados.inadimplente = cliente.doc.inadimplente;
-                    docDados.ativo = cliente.doc.ativo;
-                    docDados._id = cliente.doc._id;
-                    docDados._rev = cliente.doc._rev;
-                    
-                    return _.clone(docDados);
-                }));
-            }).catch((err) => {
-                this._criarLogDB({url:'db/clienteDB',method:'listarConsulta',message: err,error:'Failed Request'});
-                resolve(err);
+            this._getFindCondition({cpfCnpj : {$gte : null}}).then((clientes) => {
+                clientes = clientes.map((cliente) => {
+                    return {
+                        id: cliente._id, 
+                        cpfCnpj: cliente.cpfCnpj, 
+                        nome: cliente.nome, 
+                        cidade: cliente.endereco.cidade, 
+                        estado: cliente.endereco.estado,
+                        inadimplente: cliente.inadimplente,
+                        ativo: cliente.ativo,
+                        clienteErp: cliente.clienteErp
+                    };
+                });
+                resolve(clientes);
             });
         });
     }
@@ -274,15 +265,12 @@ class clienteDB extends BasicDB {
     }
 
     findById(idCliente) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this._localDB.get(idCliente).then((result) => {
-                result.dataAniversario = new Date(_.toNumber(result.dataAniversario));
-                result.dataFundacao = new Date(_.toNumber(result.dataFundacao));
+                result.dataAniversario = new Date(Number(result.dataAniversario));
+                result.dataFundacao = new Date(Number(result.dataFundacao));
                 result.inscricaoEstadual = result.inscricaoEstadual == "" ? "ISENTO" : result.inscricaoEstadual;
                 resolve(result);
-            }).catch((err) => {
-                this._criarLogDB({url:'db/clienteDB',method:'findById',message: err,error:'Failed Request'});
-                reject(err);
             });
         });
     }

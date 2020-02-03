@@ -61,7 +61,10 @@ export default {
     },
     methods: {
         editar(orcamento) {
+            console.log(orcamento);
             if (orcamento) {
+
+                
                 this.$router.push({ name: 'visualizacaoPedido', params: {orcamento} });
             } else {
                 this.$router.push('/visualizacaoPedido');
@@ -69,8 +72,6 @@ export default {
         },
         listar() {
             CarrinhoDB._getAll().then((orcamentos) => {
-                console.log("This orcs: ", orcamentos);
-                
                 this.orcamentos = Object.assign(orcamentos);
             });
         },

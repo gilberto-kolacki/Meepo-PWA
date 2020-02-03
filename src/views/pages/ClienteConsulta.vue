@@ -58,17 +58,19 @@ export default {
     },
     methods: {
         editar(cliente) {
-            console.log(cliente);
+            let params = {};
             if (cliente) {
-                this.$router.push({ name: 'clienteEditar', params: {clienteId: cliente._id } });
-            } else {
-                this.$router.push('/cliente/cadastro');
+                params.clienteId = cliente.id;
             }
+            this.$router.push({ name: 'clienteEditar', params: params });
         },
         listar() {
-            clienteDB.listarConsulta().then((resposta) => {
-                this.clientes = Object.assign(resposta);
-            })
+            return new Promise((resolve) => {
+                clienteDB.listarConsulta().then((resposta) => {
+                    this.clientes = Object.assign(resposta);
+                    resolve();
+                });
+            });
         },
         deletarMessage(data) {
             this.$vs.dialog({
@@ -89,15 +91,10 @@ export default {
         },
     },
     created() {
-        if(navigator.platform === "iPad") {
-            this.isIpad = true;
-        } else {
-            this.isIpad = false;
-        }
         
     },
-    mounted() {
-        this.listar();
+    async mounted() {
+        await this.listar();
     },
     errorCaptured(err, vm, info) {
         ErrorDB._criarLog({err, vm, info});

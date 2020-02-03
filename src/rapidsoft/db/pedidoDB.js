@@ -13,6 +13,7 @@ class pedidoDB extends BasicDB {
     constructor() {
         super("pedido", true);
         this._createIndex('id');
+        this._createIndex('status');
     }
 
     findLastId() {
@@ -60,7 +61,7 @@ class pedidoDB extends BasicDB {
         return new Promise((resolve) => {
             this._getById(pedido.id,true).then((pedidoById) => {
                 if (pedidoById.existe) {
-                    pedidoById.result = pedido
+                    pedidoById.result = pedido;
                     this._salvar(pedidoById.result).then(() => {
                         resolve();
                     });
@@ -89,6 +90,40 @@ class pedidoDB extends BasicDB {
         return new Promise((resolve) => {
             this._getById(pedidoId, true).then((pedido) => {
                 resolve(pedido.value);
+            });
+        });
+    }
+
+    buscaPedidosSinc() {
+        return new Promise((resolve) => {
+            this._localDB.find({
+                selector: {
+                    status: {$eq: 20}
+                },
+            }).then((result) => {
+                resolve(result.docs);
+            });
+        });
+    }
+
+    salvarSinc(pedido) {
+        return new Promise((resolve) => {
+            
+            // this._salvar(pedido).then(() => {
+            //     resolve();
+            // }).catch((erro) => {
+            //     this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: erro,error:'Failed Request'});
+            //     resolve();
+            // });
+
+            this._getById(pedido.id, true).then((object) => {
+
+                console.log(object);
+                
+                
+
+
+                resolve();
             });
         });
     }
