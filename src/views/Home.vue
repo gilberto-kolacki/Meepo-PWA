@@ -92,7 +92,7 @@
                                     {{pedido.quantidade }}
                                 </vs-td>
                                 <vs-td style="text-align:right">
-                                    {{pedido.totalLiquido}}
+                                    {{ pedido.totalLiquido | moneyy(pedido.grupoCliente)}}
                                 </vs-td>
                             </vs-tr>
                         </template>
@@ -155,6 +155,7 @@ export default {
         },
         pedidoDigitacao(){
             PedidoDB.existePedidoEmDigitacao().then((result) => {
+                console.log(result);
                 this.pedidosEmDigitacao = result;
             });
         }
