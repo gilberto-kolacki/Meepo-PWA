@@ -59,6 +59,47 @@
                 </vx-card>
             </div>
         </div>
+        <div class="vx-row flex justify-center" style="margin-top:10px" v-if="this.existePedidoEmDigitacao">
+            <div class="vx-col w-full">
+                <vx-card class="cursor-pointer">
+                    <vs-table ref="table" :data="pedidosEmDigitacao">
+                        <template slot="header">
+                            <h4>Pedidos em Digitação</h4>
+                        </template>
+                        <template slot="thead">
+                            <vs-th style="width:5%">Abrir</vs-th>
+                            <vs-th style="width:35%">CNPJ</vs-th>
+                            <vs-th style="width:30%">Cliente</vs-th>
+                            <vs-th style="width:10%">Itens</vs-th>
+                            <vs-th style="width:20%">Total</vs-th>
+                        </template>
+                        <template slot-scope="{data}">
+                            <vs-tr v-for="(pedido, indextr) in data" :key="indextr">
+                                <vs-td>
+                                    <div class="flex">
+                                        <div class="p-1">
+                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="success" icon="icon-maximize-2" @click="abrirPedido(data[indextr])" />
+                                        </div>
+                                    </div>
+                                </vs-td>
+                                <vs-td>
+                                    {{pedido.cliente.cpfCnpj}}
+                                </vs-td>
+                                <vs-td>
+                                    {{pedido.cliente.nome | capitalize }}
+                                </vs-td>
+                                <vs-td style="text-align:right">
+                                    {{pedido.quantidade }}
+                                </vs-td>
+                                <vs-td style="text-align:right">
+                                    {{pedido.totalLiquido}}
+                                </vs-td>
+                            </vs-tr>
+                        </template>
+                    </vs-table >
+                </vx-card>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -76,6 +117,7 @@ export default {
             pedidos: null,
             showScreen: false,
             carrinho:[],
+            pedidosEmDigitacao:[],
         }
     },
     watch: {
@@ -94,12 +136,28 @@ export default {
     computed: {
         existeCarrinho() {
             return Storage.existeCarrinho();
+        },
+        existePedidoEmDigitacao() {
+            if (this.pedidosEmDigitacao.length > 0) {
+                return true;
+            } else {
+                return false;
+            }
         }
     },
     methods: {
-        abrirCarrinho() {
-            this.$router.push({ name: 'carrinho'});
+        abrirPedido(pedido) {
+            if (pedido) {
+                this.$router.push({ name: 'pedidoEditar', params: {pedidoId: pedido.id} });
+            } else {
+                this.$router.push('/pedido/cadastro');
+            }
         },
+        pedidoDigitacao(){
+            PedidoDB.existePedidoEmDigitacao().then((result) => {
+                this.pedidosEmDigitacao = result;
+            });
+        }
     },
     beforeCreate() {
         document.getElementById('loading-bg').style.display = null;
@@ -110,6 +168,7 @@ export default {
         ClienteDB._sincNuvem().then(() => {
             PedidoDB._sincNuvem().then(() => {
                 ErrorDB._sincNuvem().then(() => {
+                    this.pedidoDigitacao();
                     this.carrinho = Storage.getCarrinho();   
                     this.showScreen = true;
                 });
