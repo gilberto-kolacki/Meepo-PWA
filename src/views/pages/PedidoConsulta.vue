@@ -21,7 +21,7 @@
                                 <vs-button type="filled" v-if="data[indextr].status == 10" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarMessage(data[indextr])"/>
                             </div>
                             <div class="p-1">
-                                <vs-button type="filled" v-if="data[indextr].status == 10" size="small" icon-pack="feather" color="success" icon="icon-check-circle" @click="mudarStatusMessage(data[indextr])"/>
+                                <vs-button type="filled" v-if="data[indextr].status != 50" size="small" icon-pack="feather" color="success" icon="icon-check-circle" @click="mudarStatusMessage(data[indextr])"/>
                             </div>
                         </div>
                     </vs-td>
