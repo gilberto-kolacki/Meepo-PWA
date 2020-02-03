@@ -75,24 +75,25 @@
                                 <label>Aceita Antecipação do Pedido </label>
                             </div>
 
-                            <div class="vx-row" style="justify-content: flex-start;">
-                                <vs-checkbox @input="setBrinde()" v-model="pedido.brinde"></vs-checkbox>
-                                <label>Brinde </label>
-                            </div>
-
                         </vs-col>
 
                         <vs-col vs-lg="5" vs-sm="5" vs-xs="12">
 
+
+                            <div class="vx-row" style="justify-content: flex-end;">
+                                <label>Brinde </label>
+                                <vs-checkbox @input="setBrinde()" v-model="pedido.brinde"></vs-checkbox>
+                            </div>
+                            
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Enviar Cópia Por Email </label>
                                 <vs-checkbox v-model="pedido.copiaEmail"></vs-checkbox>
                             </div>
 
-                            <div class="vx-row" style="justify-content: flex-end;">
+                            <!-- <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Orçamento</label>
                                 <vs-checkbox v-model="pedido.orcamento"></vs-checkbox>
-                            </div>
+                            </div> -->
 
                         </vs-col>
 
@@ -294,6 +295,8 @@ export default {
                                 label:this.formaDePagamentoSelecionada.condicoes[this.pedido.condicaoPagamento].nome,
                             }
                             this.itensPedido = pedido.itens;
+                            console.log(this.pedido);
+                            
                             document.getElementById('loading-bg').style.display = "none";
                             resolve();
                         });
