@@ -14,6 +14,33 @@ class formaPagtoDB extends BasicDB {
         super("forma_pagto");
     }
 
+    getDadosPagamento (idFormaPagamento, idCondicaoPagamento) {
+        return new Promise((resolve) => {
+            this._getFindCondition({id : {$eq : idFormaPagamento}}).then((formaPagamentoSelecionada) => {
+                this.getCondicaoPagamento(idCondicaoPagamento,formaPagamentoSelecionada[0]).then((condicaoSelecionada) => {
+                    this._getAll().then((formasDePagamento) => {
+                        resolve({
+                            formaPagamentoSelecionada: {
+                                value: formaPagamentoSelecionada[0].id, 
+                                label: formaPagamentoSelecionada[0].nome,
+                                condicoes: formaPagamentoSelecionada[0].condicoes,
+                            },
+                            condicaoPagamentoSelecionada: condicaoSelecionada,
+                            formasDePagamento: formasDePagamento,
+                        });
+                    })
+                })
+            });
+        });
+    }
+
+    getCondicaoPagamento(idCondicaoPagamento, formaPagamentoSelecionada) {
+        return new Promise((resolve) => {
+            const condicaoSelecionada = _.find(formaPagamentoSelecionada.condicoes, ['id',idCondicaoPagamento]);
+            resolve({value: condicaoSelecionada.id, label: condicaoSelecionada.nome});
+        });
+    }
+
     salvarSinc(formasPagto) {
         return new Promise((resolve) => {
             this._limparBase().then(() => {

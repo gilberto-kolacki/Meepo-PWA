@@ -91,18 +91,6 @@ export default {
                 parameters: pedido
             })
         },
-       mudarStatusMessage(pedido) {
-            this.$vs.dialog({
-                type:'confirm',
-                color:'danger',
-                title:'Deseja finalizar?',
-                text:'Você esta prestes a finalizar o pedido. Deseja continuar?',
-                accept:this.alterarStatus,
-                acceptText: 'Continuar',
-                cancelText: 'Cancelar',
-                parameters: pedido
-            })
-        },
         deletar(pedido) {
             PedidoDB._deletar(pedido.id).then(() => {
                 this.listar();
