@@ -116,7 +116,7 @@
                             <vs-button 
                                 v-if="pedido.status == 20" 
                                 class='w-full' 
-                                color="warning" 
+                                color="rgb(36, 193, 160)" 
                                 type="filled" 
                                 icon-pack="feather" 
                                 icon="icon-lock"
@@ -127,7 +127,7 @@
                             <vs-button 
                                 v-if="pedido.status == 10"
                                 class='w-full' 
-                                color="warning" 
+                                color="primary" 
                                 type="filled" 
                                 icon-pack="feather" 
                                 icon="icon-unlock"
