@@ -222,6 +222,25 @@ class produtoDB extends BasicDB {
         });
     }
 
+    getProdutosLook(produtosLook) {
+        return new Promise((resolve) => {
+            this._getFindCondition({referencia : {$in : produtosLook}}).then((produtos) => {
+                let ProdutosLook = [];
+                produtos.map((produto) => {
+                    this.getImagensProduto(produto).then((produtoImg) => {
+                        ProdutosLook.push ({
+                            id: produtoImg.referencia, 
+                            nome: produtoImg.nome, 
+                            img: produtoImg.cores[0].imagens[0].base64,
+                            produto: produtoImg
+                        });
+                    });
+                });
+                resolve(ProdutosLook);
+            });
+        });
+    }
+
     getById(id) {
         return new Promise((resolve) => {
             this._localDB.get(_.toString(id)).then((result) => {

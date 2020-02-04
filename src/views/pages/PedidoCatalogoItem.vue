@@ -229,8 +229,6 @@ export default {
     methods: {
         // tela
         async categoriasSelecionadas(idCategoria) {
-            console.log("Click");
-            
             this.filtro.categoria = {id:idCategoria};
             await this.carregaItensTela();
         },
@@ -337,7 +335,7 @@ export default {
         addProduto() {
             const produtos = [this.produtoA, this.produtoB, this.produtoC];
             this.$router.push({ name: 'carrinhoAdd', 
-                params: {produtos: produtos, tela: 'catalogoItem', pag: this.paginaAtual}
+                params: {produtos: produtos, tela: 'catalogoItem', pag: this.paginaAtual, paginas: this.paginas}
             });
         },
         selectProduto(pagina) {
