@@ -102,14 +102,13 @@ class pedidoUtils {
     }
 
     gerarPedidosPorEmbarques(pedido) {
-        
         return new Promise((resolve) => {
             const pedidos = pedido.listEmbarques.map((item) => {
                 const newPedido = {};
                 newPedido.status = 20;
                 newPedido.cliente = pedido.cliente;
                 newPedido.grupoCliente = pedido.grupoCliente;
-                newPedido.endEntrega = pedido.endEntrega;
+                newPedido.endEntrega = pedido.endEntrega.endereco;
                 newPedido.desconto1 = Number(pedido.desconto1);
                 newPedido.desconto2 = Number(pedido.desconto2);
                 newPedido.desconto3 = Number(pedido.desconto3);
@@ -136,6 +135,53 @@ class pedidoUtils {
                 return newPedido;
             });
             resolve(pedidos);
+        });
+    }
+
+    getQuantidadeOrcamento(embarques) {
+        return embarques.reduce((total, embarque) => {
+            return total + embarque.quantidade;
+        }, 0);
+    }
+
+    getValorOrcamento(embarques) {
+        return _.round(embarques.reduce((total, embarque) => {
+            return total + embarque.totalBruto;
+        }, 0), 2);
+    }
+
+    gerarOrcamento(pedido) {
+        return new Promise((resolve) => {
+            const orcamento = {};
+            orcamento.dataOrcamento = new Date().getTime();
+            orcamento.cliente = pedido.cliente;
+            orcamento.grupoCliente = pedido.grupoCliente;
+            orcamento.desconto1 = Number(pedido.desconto1);
+            orcamento.desconto2 = Number(pedido.desconto2);
+            orcamento.desconto3 = Number(pedido.desconto3);
+            orcamento.observacao = pedido.observacao;
+            orcamento.endEntrega = pedido.endEntrega.endereco;
+            orcamento.emailNfe = pedido.emailNfe;
+            orcamento.embarques = pedido.listEmbarques.map((embarque) => {
+                const newEmbarque = {};
+                newEmbarque.id = embarque.id;
+                newEmbarque.nome = embarque.nome;
+                newEmbarque.quantidade = embarque.quantidade;
+                newEmbarque.totalBruto = embarque.totalBruto;
+                newEmbarque.dataEmbarque = embarque.dataEmbarque;
+                newEmbarque.brinde = embarque.brinde;
+                newEmbarque.pedidoParcial = embarque.pedidoParcial;
+                newEmbarque.antecipacaoPedido = embarque.antecipacaoPedido;
+                newEmbarque.copiaEmail = embarque.copiaEmail;
+                newEmbarque.formaPagamento = embarque.formaPagamento.id;
+                newEmbarque.condicaoPagamento = embarque.condicaoPagamento ? embarque.condicaoPagamento.id : null;
+                newEmbarque.itens = embarque.itensPedido;
+                return newEmbarque;
+            });
+            orcamento.quantidade = this.getQuantidadeOrcamento(orcamento.embarques);
+            orcamento.totalBruto = this.getValorOrcamento(orcamento.embarques);
+            orcamento.totalLiquido = this.calcularDesconto(orcamento.desconto3, this.calcularDesconto(orcamento.desconto2, this.calcularDesconto(orcamento.desconto1, orcamento.totalBruto)));
+            resolve(orcamento);
         });
     }
 

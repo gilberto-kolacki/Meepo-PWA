@@ -1,6 +1,6 @@
 <template>    
     <div class="page-orcamento-consulta">
-        <div id="page-orcamento-consulta-lista">
+        <div id="page-orcamento-consulta-lista" v-if="showScreen">
             <vs-table pagination max-items="10" search :data="orcamentos">            
                 <template slot="header">
                     <h3>Orçamentos</h3>
@@ -31,14 +31,14 @@
                         <vs-td :data="data[indextr].cliente.nome">
                             {{ data[indextr].cliente.nome }}
                         </vs-td>
-                        <vs-td :data="data[indextr].grupoCliente.nome">
+                        <vs-td :data="data[indextr].cliente.grupoCliente.nome">
                             {{ data[indextr].grupoCliente.nome }}
                         </vs-td>
-                        <vs-td :data="data[indextr].itens.length" style="text-align:right">
-                            {{ data[indextr].itens.length }}
+                        <vs-td :data="data[indextr].quantidade" style="text-align:right">
+                            {{ data[indextr].quantidade }}
                         </vs-td>
-                        <vs-td style="text-align:right">
-                            {{ getValorTotal(data[indextr]) }}
+                        <vs-td :data="data[indextr].totalLiquido" style="text-align:right">
+                            {{ data[indextr].totalLiquido | moneyy(data[indextr].grupoCliente) }}
                         </vs-td>
                     </vs-tr>
                 </template>
@@ -50,12 +50,12 @@
 <script>
 
 import ErrorDB from '../../rapidsoft/db/errorDB';
-import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
-import UtilMask from '../../rapidsoft/utils/utilMask';
+import OrcamentoDB from '../../rapidsoft/db/orcamentoDB';
 
 export default {
     data() {
         return { 
+            showScreen: false,
             orcamentos: [],
         }
     },
@@ -64,8 +64,9 @@ export default {
             this.$router.push({ name: 'orcamentoVisualizar', params: { orcamentoId: orcamento.id } });
         },
         listar() {
-            CarrinhoDB._getAll().then((orcamentos) => {
+            OrcamentoDB._getAll().then((orcamentos) => {
                 this.orcamentos = Object.assign(orcamentos);
+                this.showScreen = true;
             });
         },
         deletarMessage(data) {
@@ -81,21 +82,13 @@ export default {
             })
         },
         deletar(orcamento) {
-            CarrinhoDB.deletar(orcamento).then(() => {
+            OrcamentoDB.deletar(orcamento).then(() => {
                 this.listar();
             });
         },
-        getValorTotal(orcamento) {
-            return UtilMask.getMoney(orcamento.valorTotal, true, orcamento.grupoCliente);
-        }
     
     },
     created() {
-        if(navigator.platform === "iPad") {
-            this.isIpad = true;
-        } else {
-            this.isIpad = false;
-        }
         
     },
     mounted() {

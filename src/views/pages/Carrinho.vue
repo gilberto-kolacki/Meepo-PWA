@@ -2,7 +2,7 @@
 	<div id="page-carrinho" class="page-carrinho">
 		<vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="showPedidos()">Pedidos</vs-button>
 		<vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltar()" icon="icon-x">Voltar</vs-button>
-		<b-tabs content-class="mt-5" justified v-if="this.showCarrinho" lazy no-fade >
+		<b-tabs content-class="mt-5" justified v-if="this.showScreen" lazy no-fade >
 			<b-tab id="tab-embarques">
 				<template v-slot:title :active="'true'">
 					<strong>
@@ -54,7 +54,7 @@ export default {
 		embarquesOption: [],
 		itensCarrinho: [],
 		produtosSegmento: null,
-		showCarrinho: false,
+		showScreen: false,
 	}),
 	watch: {
 
@@ -133,7 +133,7 @@ export default {
 								this.segmentos = segmentos;
 								ProdutoUtils.getProdutosSegmentos(segmentos, carrinho).then((produtosSegmento) => {
 									this.produtosSegmento = produtosSegmento;
-									this.showCarrinho = true;
+									this.showScreen = true;
 									resolve();
 								});
 							});
@@ -144,7 +144,11 @@ export default {
 		},
 	},
 	async created() {
-		await this.carregaItensTela();
+		try {
+			await this.carregaItensTela();
+		} catch (error) {
+			console.log(error);
+		}
 	},
     async mounted() {
         

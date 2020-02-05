@@ -180,14 +180,14 @@ class clienteDB extends BasicDB {
         this.indexes = ['endereco.idCidade', 'endereco.estado', 'cpfCnpj', 'nome'];
         this._createIndexes(this.indexes, 'search');
         this._createIndex('clienteErp');
-        this._createIndex('clienteAlterado');
+        this._createIndex('alterado');
     }
 
     salvar(cliente) {
         return new Promise((resolve, reject) => {
             validarObjetoDB(cliente).then((resultCliente) => {
-                resultCliente._id = resultCliente.cpfCnpj;
-                resultCliente.clienteAlterado = true;
+                resultCliente.id = resultCliente.cpfCnpj;
+                resultCliente.alterado = true;
                 resultCliente.endereco.cep = resultCliente.endereco.cep.replace(/[^a-z0-9]/gi, "");
                 if (resultCliente.nome == null) {
                     resultCliente.nome = resultCliente.nomeFantasia;
@@ -207,7 +207,7 @@ class clienteDB extends BasicDB {
 
     salvarSinc(cliente) {
         return new Promise((resolve) => {
-            cliente._id = cliente.cpfCnpj;
+            cliente.id = cliente.cpfCnpj;
             if (cliente.enderecos.length == 0 && cliente.endereco) {
                 const enderecoEntrega = Object.assign({}, cliente.endereco);
                 enderecoEntrega.endEntrega = true;
@@ -221,7 +221,7 @@ class clienteDB extends BasicDB {
             this._salvar(cliente).then(() => {
                 resolve();
             }).catch((erro) => {
-                this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: erro,error:'Failed Request'});
+                this._criarLogDB({url:'db/clienteDB', method:'salvarSinc', message: erro, error:'Failed Request'});
                 resolve();
             });
         });

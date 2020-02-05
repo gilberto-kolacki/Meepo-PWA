@@ -9,8 +9,11 @@ import _ from 'lodash';
 import PouchDB from 'pouchdb';
 import PouchDBFind from 'pouchdb-find';
 import PouchDBLiveFind from 'pouchdb-live-find';
+import PouchDBUpSert from 'pouchdb-upsert';
+
 PouchDB.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBLiveFind);
+PouchDB.plugin(PouchDBUpSert);
 
 import Config from '../../../public/config.json';
 import Storage from '../utils/storage';
@@ -106,6 +109,15 @@ class basicDB {
         });
     }
 
+    _getNextId() {
+        return new Promise((resolve) => {
+            this._findLastId().then((ultimoId) => {
+                ultimoId = ultimoId >= 0 ? ultimoId : 0;
+                resolve(ultimoId+1);
+            });
+        });
+    }
+
     _exists(array, value) {
         // return array.indexOf(value) >= 0 ? true : false;
         return _.findIndex(array, (object) => {
@@ -134,11 +146,10 @@ class basicDB {
     _salvar(value) {
         return new Promise((resolve, reject) => {
             try {
-                this.__IndexedError(this._localDB);
-                value._id = _.toString(value.id ? value.id : value._id);
-                value._id = value._id.replace(/[^a-z0-9]/gi, "");
-                this._localDB.put(value).then((result) => {
-                    resolve(_.toNumber(result.id));
+                value._id = (value.id ? value.id : value._id).toString();
+                value._id = value._id.replace(/[^a-z0-9]/gi, "");                
+                this._localDB.putIfNotExists(value).then((result) => {
+                    resolve(Number(result.id));
                 }).catch((erro) => {
                     console.log(erro);
                     if (erro.name == "QuotaExceededError") {

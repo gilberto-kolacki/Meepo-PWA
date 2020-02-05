@@ -35,6 +35,15 @@ Vue.filter('cpfCnpj', (value) => {
     } 
 });
 
+Vue.filter('cep', (value) => {
+    if (value) {
+        value = (typeof value != 'string' ? value.toString() : value);
+        value = value.replace(/[^a-z0-9]/gi, "");
+        value = value.replace(/^(\d{5})(\d{3})/, '$1-$2');
+        return value;
+    } 
+});
+
 Vue.filter('capitalize', (value) => {
     if (value) {
         const capitalize = ((word) => word.length > 2 ? word.charAt(0).toUpperCase() + word.slice(1) : word);
@@ -42,9 +51,9 @@ Vue.filter('capitalize', (value) => {
     } 
 });
 
-Vue.filter('money', (value) => {
+Vue.filter('money', (value, grupoCliente = null) => {
     if (value) {
-        return UtilMask.getMoney(value);
+        return UtilMask.getMoney(value, false, grupoCliente);
     } 
 });
 

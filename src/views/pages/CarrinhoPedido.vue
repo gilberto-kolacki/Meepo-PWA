@@ -1,8 +1,13 @@
 <template>
     <div class="page-carrinho-pedido">
-        <vs-button class="btn-confirm" :color="this.orcamento ? 'warning' : 'success'" type="filled" icon-pack="feather" :icon="this.orcamento ? 'icon-file-text' : 'icon-play'" @click="validarDadosPedido()">Finalizar</vs-button>
+        <vs-button 
+            class="btn-confirm" 
+            :color="this.isOrcamento ? 'success' : 'warning'" 
+            type="filled" icon-pack="feather" :icon="this.isOrcamento ? 'icon-file-text' : 'icon-play'" 
+            @click="isOrcamento ? validarDadosOrcamento() : validarDadosPedido()">Finalizar
+        </vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarCarrinho()" icon="icon-arrow-down">Carrinho</vs-button>
-        <b-tabs content-class="mt-5" justified v-if="this.showPedido">
+        <b-tabs content-class="mt-5" justified v-if="this.showScreen">
             <b-tab active>
                 <template v-slot:title>
                     <strong>
@@ -11,7 +16,6 @@
                     </strong>
                 </template>
                 <div class="my-6" v-if="this.pedidoCapa">
-                    
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="2" vs-sm="3" vs-xs="12" >
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
@@ -44,7 +48,12 @@
                     <div class="vx-row">
                         <div class="vx-col w-full">
                             <label for="endEntrega" class="vs-input--label">Endereço de entrega</label>
-                            <v-select id="endEntrega" :clearable=false v-model="pedidoCapa.endEntrega" :options="getEnderecosEntrega" :dir="$vs.rtl ? 'rtl' : 'ltr'"/> 
+                            <v-select 
+                                id="endEntrega" 
+                                :clearable=false 
+                                v-model="pedidoCapa.endEntrega" 
+                                :options="getEnderecosEntrega"
+                            /> 
                         </div>
                     </div>
                     <div class="vx-row" style="margin-top:20px">
@@ -58,7 +67,7 @@
                             <vs-input type="number" icon-pack="feather" label="Desconto 3" icon="icon-percent" v-model="pedidoCapa.desconto3" icon-after/>
                         </vs-col>
                         <vs-col vs-type="flex" vs-lg="3" vs-sm="3" vs-xs="12" vs-justify="center" vs-align="center">
-                            <vs-checkbox v-model="orcamento">Orçamento</vs-checkbox>
+                            <vs-checkbox v-model="isOrcamento">Orçamento</vs-checkbox>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
                             <vs-textarea v-model="pedidoCapa.observacao" style="margin-top:30px" label="Observação" height="150" />
@@ -129,18 +138,19 @@
                                     :clearable=false 
                                     v-model="pedido.formaPagamento" 
                                     :options="formasPagto" 
-                                    :dir="$vs.rtl ? 'rtl' : 'ltr'"/>
+                                />
                             </vs-col>
                             <vs-col vs-lg="5" vs-sm="6" vs-xs="12" v-if="condicoesPagto[pedido.id]">
                                 <label>Condição de Pagamento</label>
                                 <v-select 
+                                    @input="alteraCondicaoPagamento(pedido)"
                                     id="condicaoPgto" 
                                     label="nome"
                                     style="width:100%" 
                                     :clearable=false
                                     v-model="pedido.condicaoPagamento" 
-                                    :options="condicoesPagto[pedido.id]" 
-                                    :dir="$vs.rtl ? 'rtl' : 'ltr'"/>
+                                    :options="getCondicoesPagamento(pedido.id)" 
+                                />
                             </vs-col>
                         </div>
                     </div>
@@ -164,21 +174,18 @@ import SearchCliente  from '../../rapidsoft/components/SearchCliente';
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
-import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
+import OrcamentoDB from "../../rapidsoft/db/orcamentoDB";
 import vSelect from 'vue-select';
 
 export default {
 	data: () => ({
         pedidoCapa: null,
-        orcamento: false,
-        showPedido: false,
+        isOrcamento: false,
+        showScreen: false,
         idPopUpSearch: 'popup-cliente-search',
         formasPagto: [],
         condicoesPagto: null,
         embarques:[],
-        // listPedidosEmbarque:[],
-        dataEmbarque:[],
-        observacao:'',
         condigoBrinde: 5,
         condigoBoleto: 1,
     }),
@@ -192,8 +199,8 @@ export default {
 	computed: {
         getEnderecosEntrega() {
             if (this.pedidoCapa.cliente.enderecos && this.pedidoCapa.cliente.enderecos.length > 0) {
-                return this.pedidoCapa.cliente.enderecos.map((endereco) => {
-                    return {value: endereco, label: this.getLabelEndereco(endereco) };
+                return this.pedidoCapa.cliente.enderecos.map((endereco, index) => {
+                    return {value: index, label: this.getLabelEndereco(endereco), endereco: endereco };
                 });
             } else return [];
         },
@@ -208,15 +215,25 @@ export default {
             } else {
                 pedido.condicoesPagamento = [];
                 const condicoes = formaPagto.condicoes && formaPagto.condicoes.length > 0 ? formaPagto.condicoes : [];
-                this.condicoesPagto = {};
                 this.condicoesPagto[pedido.id] = condicoes;
                 if (condicoes.length > 0) {
                     pedido.condicaoPagamento = condicoes[0];
                 }
             }
+            this.$forceUpdate();
+        },
+        alteraCondicaoPagamento() {
+            this.$forceUpdate();
+        },
+        getCondicoesPagamento(idPedido) {
+            return this.condicoesPagto[idPedido];
+        },
+        selecionarEndereco() {
+            console.log(this.pedidoCapa.endEntrega);
+            
         },
         getLabelEndereco(endereco) {
-            return endereco ? endereco.endereco +' - '+ endereco.numero +', CEP: '+ endereco.cep : null;
+            return endereco ? endereco.endereco +', Nº'+ endereco.numero +' - CEP: '+ endereco.cep : null;
         },
         setDescontos(){
         },
@@ -236,7 +253,16 @@ export default {
         validarDadosPedido() {
             PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa).then((pedidos) => {
                 PedidoUtils.validarPedido(pedidos).then(() => {
-                    this.gerarPedidosMessage(pedidos);
+                    this.$vs.dialog({
+                        type:'confirm',
+                        color:'warning',
+                        title:'Atenção!',
+                        text:'Serão gerados pedidos diferentes para cada Embarque, e seu carrinho será apagado!. Deseja continuar?',
+                        acceptText: 'Sim',
+                        cancelText: 'Cancelar',
+                        accept: this.gerarPedidos,
+                        parameters: pedidos
+                    });
                 }).catch((erro) => {                
                     this.$vs.notify({
                         title: 'Erro!',
@@ -248,36 +274,33 @@ export default {
                 });
             });
         },
-        gerarPedidosMessage(pedidos) {
-            this.$vs.dialog({
-                type:'confirm',
-                color:'warning',
-                title:'Atenção!',
-                text:'Serão gerados pedidos diferentes para cada Embarque, e seu carrinho será apagado!. Deseja continuar?',
-                acceptText: 'Sim',
-                cancelText: 'Cancelar',
-                accept: this.gerarPedidos,
-                parameters: pedidos
+        validarDadosOrcamento() {
+            PedidoUtils.gerarOrcamento(this.pedidoCapa).then((orcamento) => {
+                this.$vs.dialog({
+                    type:'confirm',
+                    color:'success',
+                    title:'Atenção!',
+                    text:'Será gerado um orçamento, e seu carrinho será apagado!. Deseja continuar?',
+                    acceptText: 'Sim',
+                    cancelText: 'Cancelar',
+                    accept: this.gerarCarrinho,
+                    parameters: orcamento
+                });
             });
         },
 		gerarPedidos(pedidos) {
-            if (this.orcamento) {
-                const carrinho = Storage.getCarrinho();
-                carrinho.pedido = this.pedidoCapa;
-                carrinho.emailEnviado = false;
-                CarrinhoDB.salvarCarrinho(carrinho).then(() => {
-                    PedidoUtils.concluirGeracaoPedidos(this, true);
+            const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
+            pedidos.forEach(pedido => {
+                PedidoDB.salvarPedido(pedido).then(() => {
+                    done();
                 });
-            } else {
-                const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
-                pedidos.forEach(pedido => {
-                    PedidoDB.salvarPedido(pedido).then(() => {
-                        console.log('aqui 1');
-                        
-                        done();
-                    });
-                });
-            }
+            });
+        },
+        gerarCarrinho(orcamento) {
+            orcamento.emailEnviado = false;
+            OrcamentoDB.salvar(orcamento).then(() => {
+                PedidoUtils.concluirGeracaoPedidos(this, true);
+            });
         },
         voltarCarrinho() {
             this.$router.go(-1);
@@ -288,7 +311,7 @@ export default {
         selectSearchCliente(cliente) {
             this.pedidoCapa.cliente = cliente;
             this.pedidoCapa.emailNfe = cliente.emailNfe;
-            this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(cliente.enderecos, (endereco) => endereco.endEntrega ));
+            this.pedidoCapa.endEntrega = _.find(this.getEnderecosEntrega, (end) => end.endereco.endEntrega ); 
         },
         carregaItensTela() {
 			return new Promise((resolve) => {
@@ -297,7 +320,7 @@ export default {
                     EmbarqueDB.getEmbarquesPedido(this.pedidoCapa).then((pedido) => {
                         const done = _.after(pedido.listEmbarques.length,() => {
                             this.pedidoCapa = pedido;
-                            this.showPedido = true;
+                            this.showScreen = true;
                             resolve();
                         });
 
@@ -326,7 +349,7 @@ export default {
         if (this.pedidoCapa.cliente && this.pedidoCapa.cliente.cpfCnpj) {
             this.pedidoCapa.emailNfe = _.cloneDeep(this.pedidoCapa.cliente.emailNfe);
             this.pedidoCapa.grupoCliente = this.pedidoCapa.cliente.grupoCliente;
-            this.pedidoCapa.endEntrega = this.getLabelEndereco(_.find(this.pedidoCapa.cliente.enderecos, (endereco) => endereco.endEntrega ));
+            this.pedidoCapa.endEntrega = _.find(this.getEnderecosEntrega, (end) => end.endereco.endEntrega );
         } else {
             this.pedidoCapa.grupoCliente = Storage.getGrupoCarrinho();
         }
