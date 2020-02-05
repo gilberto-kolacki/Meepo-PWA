@@ -112,6 +112,30 @@
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
                             <vs-textarea v-model="pedido.observacao" style="margin-top:30px" label="Observação" height="100" />
                         </vs-col>
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
+                            <vs-button 
+                                v-if="pedido.status == 20" 
+                                class='w-full' 
+                                color="rgb(36, 193, 160)" 
+                                type="filled" 
+                                icon-pack="feather" 
+                                icon="icon-lock"
+                                @click="mensagemMudarParaDigitacao(pedido)"
+                            >
+                                Reabrir Pedido
+                            </vs-button>
+                            <vs-button 
+                                v-if="pedido.status == 10"
+                                class='w-full' 
+                                color="primary" 
+                                type="filled" 
+                                icon-pack="feather" 
+                                icon="icon-unlock"
+                                @click="mensagemMudarParaEnviar(pedido)"
+                            >
+                                Finalizar Pedido
+                            </vs-button>
+                        </vs-col>
                     </div>
                 </div>
             </b-tab>
@@ -225,6 +249,44 @@ export default {
     },
     methods: {
 
+        mensagemMudarParaDigitacao(pedido) {
+            this.$vs.dialog({
+                type:'confirm',
+                color:'danger',
+                title:'Deseja finalizar?',
+                text:'Você esta prestes a reabrir o pedido. Deseja continuar?',
+                accept:this.mudarStatusPedido,
+                acceptText: 'Continuar',
+                cancelText: 'Cancelar',
+                parameters: pedido
+            })
+        },
+
+        mensagemMudarParaEnviar(pedido) {
+            this.$vs.dialog({
+                type:'confirm',
+                color:'danger',
+                title:'Deseja finalizar?',
+                text:'Você esta prestes a finalizar o pedido. Deseja continuar?',
+                accept:this.mudarStatusPedido,
+                acceptText: 'Continuar',
+                cancelText: 'Cancelar',
+                parameters: pedido
+            })
+        },
+
+        mudarStatusPedido(pedido) {
+            if (pedido.status === 20) {
+                pedido.status = 10;
+                PedidoDB.atualizarPedido(pedido);
+                this.$forceUpdate();
+            } else {
+                pedido.status = 20;
+                PedidoDB.atualizarPedido(pedido);
+                this.$forceUpdate();
+            }
+        },
+
         selectSearchCliente(cliente) {
             this.pedido.cliente = cliente;
         },
@@ -260,29 +322,16 @@ export default {
 
         carregaItensTela() {
 			return new Promise((resolve) => {
-                document.getElementById('loading-bg').style.display = null;
-                FormaPagtoDB._getAll().then((formaPagto) => {
-                    this.formasPagto = formaPagto;
-                    PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
-                        this.pedido = pedido;
-                        FormaPagtoDB._getById(this.pedido.formaPagamento).then((formaDePagamento) => {
-                            this.formaDePagamentoSelecionada = {
-                                value:formaDePagamento.value.id,
-                                label: formaDePagamento.value.nome,
-                                condicoes: formaDePagamento.value.condicoes,
-                            }
-                            this.condicaoDePagamentoSelecionada = {
-                                value:this.formaDePagamentoSelecionada.condicoes[this.pedido.condicaoPagamento].id,
-                                label:this.formaDePagamentoSelecionada.condicoes[this.pedido.condicaoPagamento].nome,
-                            }
-                            this.itensPedido = pedido.itens;
-                            console.log(this.pedido);
-                            
-                            document.getElementById('loading-bg').style.display = "none";
+                PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
+                    this.pedido = pedido;
+                    FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, 
+                        this.pedido.condicaoPagamento).then((dadosPagamento) => {
+                            this.formasPagto = dadosPagamento.formasDePagamento;
+                            this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
+                            this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
                             resolve();
-                        });
-                    })
-                })
+                    });
+                });
             });
         },
 
