@@ -50,7 +50,7 @@
                 </div>
             </div>
         </div>
-        <div class="flex justify-center" v-if="this.produtosDoLook.length > 0"> 
+        <div class="flex justify-center" v-if="this.produtosDoLook.length > 0 && isShow"> 
             <div style="width:95%" class="vx-row flex justify-center">
                 <vs-button 
                     class="mt-1 mr-4 shadow-lg w-1/5" 
@@ -79,7 +79,6 @@ import _ from 'lodash';
 import AddCarrinhoItem  from '../../rapidsoft/components/AddCarrinhoItem';
 import Storage  from '../../rapidsoft/utils/storage';
 import ProdutoUtils  from '../../rapidsoft/utils/produtoUtils';
-import CompleteLook  from '../../rapidsoft/components/CompleteLook';
 import ProdutoDB from '../../rapidsoft/db/produtoDB';
 
 export default {
@@ -91,7 +90,6 @@ export default {
     }),
     components: {
         AddCarrinhoItem,
-        CompleteLook,
     },
     computed: {
 
