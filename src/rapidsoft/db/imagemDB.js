@@ -10,6 +10,7 @@ import ImagemFotoDB from './imagemFotoDB';
 import ImagemCorDB from './imagemCorDB';
 import ImagemSeloDB from './imagemSeloDB';
 import ImagemSimboloDB from './imagemSimboloDB';
+import Compress from 'compress.js';
 
 class imagemDB {
 
@@ -21,6 +22,56 @@ class imagemDB {
             });
         });
     }
+
+    // size: 4, // the max size in MB, defaults to 2MB
+    // quality: .75, // the quality of the image, max is 1,
+    // maxWidth: 1920, // the max width of the output image, defaults to 1920px
+    // maxHeight: 1920, // the max height of the output image, defaults to 1920px
+    // resize: true, // defaults to true, set false if you do not want to resize the image width and height
+    compress(imagens, width=null, height=null, quality=null, size=null) {
+        return new Promise((resolve) => {
+            const coresSave = imagens.filter((imagem) => imagem.base64.split(',')[1].length > 0);
+            if (_.isArray(coresSave) && coresSave.length > 0) {
+                const compress = new Compress();
+
+                const done = _.after(coresSave.length, () => resolve(coresSave));
+                coresSave.forEach(imagem => {
+                    const base64 = imagem.base64.split(',');
+                    const type = base64[0].split(';')[0].split(':')[1];
+                    fetch(imagem.base64).then(res => res.blob()).then(blob => {
+                        const file = new File([blob], imagem.id,{ type: type });
+
+                        const config = {};
+                        if (width) config.width = width;
+                        if (height) config.height = height;
+                        if (quality) config.quality = quality;
+                        if (size) config.size = size;
+
+                        compress.compress([file], config).then((results) => {
+                            imagem.base64 = results[0].prefix + results[0].data;
+                            done();
+                        });
+                    });
+                });
+            } else {
+                resolve([]);
+            }
+        });
+    }
+
+    // salvarFotos(fotos) {
+    //     return new Promise((resolve) => {
+    //         this.compress(fotos, 500, 750, 0.9, 0.1).then((fotosCompress) => {
+    //             if (fotosCompress.length > 0) {
+    //                 ImagemFotoDB.salvarFotos(fotosCompress).then((fotosSalvas) => {
+    //                     resolve(fotosSalvas);
+    //                 });
+    //             } else {
+    //                 resolve(0);
+    //             }
+    //         });
+    //     });
+    // }
 
     salvarFotos(fotos) {
         return ImagemFotoDB.salvarFotos(fotos);

@@ -164,6 +164,7 @@ export default {
         document.getElementById('loading-bg').style.display = null;
     },
     created() {
+
     },
     mounted() {
         ClienteDB._sincNuvem().then(() => {

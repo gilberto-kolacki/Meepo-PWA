@@ -12,7 +12,6 @@ class imagemSimboloDB extends BasicDB {
 
     constructor() {
         super("simbolo");
-        this._createIndex('id');
     }
 
     salvarSimbolos(simbolos) {

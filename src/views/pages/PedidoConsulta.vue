@@ -52,8 +52,8 @@ export default {
     methods: {
         getNameStatus(status) {
             if(status == 10) return "Digitação"
-            if(status == 20) return "A Enviar"            
-            if(status == 50) return "Sincronização"            
+            if(status == 20) return "Enviar"            
+            if(status == 50) return "Sincronizado"            
             return ""
         },
         getStatusColor(status) {

@@ -209,7 +209,7 @@ class clienteDB extends BasicDB {
         return new Promise((resolve) => {
             cliente._id = cliente.cpfCnpj;
             if (cliente.enderecos.length == 0 && cliente.endereco) {
-                let enderecoEntrega = _.clone(cliente.endereco);
+                const enderecoEntrega = Object.assign({}, cliente.endereco);
                 enderecoEntrega.endEntrega = true;
                 cliente.enderecos.push(enderecoEntrega);
             }

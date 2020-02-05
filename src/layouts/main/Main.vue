@@ -202,6 +202,7 @@ export default {
         }else {
             this.updateNavbarColor(this.navbarColor)
         }
+        
     }
 }
 </script>

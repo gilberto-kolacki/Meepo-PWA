@@ -18,20 +18,17 @@ class cidadeDB extends BasicDB {
 
     criaCidades(estado) {
         return new Promise((resolve) => {
-            let cidades = _.flattenDeep(estado.cidades.map(cidade => {
-                let cidadeNew = _.clone(cidade);
-                if (_.isNil(cidadeNew)) return {};
-                else {
-                    cidadeNew._id = _.toString(cidadeNew.id);
-                    cidadeNew.uf = estado.uf;
-                    cidadeNew.estado = estado.nome;
-                    cidadeNew.idCidade = cidade.id;
+            const cidades = estado.cidades.filter((cidade) => !_.isNil(cidade)).map(cidade => {
+                const cidadeNew = cidade;
+                cidadeNew._id = _.toString(cidadeNew.id);
+                cidadeNew.uf = estado.uf;
+                cidadeNew.estado = estado.nome;
+                cidadeNew.idCidade = cidade.id;
 
-                    delete cidadeNew.id;
-                    delete cidadeNew.ceps;
-                    return cidadeNew;
-                }
-            }));
+                delete cidadeNew.id;
+                delete cidadeNew.ceps;
+                return cidadeNew;
+            });
             resolve(cidades);
         });
     }
@@ -78,7 +75,7 @@ class cidadeDB extends BasicDB {
         return new Promise((resolve) => {
             idCidade = _.toString(idCidade);
             this._localDB.get(idCidade).then((result) => {
-                delete result['_rev'];
+                delete result._rev;
                 resolve({existe: true, result: result});  
             }).catch((error) => {
                 this._criarLogDB({url:'db/cidadeDB',method:'buscaCidade',message: error,error:'Failed Request'})
@@ -91,9 +88,8 @@ class cidadeDB extends BasicDB {
         return new Promise((resolve) => {
             this.criaCidades(estado).then(cidades => {
                 if(cidades.length > 0) {
-                    const done = _.after(cidades.length, () => resolve());
-                    cidades.forEach(cidade => {
-                        this._salvar(cidade).then(() => done()).catch(() => done());
+                    this._localDB.bulkDocs(cidades).then(() => {
+                        resolve();
                     });
                 } else {
                     resolve();

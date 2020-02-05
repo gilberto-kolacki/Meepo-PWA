@@ -6,26 +6,24 @@
 ==========================================================================================*/
 
 import _ from 'lodash';
-import BasicDB from './basicDB'
+import BasicDB from './basicDB';
 
 class imagemFotoDB extends BasicDB {
 
     constructor() {
         super("foto");
-        this._createIndex('id');
     }   
 
     salvarFotos(fotos) {
         return new Promise((resolve) => {
-            if (_.isArray(fotos) && fotos.length > 0) {
-                const done = _.after(fotos.length, () => resolve(fotos.length));
-                fotos.forEach(imagem => {
-                    this._salvar(imagem).then(() => done()).catch(() => done());
-                });
-            } else {
-                resolve(0)
-            }
-        })
+            if (fotos.length <= 0) resolve(0);
+            // const done = _.after(fotos.length, () => resolve(fotos.length));
+            
+            const done = _.after(1, () => resolve(fotos.length));
+            fotos.forEach(imagem => {
+                this._salvar(imagem).then(() => done()).catch(() => done());
+            });
+        });
     }
 
 }

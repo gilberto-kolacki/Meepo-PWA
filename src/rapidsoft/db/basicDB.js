@@ -133,20 +133,27 @@ class basicDB {
 
     _salvar(value) {
         return new Promise((resolve, reject) => {
-            value._id = _.toString(value.id ? value.id : value._id);
-            value._id = value._id.replace(/[^a-z0-9]/gi, "");
-            this._localDB.put(value).then((result) => {
-                resolve(_.toNumber(result.id));
-            }).catch((erro) => {
-                if (erro.name == "QuotaExceededError") {
-                    alert('QuotaExceededError');
+            try {
+                this.__IndexedError(this._localDB);
+                value._id = _.toString(value.id ? value.id : value._id);
+                value._id = value._id.replace(/[^a-z0-9]/gi, "");
+                this._localDB.put(value).then((result) => {
+                    resolve(_.toNumber(result.id));
+                }).catch((erro) => {
                     console.log(erro);
-                    reject(erro);
-                } else {
-                    this._criarLogDB({url:'db/basicDB',method:'_salvar',message: erro,error:'Failed Request'});
-                    reject(erro);
-                }
-            });
+                    if (erro.name == "QuotaExceededError") {
+                        alert('QuotaExceededError');
+                        console.log(erro);
+                        reject(erro);
+                    } else {
+                        this._criarLogDB({url:'db/basicDB',method:'_salvar',message: erro,error:'Failed Request'});
+                        reject(erro);
+                    }
+                });
+            } catch (err) {
+                console.log(err);
+                reject(err);
+            }
         });
     }
 
@@ -337,21 +344,24 @@ class basicDB {
     }
 
     __IndexedError(localDB) {
-        console.log(localDB);
-        
-        // const request = indexedDB.open(localDB.__opts.name);
+        const request = indexedDB.open(localDB.__opts.name);
  
         // request.onupgradeneeded = () => {
         //     console.log("//fazer a criação das tabelas, indices e popular o banco se necessário");
         // };
         
-        // request.onsuccess = () => { 
-        //     console.log("sucesso ao criar/abrir o banco de dados");
-        // };
+        request.onsuccess = (e) => { 
+            e.target.result.onabort = (event) => {
+                console.log('onabort');
+                console.log(event);
+                
+            };
+        };
         
-        // request.onerror = () => { 
-        //     console.log("//erro ao criar/abrir o banco de dados");
-        // };
+        request.onerror = (e) => { 
+            console.log('onerror');
+            console.log(e);
+        };
     }
 
     

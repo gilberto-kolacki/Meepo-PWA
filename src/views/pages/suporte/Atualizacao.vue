@@ -34,7 +34,6 @@
 
 <script>
 import _ from "lodash";
-import sizeOf from "object-sizeof";
 import ClienteDB from "../../../rapidsoft/db/clienteDB";
 import ProdutoDB from "../../../rapidsoft/db/produtoDB";
 import ErrorDB from "../../../rapidsoft/db/errorDB";
@@ -163,7 +162,7 @@ export default {
           if (produtos.length <= 0) resolve(0);
           let pounchDB = 0;
           produtos.forEach(produto => {
-            pounchDB += sizeOf(_.clone(produto));
+            pounchDB += 0;
             if (_.last(produtos)._id == produto._id) {
               let armazenamento = _.round(pounchDB / 1024 / 1024, 2);
               resolve(armazenamento);
@@ -191,7 +190,7 @@ export default {
                 pounchDB += imagem.file.size;
               }
             }
-            pounchDB += sizeOf(_.clone(cliente));
+            pounchDB += 0;
             if (_.last(clientes)._id == cliente._id) {
               let armazenamento = _.round(pounchDB / 1024 / 1024, 2);
               resolve(armazenamento);
