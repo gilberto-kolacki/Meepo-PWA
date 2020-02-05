@@ -375,7 +375,7 @@
                                 </div>
                             </div>
                             <div class="mt-5">
-                                <vs-checkbox id="endEntrega" name="endEntrega" v-model="enderecoEdit.endEntrega" class="mt-5">Endereço de Entrega</vs-checkbox>
+                                <vs-checkbox id="endEntrega" name="endEntrega" v-model="enderecoEdit.principal" class="mt-5">Endereço de Entrega</vs-checkbox>
                             </div>
                         </div>
                         <div class="vx-row">
