@@ -71,6 +71,14 @@ class cidadeDB extends BasicDB {
         });
     }
 
+    getCidadeByIds(idsCidades) {
+        return new Promise((resolve) => {
+            this._getFindCondition({idCidade : {$in : idsCidades}}).then((cidades) => {
+                resolve(cidades);
+            });
+        });
+    }
+
     buscaCidade(idCidade) {
         return new Promise((resolve) => {
             idCidade = _.toString(idCidade);
