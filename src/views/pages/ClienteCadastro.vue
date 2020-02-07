@@ -656,6 +656,8 @@ export default {
                             });
                             this.indexEditEndereco = null;
                             this.isEditEndereco = false;
+                            console.log('save');
+                            
                         });
                     }
 
