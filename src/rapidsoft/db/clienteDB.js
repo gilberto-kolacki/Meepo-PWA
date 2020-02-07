@@ -205,6 +205,52 @@ class clienteDB extends BasicDB {
         });
     }
 
+    adicionarEnderecoSincronizado(endereco,idCliente) {
+        return new Promise((resolve) => {
+            this._getById(idCliente,true).then((clienteById) => {
+                if (clienteById.existe) {
+                    clienteById.value.enderecos.push(endereco);
+                    clienteById.value.clienteAlterado = true;
+                    this._salvar(clienteById.value).then(() => {
+                        resolve();
+                    })
+                }
+            });
+        });
+    }
+
+    adicionarContatoSincronizado(contato,idCliente) {
+        return new Promise((resolve) => {
+            this._getById(idCliente,true).then((clienteById) => {
+                if (clienteById.existe) {
+                    clienteById.value.contatos.push(contato);
+                    clienteById.value.clienteAlterado = true;
+                    this._salvar(clienteById.value).then(() => {
+                        resolve();
+                    })
+                }
+            });
+        });
+    }
+
+    atualizaEnderecoEntrega(cliente) {
+        return new Promise((resolve) => {
+            this._getById(cliente._id,true).then((clienteById) => {
+                if (clienteById.existe) {
+                    clienteById.value.enderecos.map((endereco,index) => {
+                        endereco['principal'] = cliente.enderecos[index].principal
+                    });
+                    clienteById.value.clienteAlterado = true; 
+                    this._salvar(clienteById.value).then(() => {
+                        resolve();
+                    });
+                }
+            })
+            
+        });
+
+    }
+
     salvarSinc(cliente) {
         return new Promise((resolve) => {
             cliente._id = cliente.cpfCnpj;
@@ -276,8 +322,15 @@ class clienteDB extends BasicDB {
     }
 
     deletar(idCliente) {
+        
         return new Promise((resolve, reject) => {
-            this._localDB.remove(idCliente).then((result) => {
+            // this._localDB.remove(idCliente).then((result) => {
+            //     resolve(result);
+            // }).catch((err) => {
+            //     this._criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
+            //     reject(err);
+            // });
+            this._deletar(idCliente).then((result) => {
                 resolve(result);
             }).catch((err) => {
                 this._criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
