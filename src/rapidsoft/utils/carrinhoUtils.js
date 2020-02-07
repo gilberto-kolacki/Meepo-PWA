@@ -2,6 +2,8 @@
 import Storage from '../utils/storage';
 import ProdutoDB from '../db/produtoDB';
 import OrcamentoDB from '../db/orcamentoDB';
+import ClienteDB from '../db/clienteDB';
+import GrupoClienteDB from '../db/grupoClienteDB';
 
 class carrinhoUtils {
 
@@ -39,20 +41,6 @@ class carrinhoUtils {
             const pedido = this.newPedido();
             pedido.listEmbarques = embarques.map((embarque) => {
                 embarque.itensPedido = itensCarrinho.filter((itemCarrinho) => itemCarrinho.embarque === embarque.id);
-                embarque.itensPedido = embarque.itensPedido.map((item) => {
-                    const itemCor = {};
-                    itemCor.referencia = item.referencia;
-                    itemCor.segmento = item.segmento;
-                    itemCor.idCor = item.cor.idCor;
-                    itemCor.codigo = item.cor.nome;
-                    itemCor.idProduto = item.cor.idProduto;
-                    itemCor.quantidade = item.cor.quantidade;
-                    itemCor.precoVenda = item.cor.precoVenda;
-                    itemCor.precoCusto = item.cor.precoCusto;
-                    itemCor.tamanhos = item.cor.tamanhos;
-                    itemCor.categorias = item.cor.categorias;
-                    return itemCor;
-                });
                 return embarque;
             });
             resolve(pedido);
@@ -74,6 +62,40 @@ class carrinhoUtils {
             } else {
                 getProdutos(Storage.getCarrinho());
             }
+        });
+    }
+
+    setOrcamentoToCarrinho(orcamento) {
+        return new Promise((resolve) => {
+            Storage.setIdOrcamento(orcamento.id);
+            ClienteDB.findById(orcamento.cliente.id).then((cliente) => {
+                Storage.setClienteCarrinho(cliente);
+                GrupoClienteDB.getById(orcamento.grupoCliente.id).then((grupoCliente) => {
+                    Storage.setGrupoCarrinho(grupoCliente);
+                    const itens = orcamento.embarques.reduce((itens, embarque) => {
+                        itens = itens.concat(embarque.itens.reduce((tamanhos, item) => {
+                            tamanhos = tamanhos.concat(item.tamanhos.map((tamanho) => {
+                                const tamanhoNew = {};
+                                tamanhoNew.id = tamanho.id;
+                                tamanhoNew.sku = tamanho.sku;
+                                tamanhoNew.seq = tamanho.seq;
+                                tamanhoNew.codigo = tamanho.codigo;
+                                tamanhoNew.quantidade = tamanho.quantidade;
+                                tamanhoNew.referencia = item.referencia;
+                                tamanhoNew.cor = item.idCor;
+                                tamanhoNew.precoCusto = item.precoCusto;
+                                tamanhoNew.idProduto = item.idProduto;
+                                tamanhoNew.idSegmento = item.segmento;
+                                return tamanhoNew;
+                            }));
+                            return tamanhos;
+                        }, []));
+                        return itens;
+                    }, []);
+                    Storage.setCarrinhoItens(itens);
+                    resolve();
+                });
+            });
         });
     }
 

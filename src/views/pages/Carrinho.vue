@@ -80,7 +80,7 @@ export default {
 			}, {});
 		},
 		getProdutosSegmento(segmento) {
-			return this.produtosSegmento.get(segmento.id);
+			return this.produtosSegmento[segmento.id];
 		},
 		showAddCarrinho() {
 			this.gerenciaVisualizacao(1);
@@ -108,7 +108,7 @@ export default {
 			});  
 		},
 		atualizaDataItensEmbarque(embarque) {
-			const produtos = this.produtosSegmento.get(embarque.segmento);
+			const produtos = this.produtosSegmento[embarque.segmento];
 			produtos.forEach(produto => {
 				if (produto.embarque.id === embarque.id) {
 					produto.dataEmbarque = embarque.dataEmbarque;
@@ -131,11 +131,9 @@ export default {
 							this.embarques = embarques;
 							SegmentoDB.getSegmentosCarrinho(carrinho).then((segmentos) => {
 								this.segmentos = segmentos;
-								ProdutoUtils.getProdutosSegmentos(segmentos, carrinho).then((produtosSegmento) => {
-									this.produtosSegmento = produtosSegmento;
-									this.showScreen = true;
-									resolve();
-								});
+								this.produtosSegmento = ProdutoUtils.getProdutosSegmentos(segmentos, carrinho);
+								this.showScreen = true;
+								resolve();
 							});
 						});
 					});

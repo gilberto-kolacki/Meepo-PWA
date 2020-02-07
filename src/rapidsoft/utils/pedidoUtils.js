@@ -43,6 +43,8 @@ const validarPedido = (pedidos) => {
                 done();
             });
         } catch (exception) {
+            console.log(exception);
+            
             if (exception.warning) {
                 exception.mensagem = exception.warning;    
             } else {
@@ -108,7 +110,7 @@ class pedidoUtils {
                 newPedido.status = 20;
                 newPedido.cliente = pedido.cliente;
                 newPedido.grupoCliente = pedido.grupoCliente;
-                newPedido.endEntrega = pedido.endEntrega.endereco;
+                newPedido.endEntrega = pedido.endEntrega ? pedido.endEntrega.endereco : null;
                 newPedido.desconto1 = Number(pedido.desconto1);
                 newPedido.desconto2 = Number(pedido.desconto2);
                 newPedido.desconto3 = Number(pedido.desconto3);

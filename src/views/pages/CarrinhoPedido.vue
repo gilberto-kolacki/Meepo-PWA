@@ -347,9 +347,9 @@ export default {
     },
     async mounted() {
         if (this.pedidoCapa.cliente && this.pedidoCapa.cliente.cpfCnpj) {
-            this.pedidoCapa.emailNfe = _.cloneDeep(this.pedidoCapa.cliente.emailNfe);
+            this.pedidoCapa.emailNfe = this.pedidoCapa.cliente.emailNfe;
             this.pedidoCapa.grupoCliente = this.pedidoCapa.cliente.grupoCliente;
-            this.pedidoCapa.endEntrega = _.find(this.getEnderecosEntrega, (end) => end.endereco.endEntrega );
+            this.pedidoCapa.endEntrega = this.getEnderecosEntrega.find((end) => end.endereco.endEntrega );
         } else {
             this.pedidoCapa.grupoCliente = Storage.getGrupoCarrinho();
         }

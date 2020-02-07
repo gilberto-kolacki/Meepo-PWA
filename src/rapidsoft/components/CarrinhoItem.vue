@@ -34,7 +34,7 @@
                 <div class="vx-row">{{produtoCor.nome}}</div>
                 <div class="vx-row">Linha Fitness</div>
                 <div class="vx-row" style="font-weight:bold;">{{'Ref: ' + produtoCor.referencia}}</div>
-                <div class="vx-row" style="font-weight:bold;">{{'Cor: ' + produtoCor.cor.nome}}</div>
+                <div class="vx-row" style="font-weight:bold;">{{'Cor: ' + produtoCor.nomeCor}}</div>
             </div>
             <div class="vx-col mx-6" style="justify-content:center;margin:auto">
                 <table>
@@ -79,10 +79,10 @@
             </div>
             <div class="vx-col mx-1 w-1/6" style="justify-content:center;margin:auto">
                 <div class="vx-col text-center">
-                    <span style="font-weight:bold">Qntd: {{produtoCor.cor.quantidade}}</span>
+                    <span style="font-weight:bold">Qntd: {{produtoCor.quantidade}}</span>
                 </div>
                 <div class="vx-row text-center justify-center">
-                    <span style="font-weight:bold">{{getCoinFormat(getAmountValueBuy(produtoCor.cor.precoCusto, produtoCor.cor.quantidade))}}</span>
+                    <span style="font-weight:bold">{{getCoinFormat(getAmountValueBuy(produtoCor.precoCusto, produtoCor.quantidade))}}</span>
                 </div>
             </div>
             <div class="vx-col mx-1" style="justify-content:center;margin:auto">
@@ -97,8 +97,7 @@
 import _ from "lodash";
 import Storage from "../../rapidsoft/utils/storage";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
-import UtilMask from '../../rapidsoft/utils/utilMask'
-// import ProdutoUtils from '../../rapidsoft/utils/produtoUtils'
+import UtilMask from '../../rapidsoft/utils/utilMask';
 import ErrorDB from "../../rapidsoft/db/errorDB";
 
 export default {
@@ -146,11 +145,10 @@ export default {
             });
         },
 		getTamanhosProduto(index) {
-			return this.produtosCarrinho[index].cor.tamanhos
+			return this.produtosCarrinho[index].tamanhos
         },
         getSelectedItem(itemSelecionado) {
             console.log(itemSelecionado);
-            console.log(this.produtosCarrinho);            
             this.$emit('atuliza-embarques');
         },
 		setPopupAddProduto(produto){
@@ -175,7 +173,7 @@ export default {
 
             const itensCarrinhoNew = itensCarrinho.filter(produto => {
                 return !this.itensSelecionados.some(item => {
-                    return produto.idProduto === item.cor.idProduto ;
+                    return produto.idProduto === item.idProduto ;
                 });
             });
 
@@ -189,7 +187,7 @@ export default {
         getProdutosListNew(){
             return this.produtosCarrinho.filter(produto => {
                 return !this.itensSelecionados.some(item => {
-                    return produto.cor.idProduto === item.cor.idProduto ;
+                    return produto.idProduto === item.idProduto ;
                 });
             });
         }
@@ -197,13 +195,19 @@ export default {
 	beforeCreate() {		
 	},
 	created() {
-        this.produtosCarrinho = this.produtos;
+        try {
+            console.log(this.produtos);
+            
+            this.produtosCarrinho = this.produtos;
+        } catch (error) {
+            console.log(error);
+        }
 	},
     mounted() {
         
     },
-	errorCaptured(err, vm, info) {
-        ErrorDB._criarLog({ err, vm, info });
+	async errorCaptured(err, vm, info) {
+        await ErrorDB._criarLog({ err, vm, info });
         return true;
     }
 

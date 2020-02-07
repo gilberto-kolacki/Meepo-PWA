@@ -32,22 +32,20 @@ class embarqueDB extends BasicDB {
         });
     }
 
+
     getEmbarqueProduto(produto) {
         return new Promise((resolve) => {
             const grupo = Storage.getGrupoCarrinho();
             const buscaEmbaqueProduto = (embarques) => {
-                const embarqueProduto = _.filter(embarques, (embarque) => {
-                    this._exists(embarque.produtos, produto.cor.idProduto);
-                });
-                if (embarqueProduto != null) resolve(embarques[0]);
-                else resolve(embarqueProduto);
+                const embarqueProduto = embarques.find((embarque) => embarque.produtos.some((idProduto) => idProduto === produto.idProduto));
+                resolve(embarqueProduto);
             };
 
-            this._getFindCondition({$and : [{id : {$in : grupo.embarques}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$in : [produto.cor.idProduto]}}]}).then((embarques) => {
+            this._getFindCondition({$and : [{id : {$in : grupo.embarques}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$in : [produto.idProduto]}}]}).then((embarques) => {
                 if (embarques.length > 0) {
                     buscaEmbaqueProduto(embarques);
                 } else {
-                    this._getFindCondition({$and : [{id : {$gte : null}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$in : [produto.cor.idProduto]}}]}).then((embarques) => {
+                    this._getFindCondition({$and : [{id : {$gte : null}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$in : [produto.idProduto]}}]}).then((embarques) => {
                         buscaEmbaqueProduto(embarques);
                     });
                 }
@@ -58,25 +56,23 @@ class embarqueDB extends BasicDB {
     getInfosEmbarques(carrinho) {
         return new Promise((resolve) => {
             const grupo = Storage.getGrupoCarrinho();
-            this._getAllMap().then((embarquesDB) => {
-                const embarques = new Map();
-                const done = _.after(carrinho.length, () => resolve([...embarques.values()]));
-                carrinho.forEach(produto => {
-
+            const embarques = new Map();
+            const done = _.after(carrinho.length, () => resolve([...embarques.values()]));
+            carrinho.forEach(produto => {
+                this._getById(produto.embarque).then((embarque) => {
                     const calculaEmbarque = (idEmbarque) => {
                         const embarque = embarques.get(idEmbarque);
-                        embarque.quantidade = (embarque.quantidade || 0 ) + produto.cor.quantidade;
-                        embarque.valor = ((embarque.valor || 0 ) + produto.cor.precoCusto);
+                        embarque.quantidade = (embarque.quantidade || 0 ) + produto.quantidade;
+                        embarque.valor = ((embarque.valor || 0 ) + produto.precoCusto);
                         embarque.valor = _.round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
                         embarque.totalBruto = _.round((embarque.quantidade * embarque.valor), 2);
                         embarque.dataEmbarque = embarque.dataInicio;
                         done();
                     };
                     
-                    if (embarques.has(produto.embarque)) {
-                        calculaEmbarque(produto.embarque);
-                    } else {
-                        embarques.set(produto.embarque, embarquesDB[produto.embarque]);
+                    if (embarques.has(produto.embarque)) calculaEmbarque(produto.embarque);
+                    else {
+                        embarques.set(produto.embarque, embarque.value);
                         calculaEmbarque(produto.embarque);
                     }
                 });

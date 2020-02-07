@@ -54,10 +54,33 @@ class storage {
         }
     }
 
+    getValorTotalCarrinho(itens) {
+        return Number(itens.reduce((total, item) => {
+            total = total + (item.quantidade * item.precoCusto);
+            return total;
+        }, 0).toFixed(2));
+    }
+
     setCarrinhoItens(itens) {
         const carrinho = this.getCarrinho();
+        carrinho.valorTotal = this.getValorTotalCarrinho(itens);
         carrinho.itens = itens;
         this.setCarrinho(carrinho);
+    }
+
+    setIdOrcamento(idOrcamento) {
+        const carrinho = this.getCarrinho();
+        carrinho.idOrcamento = idOrcamento;
+        this.setCarrinho(carrinho);
+    }
+
+    getIdOrcamento() {
+        if (this.existeCarrinho()) {
+            const carrinho = this.getCarrinho();
+            return carrinho.idOrcamento;
+        } else {
+            return null;
+        }
     }
 
     getGrupoCarrinho() {

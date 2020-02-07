@@ -225,7 +225,7 @@ export default {
         },
         criaTamanho(indexCor, indexTamanho) {
             const tamanho = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho];
-            tamanho.ref = this.produtoAdd.referencia;
+            tamanho.referencia = this.produtoAdd.referencia;
             tamanho.cor = this.produtoAdd.cores[indexCor].idCor;
             tamanho.precoCusto = this.produtoAdd.cores[indexCor].precoCusto;
             tamanho.idProduto = this.produtoAdd.cores[indexCor].idProduto;

@@ -48,7 +48,7 @@ const getCoresAtivas = (cores) => {
 
 const getReferenciasCarrinho = (carrinho) => {
     return carrinho.itens.map((produto) => {
-        return produto.ref;
+        return produto.referencia;
     });
 };
 
@@ -90,82 +90,74 @@ class produtoDB extends BasicDB {
     }
 
     getTamanhosProdutoCarrinho(tamanhos, carrinho) {
-        return new Promise((resolve) => {
-            const tamanhoResult = [];
-            const done = _.after(tamanhos.length, () => resolve(tamanhoResult));
-            tamanhos.forEach(tamanho => {
-                const itemQuantidade = _.find(carrinho.itens, (item) => item.id === tamanho.id);
-                tamanho.quantidade = itemQuantidade ? itemQuantidade.quantidade : 0;
-                tamanhoResult.push(tamanho);
-                done();
-            });
-        });   
+        // return new Promise((resolve) => {
+        //     const tamanhoResult = [];
+        //     const done = _.after(tamanhos.length, () => resolve(tamanhoResult));
+        //     tamanhos.forEach(tamanho => {
+        //         const itemQuantidade = carrinho.itens.find((item) => item.id === tamanho.id);
+        //         tamanho.quantidade = itemQuantidade ? itemQuantidade.quantidade : 0;
+        //         tamanhoResult.push(tamanho);
+        //         done();
+        //     });
+        // }); 
+        return tamanhos.reduce((tamanhoResult, tamanho) => {
+            const itemQuantidade = carrinho.itens.find((item) => item.id === tamanho.id);
+            tamanho.quantidade = itemQuantidade ? itemQuantidade.quantidade : 0;
+            tamanhoResult.push(tamanho);
+            return tamanhoResult;
+        }, []);
     }
 
     getTotalCor(tamanhos, carrinho) {
-        return new Promise((resolve) => {
-            let totalCor = 0;   
-            const done = _.after(tamanhos.length, () => resolve(totalCor));
-            
-            tamanhos.forEach(tamanho => {
-                const itemQuantidade = _.find(carrinho.itens, (item) => item.id === tamanho.id);
-                totalCor = totalCor + (itemQuantidade ? itemQuantidade.quantidade : 0);
-                done();
-            });
-        });
+        return tamanhos.reduce((total, tamanho) => {
+            const itemQuantidade = carrinho.itens.find((item) => item.id === tamanho.id);
+            return total + (itemQuantidade ? itemQuantidade.quantidade : 0);
+        }, 0);
     }
 
-    getProdutoFromCarrinho(produto, carrinho) {
-        return new Promise((resolve) => {
-            const produtoCores = [];
-            const done = _.after(produto.cores.length, () => resolve(produtoCores));
-            
-            produto.cores.forEach(cor => {
-                const produtoCor = _.clone(produto);
-                produtoCor.cor = _.clone(cor);
-                this.getTotalCor(produtoCor.cor.tamanhos, carrinho).then((totalCor) => {
-                    produtoCor.cor.quantidade = totalCor;
-                    if (produtoCor.cor.quantidade > 0) {
-                        this.getTamanhosProdutoCarrinho(produtoCor.cor.tamanhos, carrinho).then((tamanhos) => {
-                            produtoCor.cor.tamanhos = tamanhos;
-                            const imagemPrincipal = _.orderBy(produtoCor.cor.imagens, ['seq'])[0];
-                            ImagemDB.getFotoById(imagemPrincipal.id).then(imagem => {
-                                produtoCor.imagemPrincipal = imagem;
-                                EmbarqueDB.getEmbarqueProduto(produtoCor).then((embarque) => {
-                                    produtoCor.embarque = embarque.id;
-                                    produtoCor.segmento = produtoCor.segmento[0];
-                                    delete produtoCor['cores'];
-                                    delete produtoCor['video'];
-                                    delete produtoCor['_rev'];
-                                    delete produtoCor.cor['selos'];
-                                    delete produtoCor.cor['simbolos'];
-                                    delete produtoCor.cor['produtosLook'];
-                                    delete produtoCor.cor['prontaEntrega'];
-                                    delete produtoCor.cor['imagens'];
-                                    produtoCores.push(produtoCor);
-                                    done();
-                                });
-                            });                
-                        });
-                    } else {
-                        done();
-                    }
-                });
+    getProdutoCorCarrinho(produtos, carrinho) {
+        return produtos.reduce((produtosCor, produto) => {
+            produto.cores = produto.cores.filter((cor) => carrinho.itens.some((itemCarrinho) => cor.idProduto === itemCarrinho.idProduto ));
+            const produtoCores = produto.cores.map((cor) => {
+                const produtoCor = {};
+                produtoCor.referencia = produto.referencia;
+                produtoCor.nome = produto.nome;
+                produtoCor.segmento = produto.segmento;
+                produtoCor.prontaEntrega = cor.prontaEntrega;
+                produtoCor.idCor = cor.idCor;
+                produtoCor.idProduto = cor.idProduto;
+                produtoCor.codigoCor = cor.codigo;
+                produtoCor.nomeCor = cor.nome;
+                produtoCor.precoCusto = cor.precoCusto;
+                produtoCor.precoVenda = cor.precoVenda;
+                produtoCor.imagem = _.orderBy(cor.imagens, ['seq'])[0].id;
+                produtoCor.tamanhos = cor.tamanhos;
+                produtoCor.categorias = cor.categorias;
+                return produtoCor;
             });
-        });        
+            return produtosCor.concat(produtoCores);
+        }, []);
     }
 
     getProdutosFromCarrinho(carrinho) {
         return new Promise((resolve) => {
-            const produtosCor = [];
+            const produtosCarrinho = [];
             const refsCarrinho = getReferenciasCarrinho(carrinho);
             this._getFindCondition({referencia : {$in : refsCarrinho}}).then((produtos) => {
-                const done = _.after(produtos.length, () => resolve(_.flattenDeep(produtosCor)));      
+                produtos = this.getProdutoCorCarrinho(produtos, carrinho);
+                
+                const done = _.after(produtos.length, () => resolve(produtosCarrinho));
                 produtos.forEach(produto => {
-                    produto.cores = produto.cores.filter((cor) => _.findIndex(carrinho.itens, (item) => item.cor === cor.idCor) >= 0 );
-                    this.getProdutoFromCarrinho(produto, carrinho).then((produtoCor) => {
-                        produtosCor.push(produtoCor);
-                        done();
+                    produto.quantidade = this.getTotalCor(produto.tamanhos, carrinho);
+                    produto.tamanhos = this.getTamanhosProdutoCarrinho(produto.tamanhos, carrinho);
+                    ImagemDB.getFotoById(produto.imagem).then(imagem => {
+                        produto.imagemPrincipal = imagem;
+                        EmbarqueDB.getEmbarqueProduto(produto).then((embarque) => {
+                            produto.embarque = embarque.id;
+                            produto.segmento = produto.segmento[0];
+                            produtosCarrinho.push(produto);
+                            done();
+                        });
                     });
                 });
             });

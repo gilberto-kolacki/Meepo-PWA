@@ -106,6 +106,7 @@
 
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import OrcamentoDB from '../../rapidsoft/db/orcamentoDB';
+import CarrinhoUtils from '../../rapidsoft/utils/carrinhoUtils';
 
 export default {
     data() {
@@ -123,7 +124,20 @@ export default {
     },
     methods: {
         carrinhoPedido() {
-            this.$router.push({ name: 'carrinhoPedido', params: {orcamentoId: this.orcamento.id} });
+            this.$vs.dialog({
+                type:'confirm',
+                color:'warning',
+                title:'Atenção!',
+                text:'Seus itens do carrinho atual serão apagados!. Deseja continuar?',
+                acceptText: 'Sim',
+                cancelText: 'Cancelar',
+                accept: this.gerarCarrinho,
+            });
+        },
+        gerarCarrinho() {
+            CarrinhoUtils.setOrcamentoToCarrinho(this.orcamento).then(() => {
+            this.$router.push({ name: 'carrinho' });
+            });
         },
         carregaItensTela() {
             return new Promise((resolve) => {

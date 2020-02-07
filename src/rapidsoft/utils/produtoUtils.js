@@ -82,15 +82,10 @@ class produtoUtils{
     }
 
     getProdutosSegmentos(segmentos, produtos) {
-        return new Promise((resolve) => {
-            const produtosSegmentos = new Map();
-            const done = _.after(segmentos.length, () => resolve(produtosSegmentos));
-            segmentos.forEach(segmento => {
-                const produtosSegmento = produtos.filter((produto) => produto.segmento === segmento.id);
-                produtosSegmentos.set(segmento.id, produtosSegmento);
-                done();
-            });
-        });
+        return segmentos.reduce((produtosSegmentos, segmento) => {
+            produtosSegmentos[segmento.id] = produtos.filter((produto) => produto.segmento === segmento.id);
+            return produtosSegmentos;
+        }, {});
     }
 
     calcularPreco(itemCor) {

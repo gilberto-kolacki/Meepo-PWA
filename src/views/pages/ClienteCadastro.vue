@@ -632,6 +632,7 @@ export default {
             }, 100);
         },
         salvarEndereco(principal = null, newEndereco = null) {
+            console.log('save endereco');
             
             if (this.clienteEdit.clienteErp && !newEndereco) {
                 
