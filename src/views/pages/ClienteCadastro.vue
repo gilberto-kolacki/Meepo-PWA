@@ -558,6 +558,15 @@ export default {
                 }
             });
         },
+        notificacaoEndereco(titulo,mensagem,cor) {
+            this.$vs.notify({
+                title: titulo,
+                text: mensagem,
+                color: cor,
+                iconPack: 'feather',
+                icon: 'icon-alert-circle'
+            });
+        },
         scrollMeTo(refName) {
             var element = this.$refs[refName];
             var top = element.offsetTop;
@@ -631,88 +640,93 @@ export default {
                 this.proximoCampo('cadCepEndereco');
             }, 100);
         },
-        salvarEndereco(principal = null, newEndereco = null) {
-            
-            if (this.clienteEdit.clienteErp && !newEndereco) {
-                
-                if (principal) {
-
-                    this.clienteEdit.enderecos.map((endereco,index) => {
-                        if (index !== this.indexEditEndereco) {
-                            endereco.principal = false;
-                        } else if (index === this.indexEditEndereco) {
-                            endereco.principal = principal
-                        }
-                    });
-
-                    if (this.clienteEdit.clienteErp) {
-                        ClienteDB.atualizaEnderecoEntrega(this.clienteEdit).then(() => {
-                            this.$vs.notify({
-                                title: 'Cadastrado!',
-                                text: 'Endereço de entrega cadastrado com sucesso!',
-                                color: 'success',
-                                iconPack: 'feather',
-                                icon: 'icon-alert-circle'
-                            });
-                            this.indexEditEndereco = null;
-                            this.isEditEndereco = false;
-                            console.log('save');
-                            
-                        });
-                    }
-
-                } else {
-                    if (this.clienteEdit.clienteErp) {
-                        ClienteDB.atualizaEnderecoEntrega(this.clienteEdit).then(() => {
-                            this.$vs.notify({
-                                title: 'Removido!',
-                                text: 'Endereço de entrega removido com sucesso!',
-                                color: 'success',
-                                iconPack: 'feather',
-                                icon: 'icon-alert-circle'
-                            });
-                            this.indexEditEndereco = null;
-                            this.isEditEndereco = false;
-                        });
-                    }
-                }
-            } else {
-                this.enderecoEdit.idCidade = this.cidadeEnderecoClienteSelecionado.value;
-                this.enderecoEdit.cidade = this.cidadeEnderecoClienteSelecionado.label;
-                
-                ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
-                    if (this.indexEditEndereco !== null) {
-                        this.clienteEdit.enderecos.splice(this.indexEditEndereco, 1);
-                    }
-                    if (result.principal) {
-                        this.clienteEdit.enderecos.map((endereco) => {
-                            endereco.principal = false;
-                        });
-                    }
-                    this.clienteEdit.enderecos.push(_.clone(result));
+        desabilitaEnderecoEntrega(){
+            if (this.clienteEdit.clienteErp) {
+                ClienteDB.atualizaEnderecoEntrega(this.clienteEdit).then(() => {
+                    this.notificacaoEndereco(
+                        'Removido',
+                        'Endereço de Entrega Desabilitado com Sucesso',
+                        'success'
+                    );
+                    this.indexEditEndereco = null;
                     this.isEditEndereco = false;
-                }).catch((erro) => {
-                    this.$validator.validate();
-                    if (erro.campo) {
-                        this.$vs.notify({
-                            title: 'Erro!',
-                            text: erro.mensagem,
-                            color: 'danger',
-                            iconPack: 'feather',
-                            icon: 'icon-alert-circle'
-                        });
-                    }
                 });
-                
-                if (this.clienteEdit.clienteErp) {
-                    ClienteDB.adicionarEnderecoSincronizado(this.enderecoEdit,this.clienteEdit._id).then(() => {
-                        this.indexEditEndereco = null;
-                        this.isEditEndereco = false;
-                    });
-                }
-                
             }
-
+        },
+        habilitaEnderecoEntrega(principal) {
+            this.clienteEdit.enderecos.map((endereco,index) => {
+                if (index !== this.indexEditEndereco) {
+                    endereco.principal = false;
+                } else if (index === this.indexEditEndereco) {
+                    endereco.principal = principal
+                }
+            });
+            if (this.clienteEdit.clienteErp) {
+                ClienteDB.atualizaEnderecoEntrega(this.clienteEdit).then(() => {
+                    this.notificacaoEndereco(
+                        'Cadastrado',
+                        'Endereço de Entrega Cadastrado com Sucesso!',
+                        'success'
+                    );
+                    this.indexEditEndereco = null;
+                    this.isEditEndereco = false;
+                });
+            }
+        },
+        updateEnderecoEntrega(principal) {
+            if (principal) {
+                this.habilitaEnderecoEntrega(principal);
+            } else {
+                this.desabilitaEnderecoEntrega();
+            }
+        },
+        validaNovoEnderecoPrincipal(resultEndereco) {
+            if (this.indexEditEndereco !== null) {
+                this.clienteEdit.enderecos.splice(this.indexEditEndereco, 1);
+            }
+            if (resultEndereco.principal) {
+                this.clienteEdit.enderecos.map((endereco) => {
+                    endereco.principal = false;
+                });
+            }
+            this.clienteEdit.enderecos.push(_.clone(resultEndereco));
+            this.isEditEndereco = false;
+        },
+        gravaEnderecoClienteErp() {
+            ClienteDB.adicionarEnderecoSincronizado(this.enderecoEdit,this.clienteEdit._id).then(() => {
+                this.indexEditEndereco = null;
+                this.isEditEndereco = false;
+                this.notificacaoEndereco(
+                    'Cadastrado!',
+                    'Endereço Cadastrado com Sucesso!',
+                    'success'
+                );
+            });
+        },
+        setCidadeSelecionadaEndEntrega() {
+            this.enderecoEdit.idCidade = this.cidadeEnderecoClienteSelecionado.value;
+            this.enderecoEdit.cidade = this.cidadeEnderecoClienteSelecionado.label;
+        },
+        setNewEnderecoCliente() {
+            this.setCidadeSelecionadaEndEntrega();
+            ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
+                this.validaNovoEnderecoPrincipal(result);
+                if (this.clienteEdit.clienteErp) {
+                    this.gravaEnderecoClienteErp();
+                }
+            }).catch((erro) => {
+                this.$validator.validate();
+                if (erro.campo) {
+                    this.notificacaoEndereco('Erro!',erro.mensagem,'danger');
+                }
+            });
+        },
+        salvarEndereco(principal = null, newEndereco = null) {
+            if (this.clienteEdit.clienteErp && !newEndereco) {
+                this.updateEnderecoEntrega(principal);
+            } else {
+                this.setNewEnderecoCliente();
+            }
         },
         cancelarEndereco() {
             this.indexEditEndereco = null;
@@ -738,17 +752,6 @@ export default {
                 position:'top-right'
             })
         },
-        erroCepNaoExiste() {
-            this.$vs.notify({
-                text: 'Nenhum endereço foi localizado para esse cep!',
-                color: 'warning',
-                title: 'Atenção!',
-                iconPack: 'feather',
-                icon: 'icon-alert-circle',
-                position:'top-right'
-            })
-        },
-
         consultaCepEnd(cep) {
             const endereco = {}
             endereco.cep = cep;
@@ -778,7 +781,11 @@ export default {
                                 this.$set(this.enderecoEdit, 'estado', endereco.estado)
                         })
                     } else {
-                        this.erroCepNaoExiste();
+                        this.notificacaoEndereco(
+                            'Atenção!',
+                            'Nenhum endereço foi localizado para esse cep!',
+                            'warning'
+                        );
                         this.$vs.loading.close();
                     }
                     this.$vs.loading.close();
@@ -814,7 +821,11 @@ export default {
                                 this.$set(this.clienteEdit, 'endereco', endereco);
                         })
                     } else {
-                        this.erroCepNaoExiste();
+                        this.notificacaoEndereco(
+                            'Atenção!',
+                            'Nenhum endereço foi localizado para esse cep!',
+                            'warning'
+                        );
                     }
                     this.$vs.loading.close();
                 })
@@ -825,20 +836,14 @@ export default {
         salvarContato() {          
             ClienteDB.validarContato(this.contatoEdit).then(() => {
                 this.contatoEdit.id = this.contatoEdit.id ? this.contatoEdit.id : 0;
-                
                 if (this.indexEditContato !== null) {
                     this.clienteEdit.contatos.splice(this.indexEditContato, 1);
                 }
-
                 this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
-                
                 if (this.clienteEdit.clienteErp) {
                     ClienteDB.adicionarContatoSincronizado(this.contatoEdit,this.clienteEdit._id);
                 }
-
                 this.isEditContato = false;
-
-
             }).catch((erro) => {
                 this.$validator.validate();       
                 if (erro.campo) {
@@ -896,7 +901,6 @@ export default {
         cancelarCliente() {
             this.$router.push('/cliente/consulta');            
         },
-
         findById(idCliente) {
             return new Promise((resolve) => {
                 ClienteDB.findById(idCliente).then((cliente) => {
@@ -913,14 +917,12 @@ export default {
                 });
             });
         },
-
         listaCidades(callback) {
             CidadeDB.getCidadesRelacionadas().then((cidades) => {
                 this.listCidades = cidades;
                 callback();
             })
         },
-
         buscaGrupos(callback) {
             GrupoClienteDB._getAll().then((grupos) => {
                 this.grupoClientes = grupos;
