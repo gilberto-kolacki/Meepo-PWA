@@ -177,8 +177,6 @@ export default {
             imagens: [],
             paginaAtual: null,
             paginas: [],
-            paginasProduto: [],
-            produtosFiltro: [],
             isShowing: true,
             produtoZoom: null,
             popupZoomProduto: false,
@@ -294,7 +292,7 @@ export default {
             this.$forceUpdate();
         },
         prevRef() {
-            const anterior = _.findIndex(this.paginas, (pagina) => { return pagina.pag === this.paginaAtual.pag })-1;
+            const anterior = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )-1;
             if (anterior >= 0) {
                 this.selectProduto(this.paginas[anterior]);
             } else {
@@ -303,7 +301,7 @@ export default {
             this.hideCard();
         },
         nextRef() {
-            const proxima = _.findIndex(this.paginas, (pagina) => { return pagina.pag === this.paginaAtual.pag })+1;
+            const proxima = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )+1;
             if (proxima < this.paginas.length) {
                 this.selectProduto(this.paginas[proxima]);
             } else {

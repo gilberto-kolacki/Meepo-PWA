@@ -289,7 +289,16 @@ export default {
             });
         },
 		gerarPedidos(pedidos) {
-            const done = _.after(pedidos.length, () => PedidoUtils.concluirGeracaoPedidos(this));
+            const done = _.after(pedidos.length, () => {
+                const IdOrcamento = Storage.getIdOrcamentoCarrinho();
+                if (IdOrcamento) {
+                    OrcamentoDB._deletar(IdOrcamento).then(() => {
+                        PedidoUtils.concluirGeracaoPedidos(this)
+                    });
+                } else {
+                    PedidoUtils.concluirGeracaoPedidos(this)
+                }
+            });
             pedidos.forEach(pedido => {
                 PedidoDB.salvarPedido(pedido).then(() => {
                     done();

@@ -41,15 +41,11 @@ const getProdutoToDBCategoria = (produtos, idCategoria) => {
 };
 
 const getCoresAtivas = (cores) => {
-    return cores.filter((cor) => {
-        return cor.ativo;
-    });
+    return cores.filter((cor) => cor.ativo);
 };
 
 const getReferenciasCarrinho = (carrinho) => {
-    return carrinho.itens.map((produto) => {
-        return produto.referencia;
-    });
+    return carrinho.itens.map((produto) => produto.referencia);
 };
 
 class produtoDB extends BasicDB {
@@ -142,6 +138,9 @@ class produtoDB extends BasicDB {
     getProdutosFromCarrinho(carrinho) {
         return new Promise((resolve) => {
             const produtosCarrinho = [];
+
+            console.log(carrinho);
+            
             const refsCarrinho = getReferenciasCarrinho(carrinho);
             this._getFindCondition({referencia : {$in : refsCarrinho}}).then((produtos) => {
                 produtos = this.getProdutoCorCarrinho(produtos, carrinho);
@@ -168,7 +167,7 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             if (idCategoria) {
                 resolve(paginas.filter((pagina) => {
-                    return pagina.produtos.some((produto) => _.indexOf(produto.cat, idCategoria) >= 0);
+                    return pagina.produtos.some((produto) => produto.cat.indexOf(idCategoria) >= 0);
                 }));
             } else {
                 resolve(paginas);
@@ -182,7 +181,7 @@ class produtoDB extends BasicDB {
                 this.getPaginasByCategorias(idCategoria, catalogo.paginas).then((paginas) => {
                     catalogo.paginas = paginas;
 
-                    this.getProdutosFromPaginas(_.orderBy(catalogo.paginas, ['pag'], ['asc'])).then((produtos) => {
+                    this.getProdutosFromPaginas(catalogo.paginas).then((produtos) => {
                         CategoriaDB.getByIds(catalogo.categorias).then((categorias) => {
                             produtos.categorias = categorias;
                             resolve(produtos);
@@ -235,8 +234,9 @@ class produtoDB extends BasicDB {
 
     getById(id) {
         return new Promise((resolve) => {
-            this._localDB.get(_.toString(id)).then((result) => {
-                delete result['_rev'];
+            this._localDB.get(String(id)).then((result) => {
+                delete result._rev;
+                delete result.video;
                 resolve({existe: true, result: result});  
             }).catch((error) => {
                 this._criarLogDB({url:'db/produtoDB',method:'getById',message: error,error:'Failed Request'});
@@ -250,17 +250,21 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             if (pagina && (pagina.ref || pagina.referencia)) {
                 this.getById(pagina.ref || pagina.referencia).then((resultProduto) => {
-                    if (resultProduto.existe && resultProduto.result.cores && resultProduto.result.cores.length > 0) {                        
-                        resultProduto.result.cores = _.filter(resultProduto.result.cores, (cor) => { return cor.prontaEntrega === false });
-                        resultProduto.result.cores = arrayMove(resultProduto.result.cores, _.findIndex(resultProduto.result.cores, (cor) => { return cor.idProduto == pagina.id }), 0);
+                    const produto = resultProduto.result;
+                    if (resultProduto.existe && produto.cores && produto.cores.length > 0) {                        
+                        produto.cores = produto.cores.filter((cor) => cor.prontaEntrega === false);
+                        const indexCor = produto.cores.findIndex((cor) => cor.idProduto == pagina.id);
+                        if (indexCor > 0) {
+                            produto.cores = arrayMove(produto.cores, indexCor, 0);
+                        }
                         resultProduto.result.segmento = resultProduto.result.segmento[0];
                         resolve(resultProduto.result);
                     } else {
-                        resolve(null)        
+                        resolve(null);
                     }
-                })
+                });
             } else {
-                resolve(null)
+                resolve(null);
             }
         });            
     }
@@ -331,7 +335,7 @@ class produtoDB extends BasicDB {
                             ImagemDB.getSimbolos(cor).then((resultSimbolos) => {
                                 cor.simbolos = resultSimbolos;
                                 ImagemDB.getFotosProduto(cor).then((resultFotos) => {
-                                    cor.imagens = _.orderBy(resultFotos, ['seq'], ['asc']);
+                                    cor.imagens = resultFotos;
                                     done();
                                 });
                             });
@@ -397,17 +401,25 @@ class produtoDB extends BasicDB {
                 this.getImagensCorProduto(item.produtoB).then((produtoB) => {
                     item.produtoB = produtoB;
                     resolve(item);
-                })
-            })
+                });
+            });
         });
     }
 
     salvar(produto) {
         return new Promise((resolve) => {
             produto._id = produto.referencia;
+            produto.cores = produto.cores.map((cor) => {
+                cor.imagens = cor.imagens.sort((a, b) => {
+                    if (a.seq > b.seq) return 1;
+                    if (a.seq < b.seq) return -1;
+                    return 0;
+                });
+                return cor;
+            });
             this._salvar(produto).then(() => {
                 resolve();
-            })
+            });
         });
     }   
 
@@ -460,13 +472,13 @@ class produtoDB extends BasicDB {
                     });
                     produtos.forEach(produto => {
                         this.getIdsFotos(produto).then((idsImagens) => {
-                            dataResult.fotos = _.uniq(_.concat(dataResult.fotos, idsImagens));
+                            dataResult.fotos = _.uniq(dataResult.fotos.concat(idsImagens));
                             this.getIdsCores(produto).then((idsCores) => {
-                                dataResult.cores = _.uniq(_.concat(dataResult.cores, idsCores));
+                                dataResult.cores = _.uniq(dataResult.cores.concat(idsCores));
                                 this.getIdsSelos(produto).then((idsSelos) => {
-                                    dataResult.selos = _.uniq(_.concat(dataResult.selos, idsSelos));
+                                    dataResult.selos = _.uniq(dataResult.selos.concat(idsSelos));
                                     this.getIdsSimbolos(produto).then((idsSimbolos) => {
-                                        dataResult.simbolos = _.uniq(_.concat(dataResult.simbolos, idsSimbolos));
+                                        dataResult.simbolos = _.uniq(dataResult.simbolos.concat(idsSimbolos));
                                         done();
                                     });
                                 });

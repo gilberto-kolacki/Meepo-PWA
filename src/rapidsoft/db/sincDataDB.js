@@ -75,6 +75,17 @@ const sincDados =  [
         tempoSincronizacao: 0,
         dataSincronizacao: null
     },
+    {
+        _id:"22",
+        type:"orcamento",
+        titulo: "Orcamentos",
+        methodo: "sincOrcamento",
+        percent: 0,
+        parcial: 0,
+        total: 0,
+        tempoSincronizacao: 0,
+        dataSincronizacao: null
+    },
 ];
 
 const createSincs = (localDB) => {

@@ -7,6 +7,7 @@
 // import _ from 'lodash';
 import BasicDB from './basicDB';
 
+
 class orcamentoDB extends BasicDB {
 
     constructor() {
@@ -16,12 +17,25 @@ class orcamentoDB extends BasicDB {
 
     salvar(orcamento) {
         return new Promise((resolve) => {
-            this._getNextId().then((Id) => {
-                orcamento.id = Id;
+            
+            const salva = (orcamento) => {
                 this._salvar(orcamento).then(() => {
                     resolve();
                 });
-            });
+            };
+
+            if (orcamento.id) {
+                this.get(orcamento.id).then((orcamentoDB) => {
+                    orcamento._id = orcamentoDB._id;
+                    orcamento._rev = orcamentoDB._rev;
+                    salva(orcamento);
+                });
+            } else {
+                this._getNextId().then((Id) => {
+                    orcamento.id = Id;
+                    salva(orcamento);
+                });
+            }
         });
     }
 
@@ -40,6 +54,14 @@ class orcamentoDB extends BasicDB {
             }).catch((err) => {
                 this._criarLogDB({url:'db/orcamentoDB',method:'deletar',message: err,error:'Failed Request'});
                 resolve();
+            });
+        });
+    }
+
+    buscaSinc() {
+        return new Promise((resolve) => {
+            this._getAll().then((result) => {
+                resolve(result);
             });
         });
     }

@@ -63,6 +63,7 @@ import CatalogoDB from '../../rapidsoft/db/catalogoDB';
 import RefComercialDB from '../../rapidsoft/db/referenciaComercialDB';
 import ErrorDB from '../../rapidsoft/db/errorDB';
 import PedidoDB from '../../rapidsoft/db/pedidoDB';
+import OrcamentoDB from '../../rapidsoft/db/orcamentoDB';
 
 export default {
     data() {
@@ -267,10 +268,8 @@ export default {
             });
         },
         sincPedido(sinc, all) {
-            PedidoDB.buscaPedidosSinc().then((pedidosSinc) => {
+            PedidoDB.buscaSinc().then((pedidosSinc) => {
                 PedidoService.sincPedido(pedidosSinc).then((pedidos) => {
-
-                    console.log(pedidos);
                     const done = _.after(pedidos.length, () => SincUtils.closeLoading(this, sinc, all));
                     pedidos.forEach(pedido => {
                         PedidoDB.salvarSinc(pedido).then(() => {
@@ -280,9 +279,15 @@ export default {
                     });
                 });
             });
-        }     
-    },
+        },
+        sincOrcamento(sinc, all) {
+            OrcamentoDB.buscaSinc().then((orcamentosSinc) => {
+                console.log(orcamentosSinc);
+                SincUtils.closeLoading(this, sinc, all);
+            });
+        },
 
+    },
     beforeMount() {
         this.$vs.loading();
         SincDataDB.getAll().then((sinData) => {

@@ -23,10 +23,15 @@ class catalogoDB extends BasicDB {
                         catalogo._id = _.toString(catalogo.idCatalogo);
                         const categorias = catalogo.paginas.map((pagina) => {
                             return pagina.produtos.map((produto) => {
-                                return produto['cat'];
+                                return produto.cat;
                             });
                         });
                         catalogo.categorias = _.uniq(_.flattenDeep(categorias));
+                        catalogo.paginas = catalogo.paginas.sort((a, b) => {
+                            if (a.pag > b.pag) return 1;
+                            if (a.pag < b.pag) return -1;
+                            return 0;
+                        });
                         this._salvar(catalogo).then(() => done()).catch(() => done());
                     });
                 } else {

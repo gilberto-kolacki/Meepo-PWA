@@ -1,7 +1,6 @@
 // import _ from "lodash";
 import Storage from '../utils/storage';
 import ProdutoDB from '../db/produtoDB';
-import OrcamentoDB from '../db/orcamentoDB';
 import ClienteDB from '../db/clienteDB';
 import GrupoClienteDB from '../db/grupoClienteDB';
 
@@ -47,31 +46,23 @@ class carrinhoUtils {
         });
     }
 
-    getCarrinho(orcamentoId = null) {
+    getCarrinho() {
         return new Promise((resolve) => {
-            const getProdutos = (carrinho) => {
-                ProdutoDB.getProdutosFromCarrinho(carrinho).then((carrinho) => {
-                    resolve(carrinho);
-                });
-            };
-
-            if (orcamentoId) {
-                OrcamentoDB._getById(orcamentoId).then((orcamento) => {
-                    getProdutos(orcamento.value);
-                });
-            } else {
-                getProdutos(Storage.getCarrinho());
-            }
+            ProdutoDB.getProdutosFromCarrinho(Storage.getCarrinho()).then((carrinho) => {
+                resolve(carrinho);
+            });
         });
     }
 
     setOrcamentoToCarrinho(orcamento) {
         return new Promise((resolve) => {
-            Storage.setIdOrcamento(orcamento.id);
+            Storage.setIdOrcamentoCarrinho(orcamento.id);
             ClienteDB.findById(orcamento.cliente.id).then((cliente) => {
                 Storage.setClienteCarrinho(cliente);
                 GrupoClienteDB.getById(orcamento.grupoCliente.id).then((grupoCliente) => {
                     Storage.setGrupoCarrinho(grupoCliente);
+                    const embarques = orcamento.embarques.map((embarque) => {return {id: embarque.id, dataEmbarque: embarque.dataEmbarque};});
+                    Storage.setEmbarquesCarrinho(embarques);
                     const itens = orcamento.embarques.reduce((itens, embarque) => {
                         itens = itens.concat(embarque.itens.reduce((tamanhos, item) => {
                             tamanhos = tamanhos.concat(item.tamanhos.map((tamanho) => {

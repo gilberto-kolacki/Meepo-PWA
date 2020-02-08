@@ -111,7 +111,7 @@ class pedidoDB extends BasicDB {
         });
     }
 
-    buscaPedidosSinc() {
+    buscaSinc() {
         return new Promise((resolve) => {
             this._localDB.find({
                 selector: {

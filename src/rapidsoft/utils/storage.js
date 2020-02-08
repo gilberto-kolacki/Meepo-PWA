@@ -68,16 +68,31 @@ class storage {
         this.setCarrinho(carrinho);
     }
 
-    setIdOrcamento(idOrcamento) {
+    setIdOrcamentoCarrinho(idOrcamento) {
         const carrinho = this.getCarrinho();
         carrinho.idOrcamento = idOrcamento;
         this.setCarrinho(carrinho);
     }
 
-    getIdOrcamento() {
+    getIdOrcamentoCarrinho() {
         if (this.existeCarrinho()) {
             const carrinho = this.getCarrinho();
             return carrinho.idOrcamento;
+        } else {
+            return null;
+        }
+    }
+
+    setEmbarquesCarrinho(embarques) {
+        const carrinho = this.getCarrinho();
+        carrinho.embarques = embarques;
+        this.setCarrinho(carrinho);
+    }
+
+    getEmbarquesCarrinho() {
+        if (this.existeCarrinho()) {
+            const carrinho = this.getCarrinho();
+            return carrinho.embarques;
         } else {
             return null;
         }

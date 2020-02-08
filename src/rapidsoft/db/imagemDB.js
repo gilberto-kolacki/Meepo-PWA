@@ -164,19 +164,13 @@ class imagemDB {
     getFotosProduto(cor) {
         return new Promise((resolve) => {
             if (cor.imagens && cor.imagens.length > 0) {
+                const done = _.after(cor.imagens.length, () => resolve(cor.imagens));
                 cor.imagens.forEach(imagem => {
                     ImagemFotoDB._getById(imagem.id).then((fotoProduto) => {
                         if(fotoProduto.existe) {
                             imagem.base64 = fotoProduto.value.base64;
-                            if(_.last(cor.imagens) === imagem) {
-                                resolve(cor.imagens);
-                            }
-                        } else {
-                            imagem.base64 = null;
-                            if(_.last(cor.imagens) === imagem) {
-                                resolve(cor.imagens);
-                            }
                         }
+                        done();
                     });
                 });
             } else {
@@ -187,8 +181,8 @@ class imagemDB {
 
     getFotoPrincipal(produto) {
         return new Promise((resolve) => {
-            if (_.isObject(produto.cores[0]) && produto.cores[0].imagens.length > 0 && _.isArray(produto.cores[0].imagens)) {
-                ImagemFotoDB._getById(_.orderBy(produto.cores[0].imagens, ['seq'])[0].id).then((fotoProduto) => {
+            if (produto.cores[0].imagens.length > 0 && _.isArray(produto.cores[0].imagens)) {
+                ImagemFotoDB._getById(produto.cores[0].imagens[0].id).then((fotoProduto) => {
                     if(fotoProduto.existe) {
                         resolve(fotoProduto.value.base64);
                     } else {
