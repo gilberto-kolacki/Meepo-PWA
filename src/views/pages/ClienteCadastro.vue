@@ -1,6 +1,5 @@
 <template>
     <div id="page-customer">
-
         <div class="vx-col w-full mb-base-button">
             <div class="btn-group centex">
                 <vs-button class="w-full" size="small" @click="scrollMeTo('enderecoCobranca')">Endereço de Cobrança</vs-button>
@@ -75,7 +74,7 @@
                         </div>
                         <div class="vx-col sm:w-1/4 w-full mb-2" v-if="isJuridico">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('emailNfe')">
-                                <vs-input v-validate="'required'" label="Inscrição Estadual*" id="inscricaoEstadual" name="inscricaoEstadual" v-model="clienteEdit.inscricaoEstadual" class="w-full" />
+                                <vs-input v-validate="clienteEdit.clienteErp ? 'required':''" v-if="clienteEdit.clienteErp" label="Inscrição Estadual*" id="inscricaoEstadual" name="inscricaoEstadual" v-model="clienteEdit.inscricaoEstadual" class="w-full" />
                                 <span class="text-danger text-sm">{{ errors.first('inscricaoEstadual') }}</span>
                             </div>
                         </div>
@@ -91,10 +90,19 @@
                         <div class="vx-col sm:w-1/2 w-full mb-2">
                             <label for="" class="vs-input--label">Segmentos*</label>
                             <v-select 
+                                multiple
+                                id="segmento" name="segmento" 
+                                v-model="segmentosCliente" 
+                                :options="this.getSegmentosCheckBox">
+                            </v-select>
+                            <!-- v-validate="clienteEdit.clienteErp ? 'required' : ''" -->
+                            <!-- <v-select 
+                                v-else
                                 multiple v-validate="'required'" 
                                 id="segmento" name="segmento" 
                                 v-model="segmentosCliente" 
-                                :options="this.getSegmentosCheckBox"></v-select>
+                                :options="this.getSegmentosCheckBox">
+                            </v-select> -->
                             <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
                         </div>
                     </div>
@@ -167,7 +175,8 @@
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2">
                             <label for="" class="vs-input--label">Grupo de Clientes*</label>
-                            <v-select v-validate="'required'" id="grupoCliente" name="grupoCliente" v-model="grupoCliente" :options="getGrupoClientesSelect"></v-select>
+                            <v-select id="grupoCliente" :clearable=false name="grupoCliente" v-model="grupoCliente" :options="getGrupoClientesSelect"></v-select>
+                            <!-- <v-select v-validate="'required'" id="grupoCliente" name="grupoCliente" v-model="grupoCliente" :options="getGrupoClientesSelect"></v-select> -->
                             <span class="text-danger text-sm">{{ errors.first('grupoCliente') }}</span>
                         </div>
                     </div>
@@ -502,6 +511,7 @@ export default {
             this.clienteEdit.tipoPessoa = val;
         },
         grupoCliente(val) {
+            console.log('GRUPO CLIENTE ', val);
             this.clienteEdit.grupoCliente = val.value;
         },
         cidadeEnderecoCliente(val) {
@@ -511,6 +521,8 @@ export default {
             this.clienteEdit.endereco.cep = val;
         },
         segmentosCliente(val) {
+            console.log('SEGMENTOS ', val);
+            
             this.clienteEdit.segmentos = val.map((segmento) => {
                 return _.toString(segmento.value);
             })
@@ -904,13 +916,16 @@ export default {
         findById(idCliente) {
             return new Promise((resolve) => {
                 ClienteDB.findById(idCliente).then((cliente) => {
+                    cliente.grupoCliente = cliente.grupoCliente ? cliente.grupoCliente : 33;
                     this.grupoCliente = this.getGrupoClientesSelect.find((grupo) => grupo.value === cliente.grupoCliente );
+                    this.grupoCliente = this.grupoCliente ? this.grupoCliente : {value:33,label:'PADRÃO',padrao:true}; 
+
                     if (cliente.segmentos && cliente.segmentos.length > 0) {
                         this.segmentosCliente = cliente.segmentos.map((segmentoCliente) => {
                             return this.getSegmentosCheckBox.find((segmento) => segmentoCliente.toString() == segmento.value.toString());
                         });
                     }
-                    cliente.endereco.cidade = {value:cliente.endereco.id, label:cliente.endereco.cidade};
+                    cliente.endereco.cidade = {value:cliente.endereco.idCidade, label:cliente.endereco.cidade};
                     this.clienteEdit = cliente;
                     this.cpfCnpj = cliente.cpfCnpj;
                     resolve();
