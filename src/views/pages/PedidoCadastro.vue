@@ -34,7 +34,7 @@
                     </div>
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
-                            <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedido.cliente.emailNfe" class="w-full" type="email" />
+                            <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedido.cliente.emailNfe" class="w-full" type="email" inputmode="email" />
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
                             <vs-input label="Grupo Cliente" id="grupoCliente" name="grupoCliente" v-model="pedido.cliente.grupoCliente.nome" disabled class="w-full" type="text" />
@@ -51,13 +51,13 @@
                     
                     <div class="vx-row flex justify-between" style="padding-left:25px;padding-right:25px;padding-top:10px">
                         <vs-col vs-type="flex" vs-lg="4" vs-sm="4" vs-xs="12">
-                            <vs-input type="number" icon-pack="feather" label="Desconto 1" icon="icon-percent" v-model="pedido.desconto1" icon-after/>
+                            <vs-input type="number" icon-pack="feather" label="Desconto 1" icon="icon-percent" v-model="pedido.desconto1" inputmode="decimal" icon-after/>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="4" vs-sm="4" vs-xs="12">
-                            <vs-input type="number" icon-pack="feather" label="Desconto 2" icon="icon-percent" v-model="pedido.desconto2" icon-after/>
+                            <vs-input type="number" icon-pack="feather" label="Desconto 2" icon="icon-percent" v-model="pedido.desconto2" inputmode="decimal" icon-after/>
                         </vs-col>
                         <vs-col style="display:flex;justify-content: flex-end;" vs-lg="4" vs-sm="4" vs-xs="12">
-                            <vs-input type="number" icon-pack="feather" label="Desconto 3" icon="icon-percent" v-model="pedido.desconto3" icon-after/>
+                            <vs-input type="number" icon-pack="feather" label="Desconto 3" icon="icon-percent" v-model="pedido.desconto3" inputmode="decimal" icon-after/>
                         </vs-col>
                     </div>
                 
@@ -363,11 +363,7 @@ export default {
         },
     },
     created() {
-        if(navigator.platform === "iPad") {
-            this.isIpad= true;
-        } else {
-            this.isIpad= false;
-        }
+
     },
     mounted() {
         this.carregaItensTela();

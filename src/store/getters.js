@@ -11,7 +11,8 @@
 const getters = {
 
   isLoggedIn: state => !!state.token,
+  getUserActive: state => state.AppActiveUser,
   
-}
+};
 
-export default getters
+export default getters;

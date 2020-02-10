@@ -51,16 +51,14 @@ export default {
     },
     methods: {
         getNameStatus(status) {
-            if(status == 10) return "Digitação"
-            if(status == 20) return "Enviar"            
-            if(status == 50) return "Sincronizado"            
-            return ""
+            if(status == 20) return "Enviar";      
+            if(status == 50) return "Sincronizado"; 
+            else return "Digitação";
         },
         getStatusColor(status) {
-            if(status == 10) return "warning"
-            if(status == 20) return "#24c1a0"
-            if(status == 50) return "success"
-            return "primary"
+            if(status == 20) return "#24c1a0";
+            if(status == 50) return "success";
+            else return "warning";
         },
         editar(pedido) {
             if (pedido) {
@@ -89,7 +87,7 @@ export default {
                 acceptText: 'Continuar',
                 cancelText: 'Cancelar',
                 parameters: pedido
-            })
+            });
         },
         deletar(pedido) {
             PedidoDB._deletar(pedido.id).then(() => {

@@ -96,7 +96,6 @@ class pedidoUtils {
                 itemTamanho.cor = item.codigo;
                 itemTamanho.tamanho = tamanho.codigo;
                 itemTamanho.quantidade = tamanho.quantidade;
-                itemTamanho.precoVenda = item.precoVenda;
                 itemTamanho.precoCusto = item.precoCusto;
                 return itemTamanho;
             });

@@ -113,7 +113,6 @@ export default {
                 }, 600)
             }).catch((error) => {
                 console.log(error);
-                
             });
         },
         instalar() {
@@ -123,7 +122,7 @@ export default {
     },
     mounted() {
         UsuarioDB.limparBase().then(() => {
-            
+            this.$store.dispatch('updateUserActive', null);
         });
     },
     errorCaptured(err, vm, info) {

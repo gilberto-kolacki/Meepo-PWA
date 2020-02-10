@@ -9,7 +9,7 @@
 
 import router from '@/router'
 import SincDataDB from '../../rapidsoft/db/sincDataDB'
-import usuarioDB from '../../rapidsoft/db/usuarioDB'
+import UsuarioDB from '../../rapidsoft/db/usuarioDB'
 import usuarioService from '../../rapidsoft/service/usuarioService'
 
 const verificaDataBase = () => {
@@ -22,7 +22,7 @@ const verificaDataBase = () => {
             }
         });
     });
-}
+};
 
 export default {
 
@@ -51,7 +51,7 @@ export default {
                 // Try to sigin
                 usuarioService.signInWithUser(payload.userDetails.email, payload.userDetails.password).then((result) => {
                     if (payload.checkbox_remember_me) {
-                        usuarioDB.signIn(result.data).then((result) => {
+                        UsuarioDB.signIn(result.data).then((result) => {
                             verificaDataBase().then((endereco) => {
                                 commit('UPDATE_AUTHENTICATED_USER', result);
                                 router.push(endereco);
@@ -96,12 +96,12 @@ export default {
                         });
                     }
                     resolve();
-                })
+                });
             }
         });
     },
 
     updateAuthenticatedUser({ commit }, payload) {
-        commit('UPDATE_AUTHENTICATED_USER', payload)
+        commit('UPDATE_AUTHENTICATED_USER', payload);
     }
-}
+};

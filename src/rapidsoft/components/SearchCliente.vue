@@ -140,7 +140,7 @@ export default {
             }
         },
         selectSearchProduto(cliente) {
-            ClienteDB._getById(cliente.cpfCnpj).then((result) => {
+            ClienteDB._getById(cliente.id).then((result) => {
                 cliente = result.value;
                 GrupoClienteDB.getById(cliente.grupoCliente).then((grupo) => {
                     cliente.grupoCliente = grupo;
@@ -158,14 +158,7 @@ export default {
                 this.cidadesFiltro = cidades;
                 this.cidadeSelecionada = this.getCidadesSearch[0];
                 callback();
-            })
-            // CidadeDB.getCidadesFromEstado(this.estadoSelecionado.uf).then((cidades) => {
-            //     console.log("Cidades: ",cidades);
-                
-            //     this.cidadesFiltro = cidades;
-            //     this.cidadeSelecionada = this.getCidadesSearch[0];
-            //     callback();
-            // });
+            });
         },
         searchFindCliente() {
             if ((this.estadoSelecionado && this.cidadeSelecionada && this.cidadeSelecionada.value != null) || (this.cnpjCpfSearch && this.cnpjCpfSearch.length >= 3) || (this.nomeSearch && this.nomeSearch.length >= 3)) {

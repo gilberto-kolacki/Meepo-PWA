@@ -126,7 +126,7 @@ class produtoDB extends BasicDB {
                 produtoCor.nomeCor = cor.nome;
                 produtoCor.precoCusto = cor.precoCusto;
                 produtoCor.precoVenda = cor.precoVenda;
-                produtoCor.imagem = _.orderBy(cor.imagens, ['seq'])[0].id;
+                produtoCor.imagem = cor.imagens[0].id;
                 produtoCor.tamanhos = cor.tamanhos;
                 produtoCor.categorias = cor.categorias;
                 return produtoCor;

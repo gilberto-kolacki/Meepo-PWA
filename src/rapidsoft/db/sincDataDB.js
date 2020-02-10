@@ -132,7 +132,7 @@ class sincDataDB extends BasicDB {
     jaTeveSincronizacao() {
         return new Promise((resolve) => {
             this.getAll().then((sincs) => {
-                if(_.find(sincs, (sinc) => sinc.total > 0)) {
+                if(sincs.find((sinc) => sinc.total > 0)) {
                     resolve(true);
                 } else {
                     resolve(false);

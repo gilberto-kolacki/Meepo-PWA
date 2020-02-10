@@ -270,6 +270,9 @@ export default {
         sincPedido(sinc, all) {
             PedidoDB.buscaSinc().then((pedidosSinc) => {
                 PedidoService.sincPedido(pedidosSinc).then((pedidos) => {
+                    sinc.parcial = 0;
+                    sinc.total = pedidos.length;
+                    
                     const done = _.after(pedidos.length, () => SincUtils.closeLoading(this, sinc, all));
                     pedidos.forEach(pedido => {
                         PedidoDB.salvarSinc(pedido).then(() => {
@@ -292,7 +295,7 @@ export default {
         this.$vs.loading();
         SincDataDB.getAll().then((sinData) => {
             this.tabelasSincronizacao = _.orderBy(sinData, ['order']);
-            this.sincImagemObject = _.find(this.tabelasSincronizacao, (sincTab) => sincTab.type === "imagem" );
+            this.sincImagemObject = this.tabelasSincronizacao.find((sincTab) => sincTab.type === "imagem" );
             SincUtils.verificaProdutosSemImagens().then((result) => {
                 this.downloadImagem = result;
                 this.$vs.loading.close();

@@ -4,7 +4,6 @@
   ----------------------------------------------------------------------------------------
   Author: Giba
 ==========================================================================================*/
-// import _ from 'lodash';
 import BasicDB from './basicDB';
 // import Storage from '../utils/storage';
 
@@ -132,13 +131,13 @@ class pedidoDB extends BasicDB {
             //     this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: erro,error:'Failed Request'});
             //     resolve();
             // });
+            console.log(pedido);
+            
 
             this._getById(pedido.id, true).then((object) => {
 
-                console.log(object);
-                
-                
 
+                console.log(object);
 
                 resolve();
             });

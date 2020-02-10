@@ -161,7 +161,7 @@ export default {
 		},
 		calcularPrecoProduto(produto) {
             const percentual = _.toNumber(this.grupoCliente.porcentagem);
-            const precoProduto = produto.cores[this.corSelecionada].precoVenda;
+            const precoProduto = produto.cores[this.corSelecionada].precoCusto;
             const preco = _.round(precoProduto + ((percentual/100) * precoProduto), 2)
             return UtilMask.getMoney(preco, true);
         },

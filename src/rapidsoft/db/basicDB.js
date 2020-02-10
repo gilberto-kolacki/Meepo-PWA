@@ -11,6 +11,8 @@ import PouchDBFind from 'pouchdb-find';
 import PouchDBLiveFind from 'pouchdb-live-find';
 import PouchDBUpSert from 'pouchdb-upsert';
 
+import state from '../../store/state';
+
 PouchDB.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBLiveFind);
 PouchDB.plugin(PouchDBUpSert);
@@ -32,6 +34,9 @@ const createDBRemote = (dataBaselocal) => {
 };
 
 const create = (name, remote, callback) => {
+
+    console.log(state);
+    
     if (remote) {
         const representante = Storage.getUsuario();
         if (representante) {
@@ -56,7 +61,7 @@ const create = (name, remote, callback) => {
 
 const newLog = (tipo, compnente, caminho, erro, messagem) => {
     const logger = {};
-    logger._id = _.toString(new Date().getTime());
+    logger._id = String(new Date().getTime());
     logger.type = tipo;
     logger.compnente = compnente;
     logger.caminho = caminho;
@@ -170,11 +175,11 @@ class basicDB {
 
     _getById(id, rev = false) {
         return new Promise((resolve) => {
-            this._localDB.get(_.toString(id)).then((result) => {
+            this._localDB.get(String(id)).then((result) => {
                 if(!rev) delete result['_rev'];
                 resolve({existe: true, value: result});  
             }).catch((error) => {
-                this._criarLogDB({url:'db/basicDB',method:'_getById',message: error,error:'Failed Request'});
+                this._criarLogDB({url:'db/basicDB', method:'_getById', message: error, error:'Failed Request'});
                 resolve({existe: false, result: error});
             });
         });
