@@ -49,7 +49,7 @@
                         <h1>{{this.catalogos[this.slide].nome}}</h1>
                     </div>
                 </div>
-                <div class="vx-col w-full md:w-1/5 h-12">
+                <div class="vx-col w-full sm:w-1/5 h-12">
                     <div class="vx-row">
                         <div class="flex w-full items-center justify-center">
                             <vs-button
@@ -67,7 +67,7 @@
         </vs-col>
         <div class="vx-col w-full h-12">
             <div class="vx-row justify-center">
-                <div class="flex w-full items-center justify-center lg:w-1/2 sm:w-1 md:w-full">
+                <div class="flex w-full items-center justify-center lg:w-1/2 md:w-full">
                     <div class="carousel-inner">
                         <div
                             id="carouselExampleIndicators"

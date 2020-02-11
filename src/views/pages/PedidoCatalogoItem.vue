@@ -72,7 +72,7 @@
                     </div>
                 </div>
                 <!-- IMAGEM PRINCIPAL FIM -->
-                <div class="vx-col w-full md:w-1/5 h-12" style="z-index: 50;" v-if="this.produtoA">
+                <div class="vx-col w-full md:w-1/5 sm:w-1/5 h-12" style="z-index: 50;" v-if="this.produtoA">
                     <div class="vx-row">
                         <div class="flex w-full items-center justify-center">
                             <vs-button color="primary" type="filled" icon-pack="feather" class="w-full" icon="icon-search" @click.stop="abrirPesquisaPodutos()"></vs-button>
@@ -88,42 +88,30 @@
                             <vs-button class="w-full" color="rgb(123, 123, 123)" size="36px" icon="attach_money" @click.stop="viewPreco()"></vs-button>
                         </div>
                     </div>
-                    <div class="vx-row mt-base-top2">
-                    </div>
+                    <!-- <div class="vx-row mt-base-top2">
+                    </div> -->
                     <div class="vx-row mt-base-top3">
-                        <div class="btn-group centex mt-base-top1 w-full">
+                        <div class="centex mt-base-top1 w-full">
                             <vs-collapse>
-                                <vs-collapse-item style="padding:0px;margin-top:-20px" class="w-full paddingZero" icon-pack="feather" icon-arrow="icon-filter">
+                                <vs-collapse-item style="padding:0px; margin-top:-20px" class="w-full padding-zero" icon-pack="feather" icon-arrow="icon-filter">
                                     <div slot="header" class="vx-row" style="margin-bottom:-20px">
                                         <h6 class="title-ref" style="margin-top: -8px;margin-right:20px">Categorias</h6>
-                                        <!-- <h5 class="title-ref" style="margin-top:-10px;width:100%">Categorias</h5> -->
                                     </div>
                                     <div class="mt-base-top1 w-full">
                                         <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button produto-image-gallery-button-up" @click="scrollUpCategoria" style="margin-bottom: -2px" />
                                         <div id="categoria-gallery" class="produto-image-gallery w-full">
-                                            <div class="produto-image-gallery-item" @click="categoriasSelecionadas(categoria.id)">
+                                            <div class="produto-image-gallery-item">
                                                 <div class="mt-base-top1 flex justify-center" style="width:75%">
-                                                    
-                                                    <button class="w-full notHaveFilter" v-if="filtro.categoria.id"  @click.stop="categoriasSelecionadas(null)">
+                                                    <button class="w-full" :class="filtro.categoria.id ? 'notHaveFilter' : 'input_filter'" @click.stop="categoriasSelecionadas(null)">
                                                         <p class="flex justify-center" style="margin:auto">Todos</p>
                                                     </button>
-                                                    <button class="w-full input_filter" v-else>
-                                                        <p class="flex justify-center" style="margin:auto">Todos</p>
-                                                    </button>
-
                                                 </div>
                                             </div>
-                                            <div class="produto-image-gallery-item" v-for="(categoria, index) in getCategoriasCatalogo" :key="index" @click="categoriasSelecionadas(categoria.id)">
+                                            <div class="produto-image-gallery-item" v-for="(categoria, index) in getCategoriasCatalogo" :key="index">
                                                 <div class="mt-base-top1 flex justify-center" style="width:75%">
-
-                                                    <button v-if="filtro.categoria.id === categoria.id" class="w-full input_filter">
+                                                    <button class="w-full" :class="filtro.categoria.id === categoria.id ? 'input_filter' : 'notHaveFilter'" @click.stop="categoriasSelecionadas(categoria.id)">
                                                         <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
                                                     </button>
-
-                                                    <button v-else class="w-full notHaveFilter" @click.stop="categoriasSelecionadas(categoria.id)">
-                                                        <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
-                                                    </button>
-
                                                 </div>
                                             </div>
                                         </div>
@@ -134,9 +122,7 @@
                         </div>
                     </div>
                 </div>
-
             </div>
-
         </vs-col>
         <search-produto @search-selected="selectSearchProduto" :id="idPopUpSearch"></search-produto>
         <div id="zoom-produto" v-if="this.produtoZoomShow">
@@ -227,7 +213,7 @@ export default {
     methods: {
         // tela
         async categoriasSelecionadas(idCategoria) {
-            this.filtro.categoria = {id:idCategoria};
+            this.filtro.categoria = {id: idCategoria};
             await this.carregaItensTela();
         },
 

@@ -324,7 +324,7 @@ html, body {
     width: 10%;
 }
 
-.paddingZero {
+.padding-zero {
     .con-content--item {
         padding: 0px !important;
     }
