@@ -138,9 +138,6 @@ class produtoDB extends BasicDB {
     getProdutosFromCarrinho(carrinho) {
         return new Promise((resolve) => {
             const produtosCarrinho = [];
-
-            console.log(carrinho);
-            
             const refsCarrinho = getReferenciasCarrinho(carrinho);
             this._getFindCondition({referencia : {$in : refsCarrinho}}).then((produtos) => {
                 produtos = this.getProdutoCorCarrinho(produtos, carrinho);

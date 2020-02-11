@@ -74,7 +74,7 @@ import ErrorDB from '../../rapidsoft/db/errorDB';
 export default {
     data() {
         return {
-            email: '12345670000101',
+            email: '05108435000178',
             password: 'teste',
             checkbox_remember_me: true,
             popupInstall: false,

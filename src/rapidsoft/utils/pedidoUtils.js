@@ -1,12 +1,14 @@
 import _ from "lodash";
 import Storage from '../utils/storage';
+import UtilMask from '../../rapidsoft/utils/utilMask';
 
 const validarPedido = (pedidos) => {
     return new Promise((resolve, reject) => {
         try {
             const done = _.after(pedidos.length, () => resolve());
             pedidos.forEach(pedido => {
-                const idsCategorias = _.flattenDeep(pedido.itens.map((item) => item.categorias));
+                const idsCategorias = pedido.itens.reduce((idsCategorias, item) => idsCategorias.concat(item.categorias), []);
+
                 let valorMinimo = _.orderBy(pedido.grupoCliente.valorMinimo, ['val'], ['desc']).find((valor) => {
                     return idsCategorias.some((categoria) => {
                         return categoria == valor.id;
@@ -37,7 +39,7 @@ const validarPedido = (pedidos) => {
                     throw { campo: "dataEmbarque", warning: "Selecione a Data do Embarque" };
                 }
                 else if (_.isNil(pedido.totalLiquido) || valorMinimo > pedido.totalLiquido){
-                    throw { campo: "totalLiquido", warning: "O pedido "+pedido.nome+" não ultrapassou o valor minimo de compra!"};
+                    throw { campo: "totalLiquido", warning: "O pedido "+pedido.nome+" não ultrapassou o valor minimo de "+ UtilMask.getMoney(valorMinimo, true)+"!"};
                 }
 
                 done();
@@ -88,18 +90,20 @@ class pedidoUtils {
     }
 
     getItemTamanho(itensPedido) {
-        return _.flattenDeep(itensPedido.map((item) => {
-            return item.tamanhos.map((tamanho) => {
+        return itensPedido.reduce((itens, item) => {
+            const itemTamenho = item.tamanhos.map((tamanho) => {
                 const itemTamanho = {};
                 itemTamanho.sku = tamanho.sku;
                 itemTamanho.referencia = item.referencia;
-                itemTamanho.cor = item.codigo;
+                itemTamanho.cor = item.nomeCor;
+                itemTamanho.categorias = item.categorias.concat(item.segmento);
                 itemTamanho.tamanho = tamanho.codigo;
                 itemTamanho.quantidade = tamanho.quantidade;
                 itemTamanho.precoCusto = item.precoCusto;
                 return itemTamanho;
             });
-        }));
+            return itens.concat(itemTamenho);
+        }, []);
     }
 
     gerarPedidosPorEmbarques(pedido) {
@@ -209,7 +213,21 @@ class pedidoUtils {
                 reject(err);
             });
         });
-    }    
+    }
+
+    getCondicoesPagamentoEmbarqueCatalogo(condicoes, dataEmbarque) {
+        if (condicoes && condicoes.length > 0) {
+            return condicoes.reduce((condicoes, condicao) => {
+                const mes = new Date(dataEmbarque).getMonth()+1;
+                if (condicao.meses == null || condicao.meses.catalogo.includes(mes)) {
+                    condicoes.push(condicao);
+                }
+                return condicoes;
+            }, []);
+        } else {
+            return [];
+        }
+    }
         
 }
 

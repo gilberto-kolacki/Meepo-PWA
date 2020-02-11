@@ -184,7 +184,7 @@ export default {
         showScreen: false,
         idPopUpSearch: 'popup-cliente-search',
         formasPagto: [],
-        condicoesPagto: null,
+        condicoesPagto: {},
         embarques:[],
         condigoBrinde: 5,
         condigoBoleto: 1,
@@ -210,11 +210,10 @@ export default {
             const formaPagto = pedido.formaPagamento;
             if (formaPagto.id == this.condigoBrinde) {
                 pedido.brinde = true;
-                this.condicoesPagto = null;
+                this.condicoesPagto[pedido.id] = null;
                 pedido.condicaoPagamento = null;
-            } else {
-                pedido.condicoesPagamento = [];
-                const condicoes = formaPagto.condicoes && formaPagto.condicoes.length > 0 ? formaPagto.condicoes : [];
+            } else {                
+                const condicoes = PedidoUtils.getCondicoesPagamentoEmbarqueCatalogo(formaPagto.condicoes, pedido.dataEmbarque);
                 this.condicoesPagto[pedido.id] = condicoes;
                 if (condicoes.length > 0) {
                     pedido.condicaoPagamento = condicoes[0];
@@ -266,6 +265,7 @@ export default {
                 }).catch((erro) => {                
                     this.$vs.notify({
                         title: 'Erro!',
+                        time: 9000,
                         text: erro.mensagem,
                         color: 'danger',
                         iconPack: 'feather',
@@ -335,9 +335,8 @@ export default {
 
                         pedido.listEmbarques.forEach(embarque => {
                             embarque.formaPagamento = this.formasPagto[0];
-                            embarque.condicaoPagamento = this.formasPagto[0].condicoes[0];
-                            this.condicoesPagto = this.condicoesPagto == null ? {} : this.condicoesPagto;
-                            this.condicoesPagto[embarque.id] = this.formasPagto[0].condicoes;
+                            this.condicoesPagto[embarque.id] = PedidoUtils.getCondicoesPagamentoEmbarqueCatalogo(this.formasPagto[0].condicoes, embarque.dataEmbarque);
+                            embarque.condicaoPagamento = this.condicoesPagto[embarque.id][0];
                             done();
                         });
                     });                    
