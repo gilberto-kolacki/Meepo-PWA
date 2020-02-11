@@ -7,15 +7,6 @@
                 <vx-card class="mb-6" style="padding 5px">
                     <div slot="no-body">
                         <div class='vx-row flex justify-between pr-6 pl-6'>
-                            <div class="p-6 flex justify-start flex-row">
-                                <div class="vx-row">
-                                    <vs-avatar class="mr-3" @click="somaPreviaValores()" style="margin:auto" color="rgb(36, 193, 160)" icon-pack="feather" icon="icon-user" />
-                                    <div class="truncate" style="margin:auto">
-                                        <span>Cliente</span>
-                                        <h4 class="mb-1 font-bold">{{carrinho.cliente.nome}}</h4>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="p-6 flex justify-end flex-row">
                                 <div class="vx-row mr-8">
                                     <vs-avatar class="mr-3" @click="somaPreviaValores()" style="margin:auto" color="success" icon-pack="feather" icon="icon-dollar-sign" />
@@ -30,6 +21,7 @@
                                     <div class="truncate">
                                         <span>Total Itens:</span>
                                         <h3 class="mb-1 font-bold" v-if="this.previaTotal > 0">{{totalItens}}</h3>
+                                        <h3 class="mb-1 font-bold" v-else>0</h3>
                                     </div>
                                 </div>
                             </div>
