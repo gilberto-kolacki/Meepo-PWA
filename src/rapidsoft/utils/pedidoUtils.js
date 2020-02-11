@@ -45,8 +45,6 @@ const validarPedido = (pedidos) => {
                 done();
             });
         } catch (exception) {
-            console.log(exception);
-            
             if (exception.warning) {
                 exception.mensagem = exception.warning;    
             } else {
