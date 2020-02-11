@@ -196,8 +196,6 @@ export default {
 	},
 	created() {
         try {
-            console.log(this.produtos);
-            
             this.produtosCarrinho = this.produtos;
         } catch (error) {
             console.log(error);

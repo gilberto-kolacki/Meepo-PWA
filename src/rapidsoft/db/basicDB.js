@@ -8,12 +8,8 @@
 import _ from 'lodash';
 import PouchDB from 'pouchdb';
 import PouchDBFind from 'pouchdb-find';
-import PouchDBLiveFind from 'pouchdb-live-find';
-import PouchDBUpSert from 'pouchdb-upsert';
 
 PouchDB.plugin(PouchDBFind);
-PouchDB.plugin(PouchDBLiveFind);
-PouchDB.plugin(PouchDBUpSert);
 
 import Config from '../../../public/config.json';
 // import ErrorUtils from './errorDB';
@@ -149,10 +145,9 @@ class basicDB {
     _salvar(value) {
         return new Promise((resolve, reject) => {
             try {
-                value._id = (value.id ? value.id : value._id).toString();
-                value._id = value._id.replace(/[^a-z0-9]/gi, "");                
-                this._localDB.putIfNotExists(value).then((result) => {
-                    resolve(Number(result.id));
+                value._id = (value.id ? value.id : value._id).toString();                           
+                this._localDB.put(value).then((result) => {
+                    resolve(result.id);
                 }).catch((erro) => {
                     console.log(erro);
                     if (erro.name == "QuotaExceededError") {

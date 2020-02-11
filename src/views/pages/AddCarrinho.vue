@@ -132,8 +132,6 @@ export default {
                 ProdutoUtils.calcularCarrinho(this.carrinho).then((carrinhoResult) => {
                     this.previaTotal = carrinhoResult.valorTotal;
                 });
-                console.log('car ',this.carrinho);
-                
                 this.getTotalItens(this.carrinho.itens);
             } else {
                 this.previaTotal = 0;

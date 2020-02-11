@@ -150,7 +150,7 @@ class produtoDB extends BasicDB {
                         produto.imagemPrincipal = imagem;
                         EmbarqueDB.getEmbarqueProduto(produto).then((embarque) => {
                             produto.embarque = embarque.id;
-                            produto.segmento = produto.segmento[0];
+                            produto.segmento = produto.segmento;
                             produtosCarrinho.push(produto);
                             done();
                         });
@@ -254,7 +254,7 @@ class produtoDB extends BasicDB {
                         if (indexCor > 0) {
                             produto.cores = arrayMove(produto.cores, indexCor, 0);
                         }
-                        resultProduto.result.segmento = resultProduto.result.segmento[0];
+                        resultProduto.result.segmento = resultProduto.result.segmento;
                         resolve(resultProduto.result);
                     } else {
                         resolve(null);

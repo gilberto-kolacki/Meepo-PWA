@@ -41,11 +41,11 @@ class embarqueDB extends BasicDB {
                 resolve(embarqueProduto);
             };
 
-            this._getFindCondition({$and : [{id : {$in : grupo.embarques}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$in : [produto.idProduto]}}]}).then((embarques) => {
+            this._getFindCondition({$and : [{id : {$in : grupo.embarques}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$all : [produto.idProduto]}}]}).then((embarques) => {
                 if (embarques.length > 0) {
                     buscaEmbaqueProduto(embarques);
                 } else {
-                    this._getFindCondition({$and : [{id : {$gte : null}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$in : [produto.idProduto]}}]}).then((embarques) => {
+                    this._getFindCondition({$and : [{idSegmento : {$in : produto.segmento}}, {produtos : {$all : [produto.idProduto]}}]}).then((embarques) => {
                         buscaEmbaqueProduto(embarques);
                     });
                 }

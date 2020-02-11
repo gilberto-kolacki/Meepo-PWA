@@ -83,7 +83,7 @@ class produtoUtils{
 
     getProdutosSegmentos(segmentos, produtos) {
         return segmentos.reduce((produtosSegmentos, segmento) => {
-            produtosSegmentos[segmento.id] = produtos.filter((produto) => produto.segmento === segmento.id);
+            produtosSegmentos[segmento.id] = produtos.filter((produto) => produto.segmento.indexOf(segmento.id) > -1 );
             return produtosSegmentos;
         }, {});
     }
