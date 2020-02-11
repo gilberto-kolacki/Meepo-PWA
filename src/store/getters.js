@@ -10,8 +10,9 @@
 
 const getters = {
 
-  isLoggedIn: state => !!state.token,
-  getUserActive: state => state.AppActiveUser,
+  isLoggedIn: (state) => !!state.token,
+  getUserActive: (state) => state.AppActiveUser,
+  getSincDados: (state) => state.sincTotal,
   
 };
 

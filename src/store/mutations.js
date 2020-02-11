@@ -39,13 +39,15 @@ const mutations = {
         state.themePrimaryColor = val;
     },
     UPDATE_USER_ROLE(state, val) {
-        state.userRole = val
-        localStorage.setItem('userRole', val)
+        state.userRole = val;
+        localStorage.setItem('userRole', val);
     },
     UPDATE_USER_ACTIVE(state, val) {
-        state.AppActiveUser = val
-        localStorage.setItem('userInfo', JSON.stringify(val))
-        localStorage.setItem('token', JSON.stringify(val.token));
+        state.AppActiveUser = val;
+        if (val) {
+            localStorage.setItem('userInfo', JSON.stringify(val));
+            localStorage.setItem('token', JSON.stringify(val.token));
+        }
     },
     // UPDATE_STATUS_CHAT(state, value) {
     //     state.AppActiveUser.status = value;
@@ -59,6 +61,11 @@ const mutations = {
     },
     UPDATE_NAVBAR_TYPE(state, val) {
         state.navbarType = val;
+    },
+
+    UPDATE_SINC_DADOS(state, val) {
+        state.sincTotal = val;
+        localStorage.setItem('sincTotal', val);
     },
 
 

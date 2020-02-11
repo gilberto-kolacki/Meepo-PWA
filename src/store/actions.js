@@ -15,30 +15,32 @@ const actions = {
     // ////////////////////////////////////////////
 
     updateSidebarWidth({ commit }, width) {
-      commit('UPDATE_SIDEBAR_WIDTH', width);
+        commit('UPDATE_SIDEBAR_WIDTH', width);
     },
     updateI18nLocale({ commit }, locale) {
-      commit('UPDATE_I18N_LOCALE', locale);
+        commit('UPDATE_I18N_LOCALE', locale);
     },
     toggleContentOverlay({ commit }) {
-      commit('TOGGLE_CONTENT_OVERLAY');
+        commit('TOGGLE_CONTENT_OVERLAY');
     },
     updateTheme({ commit }, val) {
-      commit('UPDATE_THEME', val);
+        commit('UPDATE_THEME', val);
     },
     updateUserRole({ commit }, val) {
-      commit('UPDATE_USER_ROLE', val);
+        commit('UPDATE_USER_ROLE', val);
     },
     updateUserActive({ commit }, val) {
-      commit('UPDATE_USER_ACTIVE', val);
+        commit('UPDATE_USER_ACTIVE', val);
     },
     updateWindowWidth({ commit }, width) {
-      commit('UPDATE_WINDOW_WIDTH', width);
+        commit('UPDATE_WINDOW_WIDTH', width);
     },
     updatePlatform({ commit }, val) {
-      commit('UPDATE_PLATFORM', val);
+        commit('UPDATE_PLATFORM', val);
     },
-
+    updateSincDados({ commit }, val) {
+        commit('UPDATE_SINC_DADOS', val);
+    },
 
     // ////////////////////////////////////////////
     // COMPONENT
@@ -46,16 +48,16 @@ const actions = {
 
     // VxAutoSuggest
     updateStarredPage({ commit }, payload) {
-      commit('UPDATE_STARRED_PAGE', payload)
+      commit('UPDATE_STARRED_PAGE', payload);
     },
 
     //  The Navbar
     arrangeStarredPagesLimited({ commit }, list) {
-      commit('ARRANGE_STARRED_PAGES_LIMITED', list)
+      commit('ARRANGE_STARRED_PAGES_LIMITED', list);
     },
     arrangeStarredPagesMore({ commit }, list) {
-      commit('ARRANGE_STARRED_PAGES_MORE', list)
+      commit('ARRANGE_STARRED_PAGES_MORE', list);
     },
-}
+};
 
-export default actions
+export default actions;

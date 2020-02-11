@@ -7,20 +7,18 @@
   Author URL: http://www.themeforest.net/user/pixinvent
 ==========================================================================================*/
 
-import router from '@/router'
-import SincDataDB from '../../rapidsoft/db/sincDataDB'
-import UsuarioDB from '../../rapidsoft/db/usuarioDB'
-import usuarioService from '../../rapidsoft/service/usuarioService'
+import router from '@/router';
+import UsuarioDB from '../../rapidsoft/db/usuarioDB';
+import usuarioService from '../../rapidsoft/service/usuarioService';
+import Store from '../store';
 
 const verificaDataBase = () => {
     return new Promise((resolve) => {
-        SincDataDB.jaTeveSincronizacao().then((simNao) => {
-            if (simNao) {
-                resolve({name: 'home'});
-            } else {
-                resolve({name: 'sincronizacao'});
-            }
-        });
+        if (Store.getters.getSincDados) {
+            resolve({name: 'home'});
+        } else {
+            resolve({name: 'sincronizacao'});
+        }
     });
 };
 

@@ -362,13 +362,17 @@ class clienteDB extends BasicDB {
 
     buscaClientesSinc() {
         return new Promise((resolve) => {
-            this._localDB.find({
-                selector: {
-                    clienteAlterado: {$eq: true}
-                },
-            }).then((result) => {
-                resolve(result.docs);
-            });
+            if (this._localDB) {
+                this._localDB.find({
+                    selector: {
+                        clienteAlterado: {$eq: true}
+                    },
+                }).then((result) => {
+                    resolve(result.docs);
+                });
+            } else {
+                resolve([]);
+            }
         });
     }
 
@@ -421,7 +425,7 @@ class clienteDB extends BasicDB {
 
     sincFromNuvem() {
         return new Promise((resolve) => {
-            if (window.navigator.onLine) {
+            if (window.navigator.onLine && this._remoteDB) {
                 this._remoteDB.allDocs({include_docs: true}).then((resultDocs) => {
                     const clientesNuvem = resultDocs.rows.map((row) => row.doc);
                     if (clientesNuvem.length > 0) {

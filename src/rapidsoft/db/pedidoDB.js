@@ -5,6 +5,7 @@
   Author: Giba
 ==========================================================================================*/
 import BasicDB from './basicDB';
+import Store from '../../store/store';
 // import Storage from '../utils/storage';
 
 class pedidoDB extends BasicDB {
@@ -17,6 +18,7 @@ class pedidoDB extends BasicDB {
 
     findLastId() {
         return new Promise((resolve) => {
+            const representante = Store.getters.getUserActive;
             this._localDB.find({
                 selector: {
                     id: {$gte: null}
@@ -25,9 +27,9 @@ class pedidoDB extends BasicDB {
                 limit: 1
             }).then((result) => {
                 if (result.docs.length == 1) {
-                    this._lastId = result.docs[0].id;
+                    this._lastId = representante.id +'-'+result.docs[0].id;
                 } else {
-                    this._lastId = 0;
+                    this._lastId = representante.id +'-'+1;
                 }
                 resolve(this._lastId);
             });
@@ -43,15 +45,6 @@ class pedidoDB extends BasicDB {
                         resolve();
                     });
                 }
-            });
-        });
-    }
-
-    getNextIdPedido() {
-        return new Promise((resolve) => {
-            this.findLastId().then((ultimoIdPedido) => {
-                ultimoIdPedido = ultimoIdPedido >= 0 ? ultimoIdPedido : 0;
-                resolve(ultimoIdPedido+1);
             });
         });
     }
@@ -86,9 +79,7 @@ class pedidoDB extends BasicDB {
 
     salvarPedido(pedido) {
         return new Promise((resolve) => {
-            this.getNextIdPedido().then((idPedido) => {
-
-                console.log(idPedido);
+            this.findLastId().then((idPedido) => {
                 
                 pedido.id = idPedido;
                 this._salvar(pedido).then(() => {
@@ -117,7 +108,7 @@ class pedidoDB extends BasicDB {
                     status: {$eq: 20}
                 },
             }).then((result) => {
-                resolve(result.docs);
+                resolve(result.docs.filter((doc) => Object.keys(doc).length > 0));
             });
         });
     }
@@ -135,10 +126,7 @@ class pedidoDB extends BasicDB {
             
 
             this._getById(pedido.id, true).then((object) => {
-
-
                 console.log(object);
-
                 resolve();
             });
         });

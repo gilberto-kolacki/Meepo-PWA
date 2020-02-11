@@ -47,6 +47,7 @@ import _ from 'lodash';
 import SincUtils from '../../rapidsoft/utils/sincUtils';
 import ProdutoService from '../../rapidsoft/service/produtoService';
 import ClienteService from '../../rapidsoft/service/clienteService';
+import OrcamentoService from '../../rapidsoft/service/orcamentoService';
 import PedidoService from '../../rapidsoft/service/pedidoService';
 import ParametroService from '../../rapidsoft/service/parametroService';
 import SincDataDB from '../../rapidsoft/db/sincDataDB';
@@ -109,13 +110,16 @@ export default {
             })
         },
         sincronizarTodos() {
-            this.sincAll = true;        
+            this.sincAll = true;
+            const done = _.after(this.tabelasSincronizacao.length, () => this.$store.dispatch('updateSincDados', true));
+
             this.tabelasSincronizacao.forEach(sinc => {        
                 sinc.parcial = 0;
                 sinc.percent = 0;
                 if (sinc.type !== "imagem") {
                     _.defer(() => this.sincronizar(sinc, true));
                 }
+                done();
             });
         },
         sincronizar(sinc, all = false) {
@@ -270,26 +274,45 @@ export default {
         sincPedido(sinc, all) {
             PedidoDB.buscaSinc().then((pedidosSinc) => {
                 PedidoService.sincPedido(pedidosSinc).then((pedidos) => {
-                    sinc.parcial = 0;
-                    sinc.total = pedidos.length;
-                    
-                    const done = _.after(pedidos.length, () => SincUtils.closeLoading(this, sinc, all));
-                    pedidos.forEach(pedido => {
-                        PedidoDB.salvarSinc(pedido).then(() => {
-                            SincUtils.atuaizaParcialSinc(sinc, 1);
-                            done();
+                    if (pedidos.length > 0) {
+                        sinc.parcial = 0;
+                        sinc.total = pedidos.length;
+                        const done = _.after(pedidos.length, () => SincUtils.closeLoading(this, sinc, all));
+                        pedidos.forEach(pedido => {
+                            PedidoDB.salvarSinc(pedido).then(() => {
+                                SincUtils.atuaizaParcialSinc(sinc, 1);
+                                done();
+                            });
                         });
-                    });
+                    } else {
+                        SincUtils.closeLoading(this, sinc, all)
+                    }
                 });
             });
         },
         sincOrcamento(sinc, all) {
             OrcamentoDB.buscaSinc().then((orcamentosSinc) => {
                 console.log(orcamentosSinc);
-                SincUtils.closeLoading(this, sinc, all);
+                OrcamentoService.sincOrcamento(orcamentosSinc).then((orcamentos) => {
+                    console.log(orcamentos);
+                    if (orcamentos.length > 0) {
+                        sinc.parcial = 0;
+                        sinc.total = orcamentos.length;
+
+                    } else {
+                        SincUtils.closeLoading(this, sinc, all);
+                    }
+                });
             });
         },
 
+    },
+    beforeCreate() {
+        
+        
+    },
+    created() {
+        
     },
     beforeMount() {
         this.$vs.loading();
@@ -302,7 +325,9 @@ export default {
             });        
         });
     },
-
+    mounted() {
+        
+    },
     errorCaptured(err, vm, info) {
         ErrorDB._criarLog({err, vm, info});
         return true;

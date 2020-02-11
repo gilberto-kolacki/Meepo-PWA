@@ -11,14 +11,11 @@ import PouchDBFind from 'pouchdb-find';
 import PouchDBLiveFind from 'pouchdb-live-find';
 import PouchDBUpSert from 'pouchdb-upsert';
 
-import state from '../../store/state';
-
 PouchDB.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBLiveFind);
 PouchDB.plugin(PouchDBUpSert);
 
 import Config from '../../../public/config.json';
-import Storage from '../utils/storage';
 // import ErrorUtils from './errorDB';
 
 const createDBLocal = (dataBaseName, representante) => {
@@ -33,12 +30,13 @@ const createDBRemote = (dataBaselocal) => {
     return Config.endereco_couchdb+dataBaselocal;
 };
 
-const create = (name, remote, callback) => {
+const getRepres = () => {
+    return JSON.parse(localStorage.getItem('userInfo'));
+};
 
-    console.log(state);
-    
+const create = (name, remote, callback) => {
     if (remote) {
-        const representante = Storage.getUsuario();
+        const representante = getRepres();
         if (representante) {
             const dataBaseLocal = createDBLocal(name, representante);
             if (dataBaseLocal) {

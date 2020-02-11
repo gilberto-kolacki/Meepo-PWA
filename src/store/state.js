@@ -7,9 +7,9 @@
   Author URL: http://www.themeforest.net/user/pixinvent
 ==========================================================================================*/
 
-import navbarSearchAndPinList from '@/layouts/components/navbarSearchAndPinList'
-import themeConfig from '@/../themeConfig.js'
-import colors from '@/../themeConfig.js'
+import navbarSearchAndPinList from '@/layouts/components/navbarSearchAndPinList';
+import themeConfig from '@/../themeConfig.js';
+import colors from '@/../themeConfig.js';
 
 const state = {
     isSidebarActive: true,
@@ -27,10 +27,11 @@ const state = {
     themePrimaryColor: colors.primary,
     starredPages: navbarSearchAndPinList.data.filter((page) => page.highlightAction),
     userRole: null,
+    sincTotal: JSON.parse(localStorage.getItem('sincTotal')),
 
     // Can be used to get current window with
     // Note: Above breakpoint state is for internal use of sidebar component
     windowWidth: null,
 }
 
-export default state
+export default state;

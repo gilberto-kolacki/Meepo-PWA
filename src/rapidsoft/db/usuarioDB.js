@@ -71,17 +71,15 @@ class usuarioDB extends BasicDB {
 
     limparBase() {
         return new Promise((resolve) => {
-            SegmentoDB._limparBase().then(() => {
-                this._limparBase().then(() => {
-                    localStorage.removeItem('userInfo');
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('tokenExpiry');
-                    localStorage.removeItem('userRole');
-                    resolve();
-                }).catch((err) => {
-                    this._criarLogDB({url:'db/usuarioDB',method:'limparBase',message: err,error:'Failed Request'});
-                    resolve(err);
-                });
+            this._limparBase().then(() => {
+                localStorage.removeItem('userInfo');
+                localStorage.removeItem('token');
+                localStorage.removeItem('tokenExpiry');
+                localStorage.removeItem('userRole');
+                resolve();
+            }).catch((err) => {
+                this._criarLogDB({url:'db/usuarioDB',method:'limparBase',message: err,error:'Failed Request'});
+                resolve(err);
             });
         });
     }

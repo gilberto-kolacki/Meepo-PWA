@@ -20,7 +20,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import auth from "./rapidsoft/auth/authService";
-import usuarioDB from './rapidsoft/db/usuarioDB';
+import UsuarioDB from './rapidsoft/db/usuarioDB';
 
 Vue.use(Router);
 
@@ -262,7 +262,7 @@ router.beforeEach((to, from, next) => {
         if(auth.isAuthenticated()) {
             next();
         } else {
-            usuarioDB.onAuthStateChanged().then(() => {
+            UsuarioDB.onAuthStateChanged().then(() => {
                 if (auth.isAuthenticated()) {
                     next();
                 } else {
