@@ -209,14 +209,22 @@ class clienteDB extends BasicDB {
         return new Promise((resolve) => {
             this._getById(idCliente,true).then((clienteById) => {
                 if (clienteById.existe) {
+                    clienteById.value.enderecos = this.validaEnderecoPrincipal(clienteById.value.enderecos,endereco.principal)
                     clienteById.value.enderecos.push(endereco);
                     clienteById.value.clienteAlterado = true;
-                    this._salvar(clienteById.value).then(() => {
+                    this.update(clienteById.value).then(() => {
                         resolve();
                     })
                 }
             });
         });
+    }
+
+    validaEnderecoPrincipal(enderecos,principal = false){
+        if (principal) {
+            enderecos.map((endereco) => endereco.principal = false);
+        }
+        return enderecos
     }
 
     adicionarContatoSincronizado(contato,idCliente) {
@@ -225,7 +233,7 @@ class clienteDB extends BasicDB {
                 if (clienteById.existe) {
                     clienteById.value.contatos.push(contato);
                     clienteById.value.clienteAlterado = true;
-                    this._salvar(clienteById.value).then(() => {
+                    this.update(clienteById.value).then(() => {
                         resolve();
                     })
                 }
@@ -241,7 +249,7 @@ class clienteDB extends BasicDB {
                         endereco['principal'] = cliente.enderecos[index].principal
                     });
                     clienteById.value.clienteAlterado = true; 
-                    this._salvar(clienteById.value).then(() => {
+                    this.update(clienteById.value).then(() => {
                         resolve();
                     });
                 }
@@ -321,15 +329,24 @@ class clienteDB extends BasicDB {
         });
     }
 
+    update(value) {
+        return new Promise((resolve, reject) => {
+            try {
+                value._id = (value.id ? value.id : value._id).toString();
+                value._id = value._id.replace(/[^a-z0-9]/gi, "");                
+                this._localDB.put(value).then((result) => {
+                    resolve(Number(result.id));
+                });
+            } catch (err) {
+                console.log(err);
+                reject(err);
+            }
+        });
+    }
+
     deletar(idCliente) {
         
         return new Promise((resolve, reject) => {
-            // this._localDB.remove(idCliente).then((result) => {
-            //     resolve(result);
-            // }).catch((err) => {
-            //     this._criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
-            //     reject(err);
-            // });
             this._deletar(idCliente).then((result) => {
                 resolve(result);
             }).catch((err) => {

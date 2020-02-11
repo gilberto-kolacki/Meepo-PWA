@@ -241,7 +241,7 @@
                                 <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('celularContato')">
                                     <label for="" class="vs-input--label">Telefone</label>
                                     <div class="vs-con-input">
-                                        <the-mask v-validate="'required'" type="tel" id="telefoneContato" name="telefoneContato" v-model="contatoEdit.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
+                                        <the-mask type="tel" id="telefoneContato" name="telefoneContato" v-model="contatoEdit.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
                                     </div>
                                     <span class="text-danger text-sm">{{ errors.first('telefoneContato') }}</span>
                                 </div>
@@ -258,7 +258,7 @@
                         </div>
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/2 w-full mb-2">
-                                <vs-input v-validate="'required|email'" label="E-mail" id="emailContato" name="emailContato" v-model="contatoEdit.email" class="w-full" type="email" />
+                                <vs-input v-validate="'email'" label="E-mail" id="emailContato" name="emailContato" v-model="contatoEdit.email" class="w-full" type="email" />
                                 <span class="text-danger text-sm">{{ errors.first('emailContato') }}</span>
                             </div>
                         </div>
@@ -511,7 +511,6 @@ export default {
             this.clienteEdit.tipoPessoa = val;
         },
         grupoCliente(val) {
-            console.log('GRUPO CLIENTE ', val);
             this.clienteEdit.grupoCliente = val.value;
         },
         cidadeEnderecoCliente(val) {
@@ -521,8 +520,6 @@ export default {
             this.clienteEdit.endereco.cep = val;
         },
         segmentosCliente(val) {
-            console.log('SEGMENTOS ', val);
-            
             this.clienteEdit.segmentos = val.map((segmento) => {
                 return _.toString(segmento.value);
             })
@@ -708,11 +705,7 @@ export default {
             ClienteDB.adicionarEnderecoSincronizado(this.enderecoEdit,this.clienteEdit._id).then(() => {
                 this.indexEditEndereco = null;
                 this.isEditEndereco = false;
-                this.notificacaoEndereco(
-                    'Cadastrado!',
-                    'Endereço Cadastrado com Sucesso!',
-                    'success'
-                );
+                this.notificacaoEndereco('Cadastrado!','Endereço Cadastrado com Sucesso!','success');
             });
         },
         setCidadeSelecionadaEndEntrega() {
@@ -854,6 +847,7 @@ export default {
                 this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
                 if (this.clienteEdit.clienteErp) {
                     ClienteDB.adicionarContatoSincronizado(this.contatoEdit,this.clienteEdit._id);
+                    this.notificacaoEndereco('Cadastrado!','Contato Cadastrado com Sucesso!','success');
                 }
                 this.isEditContato = false;
             }).catch((erro) => {
