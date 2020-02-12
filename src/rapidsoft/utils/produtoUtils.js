@@ -56,17 +56,6 @@ class produtoUtils{
                 produtosAdd.push(produto);
             }, []);
             resolve(produtosAdd);
-            // const done = _.after(produtos.length, () => resolve(produtos));
-            // produtos.forEach(produto => {
-            //     produto.produtoAddCores = this.getCoresProduto(produto);
-            //     produto.produtoLabelTamanhos = this.getTamanhosLabelProduto(produto);
-            //     produto.produtoAddCores = produto.produtoAddCores.map((cor) => {
-            //         cor.produtoAddTamanhos = this.getTamanhosCor(cor);
-            //         delete cor.tamanhos;
-            //         return cor;
-            //     });
-            //     done();
-            // });
         });
     }
 
