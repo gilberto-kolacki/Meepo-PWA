@@ -5,7 +5,7 @@
                 <b-dropdown-item>
                     <span class="flex items-center">
                         <feather-icon icon="TrashIcon" svgClasses="h-4 w-4" class="mr-2" />
-                        <span v-on:click="deleteItemsChart">Deletar</span>
+                        <span @click="confirmacaoDeletarItem">Deletar</span>
                     </span>
                 </b-dropdown-item>
             </b-dropdown>
@@ -167,10 +167,37 @@ export default {
         },
 		getAmountValueBuy(valorCompra,totalQuantidade) {
             return valorCompra * totalQuantidade;
-		},
+        },
+        notification(titulo,mensagem,cor) {
+            this.$vs.notify({
+                title: titulo,
+                text: mensagem,
+                color: cor,
+                iconPack: 'feather',
+                icon: 'icon-alert-circle'
+            });
+        },
+        confirmacaoDeletarItem() {
+            this.$vs.dialog({
+                type:'confirm',
+                color:'danger',
+                title:'Deseja Remover?',
+                text:'Você esta prestes a remover um item do carrinho. Deseja continuar?',
+                accept:this.deleteItemsChart,
+                acceptText: 'Continuar',
+                cancelText: 'Cancelar',
+            });
+        },
+        montaMensagem(totalItens) {
+            if (totalItens > 1) {
+                return `Foram removidos ${totalItens} itens do carrinho!`
+            } else {
+                return `Foi removido ${totalItens} item do carrinho!`
+            }
+        },
 		deleteItemsChart() {
             const itensCarrinho = Storage.getCarrinhoItens();
-
+            const totalItens = this.itensSelecionados.length;
             const itensCarrinhoNew = itensCarrinho.filter(produto => {
                 return !this.itensSelecionados.some(item => {
                     return produto.idProduto === item.idProduto ;
@@ -180,9 +207,11 @@ export default {
             Storage.setCarrinhoItens(itensCarrinhoNew);
             this.produtosCarrinho = this.getProdutosListNew();
             this.itensSelecionados = [];
-            this.$emit('atualiza-lista-produtos');
-            this.$forceUpdate();
-
+            this.notification('Removido!',this.montaMensagem(totalItens),'primary');
+            setTimeout(() => {
+                this.$emit('atualiza-lista-produtos');
+                this.$forceUpdate();
+            }, 400);
         },
         getProdutosListNew(){
             return this.produtosCarrinho.filter(produto => {
@@ -196,8 +225,6 @@ export default {
 	},
 	created() {
         try {
-            console.log(this.produtos);
-            
             this.produtosCarrinho = this.produtos;
         } catch (error) {
             console.log(error);

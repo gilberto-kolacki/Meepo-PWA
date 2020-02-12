@@ -62,7 +62,7 @@ export default {
         },
         editar(pedido) {
             if (pedido) {
-                this.$router.push({ name: 'pedidoEditar', params: {pedidoId: pedido.id} });
+                this.$router.push({ name: 'pedidoEditar', params: {pedidoId: pedido._id} });
             } else {
                 this.$router.push('/pedido/cadastro');
             }
@@ -75,6 +75,15 @@ export default {
                     document.getElementById('loading-bg').style.display = 'none';
                     resolve();
                 });
+            });
+        },
+        notification(titulo,mensagem,cor) {
+            this.$vs.notify({
+                title: titulo,
+                text: mensagem,
+                color: cor,
+                iconPack: 'feather',
+                icon: 'icon-alert-circle'
             });
         },
         deletarMessage(pedido) {
@@ -90,8 +99,11 @@ export default {
             });
         },
         deletar(pedido) {
-            PedidoDB._deletar(pedido.id).then(() => {
-                this.listar();
+            PedidoDB._deletar(pedido._id).then(() => {
+                this.notification('Excluído!','Pedido excluído com sucesso!','primary')
+                setTimeout(() => {
+                    this.listar();
+                }, 400);
             });
         }
     },

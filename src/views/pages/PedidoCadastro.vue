@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-save"  @click="finalizarPedido(pedido)" >Salvar</vs-button>
+    <div v-if="isShow">
+        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-save" v-if="pedido.status == 10"  @click="finalizarPedido(pedido)" >Salvar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
         <b-tabs content-class="mt-5" justified>
             <b-tab  active lazy>
@@ -172,7 +172,7 @@
                             </div>
                             <div class="vx-col w-3/12 mx-10" style="justify-content:center;margin:auto">
                                 <div class="vx-row">Valor</div>
-                                <div class="vx-row" style="font-weight:bold;">R$ 58,90</div>
+                                <div class="vx-row" style="font-weight:bold;">{{item.precoCusto | moneyy(pedido.grupoCliente)}}</div>
                             </div>
                             <div class="vx-col w-1/12 mx-10" style="justify-content:center;margin:auto">
                                 <vs-button v-if="pedido.status == 10" type="filled" size="small" icon-pack="feather" color="primary" icon="icon-x" @click="deletarMessage(item)"/>
@@ -212,6 +212,7 @@ export default {
             formaDePagamentoSelecionada: {value:1,label:'Boleto',condicoes:[{value:2,label:'30 Dias'}]},
             condicaoDePagamentoSelecionada: {value:2,label:'30 Dias'},
             temCondicaoDePagamento: true,
+            isShow:false,
         }
     },
     components: {
@@ -272,7 +273,7 @@ export default {
                 acceptText: 'Continuar',
                 cancelText: 'Cancelar',
                 parameters: pedido
-            })
+            });
         },
 
         mudarStatusPedido(pedido) {
@@ -317,18 +318,20 @@ export default {
         setBrinde(){
             this.temCondicaoDePagamento = !this.pedido.brinde;
             this.pedido.formaPagamento = this.pedido.brinde ? this.condigoBrinde : null;
-            this.pedido.condicaoPagamento = null
+            this.pedido.condicaoPagamento = null;
         },
 
-        carregaItensTela() {
+        async carregaItensTela() {
 			return new Promise((resolve) => {
                 PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
                     this.pedido = pedido;
+                    this.itensPedido = this.pedido.itens;
                     FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, 
                         this.pedido.condicaoPagamento).then((dadosPagamento) => {
                             this.formasPagto = dadosPagamento.formasDePagamento;
                             this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
                             this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
+                            this.isShow = true;
                             resolve();
                     });
                 });
@@ -347,15 +350,30 @@ export default {
                 parameters: data
             })
         },
+        notification(titulo,mensagem,cor) {
+            this.$vs.notify({
+                title: titulo,
+                text: mensagem,
+                color: cor,
+                iconPack: 'feather',
+                icon: 'icon-alert-circle'
+            });
+        },
         deletarItemPedido(parametersItemPedido) {
             this.pedido.itens = _.remove(this.pedido.itens, (itemPedido) => itemPedido.sku !== parametersItemPedido.sku);
             PedidoDB.deletarItemPedido(this.pedido).then(() => {
-                this.carregaItensTela();
+                this.notification('Excluído!','Item excluído do pedido com sucesso!','primary');
+                setTimeout(() => {
+                    this.carregaItensTela();
+                }, 400);
             });
         },
         finalizarPedido(pedido) {
             PedidoDB.atualizarPedido(pedido).then(() => {
-                this.voltarPedido();
+                this.notification('Sucesso!','As alterações foram salvas com sucesso!','success');
+                setTimeout(() => {
+                    this.voltarPedido();
+                }, 400);
             });
         },
         voltarPedido() {
