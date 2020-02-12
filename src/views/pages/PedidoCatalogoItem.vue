@@ -36,8 +36,7 @@
                     </div>
                     <div class="vx-row items-center justify-center mt-base-top3">
                         <div class="mr-2" v-for="(cor, index) in getCoresProduto" :key="index">
-                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor" size="36px" @click="selectCorImagemProduto(index)" v-if="cor.imagemCor" style="border: 0.9px solid #7b7b7b;"/>
-                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" size="36px" @click="selectCorImagemProduto(index)" style="border: 0.9px solid #7b7b7b;" v-else/>
+                            <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor ? cor.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" size="36px" @click="selectCorImagemProduto(index)" style="border: 0.9px solid #7b7b7b;"/>
                         </div>
                     </div>
                     <div class="vx-row items-center justify-center mt-base-top2">
@@ -60,10 +59,9 @@
                         :interact-max-rotation="8"
                         :interact-out-of-sight-x-coordinate="1000"
                         :interact-x-threshold="120"                         
-                        v-if="isShowing">
+                        v-if="isShowingImagemPrincipal">
                         <div>
-                            <b-img center :src="imagemProdutoPrincipal" class="card-img-principal" id="produto-swipe-area" v-if="imagemProdutoPrincipal"/>
-                            <b-img-lazy center :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" v-else />
+                            <b-img-lazy center :src="imagemProdutoPrincipal ? imagemProdutoPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" id="produto-swipe-area" v-if="imagemProdutoPrincipal"/>
                         </div>
                     </Vue2InteractDraggable>
                     <div class="vx-row items-center justify-center" style="z-index: 15; margin-top: 2rem;" v-if="this.produtoB">
@@ -133,12 +131,10 @@
 <script>
 
 import { Vue2InteractDraggable } from "vue2-interact";
-import _ from 'lodash';
 import ProdutoDB from '../../rapidsoft/db/produtoDB';
 import ImagemDB from '../../rapidsoft/db/imagemDB';
 import ProdutoUtils from '../../rapidsoft/utils/produtoUtils';
 import Storage from '../../rapidsoft/utils/storage';
-import UtilMask from '../../rapidsoft/utils/utilMask';
 import SearchProduto  from '../../rapidsoft/components/SearchProduto';
 import ZoomProduto  from '../../rapidsoft/components/ZoomProduto';
 import ErrorDB from '../../rapidsoft/db/errorDB';
@@ -163,7 +159,7 @@ export default {
             imagens: [],
             paginaAtual: null,
             paginas: [],
-            isShowing: true,
+            isShowingImagemPrincipal: true,
             produtoZoom: null,
             popupZoomProduto: false,
             disabledInputCor: [],
@@ -218,9 +214,9 @@ export default {
         },
 
         viewPreco() {
-            let texto = 'REF A: ' +this.calcularPrecoProduto(this.produtoA);
+            let texto = 'REF A: ' + ProdutoUtils.calcularPreco(this.produtoA.cores[this.corSelecionada]);
             if (this.produtoB) {
-                texto += '<br> REF B: ' +this.calcularPrecoProduto(this.produtoB);
+                texto += '<br> REF B: ' + ProdutoUtils.calcularPreco(this.produtoB.cores[this.corSelecionada]);
             }
 
             this.$vs.notify({
@@ -235,12 +231,6 @@ export default {
         existeCarrinho() {
             return !Storage.existeCarrinho();
         },
-        calcularPrecoProduto(produto) {
-            const percentual = _.toNumber(this.grupoCliente.porcentagem);
-            const precoProduto = produto.cores[this.corSelecionada].precoVenda;
-            const preco = _.round(precoProduto + ((percentual/100) * precoProduto), 2)
-            return UtilMask.getMoney(preco, true);
-        },
         selectCorImagemProduto(indexCor) {
             this.corSelecionada = indexCor;
             this.selectSequenciaImagemProduto(0);
@@ -253,27 +243,27 @@ export default {
             return cor.imagens[imagem].base64;
         },
         scrollUp() {
-            let gallery = document.getElementById("produto-image-gallery");
+            const gallery = document.getElementById("produto-image-gallery");
             gallery.scrollTop = gallery.scrollTop - 80;
         },
         scrollDown() {
-            let gallery = document.getElementById("produto-image-gallery");
+            const gallery = document.getElementById("produto-image-gallery");
             gallery.scrollTop = gallery.scrollTop + 80;
         },
         scrollUpCategoria() {
-            let gallery = document.getElementById("categoria-gallery");
+            const gallery = document.getElementById("categoria-gallery");
             gallery.scrollTop = gallery.scrollTop - 80;
         },
         scrollDownCategoria() {
-            let gallery = document.getElementById("categoria-gallery");
+            const gallery = document.getElementById("categoria-gallery");
             gallery.scrollTop = gallery.scrollTop + 80;
         },
         hideCard() {
             setTimeout(() => {
-                this.isShowing = false;
+                this.isShowingImagemPrincipal = false;
             }, 100);
             setTimeout(() => {
-                this.isShowing = true;
+                this.isShowingImagemPrincipal = true;
             }, 110);
             this.$forceUpdate();
         },
@@ -323,10 +313,10 @@ export default {
             });
         },
         selectProduto(pagina) {
-            this.paginaAtual = pagina;
-            ProdutoDB.getProdutoPaginaCatalogo(pagina).then((result) => {
-                if (result) {
-                    this.$vs.loading();
+            return new Promise((resolve) => {
+                this.$vs.loading();
+                this.paginaAtual = pagina;
+                ProdutoDB.getProdutoPaginaCatalogo(pagina).then((result) => {
                     
                     this.popupSearchProdutos = false;
                     this.produtoA = result.produtoA;
@@ -337,8 +327,9 @@ export default {
                         this.corSelecionada = 0;
                         document.getElementById("produto-image-gallery").scrollTop = 0;
                         this.$vs.loading.close();
+                        resolve();
                     });
-                }
+                });
             });
         },
         selectSearchProduto(produto) {
@@ -380,15 +371,14 @@ export default {
         this.catalogo = Storage.getCatalogo();
         if (this.catalogo == null || this.catalogo.idCatalogo == null) {
             this.$router.push('/catalogo');
-        } else {
-            this.grupoCliente = Storage.getGrupoCarrinho();
-            await this.carregaItensTela();
         }
     },
     beforeMount() {
         
     },
-    mounted() {
+    async mounted() {
+        this.grupoCliente = Storage.getGrupoCarrinho();
+        await this.carregaItensTela();
         document.getElementById("page-catalogo").ontouchmove = (e) => {
             if(!(e.target.className == "produto-image-gallery-item" || e.target.className == "mb-4 responsive img-ref")) {
                 e.preventDefault();

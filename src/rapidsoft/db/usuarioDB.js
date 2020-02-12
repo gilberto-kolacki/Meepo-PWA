@@ -6,56 +6,36 @@
 ==========================================================================================*/
 
 import store from '../../store/store';
-import BasicDB from './basicDB';
 import SegmentoDB from './segmentoDB';
 import Auth from "../../rapidsoft/auth/authService";
 
-const idUsuario = "1";
-
-class usuarioDB extends BasicDB {
-
-    constructor() {
-        super("usuario");
-    }
+class usuarioDB {
 
     signIn(usuario) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             SegmentoDB.salva(usuario.segmento).then(() => {
-                usuario._id = idUsuario;
                 usuario.img = usuario.img || 'user.png';
                 usuario.displayName = usuario.nome;
-                delete usuario["segmento"];
-                this._salvar(usuario).then((user) => {
-                    usuario._id = user.id;
-                    resolve(usuario);
-                }).catch((err) => {
-                    this._criarLogDB({url:'db/usuarioDB',method:'signIn',message: err,error:'Failed Request'});
-                    reject(err);
-                });
+                delete usuario.segmento;
+                store.dispatch('updateUserActive', usuario);
+                resolve(usuario);
             });
         });
     }
 
     signOut() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.limparBase().then(() => {
                 resolve();
-            }).catch((err) => {
-                this._criarLogDB({url:'db/usuarioDB',method:'signOut',message: err,error:'Failed Request'});
-                reject(err);
             });
         });
     }
 
     onAuthStateChanged() {
-        return new Promise((resolve, reject) => {
-            this._localDB.get(idUsuario).then((user) => {
-                store.dispatch('updateUserActive', user);
-                resolve(user);
-            }).catch((err) => {
-                this._criarLogDB({url:'db/usuarioDB',method:'onAuthStateChanged',message: err,error:'Failed Request'});
-                reject(err);
-            });
+        return new Promise((resolve) => {
+            const user = JSON.parse(localStorage.getItem('userInfo'));
+            store.dispatch('updateUserActive', user);
+            resolve(user);
         });
     }
 
@@ -71,16 +51,11 @@ class usuarioDB extends BasicDB {
 
     limparBase() {
         return new Promise((resolve) => {
-            this._limparBase().then(() => {
-                localStorage.removeItem('userInfo');
-                localStorage.removeItem('token');
-                localStorage.removeItem('tokenExpiry');
-                localStorage.removeItem('userRole');
-                resolve();
-            }).catch((err) => {
-                this._criarLogDB({url:'db/usuarioDB',method:'limparBase',message: err,error:'Failed Request'});
-                resolve(err);
-            });
+            localStorage.removeItem('userInfo');
+            localStorage.removeItem('token');
+            localStorage.removeItem('tokenExpiry');
+            localStorage.removeItem('userRole');
+            resolve();
         });
     }
 

@@ -44,18 +44,29 @@ class produtoUtils{
 
     createProdutosAddCarrinho(produtos) {
         return new Promise((resolve) => {
-            produtos = produtos.filter((produto) => !_.isNil(produto));
-            const done = _.after(produtos.length, () => resolve(produtos));
-            produtos.forEach(produto => {
+            produtos = produtos.filter((produto) => produto != undefined);
+            const produtosAdd = produtos.reduce((produtosAdd, produto) => {
                 produto.produtoAddCores = this.getCoresProduto(produto);
                 produto.produtoLabelTamanhos = this.getTamanhosLabelProduto(produto);
                 produto.produtoAddCores = produto.produtoAddCores.map((cor) => {
                     cor.produtoAddTamanhos = this.getTamanhosCor(cor);
-                    delete cor['tamanhos'];
+                    delete cor.tamanhos;
                     return cor;
                 });
-                done();
-            });
+                produtosAdd.push(produto);
+            }, []);
+            resolve(produtosAdd);
+            // const done = _.after(produtos.length, () => resolve(produtos));
+            // produtos.forEach(produto => {
+            //     produto.produtoAddCores = this.getCoresProduto(produto);
+            //     produto.produtoLabelTamanhos = this.getTamanhosLabelProduto(produto);
+            //     produto.produtoAddCores = produto.produtoAddCores.map((cor) => {
+            //         cor.produtoAddTamanhos = this.getTamanhosCor(cor);
+            //         delete cor.tamanhos;
+            //         return cor;
+            //     });
+            //     done();
+            // });
         });
     }
 
