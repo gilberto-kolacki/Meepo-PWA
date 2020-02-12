@@ -186,7 +186,7 @@ class clienteDB extends BasicDB {
     salvar(cliente) {
         return new Promise((resolve, reject) => {
             validarObjetoDB(cliente).then((resultCliente) => {
-                resultCliente.id = resultCliente.cpfCnpj;
+                resultCliente.id = resultCliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
                 resultCliente.alterado = true;
                 resultCliente.endereco.cep = resultCliente.endereco.cep.replace(/[^a-z0-9]/gi, "");
                 if (resultCliente.nome == null) {
@@ -213,7 +213,7 @@ class clienteDB extends BasicDB {
                     clienteById.value.clienteAlterado = true;
                     this._salvar(clienteById.value).then(() => {
                         resolve();
-                    })
+                    });
                 }
             });
         });

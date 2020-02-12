@@ -27,7 +27,8 @@ class pedidoDB extends BasicDB {
                 limit: 1
             }).then((result) => {
                 if (result.docs.length == 1) {
-                    this._lastId = representante.id +'-'+result.docs[0].id;
+                    const ultimoId = result.docs[0].id.split('-')[1];
+                    this._lastId = representante.id +'-'+Number(ultimoId);
                 } else {
                     this._lastId = representante.id +'-'+1;
                 }

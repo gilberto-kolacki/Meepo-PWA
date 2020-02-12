@@ -325,14 +325,13 @@ export default {
 			return new Promise((resolve) => {
                 PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
                     this.pedido = pedido;
+                    console.log(pedido);
                     this.itensPedido = this.pedido.itens;
-                    FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, 
-                        this.pedido.condicaoPagamento).then((dadosPagamento) => {
-                            this.formasPagto = dadosPagamento.formasDePagamento;
-                            this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
-                            this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
-                            this.isShow = true;
-                            resolve();
+                    FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
+                        this.formasPagto = dadosPagamento.formasDePagamento;
+                        this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
+                        this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
+                        resolve();
                     });
                 });
             });
@@ -383,8 +382,8 @@ export default {
     created() {
 
     },
-    mounted() {
-        this.carregaItensTela();
+    async mounted() {
+        await this.carregaItensTela();
     },
     beforeCreate() {
     },
@@ -392,8 +391,6 @@ export default {
         ErrorDB._criarLog({err, vm, info});
         return true;
     },
-    afterMounted() {
-    }
 }
 
 </script>

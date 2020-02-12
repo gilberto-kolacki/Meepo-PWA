@@ -2,33 +2,27 @@
 	<div id="page-catalogo-add" class="page-catalogo-add">
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-plus" @click="addReferenciaCarrinho()">Adicionar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
-        <div class='vx-row'>
-            <div class='w-full sm:w-1/2.5 mr-2' v-if="showPrevia">
-                <vx-card class="mb-6" style="padding 5px">
-                    <div slot="no-body">
-                        <div class='vx-row flex justify-between pr-6 pl-6'>
-                            <div class="p-6 flex justify-end flex-row">
-                                <div class="vx-row mr-8">
-                                    <vs-avatar class="mr-3" @click="somaPreviaValores()" style="margin:auto" color="success" icon-pack="feather" icon="icon-dollar-sign" />
-                                    <div class="truncate">
-                                        <span>Prévia Total:</span>
-                                        <h3 class="mb-1 font-bold" v-if="this.previaTotal > 0">{{previaTotal | moneyy}}</h3>
-                                        <h3 class="mb-1 font-bold" v-else >R$ 0,00</h3>
-                                    </div>
-                                </div>
-                                <div class="vx-row ml-5 mr-5">
-                                    <vs-avatar class="mr-3" @click="somaPreviaValores()" style="margin:auto" color="warning" icon-pack="feather" icon="icon-layers" />
-                                    <div class="truncate">
-                                        <span>Total Itens:</span>
-                                        <h3 class="mb-1 font-bold" v-if="this.previaTotal > 0">{{totalItens}}</h3>
-                                        <h3 class="mb-1 font-bold" v-else>0</h3>
-                                    </div>
-                                </div>
+        <div class='vx-row' v-if="this.showPrevia">
+            <vx-card class="mb-4 w-full">
+                <div slot="no-body">
+                    <div class='vx-row flex pr-6 pl-6'>
+                        <div class="vx-col w-full lg:w-1/2 sm:w-1/2 flex" style="padding: 8px;">
+                            <vs-avatar class="mr-3" @click="somaPreviaValores()" color="warning" icon-pack="feather" icon="icon-layers" />
+                            <div class="truncate">
+                                <span>Total Itens:</span>
+                                <h3 class="mb-1 font-bold">{{totalItens}}</h3>
+                            </div>
+                        </div>
+                        <div class="vx-col w-full lg:w-1/2 sm:w-1/2 flex" style="padding: 8px;">
+                            <vs-avatar class="mr-3" @click="somaPreviaValores()" color="success" icon-pack="feather" icon="icon-dollar-sign" />
+                            <div class="truncate">
+                                <span>Total Valor:</span>
+                                <h3 class="mb-1 font-bold">{{previaTotal | moneyy}}</h3>
                             </div>
                         </div>
                     </div>
-                </vx-card>
-            </div>
+                </div>
+            </vx-card>
         </div>
         <div v-if="this.isShow"> 
             <add-carrinho-item v-for="(prodduto, indexProd) in this.produtos" :key="indexProd"
@@ -40,16 +34,14 @@
                 @replica-todas-grades='replicarTodasGrades'
             >
             </add-carrinho-item>
-            <!-- <complete-look v-if="this.isShow" @open-grade-look-selecionado="openGradeLookSelecionado" @produto-look="openLook" :produtoPrincipal="produtos[0]"/> -->
         </div>
         
         <div class='flex justify-center w-full' v-if="this.produtosDoLook.length > 0">
             <div class="produto-image-gallery vx-row mt-6" style="width:95%" id="content-produtos">
-                <div class="vx-col px-2 lg:w-1/4 md:w-1/4 sm:w-1/3 mb-4" :key="indextr" v-for="(produtoLook, indextr) in this.produtosDoLook">
-                    <vx-card class="w-full text-center cursor-pointer;height:100%;">
+                <div class="vx-col px-1 lg:w-1/4 md:w-1/4 sm:w-1/3 mb-4" v-for="(produtoLook, indextr) in this.produtosDoLook" :key="indextr">
+                    <vx-card class="w-full text-center cursor-pointer; height:100%;">
                         <b-card-text style="display:flex;align-items:center;justify-content:center;">
-                            <b-img-lazy :src="produtoLook.img" class="rounded user-latest-image responsive img-popup product-img" v-if="produtoLook.img"/>
-                            <b-img-lazy :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded user-latest-image responsive img-popup product-img" v-else />
+                            <b-img-lazy :src="produtoLook.img ? produtoLook.img : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded user-latest-image responsive img-popup product-img"/>
                         </b-card-text >
                         <b-card-text style="padding:5px">
                             <span class="vx-row" style="font-weight:bold">{{'Ref: ' + produtoLook.id}}</span>
@@ -78,7 +70,7 @@
                 </div>
             </div>
         </div>
-        <div class="flex justify-center" v-if="this.produtosDoLook.length > 0 && isShow"> 
+        <!-- <div class="flex justify-center" v-if="this.produtosDoLook.length > 0 && isShow"> 
             <div style="width:95%" class="vx-row flex justify-center">
                 <vs-button 
                     class="mt-1 mr-4 shadow-lg w-1/5" 
@@ -97,7 +89,7 @@
                     @click="scrollRight()" 
                 />
             </div>
-        </div>
+        </div> -->
     </div> 
 </template>
 <script>
@@ -132,7 +124,6 @@ export default {
                 ProdutoUtils.calcularCarrinho(this.carrinho).then((carrinhoResult) => {
                     this.previaTotal = carrinhoResult.valorTotal;
                 });
-                
                 this.getTotalItens(this.carrinho.itens);
             } else {
                 this.previaTotal = 0;
@@ -140,7 +131,7 @@ export default {
         },
         getTotalItens(carrinhoItens) {
             this.totalItens = carrinhoItens.reduce(( itemAnterior, itemAtual ) => {
-                return _.toInteger(itemAnterior) + itemAtual.quantidade;
+                return Number(itemAnterior) + itemAtual.quantidade;
             }, 0 );
         },
         replicarTodasGrades(index) {
@@ -186,7 +177,7 @@ export default {
 
         openLook(produto) {
             this.$router.push({ name: 'catalogoItem',
-                params: {pag: {pag:0,produtoA:{id: produto.id,ref:produto.referencia,seq:1}}}
+                params: {pag: {pag:0,produtoA:{id: produto.id, ref:produto.referencia, seq:1}}}
             });
         },
         openGradeLookSelecionado (produtoLookSelecionado) {
@@ -229,6 +220,7 @@ export default {
         },
         carregaItensTela() {
             return new Promise((resolve) => {
+                document.getElementById('loading-bg').style.display = null;
                 this.catalogo = Storage.getCatalogo();
                 this.carrinho = Storage.getCarrinho();
                 ProdutoUtils.createProdutosAddCarrinho(this.$route.params.produtos).then((produtos) => {
@@ -238,6 +230,7 @@ export default {
                         this.showPrevia = true
                         this.somaPreviaValores();
                         this.isShow = true;
+                        document.getElementById('loading-bg').style.display = "none";
                         resolve();
                     });
                 });
@@ -247,11 +240,11 @@ export default {
     beforeCreate() {       
         
     },
-    async created() {        
-        await this.carregaItensTela();
+    created() {        
+    
     },
-    mounted() {
-        
+    async mounted() {
+        await this.carregaItensTela();
     },
 	errorCaptured(err, vm, info) {
         ErrorDB._criarLog({ err, vm, info });
@@ -262,6 +255,10 @@ export default {
 </script>
 
 <style lang="scss">
+
+.page-catalogo-add {
+    margin-top: -15px;
+}
 
 .produto-image-gallery {
     overflow-x: scroll;

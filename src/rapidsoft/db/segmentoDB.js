@@ -25,26 +25,16 @@ class segmentoDB extends BasicDB {
     }
 
     getSegmentosItens(itens) {
-        return itens.map((produto) => produto.segmento).sort().reduce((init, current) => {
-            if (init.length === 0 || init[init.length - 1] !== current) {
-                init.push(current);
-            }
-            return init;
+        return itens.reduce((segmentos, produto) => {
+            return segmentos.concat(produto.segmento);
         }, []);
     }
 
     getSegmentosCarrinho(itensCarrinho) {
         return new Promise((resolve) => {
             const idsSegmentos = this.getSegmentosItens(itensCarrinho);
-            const arraySegmentos = [];
-            const done = _.after(idsSegmentos.length, () => resolve(arraySegmentos));
-            idsSegmentos.forEach(idSegmento => {
-                this._getById(idSegmento).then((segmento) => {
-                    if (segmento.existe) {
-                        arraySegmentos.push(segmento.value);
-                    }
-                    done();
-                });
+            this._getFindCondition({id : {$in : idsSegmentos}}).then((segmentos) => {
+                resolve(segmentos);
             });
         });
     }

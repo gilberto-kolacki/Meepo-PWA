@@ -39,7 +39,6 @@
 
 <script>
 
-// import _ from 'lodash';
 import PedidoDB from '../../rapidsoft/db/pedidoDB';
 import ErrorDB from '../../rapidsoft/db/errorDB';
 
@@ -61,16 +60,15 @@ export default {
             else return "warning";
         },
         editar(pedido) {
-            if (pedido) {
-                this.$router.push({ name: 'pedidoEditar', params: {pedidoId: pedido._id} });
-            } else {
-                this.$router.push('/pedido/cadastro');
-            }
+            this.$router.push({ name: 'pedidoEditar', params: {pedidoId: pedido.id} });
         },
         listar() {
             return new Promise((resolve) => {
                 document.getElementById('loading-bg').style.display = null;
                 PedidoDB._getAll().then((result) => {
+
+                    console.log(result);
+                    
                     this.pedidos = result;
                     document.getElementById('loading-bg').style.display = 'none';
                     resolve();
