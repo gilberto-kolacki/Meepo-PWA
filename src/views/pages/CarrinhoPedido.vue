@@ -249,6 +249,8 @@ export default {
             this.$forceUpdate();
         },
         validarDadosPedido() {
+            console.log(this.pedidoCapa);
+            
             PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa).then((pedidos) => {
                 PedidoUtils.validarPedido(pedidos).then(() => {
                     this.$vs.dialog({
@@ -288,8 +290,6 @@ export default {
             });
         },
 		gerarPedidos(pedidos) {
-            console.log('pedidos antes concluir ', pedidos);
-            
             const done = _.after(pedidos.length, () => {
                 const IdOrcamento = Storage.getIdOrcamentoCarrinho();
                 if (IdOrcamento) {
@@ -300,7 +300,6 @@ export default {
                     PedidoUtils.concluirGeracaoPedidos(this);
                 }
             });
-            console.log('Pedidos dps concluir', pedidos);
             
             pedidos.forEach(pedido => {
                 PedidoDB.salvarPedidoNovo(pedido).then(() => {

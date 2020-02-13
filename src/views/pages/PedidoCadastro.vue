@@ -43,7 +43,14 @@
                     <div class="vx-row">
                         <div class="vx-col w-full">
                             <label for="estadosFiltro" class="vs-input--label">Endereço de entrega</label>
-                            <v-select id="endEntrega" name="endEntrega" :clearable=false v-model="pedido.endEntrega" :options="getEnderecosEntrega" :dir="$vs.rtl ? 'rtl' : 'ltr'"/> 
+                            <v-select id="endEntrega" 
+                                @input="setEndEntrega()"
+                                name="endEntrega" 
+                                :clearable=false 
+                                v-model="enderecoEntregaSelecionado" 
+                                :options="getEnderecosEntrega" 
+                                :dir="$vs.rtl ? 'rtl' : 'ltr'"
+                            /> 
                         </div>
                     </div>
                     
@@ -211,6 +218,7 @@ export default {
             itensPedido: [],
             formaDePagamentoSelecionada: {value:1,label:'Boleto',condicoes:[{value:2,label:'30 Dias'}]},
             condicaoDePagamentoSelecionada: {value:2,label:'30 Dias'},
+            enderecoEntregaSelecionado: {},
             temCondicaoDePagamento: true,
             isShow:false,
         }
@@ -238,18 +246,32 @@ export default {
                 });
             } else return [];
         },
-
+        
         getEnderecosEntrega() {
+            console.log('CLIENTE ',this.pedido.cliente);
             if (this.pedido.cliente.enderecos && this.pedido.cliente.enderecos.length > 0) {
-                return this.pedido.cliente.enderecos.map((endereco) => {
-                    return endereco;
+                return this.pedido.cliente.enderecos.map((endereco, index) => {
+                    return {value: index, label: this.getLabelEndereco(endereco), endereco: endereco};
                 });
             } else return [];
         },
         
     },
     methods: {
-
+        setEndEntrega() {
+            this.pedido.endEntrega['cep'] =  this.enderecoEntregaSelecionado.endereco['cep'];
+            this.pedido.endEntrega['endereco'] =  this.enderecoEntregaSelecionado.endereco['endereco'];
+            this.pedido.endEntrega['bairro'] =  this.enderecoEntregaSelecionado.endereco['bairro'];
+            this.pedido.endEntrega['cidade'] =  this.enderecoEntregaSelecionado.endereco['cidade'];
+            this.pedido.endEntrega['numero'] =  this.enderecoEntregaSelecionado.endereco['numero'];
+            this.pedido.endEntrega['complemento'] =  this.enderecoEntregaSelecionado.endereco['complemento'];
+            this.pedido.endEntrega['telefone'] =  this.enderecoEntregaSelecionado.endereco['telefone'];
+            this.pedido.endEntrega['principal'] =  this.enderecoEntregaSelecionado.endereco['principal'];
+            this.pedido.endEntrega['idCidade'] =  this.enderecoEntregaSelecionado.endereco['idCidade'];
+        },
+        getLabelEndereco(endereco) {
+            return endereco ? endereco.endereco +', Nº'+ endereco.numero +' - CEP: '+ endereco.cep : null;
+        },
         mensagemMudarParaDigitacao(pedido) {
             this.$vs.dialog({
                 type:'confirm',
@@ -325,12 +347,15 @@ export default {
 			return new Promise((resolve) => {
                 PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
                     this.pedido = pedido;
-                    console.log(pedido);
+                    console.log(this.pedido);
+                    
+                    this.enderecoEntregaSelecionado = this.getLabelEndereco(this.pedido.endEntrega);
                     this.itensPedido = this.pedido.itens;
                     FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
                         this.formasPagto = dadosPagamento.formasDePagamento;
                         this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
                         this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
+                        this.isShow = true;
                         resolve();
                     });
                 });
