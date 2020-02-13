@@ -150,9 +150,11 @@ class produtoDB extends BasicDB {
                     ImagemDB.getFotoById(produto.imagem).then(imagem => {
                         produto.imagemPrincipal = imagem;
                         EmbarqueDB.getEmbarqueProduto(produto).then((embarque) => {
-                            produto.embarque = embarque.id;
-                            produto.segmento = produto.segmento;
-                            produtosCarrinho.push(produto);
+                            if (embarque) {
+                                produto.embarque = embarque.id;
+                                produto.segmento = produto.segmento;
+                                produtosCarrinho.push(produto);
+                            }
                             done();
                         });
                     });
