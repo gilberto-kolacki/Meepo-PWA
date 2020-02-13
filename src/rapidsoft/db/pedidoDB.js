@@ -93,9 +93,10 @@ class pedidoDB extends BasicDB {
     }
 
     getPedido(pedidoId) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             this._getById(pedidoId, true).then((pedido) => {
-                resolve(pedido.value);
+                if (pedido.existe) resolve(pedido.value);
+                else reject();
             });
         });
     }
@@ -112,20 +113,18 @@ class pedidoDB extends BasicDB {
         });
     }
 
+    
+
     salvarSinc(pedido) {
         return new Promise((resolve) => {
-            
-            // this._salvar(pedido).then(() => {
-            //     resolve();
-            // }).catch((erro) => {
-            //     this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: erro,error:'Failed Request'});
-            //     resolve();
-            // });
-            // console.log(pedido);
-            
-
-            this._getById(pedido._id, true).then((object) => {
-                resolve(object);
+            this.getPedido(pedido.id, true).then((object) => {
+                pedido._rev = object._rev;
+                pedido.cliente.id = String(pedido.cliente.id);
+                this._salvar(pedido).then(() => {
+                    resolve();
+                });
+            }).catch(() => {
+                resolve();
             });
         });
     }

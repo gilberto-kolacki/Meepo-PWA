@@ -298,7 +298,6 @@ export default {
                     if (orcamentos.length > 0) {
                         sinc.parcial = 0;
                         sinc.total = orcamentos.length;
-
                     } else {
                         SincUtils.closeLoading(this, sinc, all);
                     }
