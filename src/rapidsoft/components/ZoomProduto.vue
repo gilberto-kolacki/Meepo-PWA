@@ -26,10 +26,13 @@
                 </div>
             </div>
             <div class="vx-col w-full lg:w-4/5 sm:w-4/5">
-                <div class="vx-row items-center justify-center" style="height: 1500px" id="img">
-                        <!-- <img :src="imagemProdutoPrincipal" class="card-img-zoom" id="produto-swipe-area"/> -->
-                        <v-zoomer style="width: 100%; height: 100%;" maxScale="3">
-                            <b-img-lazy :src="imagemProdutoPrincipal" style="border:none; object-fit: contain; width: 100%; height: 100%;" class="card-img-zoom items-center justify-center" id="produto-swipe-area"/>
+                <div class="vx-row items-center justify-center" id="img">
+                        <v-zoomer style="width: 100%; height: 100%;" :maxScale="2" :pivot="'cursor'" :limitTranslation="false">
+                            <b-img-lazy 
+                                :src="imagemProdutoPrincipal" 
+                                class="card-img-zoom" 
+                                id="produto-swipe-area"
+                            />
                         </v-zoomer>   
                 </div>
             </div>
@@ -128,12 +131,15 @@ export default {
 }
 
 .card-img-zoom {
-    width: 100%;
     -webkit-animation: rebound .4s;
     animation: rebound .4s;
     -webkit-box-pack: center !important;
     -ms-flex-pack: center !important;
-    justify-content: center !important
+    justify-content: center !important;
+    border:none; 
+    object-fit: contain; 
+    width: 100%; 
+    height: 100%;
 }
 
 .img-ref {
