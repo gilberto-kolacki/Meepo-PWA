@@ -5,16 +5,6 @@
   Author: Giba
 ==========================================================================================*/
 import BasicDB from './basicDB';
-// import Store from '../../store/store';
-// import Storage from '../utils/storage';
-
-const getNewId = (lastId) => {
-    let ultimoId = 0;
-    if (lastId) {
-        ultimoId = Number(lastId);
-    }
-    return Number(ultimoId +1);
-};
 
 class pedidoDB extends BasicDB {
 
@@ -26,19 +16,8 @@ class pedidoDB extends BasicDB {
 
     findLastId() {
         return new Promise((resolve) => {
-            this.createBases();
-            this._localDB.find({
-                selector: {
-                    id: {$gte: null}
-                },
-                sort: [{'id':'desc'}],
-                limit: 1
-            }).then((result) => {
-                if (result.docs.length == 1) {
-                     this._lastId = getNewId(result.docs[0].id);
-                } else {
-                    this._lastId = getNewId(null);
-                }
+            this._count().then((count) => {
+                this._lastId = new Date().getTime() +''+ count;
                 resolve(this._lastId);
             });
         });
@@ -107,16 +86,7 @@ class pedidoDB extends BasicDB {
                     resolve();
                 }).catch((error) => {
                     console.log(error);
-                    if (error.status == 409) {
-                        pedido.id = getNewId(error.id);
-                        this._salvar(pedido).then(() => {
-                            resolve();
-                        });
-                    } else {
-                        this.salvarPedidoNovo(pedido).then(() => {
-                            resolve();
-                        });
-                    }
+                    resolve(error);
                 });
             });
         });

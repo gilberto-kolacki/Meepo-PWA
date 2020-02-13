@@ -36,19 +36,9 @@ class embarqueDB extends BasicDB {
     getEmbarqueProduto(produto) {
         return new Promise((resolve) => {
             const grupo = Storage.getGrupoCarrinho();
-            const buscaEmbaqueProduto = (embarques) => {
+            this._getFindCondition({$and : [{id : {$in : grupo.embarques}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$all : [produto.idProduto]}}]}).then((embarques) => {
                 const embarqueProduto = embarques.find((embarque) => embarque.produtos.some((idProduto) => idProduto === produto.idProduto));
                 resolve(embarqueProduto);
-            };
-
-            this._getFindCondition({$and : [{id : {$in : grupo.embarques}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$all : [produto.idProduto]}}]}).then((embarques) => {
-                if (embarques.length > 0) {
-                    buscaEmbaqueProduto(embarques);
-                } else {
-                    this._getFindCondition({$and : [{idSegmento : {$in : produto.segmento}}, {produtos : {$all : [produto.idProduto]}}]}).then((embarques) => {
-                        buscaEmbaqueProduto(embarques);
-                    });
-                }
             });
         });
     }

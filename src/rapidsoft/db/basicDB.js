@@ -192,6 +192,18 @@ class basicDB {
         });
     }
 
+    _count() {
+        return new Promise((resolve) => {
+            this._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                const rows = resultDocs.rows.filter((row) => !row.id.includes("_design"));
+                resolve(rows.length);
+            }).catch((err) => {
+                this._criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
+                resolve(0);
+            });
+        });
+    }
+
     _getAllMap() {
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
