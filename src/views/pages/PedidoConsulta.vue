@@ -75,6 +75,15 @@ export default {
                 });
             });
         },
+        notification(titulo,mensagem,cor) {
+            this.$vs.notify({
+                title: titulo,
+                text: mensagem,
+                color: cor,
+                iconPack: 'feather',
+                icon: 'icon-alert-circle'
+            });
+        },
         deletarMessage(pedido) {
             this.$vs.dialog({
                 type:'confirm',
@@ -88,8 +97,11 @@ export default {
             });
         },
         deletar(pedido) {
-            PedidoDB._deletar(pedido.id).then(() => {
-                this.listar();
+            PedidoDB._deletar(pedido._id).then(() => {
+                this.notification('Excluído!','Pedido excluído com sucesso!','primary')
+                setTimeout(() => {
+                    this.listar();
+                }, 400);
             });
         }
     },

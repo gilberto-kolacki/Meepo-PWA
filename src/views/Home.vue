@@ -148,14 +148,13 @@ export default {
     methods: {
         abrirPedido(pedido) {
             if (pedido) {
-                this.$router.push({ name: 'pedidoEditar', params: {pedidoId: pedido.id} });
+                this.$router.push({ name: 'pedidoEditar', params: {pedidoId: pedido._id} });
             } else {
                 this.$router.push('/pedido/cadastro');
             }
         },
         pedidoDigitacao(){
             PedidoDB.existePedidoEmDigitacao().then((result) => {
-                console.log(result);
                 this.pedidosEmDigitacao = result;
             });
         }

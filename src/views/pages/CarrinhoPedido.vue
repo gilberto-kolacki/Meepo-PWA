@@ -228,8 +228,7 @@ export default {
             return this.condicoesPagto[idPedido];
         },
         selecionarEndereco() {
-            console.log(this.pedidoCapa.endEntrega);
-            
+            // console.log(this.pedidoCapa.endEntrega);
         },
         getLabelEndereco(endereco) {
             return endereco ? endereco.endereco +', Nº'+ endereco.numero +' - CEP: '+ endereco.cep : null;
@@ -289,6 +288,8 @@ export default {
             });
         },
 		gerarPedidos(pedidos) {
+            console.log('pedidos antes concluir ', pedidos);
+            
             const done = _.after(pedidos.length, () => {
                 const IdOrcamento = Storage.getIdOrcamentoCarrinho();
                 if (IdOrcamento) {
@@ -299,6 +300,8 @@ export default {
                     PedidoUtils.concluirGeracaoPedidos(this);
                 }
             });
+            console.log('Pedidos dps concluir', pedidos);
+            
             pedidos.forEach(pedido => {
                 PedidoDB.salvarPedidoNovo(pedido).then(() => {
                     done();
