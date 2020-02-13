@@ -11,6 +11,8 @@ import BasicDB from './basicDB';
 import ImagemDB from './imagemDB';
 import EmbarqueDB from './embarqueDB';
 import CategoriaDB from './categoriaDB';
+import Storage from '../utils/storage';
+
 
 
 const getProdutoToDBFilterCategoria = (produtos, idsCategorias, textoSearch) => {
@@ -171,8 +173,9 @@ class produtoDB extends BasicDB {
         });
     }
 
-    getPaginasCatalogo(catalogo, idCategoria = null) {
+    getPaginasCatalogo(idCategoria = null) {
         return new Promise((resolve) => {
+            const catalogo = Storage.getCatalogo();
             this.getPaginasByCategorias(idCategoria, catalogo.paginas).then((paginas) => {
                 catalogo.paginas = paginas;
 

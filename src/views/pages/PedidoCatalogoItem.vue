@@ -169,7 +169,6 @@ export default {
             idPopUpZoom: 'popup-produto-zoom',
             produtoZoomShow: false,
             grupoCliente: null,
-            catalogo: null,
         }
     },
     components: {
@@ -350,7 +349,7 @@ export default {
                 document.getElementById('loading-bg').style.display = null;
                 this.paginaAtual = this.$route.params.pag ? this.$route.params.pag : null;
                 const idCategoria = this.filtro.categoria.id ? this.filtro.categoria.id : null;
-                ProdutoDB.getPaginasCatalogo(this.catalogo, idCategoria).then(paginas => {
+                ProdutoDB.getPaginasCatalogo(idCategoria).then(paginas => {
                     this.paginas = paginas;
                     if (this.paginaAtual) {
                         this.$route.params.pag = null;
@@ -368,8 +367,8 @@ export default {
         
     },
     created() {
-        this.catalogo = Storage.getCatalogo();
-        if (this.catalogo == null || this.catalogo.idCatalogo == null) {
+        const catalogo = Storage.getCatalogo();
+        if (catalogo == null || catalogo.idCatalogo == null) {
             this.$router.push('/catalogo');
         }
     },
