@@ -63,6 +63,15 @@ export default {
         editar(orcamento) {
             this.$router.push({ name: 'orcamentoVisualizar', params: { orcamentoId: orcamento.id } });
         },
+        notification(titulo,mensagem,cor) {
+            this.$vs.notify({
+                title: titulo,
+                text: mensagem,
+                color: cor,
+                iconPack: 'feather',
+                icon: 'icon-alert-circle'
+            });
+        },
         listar() {
             OrcamentoDB._getAll().then((orcamentos) => {
                 this.orcamentos = Object.assign(orcamentos);
@@ -79,11 +88,14 @@ export default {
                 acceptText: 'Continuar',
                 cancelText: 'Cancelar',
                 parameters: data
-            })
+            });
         },
         deletar(orcamento) {
             OrcamentoDB.deletar(orcamento).then(() => {
-                this.listar();
+                this.notification('Excluído!','Orçamento excluído com sucesso!','primary');
+                setTimeout(() => {
+                    this.listar();
+                }, 400);
             });
         },
     

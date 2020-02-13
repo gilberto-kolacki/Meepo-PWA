@@ -39,10 +39,10 @@ class pedidoDB extends BasicDB {
 
     deletarItemPedido(pedido) {
         return new Promise((resolve) => {
-            this._getById(pedido.id,true).then((pedidoById) => {
+            this._getById(pedido._id,true).then((pedidoById) => {
                 if (pedidoById.existe) {
                     pedido._rev = pedidoById.value._rev;
-                    this._salvar(pedido).then(() => {
+                    this.salvar(pedido).then(() => {
                         resolve();
                     });
                 }
@@ -52,15 +52,28 @@ class pedidoDB extends BasicDB {
     
     atualizarPedido(pedido) {
         return new Promise((resolve) => {
-            this._getById(pedido.id, true).then((pedidoById) => {
+            this._getById(pedido._id, true).then((pedidoById) => {
                 if (pedidoById.existe) {
                     pedidoById.result = pedido;
-                    this._salvar(pedidoById.result).then(() => {
+                    this.salvar(pedidoById.result).then(() => {
                         resolve();
                     });
                 }
             });
-            
+        });
+    }
+
+    salvar(value) {
+        return new Promise((resolve, reject) => {
+            try {
+                value._id = (value.id ? value.id : value._id).toString();
+                value._id = value._id.replace(/[^a-z0-9]/gi, "");
+                this._localDB.put(value).then((result) => {
+                    resolve(Number(result.id));
+                });
+            } catch (err) {
+                reject(err);
+            }
         });
     }
 
@@ -81,7 +94,6 @@ class pedidoDB extends BasicDB {
     salvarPedido(pedido) {
         return new Promise((resolve) => {
             this.findLastId().then((idPedido) => {
-                
                 pedido.id = idPedido;
                 this._salvar(pedido).then(() => {
                     resolve();
@@ -123,12 +135,11 @@ class pedidoDB extends BasicDB {
             //     this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: erro,error:'Failed Request'});
             //     resolve();
             // });
-            console.log(pedido);
+            // console.log(pedido);
             
 
-            this._getById(pedido.id, true).then((object) => {
-                console.log(object);
-                resolve();
+            this._getById(pedido._id, true).then((object) => {
+                resolve(object);
             });
         });
     }
