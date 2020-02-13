@@ -54,6 +54,7 @@ class produtoUtils{
                     return cor;
                 });
                 produtosAdd.push(produto);
+                return produtosAdd;
             }, []);
             resolve(produtosAdd);
         });

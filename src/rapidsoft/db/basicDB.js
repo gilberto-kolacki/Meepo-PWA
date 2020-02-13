@@ -8,8 +8,10 @@
 import _ from 'lodash';
 import PouchDB from 'pouchdb';
 import PouchDBFind from 'pouchdb-find';
+import PouchDBUPSert from 'pouchdb-upsert';
 
 PouchDB.plugin(PouchDBFind);
+PouchDB.plugin(PouchDBUPSert);
 
 import Config from '../../../public/config.json';
 // import ErrorUtils from './errorDB';

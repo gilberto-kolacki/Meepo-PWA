@@ -166,6 +166,10 @@ class storage {
     }
 
     setCatalogo(catalogo) {
+        delete catalogo.capa;
+        delete catalogo.base64;
+        delete catalogo._id;
+        delete catalogo._rev;
         localStorage.setItem('catalogoCarrinho', JSON.stringify(catalogo));
     }
 

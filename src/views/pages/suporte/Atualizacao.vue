@@ -26,6 +26,16 @@
               ref="loadableButton"
             >Atualizar</vs-button>
           </b-list-group-item>
+          <b-list-group-item>
+            <vs-button
+              color="warning"
+              class="vs-con-loading__container w-full"
+              id="button-with-loading-limpar"
+              v-on:click.stop="limparBases()"
+              type="relief"
+              ref="loadableButton"
+            >Limpar bases</vs-button>
+          </b-list-group-item>
         </b-list-group>
       </vx-card>
     </div>
@@ -35,6 +45,8 @@
 <script>
 import _ from "lodash";
 import ClienteDB from "../../../rapidsoft/db/clienteDB";
+import PedidoDB from "../../../rapidsoft/db/pedidoDB";
+import OrcamentoDB from "../../../rapidsoft/db/orcamentoDB";
 import ProdutoDB from "../../../rapidsoft/db/produtoDB";
 import ErrorDB from "../../../rapidsoft/db/errorDB";
 
@@ -85,8 +97,21 @@ export default {
         this.$vs.loading.close("#button-with-loading > .con-vs-loading");
       }, 3000);
 
-      // this.$router.go();
       window.location.reload(true);
+    },
+    limparBases() {
+        this.$vs.loading({
+            background: this.backgroundLoading,
+            color: 'warning',
+            container: "#button-with-loading-limpar",
+            scale: 0.45
+        });
+        OrcamentoDB._limparBase().then(() => {
+            PedidoDB._limparBase().then(() => {
+                this.$vs.loading.close("#button-with-loading-limpar > .con-vs-loading");
+                window.location.reload(true);
+            });
+        });
     },
     getNavegador() {
       const nAgt = navigator.userAgent;

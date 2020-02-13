@@ -9,7 +9,6 @@ import _ from 'lodash';
 import arrayMove from 'array-move';
 import BasicDB from './basicDB';
 import ImagemDB from './imagemDB';
-import CatalogoDB from './catalogoDB';
 import EmbarqueDB from './embarqueDB';
 import CategoriaDB from './categoriaDB';
 
@@ -172,17 +171,15 @@ class produtoDB extends BasicDB {
         });
     }
 
-    getPaginasCatalogo(idCatalogo, idCategoria = null) {
+    getPaginasCatalogo(catalogo, idCategoria = null) {
         return new Promise((resolve) => {
-            CatalogoDB.getById(idCatalogo).then((catalogo) => {
-                this.getPaginasByCategorias(idCategoria, catalogo.paginas).then((paginas) => {
-                    catalogo.paginas = paginas;
+            this.getPaginasByCategorias(idCategoria, catalogo.paginas).then((paginas) => {
+                catalogo.paginas = paginas;
 
-                    this.getProdutosFromPaginas(catalogo.paginas).then((produtos) => {
-                        CategoriaDB.getByIds(catalogo.categorias).then((categorias) => {
-                            produtos.categorias = categorias;
-                            resolve(produtos);
-                        });
+                this.getProdutosFromPaginas(catalogo.paginas).then((produtos) => {
+                    CategoriaDB.getByIds(catalogo.categorias).then((categorias) => {
+                        produtos.categorias = categorias;
+                        resolve(produtos);
                     });
                 });
             });

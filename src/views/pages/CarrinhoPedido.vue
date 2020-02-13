@@ -293,14 +293,14 @@ export default {
                 const IdOrcamento = Storage.getIdOrcamentoCarrinho();
                 if (IdOrcamento) {
                     OrcamentoDB._deletar(IdOrcamento).then(() => {
-                        PedidoUtils.concluirGeracaoPedidos(this)
+                        PedidoUtils.concluirGeracaoPedidos(this);
                     });
                 } else {
-                    PedidoUtils.concluirGeracaoPedidos(this)
+                    PedidoUtils.concluirGeracaoPedidos(this);
                 }
             });
             pedidos.forEach(pedido => {
-                PedidoDB.salvarPedido(pedido).then(() => {
+                PedidoDB.salvarPedidoNovo(pedido).then(() => {
                     done();
                 });
             });

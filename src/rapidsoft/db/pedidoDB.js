@@ -5,8 +5,16 @@
   Author: Giba
 ==========================================================================================*/
 import BasicDB from './basicDB';
-import Store from '../../store/store';
+// import Store from '../../store/store';
 // import Storage from '../utils/storage';
+
+const getNewId = (lastId) => {
+    let ultimoId = 0;
+    if (lastId) {
+        ultimoId = Number(lastId);
+    }
+    return Number(ultimoId +1);
+};
 
 class pedidoDB extends BasicDB {
 
@@ -18,7 +26,7 @@ class pedidoDB extends BasicDB {
 
     findLastId() {
         return new Promise((resolve) => {
-            const representante = Store.getters.getUserActive;
+            this.createBases();
             this._localDB.find({
                 selector: {
                     id: {$gte: null}
@@ -27,10 +35,9 @@ class pedidoDB extends BasicDB {
                 limit: 1
             }).then((result) => {
                 if (result.docs.length == 1) {
-                    const ultimoId = result.docs[0].id.split('-')[1];
-                    this._lastId = representante.id +'-'+Number(ultimoId);
+                     this._lastId = getNewId(result.docs[0].id);
                 } else {
-                    this._lastId = representante.id +'-'+1;
+                    this._lastId = getNewId(null);
                 }
                 resolve(this._lastId);
             });
@@ -78,17 +85,25 @@ class pedidoDB extends BasicDB {
         });
     }
 
-    salvarPedido(pedido) {
+    salvarPedidoNovo(pedido) {
         return new Promise((resolve) => {
             this.findLastId().then((idPedido) => {
-                
                 pedido.id = idPedido;
+                console.log(idPedido);
                 this._salvar(pedido).then(() => {
                     resolve();
-                }).catch(() => {
-                    this.salvarPedido(pedido).then(() => {
-                        resolve();
-                    });
+                }).catch((error) => {
+                    console.log(error);
+                    if (error.status == 409) {
+                        pedido.id = getNewId(error.id);
+                        this._salvar(pedido).then(() => {
+                            resolve();
+                        });
+                    } else {
+                        this.salvarPedidoNovo(pedido).then(() => {
+                            resolve();
+                        });
+                    }
                 });
             });
         });

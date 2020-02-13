@@ -16,6 +16,9 @@ const validarPedido = (pedidos) => {
                 });
 
                 valorMinimo = valorMinimo ? valorMinimo.val : 0;
+
+                console.log();
+                
                 
                 if (_.isNil(pedido.cliente) || _.isNil(pedido.cliente.cpfCnpj)){
                     throw { campo: "nomeCliente", label: "Cliente" };
@@ -32,7 +35,7 @@ const validarPedido = (pedidos) => {
                 else if (_.isNil(pedido.formaPagamento) || pedido.formaPagamento === ""){
                     throw { campo: "formaPgto", label: "Forma de pagamento" };
                 }
-                else if (_.isNil(pedido.condicaoPagamento) || pedido.condicaoPagamento === ""){
+                else if (pedido.formaPagamento != 5 && (_.isNil(pedido.condicaoPagamento) || pedido.condicaoPagamento === "")){
                     throw { campo: "formaPgto", label: "Condição de pagamento" };
                 }
                 else if (_.isNil(pedido.dataEmbarque) || pedido.dataEmbarque === ""){
@@ -122,7 +125,7 @@ class pedidoUtils {
                 newPedido.brinde = item.brinde;
                 newPedido.copiaEmail = item.copiaEmail;
                 newPedido.formaPagamento = item.formaPagamento.id;
-                newPedido.condicaoPagamento = item.condicaoPagamento.id;
+                newPedido.condicaoPagamento = item.condicaoPagamento ? item.condicaoPagamento.id : null;
                 newPedido.quantidade = item.quantidade;
                 newPedido.dataEmbarque = item.dataEmbarque;
                 newPedido.totalBruto = item.totalBruto;

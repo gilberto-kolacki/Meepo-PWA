@@ -350,7 +350,7 @@ export default {
                 document.getElementById('loading-bg').style.display = null;
                 this.paginaAtual = this.$route.params.pag ? this.$route.params.pag : null;
                 const idCategoria = this.filtro.categoria.id ? this.filtro.categoria.id : null;
-                ProdutoDB.getPaginasCatalogo(this.catalogo.idCatalogo, idCategoria).then(paginas => {
+                ProdutoDB.getPaginasCatalogo(this.catalogo, idCategoria).then(paginas => {
                     this.paginas = paginas;
                     if (this.paginaAtual) {
                         this.$route.params.pag = null;
@@ -367,7 +367,7 @@ export default {
     beforeCreate() {
         
     },
-    async created() {
+    created() {
         this.catalogo = Storage.getCatalogo();
         if (this.catalogo == null || this.catalogo.idCatalogo == null) {
             this.$router.push('/catalogo');
