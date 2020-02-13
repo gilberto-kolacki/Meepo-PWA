@@ -120,17 +120,7 @@ export default {
             pedidosEmDigitacao:[],
         }
     },
-    watch: {
-        showScreen(val) {
-            if (val) {
-                document.getElementById('loading-bg').style.display = "none";
-            } else {
-                document.getElementById('loading-bg').style.display = null;
-            }
-        }
-    },
 	components: {
-        
         
     },
     computed: {
@@ -153,28 +143,30 @@ export default {
                 this.$router.push('/pedido/cadastro');
             }
         },
-        pedidoDigitacao(){
-            PedidoDB.existePedidoEmDigitacao().then((result) => {
-                this.pedidosEmDigitacao = result;
+        carregaItensTela() {
+            return new Promise((resolve) => {
+                document.getElementById('loading-bg').style.display = null;
+                ClienteDB._sincNuvem().then(() => {
+                    PedidoDB._sincNuvem().then(() => {
+                        ErrorDB._sincNuvem().then(() => {
+                            PedidoDB.existePedidoEmDigitacao().then((result) => {
+                                this.pedidosEmDigitacao = result;
+                                this.carrinho = Storage.getCarrinho();   
+                                this.showScreen = true;
+                                document.getElementById('loading-bg').style.display = "none";
+                                resolve();
+                            });
+                        });
+                    });
+                });
             });
         }
-    },
-    beforeCreate() {
-        document.getElementById('loading-bg').style.display = null;
     },
     created() {
 
     },
-    mounted() {
-        ClienteDB._sincNuvem().then(() => {
-            PedidoDB._sincNuvem().then(() => {
-                ErrorDB._sincNuvem().then(() => {
-                    this.pedidoDigitacao();
-                    this.carrinho = Storage.getCarrinho();   
-                    this.showScreen = true;
-                });
-            });
-        });
+    async mounted() {
+        await this.carregaItensTela();
     },
 }
 

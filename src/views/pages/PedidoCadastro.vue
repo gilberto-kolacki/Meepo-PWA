@@ -10,7 +10,7 @@
                         Capa
                     </strong>
                 </template>
-                <div class="my-6" v-if="pedido">
+                <div class="my-6" v-if="this.pedido">
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="2" vs-sm="3" vs-xs="12" >
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
@@ -197,7 +197,6 @@ import ErrorDB from '../../rapidsoft/db/errorDB'
 import SearchCliente  from '../../rapidsoft/components/SearchCliente';
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
 import ClienteDB from "../../rapidsoft/db/clienteDB";
-// import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
 
 export default {
     data() {
@@ -333,6 +332,7 @@ export default {
                             this.formasPagto = dadosPagamento.formasDePagamento;
                             this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
                             this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
+                            this.isShow = true;
                             resolve();
                         });
                     })

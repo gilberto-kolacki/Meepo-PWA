@@ -4,6 +4,7 @@
   ----------------------------------------------------------------------------------------
   Author: Giba
 ==========================================================================================*/
+import _ from 'lodash';
 import BasicDB from './basicDB';
 
 class pedidoDB extends BasicDB {
@@ -100,6 +101,20 @@ class pedidoDB extends BasicDB {
             });
         });
     }
+    
+    atualizaStatusPedidos(pedidos) {
+        return new Promise((resolve) => {
+            const done = _.after(pedidos.length, () => resolve());
+            pedidos.forEach(pedido => {
+                this._getById(pedido.id, true).then((pedido) => {
+                    pedido.status = 45;
+                    this._salvar(pedido).then(() => {
+                        done();
+                    });
+                });
+            });
+        });
+    }
 
     buscaSinc() {
         return new Promise((resolve) => {
@@ -108,7 +123,15 @@ class pedidoDB extends BasicDB {
                     status: {$eq: 20}
                 },
             }).then((result) => {
-                resolve(result.docs.filter((doc) => Object.keys(doc).length > 0));
+                const pedidos = result.docs.reduce((docs, doc) => {
+                    if (Object.keys(doc).length > 0) {
+                        const pedido = doc;
+                        pedido.cliente = pedido.cliente.idClienteErp ? {idClienteErp: pedido.cliente.idClienteErp} : pedido.cliente;
+                        docs.push(pedido);
+                    }
+                    return docs;
+                }, []);
+                resolve(pedidos);
             });
         });
     }
