@@ -25,7 +25,7 @@
                                 </div>
                             </div>
                         </vs-col>
-                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="8" vs-sm="9" vs-xs="12">
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="10" vs-sm="9" vs-xs="12">
                             <vs-input v-validate="'required'" label="Nome" id="nomeCliente" name="nomeCliente" disabled v-model="pedidoCapa.cliente.nome" class="w-full input-line-group-rapid" />
                             <vs-button
                                 color="primary"
@@ -249,7 +249,6 @@ export default {
             this.$forceUpdate();
         },
         validarDadosPedido() {
-            console.log(this.pedidoCapa);
             
             PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa).then((pedidos) => {
                 PedidoUtils.validarPedido(pedidos).then(() => {

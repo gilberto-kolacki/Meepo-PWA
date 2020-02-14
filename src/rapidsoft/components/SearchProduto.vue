@@ -140,7 +140,6 @@ export default {
         },
         textoSearch(newValue, oldValue) {
             if ((newValue === "" && oldValue.length > 0) || newValue.length >= 3) {
-                console.log('pesquisa');
                 this.searchFindProduto();
             }
         }

@@ -511,7 +511,6 @@ export default {
             this.clienteEdit.tipoPessoa = val;
         },
         grupoCliente(val) {
-            console.log('GRUPO CLIENTE ', val);
             this.clienteEdit.grupoCliente = val.value;
         },
         cidadeEnderecoCliente(val) {
@@ -521,8 +520,6 @@ export default {
             this.clienteEdit.endereco.cep = val;
         },
         segmentosCliente(val) {
-            console.log('SEGMENTOS ', val);
-            
             this.clienteEdit.segmentos = val.map((segmento) => {
                 return _.toString(segmento.value);
             })

@@ -66,9 +66,6 @@ export default {
             return new Promise((resolve) => {
                 document.getElementById('loading-bg').style.display = null;
                 PedidoDB._getAll().then((result) => {
-
-                    console.log(result);
-                    
                     this.pedidos = result;
                     document.getElementById('loading-bg').style.display = 'none';
                     resolve();

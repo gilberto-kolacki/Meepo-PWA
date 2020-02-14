@@ -136,7 +136,7 @@ export default {
         },
         gerarCarrinho() {
             CarrinhoUtils.setOrcamentoToCarrinho(this.orcamento).then(() => {
-            this.$router.push({ name: 'carrinho' });
+                this.$router.push({ name: 'carrinho' });
             });
         },
         carregaItensTela() {

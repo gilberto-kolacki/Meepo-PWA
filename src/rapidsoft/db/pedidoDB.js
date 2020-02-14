@@ -40,8 +40,42 @@ class pedidoDB extends BasicDB {
         return new Promise((resolve) => {
             this._getById(pedido._id, true).then((pedidoById) => {
                 if (pedidoById.existe) {
-                    pedidoById.result = pedido;
-                    this.salvar(pedidoById.result).then(() => {
+                    pedidoById.value.status = pedido.status;
+                    pedidoById.value.cliente = pedido.cliente;
+                    pedidoById.value.grupoCliente = pedido.grupoCliente;
+                    pedidoById.value.endEntrega = pedido.endEntrega;
+                    pedidoById.value.desconto1 = pedido.desconto1;
+                    pedidoById.value.desconto2 = pedido.desconto2;
+                    pedidoById.value.desconto3 = pedido.desconto3;
+                    pedidoById.value.emailNfe = pedido.emailNfe;
+                    pedidoById.value.nome = pedido.nome;
+                    pedidoById.value.pedidoParcial = pedido.pedidoParcial;
+                    pedidoById.value.antecipacaoPedido = pedido.antecipacaoPedido;
+                    pedidoById.value.brinde = pedido.brinde;
+                    pedidoById.value.copiaEmail = pedido.copiaEmail;
+                    pedidoById.value.formaPagamento = pedido.formaPagamento;
+                    pedidoById.value.condicaoPagamento = pedido.condicaoPagamento;
+                    pedidoById.value.quantidade = pedido.quantidade;
+                    pedidoById.value.dataEmbarque = pedido.dataEmbarque;
+                    pedidoById.value.totalBruto = pedido.totalBruto;
+                    pedidoById.value.totalLiquido = pedido.totalLiquido;
+                    pedidoById.value.observacao = pedido.observacao;
+                    pedidoById.value.embarque = pedido.embarque;
+                    pedidoById.value.segmento = pedido.segmento;
+                    this.salvar(pedidoById.value).then(() => {
+                        resolve();
+                    });
+                }
+            });
+        });
+    }
+
+    atualizarStatusPedido(pedido) {
+        return new Promise((resolve) => {
+            this._getById(pedido._id, true).then((pedidoById) => {
+                if (pedidoById.existe) {
+                    pedidoById.value.status = pedido.status;
+                    this.salvar(pedidoById.value).then(() => {
                         resolve();
                     });
                 }
@@ -81,7 +115,6 @@ class pedidoDB extends BasicDB {
         return new Promise((resolve) => {
             this.findLastId().then((idPedido) => {
                 pedido.id = idPedido;
-                console.log(idPedido);
                 this._salvar(pedido).then(() => {
                     resolve();
                 }).catch((error) => {
@@ -121,7 +154,6 @@ class pedidoDB extends BasicDB {
             //     this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: erro,error:'Failed Request'});
             //     resolve();
             // });
-            // console.log(pedido);
             
 
             this._getById(pedido._id, true).then((object) => {
