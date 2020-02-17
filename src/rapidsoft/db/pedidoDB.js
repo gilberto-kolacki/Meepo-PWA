@@ -173,9 +173,13 @@ class pedidoDB extends BasicDB {
 
     salvarSinc(pedido) {
         return new Promise((resolve) => {
-            this.getPedido(pedido.id, true).then((object) => {
+            this.getPedido(pedido.id).then((object) => {
+                console.log(object);
+                
                 pedido._rev = object._rev;
                 pedido.cliente.id = String(pedido.cliente.id);
+                
+                console.log(pedido);
                 this._salvar(pedido).then(() => {
                     resolve();
                 });
@@ -187,9 +191,9 @@ class pedidoDB extends BasicDB {
 
     _sincNuvem() {
         return new Promise((resolve) => {
-            if (window.navigator.onLine) {
-                this.sincToNuvem().then(() => {
-                    this.sincFromNuvem().then(() => {
+            if (window.navigator.onLine && this._remoteDB) {
+                this._sincToNuvem().then(() => {
+                    this._sincFromNuvem().then(() => {
                         resolve();        
                     });
                 });
@@ -197,19 +201,7 @@ class pedidoDB extends BasicDB {
                 resolve();
             }
         });
-    }
-
-    sincToNuvem() {
-        return new Promise((resolve) => {
-            resolve();
-        });
-    }
-
-    sincFromNuvem() {
-        return new Promise((resolve) => {
-            resolve();
-        });
-    }
+    }    
 
 }
 

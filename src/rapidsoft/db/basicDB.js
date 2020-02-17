@@ -366,6 +366,33 @@ class basicDB {
         });
     }
 
+    _sincToNuvem() {
+        return new Promise((resolve) => {
+            resolve();
+        });
+    }
+
+    _sincFromNuvem() {
+        return new Promise((resolve) => {
+            this._remoteDB.allDocs({include_docs: true}).then((resultDocs) => {
+                const objectsNuvem = resultDocs.rows.map((row) => row.doc);
+                if (objectsNuvem.length > 0) {
+                    const done = _.after(objectsNuvem.length, () => resolve());      
+                    objectsNuvem.forEach(clienteNuvem => {
+                        this._salvar(clienteNuvem).then(() => {
+                            done();
+                        });
+                    });
+                } else {
+                    resolve();
+                }
+            }).catch((err) => {
+                this._criarLogDB({url: this._localDB.name, method:'sincFromNuvem', message: err, error:'Failed Request'});
+                resolve();
+            });
+        });
+    }
+
     __IndexedError(localDB) {
         const request = indexedDB.open(localDB.__opts.name);
  
