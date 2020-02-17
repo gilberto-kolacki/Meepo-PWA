@@ -95,6 +95,12 @@ class produtoUtils{
         return _.round(precoProduto + ((percentual/100) * precoProduto), 2);
     }
 
+    calcularPrecoCarrinho(itemCor) {
+        const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
+        const precoProduto = itemCor.precoCusto;
+        return _.round(precoProduto + ((percentual/100) * precoProduto), 2);
+    }
+
     calcularCarrinho(carrinho) {
         return new Promise((resolve) => {
             carrinho.valorTotal = 0;

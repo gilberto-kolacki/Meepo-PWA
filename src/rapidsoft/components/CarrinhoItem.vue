@@ -82,7 +82,7 @@
                     <span style="font-weight:bold">Qntd: {{produtoCor.quantidade}}</span>
                 </div>
                 <div class="vx-row text-center justify-center">
-                    <span style="font-weight:bold">{{getCoinFormat(getAmountValueBuy(produtoCor.precoCusto, produtoCor.quantidade))}}</span>
+                    <span style="font-weight:bold">{{getAmountValueBuy(produtoCor.precoCusto, produtoCor.quantidade) | moneyy}}</span>
                 </div>
             </div>
             <div class="vx-col mx-1" style="justify-content:center;margin:auto">
@@ -155,9 +155,6 @@ export default {
 			ProdutoDB.getProdutoEdicaoCarrinho(produto).then((result) => {
                 this.$emit('edicao-item-carrinho', result);
             });
-		},
-		getCoinFormat(value) {
-			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
 		},
 		calcularPrecoProduto(produto) {
             const percentual = _.toNumber(this.grupoCliente.porcentagem);

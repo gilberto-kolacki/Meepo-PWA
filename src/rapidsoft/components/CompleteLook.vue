@@ -111,8 +111,6 @@ export default {
             this.$emit('produto-look',this.produtoLookSelecionado);
         },
         showAddCarrinho(show) {
-            console.log("Show");
-            
             this.showAddCarrinhoItem = show;
             this.produtoLookSelecionado=null;
         },

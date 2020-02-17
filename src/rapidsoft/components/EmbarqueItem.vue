@@ -89,7 +89,6 @@ export default {
 			return ("R$ " + value.toFixed(2).toString().replace(".", ","));
         },
         carregaItensTela() {
-            console.log('aqui');
             
         },
         getSelectedItem(embarque) {

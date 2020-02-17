@@ -25,7 +25,7 @@
                                 </div>
                             </div>
                         </vs-col>
-                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="8" vs-sm="9" vs-xs="12">
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="10" vs-sm="9" vs-xs="12">
                             <vs-input v-validate="'required'" label="Nome" id="nomeCliente" name="nomeCliente" disabled v-model="pedidoCapa.cliente.nome" class="w-full input-line-group-rapid" />
                             <vs-button
                                 color="primary"
@@ -249,6 +249,7 @@ export default {
             this.$forceUpdate();
         },
         validarDadosPedido() {
+            
             PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa).then((pedidos) => {
                 PedidoUtils.validarPedido(pedidos).then(() => {
                     this.$vs.dialog({
@@ -288,8 +289,6 @@ export default {
             });
         },
 		gerarPedidos(pedidos) {
-            console.log('pedidos antes concluir ', pedidos);
-            
             const done = _.after(pedidos.length, () => {
                 const IdOrcamento = Storage.getIdOrcamentoCarrinho();
                 if (IdOrcamento) {
@@ -300,7 +299,6 @@ export default {
                     PedidoUtils.concluirGeracaoPedidos(this);
                 }
             });
-            console.log('Pedidos dps concluir', pedidos);
             
             pedidos.forEach(pedido => {
                 PedidoDB.salvarPedidoNovo(pedido).then(() => {

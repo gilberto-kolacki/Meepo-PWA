@@ -1,6 +1,7 @@
 <template>
     <div v-if="isShow">
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-save" v-if="pedido.status == 10"  @click="finalizarPedido(pedido)" >Salvar</vs-button>
+        <!-- <vs-button class="btn-confirm" color="rgb(36, 193, 160)" type="filled" icon-pack="feather" icon="icon-unlock" v-if="pedido.status != 10 && pedido.status < 45"  @click="mensagemMudarParaDigitacao(pedido)">Reabrir</vs-button> -->
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
         <b-tabs content-class="mt-5" justified>
             <b-tab  active lazy>
@@ -20,7 +21,7 @@
                                 </div>
                             </div>
                         </vs-col>
-                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="8" vs-sm="9" vs-xs="12">
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="10" vs-sm="9" vs-xs="12">
                             <vs-input v-validate="'required'" label="Nome" id="nome" name="nome" disabled v-model="pedido.cliente.nome" class="w-full input-line-group-rapid" />
                             <vs-button
                                 color="primary"
@@ -43,7 +44,14 @@
                     <div class="vx-row">
                         <div class="vx-col w-full">
                             <label for="estadosFiltro" class="vs-input--label">Endereço de entrega</label>
-                            <v-select id="endEntrega" name="endEntrega" :clearable=false v-model="pedido.endEntrega" :options="getEnderecosEntrega" :dir="$vs.rtl ? 'rtl' : 'ltr'"/> 
+                            <v-select id="endEntrega" 
+                                @input="setEndEntrega()"
+                                name="endEntrega" 
+                                :clearable=false 
+                                v-model="enderecoEntregaSelecionado" 
+                                :options="getEnderecosEntrega" 
+                                :dir="$vs.rtl ? 'rtl' : 'ltr'"
+                            /> 
                         </div>
                     </div>
                     
@@ -62,7 +70,7 @@
                     </div>
                 
                     <div class="vx-row flex justify-between" style="margin-left:20px;margin-right:20px;padding-top:20px">
-                        <vs-col vs-lg="5" vs-sm="5" vs-xs="12">
+                        <vs-col vs-lg="5" vs-xs="12">
                             <div class="vx-row" style="justify-content: flex-start;">
                                 <vs-checkbox v-model="pedido.pedidoParcial"></vs-checkbox>
                                 <label>Aceita Pedido Parcial</label>
@@ -84,8 +92,8 @@
                         </vs-col>
                     </div>
 
-                    <div class="vx-row" style="margin-top:10px;padding-right:25px;padding-left:25px">
-                        <vs-col vs-lg="5" vs-sm="6" vs-xs="12">
+                    <div class="vx-row mt-10" style="padding-right:25px;padding-left:25px">
+                        <vs-col vs-lg="6" vs-sm="6" vs-xs="12">
                             <label style="font-size:smaller">Forma de Pagamento</label>
                             <v-select 
                                 @input="setFormaDePagamento()"
@@ -97,7 +105,7 @@
                                 :dir="$vs.rtl ? 'rtl' : 'ltr'"
                             />
                         </vs-col>
-                        <vs-col vs-lg="5" vs-sm="6" vs-xs="12" v-if="temCondicaoDePagamento" >
+                        <vs-col vs-lg="6" vs-sm="6" vs-xs="12" v-if="temCondicaoDePagamento" >
                             <label style="font-size:smaller">Condição de Pagamento</label>
                             <v-select
                                 @input="setCondicaoDePagamento()"
@@ -132,8 +140,8 @@
                                 icon-pack="feather" 
                                 icon="icon-unlock"
                                 @click="mensagemMudarParaEnviar(pedido)"
-                            >
-                                Finalizar Pedido
+                            > 
+                              Finalizar Pedido
                             </vs-button>
                         </vs-col>
                     </div>
@@ -209,8 +217,9 @@ export default {
             condigoBrinde: 5,
             condigoBoleto: 1,
             itensPedido: [],
-            formaDePagamentoSelecionada: {value:1,label:'Boleto',condicoes:[{value:2,label:'30 Dias'}]},
-            condicaoDePagamentoSelecionada: {value:2,label:'30 Dias'},
+            formaDePagamentoSelecionada: {},
+            condicaoDePagamentoSelecionada: {},
+            enderecoEntregaSelecionado: {},
             temCondicaoDePagamento: true,
             isShow:false,
         }
@@ -238,23 +247,36 @@ export default {
                 });
             } else return [];
         },
-
+        
         getEnderecosEntrega() {
             if (this.pedido.cliente.enderecos && this.pedido.cliente.enderecos.length > 0) {
-                return this.pedido.cliente.enderecos.map((endereco) => {
-                    return endereco;
+                return this.pedido.cliente.enderecos.map((endereco, index) => {
+                    return {value: index, label: this.getLabelEndereco(endereco), endereco: endereco};
                 });
             } else return [];
         },
         
     },
     methods: {
-
+        setEndEntrega() {
+            this.pedido.endEntrega['cep'] =  this.enderecoEntregaSelecionado.endereco['cep'];
+            this.pedido.endEntrega['endereco'] =  this.enderecoEntregaSelecionado.endereco['endereco'];
+            this.pedido.endEntrega['bairro'] =  this.enderecoEntregaSelecionado.endereco['bairro'];
+            this.pedido.endEntrega['cidade'] =  this.enderecoEntregaSelecionado.endereco['cidade'];
+            this.pedido.endEntrega['numero'] =  this.enderecoEntregaSelecionado.endereco['numero'];
+            this.pedido.endEntrega['complemento'] =  this.enderecoEntregaSelecionado.endereco['complemento'];
+            this.pedido.endEntrega['telefone'] =  this.enderecoEntregaSelecionado.endereco['telefone'];
+            this.pedido.endEntrega['principal'] =  this.enderecoEntregaSelecionado.endereco['principal'];
+            this.pedido.endEntrega['idCidade'] =  this.enderecoEntregaSelecionado.endereco['idCidade'];
+        },
+        getLabelEndereco(endereco) {
+            return endereco ? endereco.endereco +', Nº'+ endereco.numero +' - CEP: '+ endereco.cep : null;
+        },
         mensagemMudarParaDigitacao(pedido) {
             this.$vs.dialog({
                 type:'confirm',
                 color:'danger',
-                title:'Deseja finalizar?',
+                title:'Deseja reabrir?',
                 text:'Você esta prestes a reabrir o pedido. Deseja continuar?',
                 accept:this.mudarStatusPedido,
                 acceptText: 'Continuar',
@@ -278,12 +300,12 @@ export default {
 
         mudarStatusPedido(pedido) {
             if (pedido.status === 20) {
-                pedido.status = 10;
-                PedidoDB.atualizarPedido(pedido);
+                this.pedido.status = 10;
+                PedidoDB.atualizarStatusPedido(pedido);
                 this.$forceUpdate();
             } else {
                 pedido.status = 20;
-                PedidoDB.atualizarPedido(pedido);
+                PedidoDB.atualizarStatusPedido(pedido);
                 this.$forceUpdate();
             }
         },
