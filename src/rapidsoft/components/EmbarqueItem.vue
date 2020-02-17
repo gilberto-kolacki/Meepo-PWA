@@ -30,10 +30,20 @@
                     </datepicker>
                 </div>
                 <div class="vx-col sm:w-1/3 w-full mb-2">
-                    <strong>Qtde Itens: </strong>{{embarqueItem.quantidade}}
+                    <label for="dataEmbarque" class="vs-input">
+                         <strong>Qtde Itens: </strong>
+                    </label>
+                    <div>
+                        <p class="info_embarque">{{embarqueItem.quantidade}}</p>
+                    </div>
                 </div>
                 <div class="vx-col sm:w-1/3 w-full mb-2">
-                    <strong>Sub Total: </strong>{{embarqueItem.totalBruto | moneyy}}
+                    <label for="dataEmbarque" class="vs-input">
+                        <strong>Total: </strong>
+                    </label>
+                    <div>
+                        <p class="info_embarque">{{embarqueItem.totalBruto | moneyy}}</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -162,6 +172,11 @@ export default {
 </script>
 
 <style lang="scss">
+
+    .info_embarque {
+        font-size: 15px;
+        margin-top: 5px;
+    }
 
     .seleciona_embarque {
         box-shadow: 0 3px 10px 0 rgba(0, 0, 0, .15);
