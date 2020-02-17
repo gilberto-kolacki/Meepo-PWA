@@ -44,6 +44,7 @@
 <script>
 
 import PedidoDB from '../../rapidsoft/db/pedidoDB';
+import ClienteDB from '../../rapidsoft/db/clienteDB';
 import ErrorDB from '../../rapidsoft/db/errorDB';
 
 export default {
@@ -56,11 +57,13 @@ export default {
         getNameStatus(status) {
             if(status == 20) return "Enviar";      
             if(status == 50) return "Sincronizado"; 
+            if(status == 99) return "Cancelado";
             else return "Digitação";
         },
         getStatusColor(status) {
             if(status == 20) return "#24c1a0";
             if(status == 50) return "success";
+            if(status == 99) return "danger";
             else return "warning";
         },
         editar(pedido) {
@@ -70,9 +73,11 @@ export default {
             return new Promise((resolve) => {
                 document.getElementById('loading-bg').style.display = null;
                 PedidoDB._getAll().then((result) => {
-                    this.pedidos = result;
-                    document.getElementById('loading-bg').style.display = 'none';
-                    resolve();
+                    ClienteDB.getClientesPedidos(result).then((pedidos) => {
+                        this.pedidos = pedidos;
+                        document.getElementById('loading-bg').style.display = 'none';
+                        resolve();
+                    });
                 });
             });
         },

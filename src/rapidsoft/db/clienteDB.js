@@ -409,38 +409,29 @@ class clienteDB extends BasicDB {
         });
     }
 
-    _sincNuvem() {
+    getClientesPedidos(pedidos) {
         return new Promise((resolve) => {
-            if (window.navigator.onLine) {
-                this.sincToNuvem().then(() => {
-                    this.sincFromNuvem().then(() => {
-                        resolve();        
-                    });
+            const newPedidos = [];
+            const done = _.after(pedidos.length, () => resolve(newPedidos));
+            pedidos.forEach(pedido => {
+                this._getById(pedido.cliente.id).then((cliente) => {
+                    pedido.cliente = cliente.value;
+                    newPedidos.push(pedido);
+                    done();
                 });
-            } else {
-                resolve();
-            }
+            });
+            
+            resolve(newPedidos);
         });
     }
 
-    sincFromNuvem() {
+    _sincNuvem() {
         return new Promise((resolve) => {
             if (window.navigator.onLine && this._remoteDB) {
-                this._remoteDB.allDocs({include_docs: true}).then((resultDocs) => {
-                    const clientesNuvem = resultDocs.rows.map((row) => row.doc);
-                    if (clientesNuvem.length > 0) {
-                        const done = _.after(clientesNuvem.length, () => resolve());      
-                        clientesNuvem.forEach(clienteNuvem => {
-                            this._salvar(clienteNuvem).then(() => {
-                                done();
-                            });
-                        });
-                    } else {
-                        resolve();
-                    }
-                }).catch((err) => {
-                    this._criarLogDB({url:'db/clienteDB',method:'sincFromNuvem',message: err, error:'Failed Request'});
-                    resolve();
+                this._sincToNuvem().then(() => {
+                    this._sincFromNuvem().then(() => {
+                        resolve();        
+                    });
                 });
             } else {
                 resolve();
@@ -454,22 +445,8 @@ class clienteDB extends BasicDB {
                 selector: {'endereco.estado': {$eq: estado}},
                 fields: ['endereco'],
             }).then((result) => {
-                const cidades = result.docs.map((cliente) => {
-                    return {idCidade: cliente.endereco.idCidade, nome: cliente.endereco.cidade.toUpperCase()};
-                });
+                const cidades = result.docs.map((cliente) => {return {idCidade: cliente.endereco.idCidade, nome: cliente.endereco.cidade.toUpperCase()};});
                 resolve(_.uniqBy(cidades,'idCidade'));
-            });
-        });
-    }
-
-    sincToNuvem() {
-        return new Promise((resolve) => {
-            this.buscaClientesSinc().then((clientes) => {
-                if (clientes.length > 0) {
-                    resolve();
-                } else {
-                    resolve();
-                }
             });
         });
     }
