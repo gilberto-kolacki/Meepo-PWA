@@ -11,7 +11,7 @@
                         Capa
                     </strong>
                 </template>
-                <div class="my-6" v-if="pedido">
+                <div class="my-6" v-if="this.pedido">
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="2" vs-sm="3" vs-xs="12" >
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
@@ -213,7 +213,7 @@ import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import SearchCliente  from '../../rapidsoft/components/SearchCliente';
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
-// import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
+import ClienteDB from "../../rapidsoft/db/clienteDB";
 
 export default {
     data() {
@@ -359,16 +359,18 @@ export default {
         async carregaItensTela() {
 			return new Promise((resolve) => {
                 PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
-                    this.pedido = pedido;
-                    this.enderecoEntregaSelecionado = this.getLabelEndereco(this.pedido.endEntrega);
-                    this.itensPedido = this.pedido.itens;
-                    FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
-                        this.formasPagto = dadosPagamento.formasDePagamento;
-                        this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
-                        this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
-                        this.isShow = true;
-                        resolve();
-                    });
+                    ClienteDB.findById(pedido.cliente.id).then((cliente) => {
+                        pedido.cliente = cliente;
+                        this.pedido = pedido;
+                        this.itensPedido = this.pedido.itens;
+                        FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
+                            this.formasPagto = dadosPagamento.formasDePagamento;
+                            this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
+                            this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
+                            this.isShow = true;
+                            resolve();
+                        });
+                    })
                 });
             });
         },

@@ -1,12 +1,11 @@
 <template>
-    <div id="page-sincronizacao">
+    <div id="page-sincronizacao" v-if="this.showScreen">
         <div v-bind:style="{marginBottom: '-20px'}" class="vx-row">
             <div class="vx-col w-full mb-base-button">
-                <!-- <vs-button color="primary" icon-pack="feather" icon="icon-download-cloud" class="mb-2 w-full" @click="sincronizarTodos()">Sincronizar todos</vs-button> -->
                 <vs-button color="primary" icon-pack="feather" icon="icon-download-cloud" class="mb-2 w-full" @click="sincronizarAlert()">Sincronizar todos</vs-button>
             </div>
         </div>
-        <div class="vx-row">
+        <div class="vx-row" >
             <div class="w-full sm:w-1/2 mb-2" :key="indextr" v-for="(sinc, indextr) in tabelasSincronizacao">
                 <vx-card class="vx-card-sinc" v-bind:style="{marginBottom: '-36px'}">
                     <template slot="no-body">
@@ -69,6 +68,7 @@ import OrcamentoDB from '../../rapidsoft/db/orcamentoDB';
 export default {
     data() {
         return {
+            showScreen: false,
             tabelasSincronizacao: [],
             sincAtivo: false,
             sincImagemObject: null,
@@ -298,10 +298,25 @@ export default {
                     if (orcamentos.length > 0) {
                         sinc.parcial = 0;
                         sinc.total = orcamentos.length;
-
                     } else {
                         SincUtils.closeLoading(this, sinc, all);
                     }
+                });
+            });
+        },
+
+        carregaItensTela() {
+            return new Promise((resolve) => {
+                document.getElementById('loading-bg').style.display = null;
+                SincDataDB.getAll().then((sinData) => {
+                    this.tabelasSincronizacao = _.orderBy(sinData, ['order']);
+                    this.sincImagemObject = this.tabelasSincronizacao.find((sincTab) => sincTab.type === "imagem" );
+                    SincUtils.verificaProdutosSemImagens().then((result) => {
+                        this.downloadImagem = result;
+                        document.getElementById('loading-bg').style.display = "none";
+                        this.showScreen = true;
+                        resolve();
+                    });        
                 });
             });
         },
@@ -315,18 +330,10 @@ export default {
         
     },
     beforeMount() {
-        this.$vs.loading();
-        SincDataDB.getAll().then((sinData) => {
-            this.tabelasSincronizacao = _.orderBy(sinData, ['order']);
-            this.sincImagemObject = this.tabelasSincronizacao.find((sincTab) => sincTab.type === "imagem" );
-            SincUtils.verificaProdutosSemImagens().then((result) => {
-                this.downloadImagem = result;
-                this.$vs.loading.close();
-            });        
-        });
-    },
-    mounted() {
         
+    },
+    async mounted() {
+        await this.carregaItensTela();
     },
     errorCaptured(err, vm, info) {
         ErrorDB._criarLog({err, vm, info});

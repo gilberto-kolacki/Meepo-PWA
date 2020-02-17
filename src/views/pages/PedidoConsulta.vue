@@ -6,8 +6,9 @@
             </template> -->
             <template slot="thead">
                 <vs-th class="th-acoes">Ações</vs-th>
-                <vs-th sort-key="cnpj" style="width: 25%">CNPJ</vs-th>
+                <vs-th sort-key="cnpj" style="width: 30%">CNPJ</vs-th>
                 <vs-th sort-key="nome">Nome</vs-th>
+                <vs-th sort-key="dataEmbarque" style="width: 15%">Embarque</vs-th>
                 <vs-th sort-key="status" style="width: 20%" >Status</vs-th>
             </template> 
             <template slot-scope="{data}">
@@ -22,11 +23,14 @@
                             </div>
                         </div>
                     </vs-td>
-                    <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
+                    <vs-td :data="data[indextr].cliente.cpfCnpj">
                         {{ data[indextr].cliente.cpfCnpj | cpfCnpj }}
                     </vs-td>
-                    <vs-td :data="data[indextr]" v-if="data[indextr].cliente">
+                    <vs-td :data="data[indextr].cliente.nome">
                         {{ data[indextr].cliente.nome | capitalize }}
+                    </vs-td>
+                    <vs-td :data="data[indextr].dataEmbarque">
+                        {{ data[indextr].dataEmbarque | formatDate }}
                     </vs-td>
                     <vs-td :data="data[indextr]" v-if="data[indextr].status">
                         <vs-chip :color="getStatusColor(data[indextr].status)" class="product-order-status">{{ getNameStatus(data[indextr].status) }}</vs-chip>
