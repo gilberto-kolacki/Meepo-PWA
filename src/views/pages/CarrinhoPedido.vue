@@ -34,6 +34,15 @@
                                 class="w-full btn-line-group-rapid"
                                 icon="icon-search"                                    
                                 @click.stop="abrirPesquisaCliente()"
+                                style="border-radius:0px"
+                            ></vs-button>
+                            <vs-button 
+                                @click="abrirClienteNovo()" 
+                                class="w-full btn-line-group-rapid"
+                                color="success" 
+                                type="filled" 
+                                icon-pack="feather" 
+                                icon="icon-plus"
                             ></vs-button>
                         </vs-col>
                     </div>
@@ -314,6 +323,9 @@ export default {
         },
         voltarCarrinho() {
             this.$router.go(-1);
+        },
+        abrirClienteNovo() {
+            this.$router.push('./cliente/cadastro');
         },
         abrirPesquisaCliente() {
 			this.$bvModal.show(this.idPopUpSearch);

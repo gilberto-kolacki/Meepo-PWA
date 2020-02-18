@@ -1,7 +1,8 @@
 <template>
 	<div id="page-catalogo-add" class="page-catalogo-add">
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-plus" @click="addReferenciaCarrinho()">Adicionar</vs-button>
-        <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
+        <vs-button class="btn-cancel" v-if="this.$route.params.edit" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
+        <vs-button class="btn-cancel" v-else color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
         <div class='vx-row' v-if="this.showPrevia">
             <vx-card class="mb-4 w-full">
                 <div slot="no-body">
@@ -202,7 +203,7 @@ export default {
         },
         voltarCatalogo() {
             this.$router.push({ name: this.$route.params.tela, 
-                params: {pag: this.$route.params.pag}
+                params: {pag: this.$route.params.pag, edit: this.$route.params.edit ? true : false, segmento:this.produtos[0].segmento[0]}
             });
         },
         atualizaQuantidadeItens(tamanho) {

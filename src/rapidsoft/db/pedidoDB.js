@@ -41,6 +41,7 @@ class pedidoDB extends BasicDB {
         return new Promise((resolve) => {
             this._getById(pedido._id, true).then((pedidoById) => {
                 if (pedidoById.existe) {
+                    pedidoById.value.itens = pedido.itens;
                     pedidoById.value.status = pedido.status;
                     pedidoById.value.cliente = pedido.cliente;
                     pedidoById.value.grupoCliente = pedido.grupoCliente;
