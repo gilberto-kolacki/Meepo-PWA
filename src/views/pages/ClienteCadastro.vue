@@ -912,7 +912,13 @@ export default {
             this.$vs.loading.close();
         },
         cancelarCliente() {
-            this.$router.push('/cliente/consulta');            
+            if (this.carrinhoCliente) {
+                this.$router.push({ name: 'carrinhoPedido',
+                    params: {pedidoEmbarques: this.$route.params.pedidoEmbarques}
+                });
+            } else {
+                this.$router.push('/cliente/consulta');
+            }
         },
         findById(idCliente) {
             return new Promise((resolve) => {
