@@ -30,15 +30,6 @@
                                 class="w-full btn-line-group-rapid"
                                 icon="icon-search"                                    
                                 @click.stop="abrirPesquisaCliente()"
-                                style="border-radius:0px"
-                            ></vs-button>
-                            <vs-button 
-                                @click="abrirClienteNovo()" 
-                                class="w-full btn-line-group-rapid"
-                                color="success" 
-                                type="filled" 
-                                icon-pack="feather" 
-                                icon="icon-plus"
                             ></vs-button>
                         </vs-col>
                     </div>
@@ -47,7 +38,7 @@
                             <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedido.cliente.emailNfe" class="w-full" type="email" inputmode="email" />
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
-                            <vs-input label="Grupo Cliente" id="grupoCliente" name="grupoCliente" v-model="pedido.cliente.grupoCliente.nome" disabled class="w-full" type="text" />
+                            <vs-input label="Grupo Cliente" id="grupoCliente" name="grupoCliente" v-model="pedido.grupoCliente.nome" disabled class="w-full" type="text" />
                         </vs-col>
                     </div>
                     <div class="vx-row">
@@ -214,6 +205,7 @@ import ErrorDB from '../../rapidsoft/db/errorDB'
 import SearchCliente  from '../../rapidsoft/components/SearchCliente';
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
 import ClienteDB from "../../rapidsoft/db/clienteDB";
+import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
 
 export default {
     data() {
@@ -279,7 +271,7 @@ export default {
             this.pedido.endEntrega['idCidade'] =  this.enderecoEntregaSelecionado.endereco['idCidade'];
         },
         getLabelEndereco(endereco) {
-            return endereco ? endereco.endereco +', Nº'+ endereco.numero +' - CEP: '+ endereco.cep : null;
+            return endereco ? endereco.endereco + '- CEP: '+ endereco.cep : null;
         },
         mensagemMudarParaDigitacao(pedido) {
             this.$vs.dialog({
@@ -323,10 +315,6 @@ export default {
             this.pedido.cliente = cliente;
         },
 
-        abrirClienteNovo() {
-            this.$router.push('./cliente/cadastro');
-        },
-
         abrirPesquisaCliente() {
             this.$bvModal.show(this.idPopUpSearch);
         },
@@ -360,17 +348,24 @@ export default {
 			return new Promise((resolve) => {
                 PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
                     ClienteDB.findById(pedido.cliente.id).then((cliente) => {
-                        pedido.cliente = cliente;
-                        this.pedido = pedido;
-                        this.itensPedido = this.pedido.itens;
-                        FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
-                            this.formasPagto = dadosPagamento.formasDePagamento;
-                            this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
-                            this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
-                            this.isShow = true;
-                            resolve();
+                        GrupoClienteDB.findById(pedido.grupoCliente.id).then((grupoCliente) => {
+                            this.grupoCliente = grupoCliente;
+                            pedido.cliente = cliente;
+                            this.pedido = pedido;
+                            this.itensPedido = this.pedido.itens;
+                            FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
+                                this.formasPagto = dadosPagamento.formasDePagamento;
+                                this.enderecoEntregaSelecionado = {
+                                    label: this.getLabelEndereco(this.pedido.endEntrega),
+                                };
+                                this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
+                                this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
+                                this.isShow = true;
+                                resolve();
+                            });
                         });
-                    })
+                        
+                    });
                 });
             });
         },

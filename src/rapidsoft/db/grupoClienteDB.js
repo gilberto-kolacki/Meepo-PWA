@@ -30,6 +30,19 @@ class grupoClienteDB extends BasicDB {
         });
     }
 
+    findById(idGrupo) {
+        console.log('idGrupo ',idGrupo);
+        
+        return new Promise((resolve) => {
+            this._getById(idGrupo).then((result) => {
+                console.log(`result `, result.value);
+                resolve(result.value);
+            });
+            // this._getFindCondition({id : {$eq : idGrupo}}).then((result) => {
+            // });
+        });
+    }
+
     getGrupoPadrao() {
         return new Promise((resolve) => {
             this._localDB.find({
