@@ -95,14 +95,6 @@
                                 v-model="segmentosCliente" 
                                 :options="this.getSegmentosCheckBox">
                             </v-select>
-                            <!-- v-validate="clienteEdit.clienteErp ? 'required' : ''" -->
-                            <!-- <v-select 
-                                v-else
-                                multiple v-validate="'required'" 
-                                id="segmento" name="segmento" 
-                                v-model="segmentosCliente" 
-                                :options="this.getSegmentosCheckBox">
-                            </v-select> -->
                             <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
                         </div>
                     </div>
@@ -912,7 +904,7 @@ export default {
             this.$vs.loading.close();
         },
         cancelarCliente() {
-            if (this.carrinhoCliente) {
+            if (this.$route.params.carrinhoCliente) {
                 this.$router.push({ name: 'carrinhoPedido',
                     params: {pedidoEmbarques: this.$route.params.pedidoEmbarques}
                 });
