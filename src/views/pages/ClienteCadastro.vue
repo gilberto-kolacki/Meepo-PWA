@@ -95,14 +95,6 @@
                                 v-model="segmentosCliente" 
                                 :options="this.getSegmentosCheckBox">
                             </v-select>
-                            <!-- v-validate="clienteEdit.clienteErp ? 'required' : ''" -->
-                            <!-- <v-select 
-                                v-else
-                                multiple v-validate="'required'" 
-                                id="segmento" name="segmento" 
-                                v-model="segmentosCliente" 
-                                :options="this.getSegmentosCheckBox">
-                            </v-select> -->
                             <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
                         </div>
                     </div>
@@ -443,17 +435,17 @@
 <script>
 
 import { Validator } from 'vee-validate';
-import validatePtBR from '../../rapidsoft/validate/validate_ptBR'
+import validatePtBR from '../../rapidsoft/validate/validate_ptBR';
 import Datepicker from 'vuejs-datepicker';
 import * as lang from "vuejs-datepicker/src/locale";
 import vSelect from 'vue-select';
-import _ from 'lodash'
-import ClienteDB from '../../rapidsoft/db/clienteDB'
-import CidadeDB from '../../rapidsoft/db/cidadeDB'
-import CidadeService from '../../rapidsoft/service/cidadeService'
-import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
-import ErrorDB from '../../rapidsoft/db/errorDB'
-import SegmentoDB from '../../rapidsoft/db/segmentoDB'
+import _ from 'lodash';
+import ClienteDB from '../../rapidsoft/db/clienteDB';
+import CidadeDB from '../../rapidsoft/db/cidadeDB';
+import CidadeService from '../../rapidsoft/service/cidadeService';
+import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
+import ErrorDB from '../../rapidsoft/db/errorDB';
+import SegmentoDB from '../../rapidsoft/db/segmentoDB';
 
 Validator.localize('pt', validatePtBR);
 
@@ -475,6 +467,7 @@ export default {
                 imagens: [],
                 segmentos: []
             },
+            carrinhoCliente: false,
             contatoEdit: {},
             enderecoEdit: {},
             isEditContato: false,
@@ -522,13 +515,12 @@ export default {
         segmentosCliente(val) {
             this.clienteEdit.segmentos = val.map((segmento) => {
                 return _.toString(segmento.value);
-            })
+            });
         },
-
     },
     computed:{
         getFilesFilter() {
-            return this.clienteEdit.imagens
+            return this.clienteEdit.imagens;
         },
         isJuridico() {
             if(this.tipoPessoa == 1) {
@@ -539,7 +531,7 @@ export default {
         },
         getCitySelect(){
             return this.listCidades.map((cidade) => {
-                return {value:cidade.idCidade, label:cidade.nome}
+                return {value:cidade.idCidade, label:cidade.nome};
             })
         },
         getGrupoClientesSelect() {
@@ -591,7 +583,7 @@ export default {
             const reader = new FileReader();
             reader.readAsDataURL(file); 
             reader.onloadend = function() {
-                callback(reader.result)
+                callback(reader.result);
             }
         },
         onFileChanged(event) {
@@ -624,7 +616,6 @@ export default {
             } else {
                 this.contatoEdit = contato;
                 this.indexEditContato = index;
-                // this.clienteEdit.contatos.splice(index, 1);
             }
             setTimeout(() => {
                 this.proximoCampo('nomeContato');
@@ -888,10 +879,15 @@ export default {
                         icon: 'icon-check'
                     });
                     this.$vs.loading.close();
-                    this.$router.push('/cliente/consulta');
+                    if (this.carrinhoCliente) {
+                        this.$router.push({ name: 'carrinhoPedido',
+                            params: {pedidoEmbarques: this.$route.params.pedidoEmbarques}
+                        });
+                    } else {
+                        this.$router.push('/cliente/consulta');
+                    }
                 }).catch((erro) => {
                     this.$vs.loading.close();
-                    // alert('erro ' + JSON.stringify(erro));
                     this.$validator.validate();
                     if (erro.campo) {
                         this.proximoCampo(erro.campo);
@@ -908,7 +904,13 @@ export default {
             this.$vs.loading.close();
         },
         cancelarCliente() {
-            this.$router.push('/cliente/consulta');            
+            if (this.$route.params.carrinhoCliente) {
+                this.$router.push({ name: 'carrinhoPedido',
+                    params: {pedidoEmbarques: this.$route.params.pedidoEmbarques}
+                });
+            } else {
+                this.$router.push('/cliente/consulta');
+            }
         },
         findById(idCliente) {
             return new Promise((resolve) => {
@@ -961,6 +963,11 @@ export default {
                                     resolve();
                                 });
                             } else {
+                                if (this.$route.params.carrinhoCliente) {
+                                    this.carrinhoCliente = true;
+                                } else {
+                                    this.carrinhoCliente = false;
+                                }
                                 setTimeout(() => {
                                     this.$vs.loading.close();
                                     this.proximoCampo('cpfCnpj');

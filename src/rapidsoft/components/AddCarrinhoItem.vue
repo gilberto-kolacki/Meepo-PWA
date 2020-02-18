@@ -59,6 +59,7 @@
                                     <td v-for="(tamanho, indexTamanho) in getTamanhosProduto" :key="indexTamanho" style="padding: 0.3rem;">
                                         <div v-if="(produtoAdd.cores[indexCor].tamanhos[indexTamanho] && produtoAdd.cores[indexCor].tamanhos[indexTamanho].ativo) && tamanho.ativo && produtoAdd.produtoAddCores[indexCor].ativo">
                                             <input 
+                                                @input="atualizarGrade(indexCor,indexTamanho)"
                                                 type="number" 
                                                 :class="'input-quantidade-tam-'+tamanho.codigo+ ' input-quantidade-cor-'+cor.codigo" 
                                                 v-model="produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho].quantidade" 
@@ -203,7 +204,7 @@ export default {
         },
         atualizarGrade(indexCor, indexTamanho) {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
-            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade);
+            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (Number(tamanho.quantidade) === 0 ? 0 :Number(tamanho.quantidade));
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },

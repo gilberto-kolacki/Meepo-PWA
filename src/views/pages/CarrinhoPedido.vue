@@ -325,7 +325,8 @@ export default {
             this.$router.go(-1);
         },
         abrirClienteNovo() {
-            this.$router.push('./cliente/cadastro');
+            let params = {carrinhoCliente:true, pedidoEmbarques: this.pedidoCapa};
+            this.$router.push({ name: 'clienteEditar', params: params });
         },
         abrirPesquisaCliente() {
 			this.$bvModal.show(this.idPopUpSearch);
