@@ -31,7 +31,7 @@
                 </div>
                 <div class="vx-col sm:w-1/3 w-full mb-2">
                     <label for="dataEmbarque" class="vs-input">
-                         <strong>Qtde Itens: </strong>
+                         <strong>Qtde Peças: </strong>
                     </label>
                     <div>
                         <p class="info_embarque">{{embarqueItem.quantidade}}</p>
