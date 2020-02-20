@@ -1,9 +1,9 @@
 #loading-bg{
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100vh;
   background: #FFF;
   display: block;
-  position: absolute;
+  /* position: absolute; */
 }
 .loading-logo{
   position: absolute;

@@ -13,12 +13,14 @@ class orcamentoDB extends BasicDB {
     constructor() {
         super("orcamento", true);
         this._createIndex('id');
+        this._createIndex('alterado');
     }
 
     salvar(orcamento) {
         return new Promise((resolve) => {
             
             const salva = (orcamento) => {
+                orcamento.alterado = true;
                 this._salvar(orcamento).then(() => {
                     resolve();
                 });
@@ -50,7 +52,11 @@ class orcamentoDB extends BasicDB {
     deletar(orcamento) {
         return new Promise((resolve) => {
             this._localDB.remove(orcamento).then(() => {
-                resolve();
+                this._remoteDB.get(orcamento.id).then((orcamentoRemote) => {
+                    this._remoteDB.remove(orcamentoRemote).then(() => {
+                        resolve();
+                    });
+                });
             }).catch((err) => {
                 this._criarLogDB({url:'db/orcamentoDB',method:'deletar',message: err,error:'Failed Request'});
                 resolve();

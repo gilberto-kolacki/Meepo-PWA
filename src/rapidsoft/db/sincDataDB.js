@@ -11,6 +11,7 @@ import BasicDB from './basicDB';
 const sincDados =  [
     {
         _id:"1",
+        id:"1",
         type:"cliente",
         titulo: "Clientes",
         methodo: "sincCliente",
@@ -22,6 +23,7 @@ const sincDados =  [
     },
     {
         _id:"3",
+        id:"3",
         type:"parametros",
         titulo: "Parâmetros",
         methodo: "sincParametro",
@@ -33,6 +35,7 @@ const sincDados =  [
     },
     {
         _id:"9",
+        id:"9",
         type:"cidade",
         titulo: "Cidades",
         methodo: "sincCidade",
@@ -44,6 +47,7 @@ const sincDados =  [
     },
     {
         _id:"10",
+        id:"10",
         type:"produto",
         titulo: "Produtos",
         methodo: "sincProduto",
@@ -55,6 +59,7 @@ const sincDados =  [
     },
     {
         _id:"11",
+        id:"11",
         type:"imagem",
         titulo: "Imagens",
         methodo: "sincImagem",
@@ -66,6 +71,7 @@ const sincDados =  [
     },
     {
         _id:"20",
+        id:"20",
         type:"pedido",
         titulo: "Pedidos",
         methodo: "sincPedido",
@@ -77,6 +83,7 @@ const sincDados =  [
     },
     {
         _id:"22",
+        id:"22",
         type:"orcamento",
         titulo: "Orcamentos",
         methodo: "sincOrcamento",

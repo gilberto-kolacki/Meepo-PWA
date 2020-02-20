@@ -100,7 +100,7 @@
                     </div>
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('enderecoTelefone')">
-                            <vs-input v-validate="'required|email'" label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="clienteEdit.emailNfe" class="w-full" type="email" />
+                            <vs-input v-validate="'required|email'" label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="clienteEdit.emailNfe" autocomplete="off" class="w-full" type="email" />
                             <span class="text-danger text-sm">{{ errors.first('emailNfe') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('cepEndereco')">
@@ -957,7 +957,6 @@ export default {
                             if (this.$route.params.clienteId) {
                                 this.findById(this.$route.params.clienteId).then(() => {
                                     setTimeout(() => {
-                                        this.$vs.loading.close();
                                         this.proximoCampo('cpfCnpj');
                                     }, 200);
                                     resolve();
@@ -969,11 +968,11 @@ export default {
                                     this.carrinhoCliente = false;
                                 }
                                 setTimeout(() => {
-                                    this.$vs.loading.close();
                                     this.proximoCampo('cpfCnpj');
                                 }, 200);
                                 resolve();
                             }
+                            document.getElementById('loading-bg').style.display = "none";
                         });
                     });
                 });
@@ -981,9 +980,6 @@ export default {
         },        
     },
     async mounted() {
-        if (this.$route.params.clienteId) {
-            this.$vs.loading();
-        }
         await this.carregaItensTela()
     },
     errorCaptured(err, vm, info) {

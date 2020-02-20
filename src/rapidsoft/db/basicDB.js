@@ -41,7 +41,7 @@ const create = (name, remote, callback) => {
                 const localDB = new PouchDB(dataBaseLocal, {revs_limit: 1, auto_compaction: true});
                 const dataBaseRemote = createDBRemote(dataBaseLocal);
                 if (dataBaseRemote) {
-                    const remoteDB = new PouchDB(dataBaseRemote, {skip_setup: true, ajax: {cache: false, timeout: 50000 }});
+                    const remoteDB = new PouchDB(dataBaseRemote, {skip_setup: true, auto_compaction: true, ajax: {cache: false, timeout: 50000 }});
                     callback(localDB, remoteDB);
                 }
             }
@@ -134,13 +134,17 @@ class basicDB {
 
     _limparBase() {
         return new Promise((resolve) => {
-            this._localDB.destroy().then(() => {
-                this.createBases();
+            if (this._localDB) {
+                this._localDB.destroy().then(() => {
+                    this.createBases();
+                    resolve();
+                }).catch((err) => {
+                    this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: err,error:'Failed Request'});
+                    resolve(err);
+                });
+            } else {
                 resolve();
-            }).catch((err) => {
-                this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: err,error:'Failed Request'});
-                resolve(err);
-            });
+            }
         });
     }
 
@@ -151,8 +155,13 @@ class basicDB {
                 this._localDB.put(value).then((result) => {
                     resolve(result.id);
                 }).catch((erro) => {
-                    console.log(erro);
-                    if (erro.name == "QuotaExceededError") {
+                    if (erro.status == 409) {
+                        this._getById(value.id, true).then((objectDB) => {
+                            this._salvar(objectDB.value).then(() => {
+                                resolve();
+                            });
+                        });
+                    } else if (erro.name == "QuotaExceededError") {
                         alert('QuotaExceededError');
                         console.log(erro);
                         reject(erro);
@@ -183,7 +192,7 @@ class basicDB {
     _getAll() {
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                const rows = resultDocs.rows.filter((row) => row.doc.language !== "query");
+                const rows = resultDocs.rows.filter((row) => row.doc.language !== "query" && row.doc.hasOwnProperty('id'));
                 resolve(rows.map((row) => row.doc));
             }).catch((err) => {
                 this._criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
@@ -257,14 +266,16 @@ class basicDB {
 
     async _createIndex(index) {
         try {
-            const result = await this._localDB.createIndex({
-                index: {
-                    fields: [index],
-                    name: index +'_'+ this._name,
-                    ddoc: '_'+index +'_'+ this._name,
-                }
-            });
-            if (result.result !== "exists") console.log(result);
+            if (this._localDB) {
+                const result = await this._localDB.createIndex({
+                    index: {
+                        fields: [index],
+                        name: index +'_'+ this._name,
+                        ddoc: '_'+index +'_'+ this._name,
+                    }
+                });
+                if (result.result !== "exists") console.log(result);
+            }
         } catch (err) {
             console.log(err);
         }
@@ -272,45 +283,47 @@ class basicDB {
 
     async _createIndexes(indices, indexName) {
         try {
-            const result = await this._localDB.createIndex({
-                index: {
-                    fields: indices,
-                    name: indexName +'_'+ this._name,
-                    ddoc: '_'+indexName +'_'+ this._name,
-                    type: 'json',
-                }
-            });
-            if (result.result !== "exists") console.log(result);
+            if (this._localDB) {
+                const result = await this._localDB.createIndex({
+                    index: {
+                        fields: indices,
+                        name: indexName +'_'+ this._name,
+                        ddoc: '_'+indexName +'_'+ this._name,
+                        type: 'json',
+                    }
+                });
+                if (result.result !== "exists") console.log(result);
+            }
         } catch (err) {
             console.log(err);
         }
     }
-    
-    _sincNuvem() {
-        return new Promise((resolve) => {
-            if (window.navigator.onLine) {
-                this._localDB.replicate.to(this._remoteDB).then((result) => {
-                    if (result.ok) {
-                        this._localDB.replicate.from(this._remoteDB).then((result) => {
-                            if (result.ok) {
-                                resolve();
-                            } else {
-                                this._sincNuvem().then(() => {
-                                    resolve();
-                                });
-                            }
-                        });
-                    } else {
-                        this._sincNuvem().then(() => {
-                            resolve();
-                        });
-                    }
-                });
-            } else {
-                resolve();
-            }
-        });
-    }
+
+    // _sincNuvem() {
+    //     return new Promise((resolve) => {
+    //         if (window.navigator.onLine) {
+    //             this._localDB.replicate.to(this._remoteDB).then((result) => {
+    //                 if (result.ok) {
+    //                     this._localDB.replicate.from(this._remoteDB).then((result) => {
+    //                         if (result.ok) {
+    //                             resolve();
+    //                         } else {
+    //                             this._sincNuvem().then(() => {
+    //                                 resolve();
+    //                             });
+    //                         }
+    //                     });
+    //                 } else {
+    //                     this._sincNuvem().then(() => {
+    //                         resolve();
+    //                     });
+    //                 }
+    //             });
+    //         } else {
+    //             resolve();
+    //         }
+    //     });
+    // }
 
     // logs
     __salvarErro(value) {
@@ -366,30 +379,85 @@ class basicDB {
         });
     }
 
+    //Sinc counch DB
+    _sincNuvem() {
+        return new Promise((resolve) => {
+            if (window.navigator.onLine && this._remoteDB) {
+                this._sincToNuvem().then(() => {
+                    this._sincFromNuvem().then(() => {
+                        resolve();        
+                    });
+                });
+            } else {
+                resolve();
+            }
+        });
+    }
+
     _sincToNuvem() {
         return new Promise((resolve) => {
-            resolve();
+            try {
+                this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                    const objectsLocal = resultDocs.rows.map((row) => row.doc).filter((doc) => doc.alterado);
+                    if (objectsLocal.length > 0) {
+                        const done = _.after(objectsLocal.length, () => resolve());      
+                        objectsLocal.forEach(object => {
+                            delete object._rev;
+                            this._remoteDB.put(object).then(() => {
+                                done();
+                            }).catch((error) => {
+                                if (error.status == 409 ) {
+                                    this._remoteDB.get(object._id).then((objectRemote) => {
+                                        object._rev = objectRemote._rev;
+                                        this._remoteDB.put(object).then(() => {
+                                            done();
+                                        });
+                                    });
+                                } else {
+                                    this._criarLogDB({url: this._localDB.name, method:'sincFromNuvem', message: error, error:'Failed Request'});
+                                    done();
+                                }
+                            });
+                        });
+                    } else {
+                        resolve();
+                    }
+                }).catch((err) => {
+                    this._criarLogDB({url: this._localDB.name, method:'sincFromNuvem', message: err, error:'Failed Request'});
+                    resolve();
+                });
+            } catch (error) {
+                console.log(error);
+                resolve();
+            }
         });
     }
 
     _sincFromNuvem() {
         return new Promise((resolve) => {
-            this._remoteDB.allDocs({include_docs: true}).then((resultDocs) => {
-                const objectsNuvem = resultDocs.rows.map((row) => row.doc);
-                if (objectsNuvem.length > 0) {
-                    const done = _.after(objectsNuvem.length, () => resolve());      
-                    objectsNuvem.forEach(clienteNuvem => {
-                        this._salvar(clienteNuvem).then(() => {
-                            done();
+            try {
+                this._remoteDB.allDocs({include_docs: true}).then((resultDocs) => {
+                    const objectsNuvem = resultDocs.rows.map((row) => row.doc);
+                    if (objectsNuvem.length > 0) {
+                        const done = _.after(objectsNuvem.length, () => resolve());      
+                        objectsNuvem.forEach(objectNuvem => {
+                            this._localDB.put(objectNuvem).then(() => {
+                                done();
+                            }).catch(() => {
+                                done();
+                            });
                         });
-                    });
-                } else {
+                    } else {
+                        resolve();
+                    }
+                }).catch((err) => {
+                    this._criarLogDB({url: this._localDB.name, method:'sincFromNuvem', message: err, error:'Failed Request'});
                     resolve();
-                }
-            }).catch((err) => {
-                this._criarLogDB({url: this._localDB.name, method:'sincFromNuvem', message: err, error:'Failed Request'});
+                });
+            } catch (error) {
+                console.log(error);
                 resolve();
-            });
+            }
         });
     }
 

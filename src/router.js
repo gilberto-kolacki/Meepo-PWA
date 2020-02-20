@@ -20,9 +20,30 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import auth from "./rapidsoft/auth/authService";
-import UsuarioDB from './rapidsoft/db/usuarioDB';
+import ClienteDB from './rapidsoft/db/clienteDB';
+import PedidoDB from './rapidsoft/db/pedidoDB';
+import OrcamentoDB from './rapidsoft/db/orcamentoDB';
+import ErrorDB from './rapidsoft/db/errorDB';
 
 Vue.use(Router);
+
+const syncNuvem = () => {
+    return new Promise((resolve) => {
+        if (window.navigator.onLine) {
+            ClienteDB._sincNuvem().then(() => {
+                OrcamentoDB._sincNuvem().then(() => {
+                    PedidoDB._sincNuvem().then(() => {
+                        ErrorDB._sincNuvem().then(() => {
+                            resolve();
+                        });
+                    });
+                });
+            });
+        } else {
+            resolve();
+        }
+    });
+}
 
 const router = new Router({
     mode: 'history',
@@ -101,7 +122,7 @@ const router = new Router({
                         navBar: true,
                     },
                 },
-            {
+                {
 					path: '/pedido/cadastro',
 					name: 'pedidoCadastro',
 					component: () => import('./views/pages/PedidoCadastro.vue'),
@@ -251,26 +272,22 @@ const router = new Router({
 
 router.afterEach(() => {
     // Remove initial loading
-    const appLoading = document.getElementById('loading-bg')
+    const appLoading = document.getElementById('loading-bg');
     if (appLoading) {
-        appLoading.style.display = "none";
+        setTimeout(() => {
+            appLoading.style.display = "none";
+        }, 3000);
     }
-})
+});
 
 router.beforeEach((to, from, next) => {
+    document.getElementById('loading-bg').style.display = null;
     if(to.matched.some(record => record.meta.requiresAuth)) {
         if(auth.isAuthenticated()) {
+            syncNuvem();
             next();
         } else {
-            UsuarioDB.onAuthStateChanged().then(() => {
-                if (auth.isAuthenticated()) {
-                    next();
-                } else {
-                    next('/login');
-                }
-            }).catch(() => {
-                next('/login');
-            });
+            next('/login');
         }
     } else {
         if (to.name === "login" && auth.isAuthenticated()) {

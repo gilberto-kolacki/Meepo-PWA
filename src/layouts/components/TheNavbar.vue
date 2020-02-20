@@ -161,46 +161,6 @@ export default {
             // e.stopPropogation();
             this.$store.dispatch('updateStarredPage', { index: item.index, val: !item.highlightAction });
         },
-        showNavbarSearch() {
-            this.showFullSearch = true;
-        },
-        showSearchbar() {
-            this.showFullSearch = true;
-        },
-        elapsedTime(startTime) {
-            let x = new Date(startTime);
-            let now = new Date();
-            var timeDiff = now - x;
-            timeDiff /= 1000;
-
-            var seconds = Math.round(timeDiff);
-            timeDiff = Math.floor(timeDiff / 60);
-
-            var minutes = Math.round(timeDiff % 60);
-            timeDiff = Math.floor(timeDiff / 60);
-
-            var hours = Math.round(timeDiff % 24);
-            timeDiff = Math.floor(timeDiff / 24);
-
-            var days = Math.round(timeDiff % 365);
-            timeDiff = Math.floor(timeDiff / 365);
-
-            var years = timeDiff;
-
-            if (years > 0) {
-                return years + (years > 1 ? ' Years ' : ' Year ') + 'ago';
-            } else if (days > 0) {
-                return days + (days > 1 ? ' Days ' : ' Day ') + 'ago';
-            } else if (hours > 0) {
-                return hours + (hours > 1 ? ' Hrs ' : ' Hour ') + 'ago';
-            } else if (minutes > 0) {
-                return minutes + (minutes > 1 ? ' Mins ' : ' Min ') + 'ago';
-            } else if (seconds > 0) {
-                return seconds + (seconds > 1 ? `${seconds} sec ago` : 'just now');
-            }
-
-            return 'Just Now'
-        },
         outside: function() {
             this.showBookmarkPagesDropdown = false
         },

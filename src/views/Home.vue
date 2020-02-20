@@ -105,9 +105,7 @@
 
 <script>
 
-import ClienteDB from '../rapidsoft/db/clienteDB';
 import PedidoDB from '../rapidsoft/db/pedidoDB';
-import ErrorDB from '../rapidsoft/db/errorDB';
 import Storage from '../rapidsoft/utils/storage';
 
 export default {
@@ -145,19 +143,12 @@ export default {
         },
         carregaItensTela() {
             return new Promise((resolve) => {
-                document.getElementById('loading-bg').style.display = null;
-                ClienteDB._sincNuvem().then(() => {
-                    PedidoDB._sincNuvem().then(() => {
-                        ErrorDB._sincNuvem().then(() => {
-                            PedidoDB.existePedidoEmDigitacao().then((result) => {
-                                this.pedidosEmDigitacao = result;
-                                this.carrinho = Storage.getCarrinho();   
-                                this.showScreen = true;
-                                document.getElementById('loading-bg').style.display = "none";
-                                resolve();
-                            });
-                        });
-                    });
+                PedidoDB.existePedidoEmDigitacao().then((result) => {
+                    this.pedidosEmDigitacao = result;
+                    this.carrinho = Storage.getCarrinho();   
+                    this.showScreen = true;
+                    document.getElementById('loading-bg').style.display = "none";
+                    resolve();
                 });
             });
         }

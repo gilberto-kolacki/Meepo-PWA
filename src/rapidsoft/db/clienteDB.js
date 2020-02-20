@@ -210,7 +210,7 @@ class clienteDB extends BasicDB {
             this._getById(idCliente,true).then((clienteById) => {
                 if (clienteById.existe) {
                     clienteById.value.enderecos.push(endereco);
-                    clienteById.value.clienteAlterado = true;
+                    clienteById.value.alterado = true;
                     this._salvar(clienteById.value).then(() => {
                         resolve();
                     });
@@ -224,7 +224,7 @@ class clienteDB extends BasicDB {
             this._getById(idCliente,true).then((clienteById) => {
                 if (clienteById.existe) {
                     clienteById.value.contatos.push(contato);
-                    clienteById.value.clienteAlterado = true;
+                    clienteById.value.alterado = true;
                     this._salvar(clienteById.value).then(() => {
                         resolve();
                     })
@@ -238,9 +238,9 @@ class clienteDB extends BasicDB {
             this._getById(cliente._id,true).then((clienteById) => {
                 if (clienteById.existe) {
                     clienteById.value.enderecos.map((endereco,index) => {
-                        endereco['principal'] = cliente.enderecos[index].principal
+                        endereco.principal = cliente.enderecos[index].principal;
                     });
-                    clienteById.value.clienteAlterado = true; 
+                    clienteById.value.alterado = true; 
                     this._salvar(clienteById.value).then(() => {
                         resolve();
                     });
@@ -263,7 +263,7 @@ class clienteDB extends BasicDB {
                 cliente.nome = (cliente.nomeFantasia ? cliente.nomeFantasia : cliente.razaoSocial).toUpperCase();
             }
             cliente.clienteErp = true;
-            cliente.clienteAlterado = false;
+            cliente.alterado = false;
             this._salvar(cliente).then(() => {
                 resolve();
             }).catch((erro) => {
@@ -322,16 +322,13 @@ class clienteDB extends BasicDB {
     }
 
     deletar(idCliente) {
-        
         return new Promise((resolve, reject) => {
-            // this._localDB.remove(idCliente).then((result) => {
-            //     resolve(result);
-            // }).catch((err) => {
-            //     this._criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
-            //     reject(err);
-            // });
             this._deletar(idCliente).then((result) => {
-                resolve(result);
+                this._remoteDB.get(idCliente).then((objectRemote) => {
+                    this._remoteDB.remove(objectRemote).then(() => {
+                        resolve(result);
+                    });
+                });
             }).catch((err) => {
                 this._criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
                 reject(err);
@@ -365,7 +362,7 @@ class clienteDB extends BasicDB {
             if (this._localDB) {
                 this._localDB.find({
                     selector: {
-                        clienteAlterado: {$eq: true}
+                        alterado: {$eq: true}
                     },
                 }).then((result) => {
                     resolve(result.docs);
@@ -414,31 +411,20 @@ class clienteDB extends BasicDB {
             const newPedidos = [];
             const done = _.after(pedidos.length, () => resolve(newPedidos));
             pedidos.forEach(pedido => {
+
+                console.log(pedido);
+                
                 this._getById(pedido.cliente.id).then((cliente) => {
-                    pedido.cliente = cliente.value;
+                    if (cliente.existe) {
+                        pedido.cliente = cliente.value;
+                    }
                     newPedidos.push(pedido);
                     done();
                 });
             });
-            
-            resolve(newPedidos);
         });
     }
-
-    _sincNuvem() {
-        return new Promise((resolve) => {
-            if (window.navigator.onLine && this._remoteDB) {
-                this._sincToNuvem().then(() => {
-                    this._sincFromNuvem().then(() => {
-                        resolve();        
-                    });
-                });
-            } else {
-                resolve();
-            }
-        });
-    }
-
+   
     getCidadesComClientes(estado) {
         return new Promise((resolve) => {
             this._localDB.find({

@@ -116,7 +116,7 @@ export default {
             this.tabelasSincronizacao.forEach(sinc => {        
                 sinc.parcial = 0;
                 sinc.percent = 0;
-                if (sinc.type !== "imagem") {
+                if (sinc.type !== "imagem" || sinc.type !== "orcamento") {
                     _.defer(() => this.sincronizar(sinc, true));
                 }
                 done();
@@ -307,7 +307,8 @@ export default {
 
         carregaItensTela() {
             return new Promise((resolve) => {
-                document.getElementById('loading-bg').style.display = null;
+                ClienteDB.createBases();
+                PedidoDB.createBases();
                 SincDataDB.getAll().then((sinData) => {
                     this.tabelasSincronizacao = _.orderBy(sinData, ['order']);
                     this.sincImagemObject = this.tabelasSincronizacao.find((sincTab) => sincTab.type === "imagem" );
@@ -334,6 +335,12 @@ export default {
     },
     async mounted() {
         await this.carregaItensTela();
+    },
+    beforeDestroy () {
+        const sincTotal = localStorage.getItem('sincTotal') ? JSON.parse(localStorage.getItem('sincTotal')) : false;
+        if (sincTotal == false) {
+            this.$router.push({ name: 'sincronizacao'});
+        }
     },
     errorCaptured(err, vm, info) {
         ErrorDB._criarLog({err, vm, info});

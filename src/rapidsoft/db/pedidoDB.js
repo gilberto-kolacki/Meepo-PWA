@@ -13,6 +13,7 @@ class pedidoDB extends BasicDB {
         super("pedido", true);
         this._createIndex('id');
         this._createIndex('status');
+        this._createIndex('alterado');
     }
 
     findLastId() {
@@ -85,13 +86,12 @@ class pedidoDB extends BasicDB {
         });
     }
 
-    salvar(value) {
+    salvar(pedido) {
         return new Promise((resolve, reject) => {
             try {
-                value._id = (value.id ? value.id : value._id).toString();
-                value._id = value._id.replace(/[^a-z0-9]/gi, "");
-                this._localDB.put(value).then((result) => {
-                    resolve(Number(result.id));
+                pedido.alterado = true;
+                this._salvar(pedido).then((result) => {
+                    resolve(result);
                 });
             } catch (err) {
                 reject(err);
@@ -117,6 +117,7 @@ class pedidoDB extends BasicDB {
         return new Promise((resolve) => {
             this.findLastId().then((idPedido) => {
                 pedido.id = idPedido;
+                pedido.alterado = true;
                 this._salvar(pedido).then(() => {
                     resolve();
                 }).catch((error) => {
@@ -175,34 +176,39 @@ class pedidoDB extends BasicDB {
     salvarSinc(pedido) {
         return new Promise((resolve) => {
             this.getPedido(pedido.id).then((object) => {
-                console.log(object);
-                
                 pedido._rev = object._rev;
-                pedido.cliente.id = String(pedido.cliente.id);
-                
-                console.log(pedido);
+                pedido.cliente = object.cliente;
                 this._salvar(pedido).then(() => {
-                    resolve();
+                    if (object.status < 50) {
+                        this._remoteDB.get(pedido.id).then((objectRemote) => {
+                            this._remoteDB.remove(objectRemote).then(() => {
+                                resolve();
+                            });
+                        });
+                    } else {
+                        resolve();
+                    }
                 });
             }).catch(() => {
                 resolve();
             });
         });
-    }
+    }    
 
-    _sincNuvem() {
-        return new Promise((resolve) => {
-            if (window.navigator.onLine && this._remoteDB) {
-                this._sincToNuvem().then(() => {
-                    this._sincFromNuvem().then(() => {
-                        resolve();        
+    deletar(idPedido) {
+        return new Promise((resolve, reject) => {
+            this._deletar(idPedido).then((result) => {
+                this._remoteDB.get(idPedido).then((objectRemote) => {
+                    this._remoteDB.remove(objectRemote).then(() => {
+                        resolve(result);
                     });
                 });
-            } else {
-                resolve();
-            }
+            }).catch((err) => {
+                this._criarLogDB({url:'db/pedidoDB',method:'deletar',message: err,error:'Failed Request'});
+                reject(err);
+            });
         });
-    }    
+    }
 
 }
 

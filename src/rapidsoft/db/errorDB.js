@@ -24,31 +24,5 @@ class errorDB extends BasicDB {
         });
     }
 
-    _sincNuvem() {
-        return new Promise((resolve) => {
-            if (window.navigator.onLine) {
-                this.sincToNuvem().then(() => {
-                    this.sincFromNuvem().then(() => {
-                        resolve();        
-                    });
-                });
-            } else {
-                resolve();
-            }
-        });
-    }
-
-    sincToNuvem() {
-        return new Promise((resolve) => {
-            resolve();
-        });
-    }
-
-    sincFromNuvem() {
-        return new Promise((resolve) => {
-            resolve();
-        });
-    }
-
 }
 export default new errorDB();

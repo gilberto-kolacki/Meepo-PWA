@@ -1,5 +1,5 @@
 <template>
-    <div id="page-orders">
+    <div id="page-orders" v-if="this.showScreen">
         <vs-table pagination max-items="10" search :data="pedidos">            
             <!-- <template slot="header">
                 <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editar(null)">Novo</vs-button>
@@ -51,6 +51,7 @@ export default {
     data() {
         return { 
             pedidos: [],
+            showScreen: false,
         }
     },
     methods: {
@@ -71,8 +72,11 @@ export default {
         },
         listar() {
             return new Promise((resolve) => {
-                document.getElementById('loading-bg').style.display = null;
                 PedidoDB._getAll().then((result) => {
+
+                    console.log(result);
+                    
+                            // resolve();
                     ClienteDB.getClientesPedidos(result).then((pedidos) => {
                         this.pedidos = pedidos;
                         document.getElementById('loading-bg').style.display = 'none';
@@ -103,7 +107,7 @@ export default {
             });
         },
         deletar(pedido) {
-            PedidoDB._deletar(pedido._id).then(() => {
+            PedidoDB.deletar(pedido._id).then(() => {
                 this.notification('Excluído!','Pedido excluído com sucesso!','primary')
                 setTimeout(() => {
                     this.listar();
@@ -116,6 +120,7 @@ export default {
     },
     async created() {
         await this.listar();
+        this.showScreen = true;
     },
     mounted() {
         

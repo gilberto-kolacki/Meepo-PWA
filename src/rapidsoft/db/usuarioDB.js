@@ -7,7 +7,6 @@
 
 import store from '../../store/store';
 import SegmentoDB from './segmentoDB';
-import Auth from "../../rapidsoft/auth/authService";
 
 class usuarioDB {
 
@@ -28,24 +27,6 @@ class usuarioDB {
             this.limparBase().then(() => {
                 resolve();
             });
-        });
-    }
-
-    onAuthStateChanged() {
-        return new Promise((resolve) => {
-            const user = JSON.parse(localStorage.getItem('userInfo'));
-            store.dispatch('updateUserActive', user);
-            resolve(user);
-        });
-    }
-
-    isAuthenticated() {
-      return new Promise((resolve) => {
-            if(Auth.isAuthenticated()) {
-                resolve('/');
-            } else {
-                resolve({authenticated: false, path: '/login'});
-            }
         });
     }
 

@@ -77,10 +77,10 @@
                         </div>
                     </div>
                     <div class="vx-row mt-base-top3">
-                        <h6 class="title-ref" v-if="this.produtoA">Ref A: {{produtoA.referencia}}</h6>
-                        <h6 class="title-ref" v-if="this.produtoB">Ref B: {{produtoB.referencia}}</h6>
-                        <h6 class="title-ref" v-if="this.produtoC">Ref C: {{produtoC.referencia}}</h6>
-                        <h6 class="title-ref" v-if="this.produtoD">Ref D: {{produtoD.referencia}}</h6>
+                        <h6 class="title-ref" v-if="this.produtoA">Ref: {{produtoA.referencia}}</h6>
+                        <h6 class="title-ref" v-if="this.produtoB">Ref: {{produtoB.referencia}}</h6>
+                        <h6 class="title-ref" v-if="this.produtoC">Ref: {{produtoC.referencia}}</h6>
+                        <h6 class="title-ref" v-if="this.produtoD">Ref: {{produtoD.referencia}}</h6>
                         <div class="btn-group centex mt-base-top1 w-full">
                             <vs-button class="w-full" color="primary" icon="add_circle" @click.stop="addProduto()"></vs-button>
                             <vs-button class="w-full" color="rgb(123, 123, 123)" size="36px" icon="attach_money" @click.stop="viewPreco()"></vs-button>
@@ -213,9 +213,9 @@ export default {
         },
 
         viewPreco() {
-            let texto = 'REF A: ' + ProdutoUtils.calcularPreco(this.produtoA.cores[this.corSelecionada]);
+            let texto = 'REF: ' + ProdutoUtils.calcularPreco(this.produtoA.cores[this.corSelecionada]);
             if (this.produtoB) {
-                texto += '<br> REF B: ' + ProdutoUtils.calcularPreco(this.produtoB.cores[this.corSelecionada]);
+                texto += '<br> REF: ' + ProdutoUtils.calcularPreco(this.produtoB.cores[this.corSelecionada]);
             }
 
             this.$vs.notify({
@@ -346,7 +346,6 @@ export default {
         },
         carregaItensTela() {
             return new Promise((resolve) => {
-                document.getElementById('loading-bg').style.display = null;
                 this.paginaAtual = this.$route.params.pag ? this.$route.params.pag : null;
                 const idCategoria = this.filtro.categoria.id ? this.filtro.categoria.id : null;
                 ProdutoDB.getPaginasCatalogo(idCategoria).then(paginas => {

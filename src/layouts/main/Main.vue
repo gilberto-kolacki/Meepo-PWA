@@ -199,7 +199,7 @@ export default {
         this.setSidebarWidth();
         if(this.navbarColor == "#fff" && this.isThemeDark) {
             this.updateNavbarColor("#10163a")
-        }else {
+        } else {
             this.updateNavbarColor(this.navbarColor)
         }
         

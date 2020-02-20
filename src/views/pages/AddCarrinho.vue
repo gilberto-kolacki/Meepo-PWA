@@ -220,7 +220,6 @@ export default {
         },
         carregaItensTela() {
             return new Promise((resolve) => {
-                document.getElementById('loading-bg').style.display = null;
                 this.carrinho = Storage.getCarrinho();
                 ProdutoUtils.createProdutosAddCarrinho(this.$route.params.produtos).then((produtos) => {
                     ProdutoDB.getProdutosLook(produtos[0].produtosLook).then((produtosLook) => {

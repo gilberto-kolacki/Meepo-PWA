@@ -20,7 +20,7 @@ class catalogoDB extends BasicDB {
                 if(catalogos.length > 0) {
                     const done = _.after(catalogos.length, () => resolve());
                     catalogos.forEach(catalogo => {
-                        catalogo._id = _.toString(catalogo.idCatalogo);
+                        catalogo.id = String(catalogo.idCatalogo);
                         const categorias = catalogo.paginas.map((pagina) => {
                             return pagina.produtos.map((produto) => {
                                 return produto.cat;

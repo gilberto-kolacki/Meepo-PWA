@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import router from '@/router';
 import UsuarioDB from '../db/usuarioDB';
+import store from '../../store/store';
 
 const localStorageKey = 'token';
 const tokenExpiryKey = 'tokenExpiry';
@@ -26,14 +27,19 @@ class AuthService extends EventEmitter {
     }
 
     isAuthenticated() {
-        if (window.navigator.onLine === false) {
-            return true;
-        } else {
-            if(new Date(Date.now()) < new Date(parseInt(localStorage.getItem(tokenExpiryKey))) && localStorage.getItem(localStorageKey) != "") {
+        if (window.navigator.onLine) {
+            const user = JSON.parse(localStorage.getItem('userInfo'));
+            const dataExpiracaoToken = new Date(parseInt(localStorage.getItem(tokenExpiryKey)));
+            const token = localStorage.getItem(localStorageKey);
+            if(user && new Date(Date.now()) < dataExpiracaoToken && token != "") {
+                store.dispatch('updateUserActive', user);
+                
                 return true;
             } else {
                 return false;
             }
+        } else {
+            return true;
         }
     }
 }
