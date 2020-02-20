@@ -30,13 +30,13 @@ class sincUtils {
             sinc.tempoSincronizacao = sincResult.tempoSincronizacao;
 
             setTimeout(()=> {
+                sinc.ativo = false;
                 tela.$vs.loading.close("#button-with-loading-"+sinc.type+" > .con-vs-loading");
                 if (sinc.percent >= 99) sinc.percent = 100;
-                sinc.ativo = false;
                 if (all) {
                     if (sinc.type == "pedido") tela.$vs.loading.close();
                 } else {
-                    tela.$vs.loading.close();
+                    if (sinc.type != "produto") tela.$vs.loading.close();
                 }
             }, 1000);
         });
@@ -98,7 +98,7 @@ class sincUtils {
                     CidadeDB.salvar(estado).then(() => {
                         this.atuaizaParcialSinc(sinc, 1);
                         this.downloadCidadesFromData(sinc).then(() => resolve());
-                    })
+                    });
                 }).catch((error) => {
                     console.log(error);
                 }); 

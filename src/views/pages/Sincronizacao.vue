@@ -116,7 +116,7 @@ export default {
             this.tabelasSincronizacao.forEach(sinc => {        
                 sinc.parcial = 0;
                 sinc.percent = 0;
-                if (sinc.type !== "imagem" || sinc.type !== "orcamento") {
+                if (!(sinc.type == "imagem" || sinc.type == "orcamento")) {
                     _.defer(() => this.sincronizar(sinc, true));
                 }
                 done();
@@ -124,9 +124,7 @@ export default {
         },
         sincronizar(sinc, all = false) {
             if (this.sincAtivo) {
-                setTimeout(()=> {
-                    _.defer(() => this.sincronizar(sinc, true));
-                }, 2000);                
+                setTimeout(()=> _.defer(() => this.sincronizar(sinc, true)), 2000);                
             } else {
                 if(!sinc.ativo) {                    
                     sinc.ativo = true;
@@ -134,12 +132,11 @@ export default {
                     sinc.percent = 0;
                     sinc.inicio = Date.now();
                     SincUtils.openLoading(this, sinc);
-
                     if (sinc.methodo && sinc.methodo != "") {
                         this.sincAtivo = true;
                         _.defer(() => this[sinc.methodo](sinc, all));
                     } else {
-                        _.defer(() => SincUtils.closeLoading(this, sinc));
+                        SincUtils.closeLoading(this, sinc);
                     }
                 }
             }
@@ -173,13 +170,8 @@ export default {
                 sinc.total = produtos.length;
                 ProdutoDB._limparBase().then(() => {
                     const done = _.after(produtos.length, () => {
-                        SincUtils.verificaProdutosSemImagens().then((result) => {
-                            this.downloadImagem = result;
-                            if (this.downloadImagem.quantidade > 0) {
-                                _.defer(() => this.sincronizar(this.sincImagemObject, true));
-                            }
-                            SincUtils.closeLoading(this, sinc, all)
-                        });
+                        SincUtils.closeLoading(this, sinc, all);
+                        this.sincronizar(this.sincImagemObject, all);
                     });
                     produtos.forEach(produto => {
                         ProdutoDB.salvar(produto).then(() => {
@@ -292,7 +284,6 @@ export default {
         },
         sincOrcamento(sinc, all) {
             OrcamentoDB.buscaSinc().then((orcamentosSinc) => {
-                console.log(orcamentosSinc);
                 OrcamentoService.sincOrcamento(orcamentosSinc).then((orcamentos) => {
                     console.log(orcamentos);
                     if (orcamentos.length > 0) {
