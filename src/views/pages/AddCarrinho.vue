@@ -31,6 +31,7 @@
                 :idColapse="'accordion-ref-'+indexProd" 
                 :title="'Referencia '+(indexProd+1)" 
                 :index="indexProd"
+                :totalProdutos="produtos.length"
                 v-model="produtos[indexProd]"
                 @replica-todas-grades='replicarTodasGrades'
             >

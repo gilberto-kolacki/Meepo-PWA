@@ -120,6 +120,7 @@
                             icon="icon-check-square" 
                             @click="replicarGradeRef()"
                             class="w-full"
+                            v-if="this.totalProdutos > 1"
                         >
                             Replicar Grade Para Todas Referências
                         </vs-button>
@@ -160,6 +161,10 @@ export default {
             required: true,
         },
         index: {
+            type: Number,
+            required: true,
+        },
+        totalProdutos: {
             type: Number,
             required: true,
         }
