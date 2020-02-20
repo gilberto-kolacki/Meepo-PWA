@@ -219,15 +219,43 @@ class clienteDB extends BasicDB {
         });
     }
 
-    adicionarContatoSincronizado(contato,idCliente) {
+    getExistClienteNome(contatosList, contatoSave) { 
+        return _.find(contatosList, (contato) => contato.nome == contatoSave.nome);
+    }
+
+    removeContatoAntigo(contatosList, contatoSave, indexEdit) {
+        if (this.getExistClienteNome(contatosList, contatoSave)){
+            contatosList.splice(indexEdit, 1);
+        }
+        return contatosList;
+    }
+
+    setContatosList(contatosList, contatoSave, indexEdit) {
+        return new Promise((resolve) => {
+            contatosList = this.removeContatoAntigo(contatosList, contatoSave, indexEdit);
+            contatosList.push({
+                nome: contatoSave.nome,
+                cargo: contatoSave.cargo,
+                celular: contatoSave.celular,
+                email: contatoSave.email,
+                telefone: contatoSave.telefone,
+            });
+            resolve(contatosList);
+        });
+    }
+
+    adicionarContatoSincronizado(contato,idCliente,indexEdit = null) {
         return new Promise((resolve) => {
             this._getById(idCliente,true).then((clienteById) => {
                 if (clienteById.existe) {
-                    clienteById.value.contatos.push(contato);
+                    this.setContatosList(clienteById.value.contatos, contato, indexEdit).then((contatos) => {
+                        clienteById.value.contatos = contatos;
+                    });
                     clienteById.value.clienteAlterado = true;
                     this._salvar(clienteById.value).then(() => {
-                        resolve();
-                    })
+                        resolve(clienteById.value.contatos);
+                    });
+
                 }
             });
         });
