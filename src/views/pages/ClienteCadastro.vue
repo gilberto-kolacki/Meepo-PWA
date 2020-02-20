@@ -833,15 +833,18 @@ export default {
                 this.$set(this.clienteEdit, 'endereco', endereco);
             }
         },
+        adicionaContatoCliente() {
+            this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
+        },
         salvarContato() {          
             ClienteDB.validarContato(this.contatoEdit).then(() => {
                 this.contatoEdit.id = this.contatoEdit.id ? this.contatoEdit.id : 0;
-                if (this.indexEditContato !== null) {
-                    this.clienteEdit.contatos.splice(this.indexEditContato, 1);
-                }
-                this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
                 if (this.clienteEdit.clienteErp) {
-                    ClienteDB.adicionarContatoSincronizado(this.contatoEdit,this.clienteEdit._id);
+                    ClienteDB.adicionarContatoSincronizado(this.contatoEdit,this.clienteEdit._id,this.indexEditContato).then((contatos) => {
+                        this.clienteEdit.contatos = contatos;
+                    });
+                } else {
+                    this.adicionaContatoCliente();
                 }
                 this.isEditContato = false;
             }).catch((erro) => {
