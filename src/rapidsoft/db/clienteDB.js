@@ -104,10 +104,10 @@ const validarObjetoDB = (cliente) => {
                 retorno.campo = "dataAniversario";
                 reject(retorno);
             }
-            else if (cliente.registroGeral === undefined || cliente.registroGeral === "") {
-                retorno.campo = "registroGeral";
-                reject(retorno);
-            }
+            // else if (cliente.registroGeral === undefined || cliente.registroGeral === "") {
+            //     retorno.campo = "registroGeral";
+            //     reject(retorno);
+            // }
             cliente.pessoaJuridica = false;
             if (cliente.razaoSocial === undefined) {
                 cliente.razaoSocial = cliente.nome;
@@ -164,12 +164,12 @@ const validarObjetoDB = (cliente) => {
         }
         else if (!(_.isArray(cliente.contatos) && cliente.contatos.length >= 1)) {
             reject ({mensagem: "É necessário adicionar ao menos um contato!"});
-        }
-        else if (!(_.isArray(cliente.enderecos) && cliente.enderecos.length >= 1)) {
-                reject ({mensagem: "É necessário adicionar ao menos um endereço!"});
         } else {
             resolve(cliente);
         }
+        // else if (!(_.isArray(cliente.enderecos) && cliente.enderecos.length >= 1)) {
+        //     reject ({mensagem: "É necessário adicionar ao menos um endereço!"});
+        // }
     });
 };
 
@@ -280,7 +280,7 @@ class clienteDB extends BasicDB {
 
     salvarSinc(cliente) {
         return new Promise((resolve) => {
-            cliente.id = cliente.cpfCnpj;
+            cliente.id = cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
             if (cliente.enderecos.length == 0 && cliente.endereco) {
                 const enderecoEntrega = Object.assign({}, cliente.endereco);
                 enderecoEntrega.endEntrega = true;

@@ -177,7 +177,7 @@ class pedidoDB extends BasicDB {
         return new Promise((resolve) => {
             this.getPedido(pedido.id).then((object) => {
                 pedido._rev = object._rev;
-                pedido.cliente = object.cliente;
+                pedido.cliente.id = String(pedido.cliente.id);
                 this._salvar(pedido).then(() => {
                     if (object.status < 50) {
                         this._remoteDB.get(pedido.id).then((objectRemote) => {
