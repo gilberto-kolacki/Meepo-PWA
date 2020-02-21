@@ -197,10 +197,11 @@ export default {
             this.voltarCatalogo();
         },
         addReferenciaCarrinho() {
-            ProdutoUtils.calcularCarrinho(this.carrinho).then((carrinhoResult) => {
-                Storage.setCarrinho(carrinhoResult);
-				this.voltarCatalogo();
-            });
+            this.carrinho.valorTotal = _.round(this.carrinho.itens.reduce((total, item) => {
+                return total = total + (item.quantidade * ProdutoUtils.calcularPreco(item));
+            }, 0), 2);
+            Storage.setCarrinho(this.carrinho);
+			this.voltarCatalogo();
         },
         voltarCatalogo() {
             this.$router.push({ name: this.$route.params.tela, 
@@ -223,9 +224,9 @@ export default {
             return new Promise((resolve) => {
                 this.carrinho = Storage.getCarrinho();
                 ProdutoUtils.createProdutosAddCarrinho(this.$route.params.produtos).then((produtos) => {
+                    this.produtos = produtos;
                     ProdutoDB.getProdutosLook(produtos[0].produtosLook).then((produtosLook) => {
                         this.produtosDoLook = produtosLook;
-                        this.produtos = produtos;
                         this.showPrevia = true
                         this.somaPreviaValores();
                         this.isShow = true;

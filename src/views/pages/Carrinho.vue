@@ -3,7 +3,7 @@
 		<vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="showPedidos()">Pedidos</vs-button>
 		<vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltar()" icon="icon-x">Voltar</vs-button>
 		<b-tabs content-class="mt-5" justified v-if="this.showScreen" lazy no-fade >
-			<b-tab id="tab-embarques" :active="!isEdit ? true : false">
+			<!-- <b-tab id="tab-embarques" :active="!isEdit ? true : false">
 				<template v-slot:title>
 					<strong>
 						<feather-icon icon="BoxIcon" style="color:warning;" class="cursor-pointer"/>
@@ -15,11 +15,11 @@
 					@change-data-embarque="atualizaDataItensEmbarque"
 					:embarquesOption="this.embarquesOption" 
 				/>
-			</b-tab>
+			</b-tab> -->
 			<b-tab v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento" :active="isEdit && segmento.id === segmentoSelecionado" :id="'tab-item-'+segmento.id">
 				<template v-slot:title>
 					<strong>
-						<feather-icon icon="ServerIcon" style="color:warning;" class="cursor-pointer"/>
+						<feather-icon icon="BoxIcon" style="color:warning;" class="cursor-pointer"/>
 						{{segmento.nome}}
 					</strong>
 				</template>

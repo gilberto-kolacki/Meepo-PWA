@@ -87,16 +87,6 @@ class produtoDB extends BasicDB {
     }
 
     getTamanhosProdutoCarrinho(tamanhos, carrinho) {
-        // return new Promise((resolve) => {
-        //     const tamanhoResult = [];
-        //     const done = _.after(tamanhos.length, () => resolve(tamanhoResult));
-        //     tamanhos.forEach(tamanho => {
-        //         const itemQuantidade = carrinho.itens.find((item) => item.id === tamanho.id);
-        //         tamanho.quantidade = itemQuantidade ? itemQuantidade.quantidade : 0;
-        //         tamanhoResult.push(tamanho);
-        //         done();
-        //     });
-        // }); 
         return tamanhos.reduce((tamanhoResult, tamanho) => {
             const itemQuantidade = carrinho.itens.find((item) => item.id === tamanho.id);
             tamanho.quantidade = itemQuantidade ? itemQuantidade.quantidade : 0;
@@ -135,6 +125,11 @@ class produtoDB extends BasicDB {
             return produtosCor.concat(produtoCores);
         }, []);
     }
+    
+    getEmbarqueSelecionado(produto, carrinho) {
+        const item = carrinho.itens.find((itemCarrinho) => itemCarrinho.idProduto == produto.idProduto);
+        return item.embarqueSelecionado;
+    }
 
     getProdutosFromCarrinho(carrinho) {
         return new Promise((resolve) => {
@@ -147,11 +142,13 @@ class produtoDB extends BasicDB {
                 produtos.forEach(produto => {
                     produto.quantidade = this.getTotalCor(produto.tamanhos, carrinho);
                     produto.tamanhos = this.getTamanhosProdutoCarrinho(produto.tamanhos, carrinho);
+                    produto.embarqueSelecionado = this.getEmbarqueSelecionado(produto, carrinho);
                     ImagemDB.getFotoById(produto.imagem).then(imagem => {
                         produto.imagemPrincipal = imagem;
                         EmbarqueDB.getEmbarqueProduto(produto).then((embarque) => {
                             if (embarque) {
                                 produto.embarque = embarque.id;
+                                produto.embarqueSelecionado = produto.embarqueSelecionado ? produto.embarqueSelecionado : embarque.id;
                                 produto.segmento = produto.segmento;
                                 produtosCarrinho.push(produto);
                             }
@@ -215,18 +212,19 @@ class produtoDB extends BasicDB {
     getProdutosLook(produtosLook) {
         return new Promise((resolve) => {
             this._getFindCondition({referencia : {$in : produtosLook}}).then((produtos) => {
-                let ProdutosLook = [];
-                produtos.map((produto) => {
-                    this.getImagensProduto(produto).then((produtoImg) => {
-                        ProdutosLook.push ({
-                            id: produtoImg.referencia, 
-                            nome: produtoImg.nome, 
-                            img: produtoImg.cores[0].imagens[0].base64,
-                            produto: produtoImg
+                const produtosLook = [];
+                const done = _.after(produtos.length, () => resolve(produtosLook));
+                produtos.forEach(produto => {
+                    ImagemDB.getFotoPrincipal(produto).then((imagemProdutoPrincipal) => {
+                        produtosLook.push({
+                            id: produto.referencia, 
+                            nome: produto.nome, 
+                            img: imagemProdutoPrincipal,
+                            produto: produto
                         });
+                        done();
                     });
                 });
-                resolve(ProdutosLook);
             });
         });
     }

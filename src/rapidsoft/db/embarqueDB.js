@@ -80,7 +80,7 @@ class embarqueDB extends BasicDB {
 
     getValorEmbarque(itensEmbarque) {
         return itensEmbarque.reduce((total, item) => {
-            return total + item.precoCusto;
+            return total + item.precoCusto * item.quantidade;
         }, 0);
     }
 
@@ -100,7 +100,7 @@ class embarqueDB extends BasicDB {
                 embarque.condicaoPagamento = null;
                 embarque.quantidade = this.getQuantidadeEmbarque(embarque.itensPedido);
                 embarque.valor = this.getValorEmbarque(embarque.itensPedido);
-                embarque.totalBruto = _.round(embarque.quantidade * (embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor)), 2);
+                embarque.totalBruto = _.round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
                 done();
             });
         });

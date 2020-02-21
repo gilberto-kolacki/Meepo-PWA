@@ -103,13 +103,10 @@ class produtoUtils{
 
     calcularCarrinho(carrinho) {
         return new Promise((resolve) => {
-            carrinho.valorTotal = 0;
-            const done = _.after(carrinho.itens.length, () => resolve(carrinho));
-            carrinho.itens.forEach((item) => {
-                const precoProduto = this.calcularPreco(item);
-                carrinho.valorTotal = _.round(carrinho.valorTotal + (item.quantidade * precoProduto), 2);
-                done();
-            });
+            carrinho.valorTotal = carrinho.itens.reduce((total, item) => {
+                return total = total + (item.quantidade * this.calcularPreco(item));
+            }, 0);
+            resolve(carrinho);
         });
     }
 

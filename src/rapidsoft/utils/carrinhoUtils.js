@@ -39,7 +39,7 @@ class carrinhoUtils {
         return new Promise((resolve) => {
             const pedido = this.newPedido();
             pedido.listEmbarques = embarques.map((embarque) => {
-                embarque.itensPedido = itensCarrinho.filter((itemCarrinho) => itemCarrinho.embarque === embarque.id);
+                embarque.itensPedido = itensCarrinho.filter((itemCarrinho) => itemCarrinho.embarqueSelecionado === embarque.id);
                 return embarque;
             });
             resolve(pedido);
