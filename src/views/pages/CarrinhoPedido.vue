@@ -185,6 +185,8 @@ import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
 import OrcamentoDB from "../../rapidsoft/db/orcamentoDB";
 import vSelect from 'vue-select';
+import clienteDB from '../../rapidsoft/db/clienteDB';
+import grupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
 
 export default {
 	data: () => ({
@@ -237,6 +239,16 @@ export default {
             return this.condicoesPagto[idPedido];
         },
         selecionarEndereco() {
+            if(this.pedidoCapa.cliente.enderecos.length > 0){
+                const enderecoPrincipal = _.find(this.pedidoCapa.cliente.enderecos,['principal',true]);
+                if (enderecoPrincipal) {
+                    this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(enderecoPrincipal), endereco: enderecoPrincipal };
+                } else {
+                    this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco };
+                }
+            } else {
+                this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco};
+            }
             // console.log(this.pedidoCapa.endEntrega);
         },
         getLabelEndereco(endereco) {
@@ -322,7 +334,7 @@ export default {
             });
         },
         voltarCarrinho() {
-            this.$router.go(-1);
+            this.$router.push({name:'carrinho'});
         },
         abrirClienteNovo() {
             let params = {carrinhoCliente:true, pedidoEmbarques: this.pedidoCapa};
@@ -335,6 +347,7 @@ export default {
             this.pedidoCapa.cliente = cliente;
             this.pedidoCapa.emailNfe = cliente.emailNfe;
             this.pedidoCapa.endEntrega = _.find(this.getEnderecosEntrega, (end) => end.endereco.endEntrega ); 
+            this.selecionarEndereco();
         },
         carregaItensTela() {
 			return new Promise((resolve) => {
@@ -346,7 +359,7 @@ export default {
                             this.showScreen = true;
                             resolve();
                         });
-
+                        this.selecionarEndereco();
                         pedido.listEmbarques.forEach(embarque => {
                             embarque.formaPagamento = this.formasPagto[0];
                             this.condicoesPagto[embarque.id] = PedidoUtils.getCondicoesPagamentoEmbarqueCatalogo(this.formasPagto[0].condicoes, embarque.dataEmbarque);
@@ -356,13 +369,29 @@ export default {
                     });                    
                 })
             });
+        },
+
+        selecionaClienteNovo() {
+            this.pedidoCapa = this.$route.params.pedidoEmbarques;
+            if (this.$route.params.clienteSalvo) {
+                clienteDB.findById(this.$route.params.clienteSalvo).then((cliente) => {
+                    grupoClienteDB._getById(cliente.grupoCliente).then((grupoCliente) => {
+                        cliente.grupoCliente = grupoCliente.value;
+                        cliente.dataFundacao = cliente.dataFundacao.getTime();
+                        cliente.dataAniversario = cliente.dataAniversario.getTime();
+                        Storage.setClienteCarrinho(cliente);
+                        this.selectSearchCliente(cliente);
+                        this.selecionarEndereco();
+                    });
+                });
+            }
         }
     },
 	beforeCreate() {
     
     },
 	created() {
-        this.pedidoCapa = this.$route.params.pedidoEmbarques;        
+        this.selecionaClienteNovo();
     },
     beforeMount() {
     

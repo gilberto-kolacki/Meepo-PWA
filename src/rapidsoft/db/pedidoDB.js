@@ -175,12 +175,10 @@ class pedidoDB extends BasicDB {
     salvarSinc(pedido) {
         return new Promise((resolve) => {
             this.getPedido(pedido.id).then((object) => {
-                console.log(object);
                 
                 pedido._rev = object._rev;
                 pedido.cliente.id = String(pedido.cliente.id);
                 
-                console.log(pedido);
                 this._salvar(pedido).then(() => {
                     resolve();
                 });
