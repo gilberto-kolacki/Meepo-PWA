@@ -120,6 +120,7 @@ class produtoDB extends BasicDB {
                 produtoCor.imagem = cor.imagens[0].id;
                 produtoCor.tamanhos = cor.tamanhos;
                 produtoCor.categorias = cor.categorias;
+                produtoCor.embarques = cor.embarques;
                 return produtoCor;
             });
             return produtosCor.concat(produtoCores);

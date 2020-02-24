@@ -13,7 +13,7 @@ class embarqueDB extends BasicDB {
 
     constructor() {
         super("embarque");
-        this.indexes = ['id', 'idSegmento', 'produtos'];
+        this.indexes = ['id', 'idSegmento'];
         this._createIndexes(this.indexes, 'embarque_segmento');
     }
 
@@ -36,10 +36,8 @@ class embarqueDB extends BasicDB {
     getEmbarqueProduto(produto) {
         return new Promise((resolve) => {
             const grupo = Storage.getGrupoCarrinho();
-            this._getFindCondition({$and : [{id : {$in : grupo.embarques}}, {idSegmento : {$in : produto.segmento}}, {produtos : {$all : [produto.idProduto]}}]}).then((embarques) => {
-                const embarqueProduto = embarques.find((embarque) => embarque.produtos.some((idProduto) => idProduto === produto.idProduto));
-                resolve(embarqueProduto);
-            });
+            const embarques = _.intersection(grupo.embarques, produto.embarques);
+            this._getFindCondition({$and : [{id : {$in : embarques}}, {idSegmento : {$in : produto.segmento}}]}).then((embarques) => resolve(embarques[0]));
         });
     }
 

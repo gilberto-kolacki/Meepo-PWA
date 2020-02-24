@@ -57,7 +57,7 @@
                         <div class="flex carrinho-item" v-for="(produtoCor, indexItem) in getProdutosCarrinhoPorEmbarque(embarque.id)" :key="indexItem">
                             <div class="vx-col mx-3" style="justify-content:center;margin:auto">
                                 <div class="flex w-full items-center justify-center">
-                                    <vs-checkbox :id="produtoCor.idProduto" v-model="itensSelecionados" :vs-value="produtoCor.idProduto" />
+                                    <vs-checkbox :id="produtoCor.idProduto" v-model="itensSelecionados" :vs-value="produtoCor" />
                                 </div>
                             </div>
                             <div class="vx-col mx-1 w-1/6" style="justify-content:center; margin:auto">
@@ -155,7 +155,19 @@ export default {
 			return this.produtosCarrinho;
         },
         getArrayEmbarques() {
-            return Object.values(this.embarques);
+            const embarqueCarrinho = Object.values(this.embarques);
+            const embarques = this.itensSelecionados.reduce((embarques, item) => {
+                const embarque = embarqueCarrinho.find((embarque) => embarque.id === item.embarque);
+                return embarques.concat(embarqueCarrinho.reduce((embarquesArray, emb) => {
+                    if ((emb.dataInicio <= this.dataAtual || emb.dataFim < this.dataAtual)
+                            && (emb.dataInicio >= embarque.dataInicio || emb.dataFim <= embarque.dataFim)
+                                    && emb.id !== embarque.id || item.embarque != item.embarqueSelecionado) {
+                                        embarquesArray.push(emb.id);
+                    }
+                    return embarquesArray;
+                }, []))
+            }, []);
+            return embarqueCarrinho.filter((embarque) => embarques.some((emb) => emb === embarque.id));
         },
         getArrayEmbarquesProdutos() {
             return Object.values(this.embarques).filter((embarque) => {
@@ -164,15 +176,6 @@ export default {
         }
 	},
     methods: {
-        getEmbarquesSelect(embarque) {
-            const mapEmbarques = new Map(Object.entries(this.embarques));
-            const embarqueProduto = mapEmbarques.get(String(embarque))
-            
-            return [...mapEmbarques.values()].filter((emb) => {
-                return (emb.dataInicio > this.dataAtual || emb.dataFim < this.dataAtual) 
-                    && (emb.dataInicio >= embarqueProduto.dataInicio || emb.dataFim <= embarqueProduto.dataFim);
-            });
-        },
 		getTamanhosProduto(idProduto) {
 			return this.produtosCarrinho.find((produto) => produto.idProduto === idProduto).tamanhos;
         },
@@ -254,7 +257,7 @@ export default {
         setEmbarqueCarrinho(idEmbarque) {
             let itensCarrinho = Storage.getCarrinhoItens();
             itensCarrinho = itensCarrinho.map((produto) => {
-                if (this.itensSelecionados.some((selecionado) => selecionado === produto.idProduto)) produto.embarqueSelecionado = idEmbarque;
+                if (this.itensSelecionados.some((item) => item.idProduto === produto.idProduto)) produto.embarqueSelecionado = idEmbarque;                
                 return produto;
             });
             Storage.setCarrinhoItens(itensCarrinho);
@@ -278,7 +281,7 @@ export default {
         },
         moverItemEmbarque(idEmbarque) {
             this.produtosCarrinho = this.produtosCarrinho.map((produto) => {
-                if (this.itensSelecionados.some((selecionado) => selecionado === produto.idProduto)) produto.embarqueSelecionado = idEmbarque;
+                if (this.itensSelecionados.some((item) => item.idProduto === produto.idProduto)) produto.embarqueSelecionado = idEmbarque;
                 return produto;
             });
             this.setEmbarqueCarrinho(idEmbarque);
@@ -286,10 +289,8 @@ export default {
             this.notification('Movidos!', 'Itens Selecionados foram movidos para o Embarque','success');
         }
 	},
-	beforeCreate() {		
-        
-        
-	},
+	beforeCreate() {		                
+    },
 	created() {
         try {
             this.produtosCarrinho = this.produtos;
@@ -298,8 +299,7 @@ export default {
             console.log(error);
         }
 	},
-    mounted() {
-        
+    mounted() {        
     },
 	async errorCaptured(err, vm, info) {
         await ErrorDB._criarLog({ err, vm, info });
