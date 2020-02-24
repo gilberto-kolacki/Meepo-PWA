@@ -26,7 +26,6 @@
 				<carrinho-item
 					@show-add-carrinho="showAddCarrinho"
 					@edicao-item-carrinho="showEditCarrinho"
-					@atuliza-embarques="atulizaEmbarques"
 					@atualiza-lista-produtos="atualizaListaProdutos"
 					:segmento="segmento"
 					:embarques="getEmbarquesSegmento(segmento)"
@@ -100,14 +99,6 @@ export default {
 			this.$router.push({ name: 'carrinhoAdd', 
 				params: {tela: 'carrinho', produtos: [produto], pag: 0,edit:true}
 			});
-		},
-		atulizaEmbarques() {
-			EmbarqueDB.getInfosEmbarques(this.itensCarrinho).then((embarques) => {
-				PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
-					this.embarques = embarques;
-					this.$forceUpdate();
-				});
-			});  
 		},
 		atualizaDataItensEmbarque(embarque) {
 			const produtos = this.produtosSegmento[embarque.segmento];
