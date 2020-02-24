@@ -204,7 +204,7 @@ import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import SearchCliente  from '../../rapidsoft/components/SearchCliente';
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
-import ClienteDB from "../../rapidsoft/db/clienteDB";
+// import ClienteDB from "../../rapidsoft/db/clienteDB";
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
 
 export default {
@@ -285,7 +285,6 @@ export default {
                 parameters: pedido
             })
         },
-
         mensagemMudarParaEnviar(pedido) {
             this.$vs.dialog({
                 type:'confirm',
@@ -298,7 +297,6 @@ export default {
                 parameters: pedido
             });
         },
-
         mudarStatusPedido(pedido) {
             if (pedido.status === 20) {
                 pedido.status = 10;
@@ -329,10 +327,12 @@ export default {
                 this.pedido.brinde = true;
                 this.setBrinde();
             } else {
+                // FormaPagtoDB._getById()
                 this.condicaoDePagamentoSelecionada = {
                     value: this.formaDePagamentoSelecionada.condicoes[0].id,
                     label:this.formaDePagamentoSelecionada.condicoes[0].nome,
                 };
+                this.pedido.condicaoPagamento = this.condicaoDePagamentoSelecionada.value;
                 this.pedido.brinde = false;
                 this.temCondicaoDePagamento = true;
             }
@@ -347,10 +347,10 @@ export default {
         async carregaItensTela() {
 			return new Promise((resolve) => {
                 PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
-                    ClienteDB.findById(pedido.cliente.id).then((cliente) => {
+                    // ClienteDB.findById(pedido.cliente.id).then((cliente) => {
                         GrupoClienteDB.findById(pedido.grupoCliente.id).then((grupoCliente) => {
                             this.grupoCliente = grupoCliente;
-                            pedido.cliente = cliente;
+                            // pedido.cliente = cliente;
                             this.pedido = pedido;
                             this.itensPedido = this.pedido.itens;
                             FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
@@ -365,7 +365,7 @@ export default {
                             });
                         });
                         
-                    });
+                    // });
                 });
             });
         },

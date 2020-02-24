@@ -90,8 +90,6 @@ class pedidoDB extends BasicDB {
     salvar(pedido) {
         return new Promise((resolve, reject) => {
             try {
-                pedido.cliente.dataAniversario = pedido.cliente.dataAniversario.getTime();
-                pedido.cliente.dataFundacao = pedido.cliente.dataFundacao.getTime();
                 pedido.alterado = true;
                 this._salvar(pedido).then((result) => {
                     resolve(result);
