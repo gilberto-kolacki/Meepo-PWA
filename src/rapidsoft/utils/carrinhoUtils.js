@@ -38,10 +38,14 @@ class carrinhoUtils {
     setItensToPedidoEmbarques(embarques, itensCarrinho) {
         return new Promise((resolve) => {
             const pedido = this.newPedido();
-            pedido.listEmbarques = embarques.map((embarque) => {
-                embarque.itensPedido = itensCarrinho.filter((itemCarrinho) => itemCarrinho.embarqueSelecionado === embarque.id);
-                return embarque;
-            });
+            pedido.listEmbarques = embarques.reduce((listEmbarques, embarque) => {
+                 const itens = itensCarrinho.filter((itemCarrinho) => itemCarrinho.embarqueSelecionado === embarque.id);
+                 if (itens.length > 0) {
+                    embarque.itensPedido = itens;
+                    listEmbarques.push(embarque);
+                 }
+                 return listEmbarques;
+            }, []);
             resolve(pedido);
         });
     }
@@ -58,7 +62,7 @@ class carrinhoUtils {
         return new Promise((resolve) => {
             Storage.setIdOrcamentoCarrinho(orcamento.id);
             ClienteDB.findById(orcamento.cliente.id).then((cliente) => {
-                cliente.grupoCliente = orcamento.cliente.grupoCliente
+                cliente.grupoCliente = orcamento.cliente.grupoCliente;
                 Storage.setClienteCarrinho(cliente);
                 GrupoClienteDB.getById(orcamento.grupoCliente.id).then((grupoCliente) => {
                     Storage.setGrupoCarrinho(grupoCliente);

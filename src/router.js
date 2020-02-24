@@ -27,9 +27,10 @@ import ErrorDB from './rapidsoft/db/errorDB';
 
 Vue.use(Router);
 
-const syncNuvem = () => {
+const syncNuvem = (to) => {
     return new Promise((resolve) => {
-        if (window.navigator.onLine) {
+        const paginas = ['home', 'pedidoConsulta', 'clienteConsulta'];
+        if (window.navigator.onLine && paginas.indexOf(to) >= 0) {
             ClienteDB._sincNuvem().then(() => {
                 OrcamentoDB._sincNuvem().then(() => {
                     PedidoDB._sincNuvem().then(() => {
@@ -43,7 +44,7 @@ const syncNuvem = () => {
             resolve();
         }
     });
-}
+};
 
 const router = new Router({
     mode: 'history',
@@ -284,7 +285,7 @@ router.beforeEach((to, from, next) => {
     document.getElementById('loading-bg').style.display = null;
     if(to.matched.some(record => record.meta.requiresAuth)) {
         if(auth.isAuthenticated()) {
-            syncNuvem();
+            syncNuvem(to.name);
             next();
         } else {
             next('/login');

@@ -155,9 +155,9 @@ export default {
             const embarques = this.itensSelecionados.reduce((embarques, item) => {
                 const embarque = embarqueCarrinho.find((embarque) => embarque.id === item.embarque);
                 return embarques.concat(embarqueCarrinho.reduce((embarquesArray, emb) => {
-                    if ((emb.dataInicio <= this.dataAtual || emb.dataFim < this.dataAtual)
+                    if ((emb.dataInicio <= this.dataAtual || emb.dataFim >= this.dataAtual)
                             && (emb.dataInicio >= embarque.dataInicio || emb.dataFim <= embarque.dataFim)
-                                    && emb.id !== embarque.id || item.embarque != item.embarqueSelecionado) {
+                                    && emb.id != item.embarqueSelecionado) {
                                         embarquesArray.push(emb.id);
                     }
                     return embarquesArray;
