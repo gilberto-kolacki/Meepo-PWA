@@ -116,10 +116,9 @@
     </div>
 </template>
 <script>
-import _ from "lodash";
+// import _ from "lodash";
 import Storage from "../../rapidsoft/utils/storage";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
-import UtilMask from '../../rapidsoft/utils/utilMask';
 import ErrorDB from "../../rapidsoft/db/errorDB";
 
 export default {
@@ -151,9 +150,6 @@ export default {
 	components: {
 	},
 	computed: {
-        getProdutosCorSegmento() {
-			return this.produtosCarrinho;
-        },
         getArrayEmbarques() {
             const embarqueCarrinho = Object.values(this.embarques);
             const embarques = this.itensSelecionados.reduce((embarques, item) => {
@@ -179,21 +175,11 @@ export default {
 		getTamanhosProduto(idProduto) {
 			return this.produtosCarrinho.find((produto) => produto.idProduto === idProduto).tamanhos;
         },
-        getSelectedItem(itemSelecionado) {
-            console.log(itemSelecionado);
-            this.$emit('atuliza-embarques');
-        },
 		setPopupAddProduto(produto){
 			ProdutoDB.getProdutoEdicaoCarrinho(produto).then((result) => {
                 this.$emit('edicao-item-carrinho', result);
             });
 		},
-		calcularPrecoProduto(produto) {
-            const percentual = _.toNumber(this.grupoCliente.porcentagem);
-            const precoProduto = produto.cores[this.corSelecionada].precoCusto;
-            const preco = _.round(precoProduto + ((percentual/100) * precoProduto), 2)
-            return UtilMask.getMoney(preco, true);
-        },
 		getAmountValueBuy(valorCompra,totalQuantidade) {
             return valorCompra * totalQuantidade;
         },
@@ -226,24 +212,17 @@ export default {
         },
 		deleteItems() {
             const itensCarrinho = Storage.getCarrinhoItens();
-            const totalItens = this.itensSelecionados.length;
-            const itensCarrinhoNew = itensCarrinho.filter(produto => {
-                return !this.itensSelecionados.some(item => {
-                    return produto.idProduto === item.idProduto ;
-                });
-            });
-
-            Storage.setCarrinhoItens(itensCarrinhoNew);
-            this.produtosCarrinho = this.getProdutosListNew();
+            Storage.setCarrinhoItens(this.getProdutosListNew(itensCarrinho));
+            this.produtosCarrinho = this.getProdutosListNew(this.produtosCarrinho);
             this.itensSelecionados = [];
-            this.notification('Removido!',this.montaMensagem(totalItens),'primary');
+            this.notification('Removido!',this.montaMensagem(this.itensSelecionados.length),'primary');
             setTimeout(() => {
                 this.$emit('atualiza-lista-produtos');
                 this.$forceUpdate();
             }, 400);
         },
-        getProdutosListNew(){
-            return this.produtosCarrinho.filter(produto => {
+        getProdutosListNew(produtos){
+            return produtos.filter(produto => {
                 return !this.itensSelecionados.some(item => {
                     return produto.idProduto === item.idProduto;
                 });
