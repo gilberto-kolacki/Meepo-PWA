@@ -239,17 +239,18 @@ export default {
             return this.condicoesPagto[idPedido];
         },
         selecionarEndereco() {
-            if(this.pedidoCapa.cliente.enderecos.length > 0){
-                const enderecoPrincipal = _.find(this.pedidoCapa.cliente.enderecos,['principal',true]);
-                if (enderecoPrincipal) {
-                    this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(enderecoPrincipal), endereco: enderecoPrincipal };
+            if (this.pedidoCapa.cliente && this.pedidoCapa.cliente.enderecos) {
+                if(this.pedidoCapa.cliente.enderecos.length > 0){
+                    const enderecoPrincipal = _.find(this.pedidoCapa.cliente.enderecos,['principal',true]);
+                    if (enderecoPrincipal) {
+                        this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(enderecoPrincipal), endereco: enderecoPrincipal };
+                    } else {
+                        this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco };
+                    }
                 } else {
-                    this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco };
+                    this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco};
                 }
-            } else {
-                this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco};
             }
-            // console.log(this.pedidoCapa.endEntrega);
         },
         getLabelEndereco(endereco) {
             return endereco ? endereco.endereco +', Nº'+ endereco.numero +' - CEP: '+ endereco.cep : null;
