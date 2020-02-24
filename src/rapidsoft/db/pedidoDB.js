@@ -39,6 +39,7 @@ class pedidoDB extends BasicDB {
     }
     
     atualizarPedido(pedido) {
+        
         return new Promise((resolve) => {
             this._getById(pedido._id, true).then((pedidoById) => {
                 if (pedidoById.existe) {
@@ -89,6 +90,8 @@ class pedidoDB extends BasicDB {
     salvar(pedido) {
         return new Promise((resolve, reject) => {
             try {
+                pedido.cliente.dataAniversario = pedido.cliente.dataAniversario.getTime();
+                pedido.cliente.dataFundacao = pedido.cliente.dataFundacao.getTime();
                 pedido.alterado = true;
                 this._salvar(pedido).then((result) => {
                     resolve(result);

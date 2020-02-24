@@ -301,12 +301,12 @@ export default {
 
         mudarStatusPedido(pedido) {
             if (pedido.status === 20) {
-                this.pedido.status = 10;
+                pedido.status = 10;
                 PedidoDB.atualizarStatusPedido(pedido);
                 this.$forceUpdate();
             } else {
                 pedido.status = 20;
-                PedidoDB.atualizarStatusPedido(pedido);
+                this.finalizarPedido(pedido);
                 this.$forceUpdate();
             }
         },
