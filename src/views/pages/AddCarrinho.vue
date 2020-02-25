@@ -52,16 +52,13 @@
                         <div class="flex justify-center flex-wrap">
                             <vs-button 
                                 class="mt-1 mr-2 shadow-lg" 
-                                type="gradient" 
                                 color="primary" 
-                                gradient-color-secondary="#FFFFFF"
                                 icon-pack="feather" 
                                 icon="icon-external-link"
                                 @click="openLook(produtoLook.produto)" 
                             />
                             <vs-button 
                                 class="mt-1" 
-                                type="border" 
                                 color="primary"
                                 icon-pack="feather" 
                                 icon="icon-shopping-cart"
