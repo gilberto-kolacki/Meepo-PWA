@@ -59,9 +59,11 @@
                             <label for="endEntrega" class="vs-input--label">Endereço de entrega</label>
                             <v-select 
                                 id="endEntrega" 
-                                :clearable=false 
                                 v-model="pedidoCapa.endEntrega" 
                                 :options="getEnderecosEntrega"
+                                label="descricao"
+                                :reduce="options => options.endereco"
+                                :clearable=false 
                             /> 
                         </div>
                     </div>
@@ -134,10 +136,22 @@
                             </div>
                         </vs-col>
                     </div>
-                    <div v-if="!pedido.brinde">
-                        <vs-divider>Pagamento</vs-divider>
-                        <div class="vx-row flex justify-between" style="padding-bottom:15px">
-                            <vs-col vs-lg="5" vs-sm="6" vs-xs="12">
+                    <div>
+                        <vs-divider>Faturamento</vs-divider>
+                        <div class="vx-row flex justify-content" style="padding-bottom:15px">
+                            <div class="vx-col sm:w-1/3 w-full mb-2">
+                                <label>Data Embarque</label>
+                                <v-select 
+                                    id="dataEmbarque"
+                                    label="descricao"
+                                    style="width:100%" 
+                                    v-model="pedido.dataEmbarque"
+                                    :options="datasEmbarque(pedido)" 
+                                    :reduce="options => options.valor"
+                                    :clearable=false                                     
+                                />
+                            </div>
+                            <div class="vx-col sm:w-1/3 w-full mb-2" v-if="!pedido.brinde">
                                 <label>Forma de Pagamento</label>
                                 <v-select 
                                     @input="selecionarCondicaoPagamento(pedido)"
@@ -148,8 +162,8 @@
                                     v-model="pedido.formaPagamento" 
                                     :options="formasPagto" 
                                 />
-                            </vs-col>
-                            <vs-col vs-lg="5" vs-sm="6" vs-xs="12" v-if="condicoesPagto[pedido.id]">
+                            </div>
+                            <div class="vx-col sm:w-1/3 w-full mb-2" v-if="!pedido.brinde && condicoesPagto[pedido.id]">
                                 <label>Condição de Pagamento</label>
                                 <v-select 
                                     @input="alteraCondicaoPagamento(pedido)"
@@ -160,7 +174,7 @@
                                     v-model="pedido.condicaoPagamento" 
                                     :options="getCondicoesPagamento(pedido.id)" 
                                 />
-                            </vs-col>
+                            </div>
                         </div>
                     </div>
                     <div class="vx-row flex justify-between">
@@ -187,6 +201,7 @@ import OrcamentoDB from "../../rapidsoft/db/orcamentoDB";
 import vSelect from 'vue-select';
 import clienteDB from '../../rapidsoft/db/clienteDB';
 import grupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
+import moment from 'moment';
 
 export default {
 	data: () => ({
@@ -210,13 +225,45 @@ export default {
 	computed: {
         getEnderecosEntrega() {
             if (this.pedidoCapa.cliente.enderecos && this.pedidoCapa.cliente.enderecos.length > 0) {
-                return this.pedidoCapa.cliente.enderecos.map((endereco, index) => {
-                    return {value: index, label: this.getLabelEndereco(endereco), endereco: endereco };
+                return this.pedidoCapa.cliente.enderecos.map((endereco) => {
+                    return {descricao: this.getLabelEndereco(endereco), endereco: endereco };
                 });
             } else return [];
-        },
+        },        
 	},
     methods: {
+        datasEmbarque(embarque) {
+            const datasDisponiveis = [];        
+            if (embarque.periodos) {
+                embarque.periodos.forEach(periodo => {
+                    let dataAtual = 0;
+                    const dataFim = periodo.dataEmbarqueFim;
+                    while (dataAtual < dataFim) {
+                        dataAtual = dataAtual == 0 ? periodo.dataEmbarqueInicio : this.somarDiaData(dataAtual);
+                        datasDisponiveis.push(dataAtual);
+                    }
+                });
+            } else {
+                let dataAtual = 0;
+                const dataFim = embarque.dataFim;
+                while (dataAtual < dataFim) {
+                    dataAtual = dataAtual == 0 ? embarque.dataInicio : this.somarDiaData(dataAtual);
+                    datasDisponiveis.push(dataAtual);
+                }
+            }
+            return this.getLabelData(datasDisponiveis);
+        },
+        somarDiaData(timeUtc) {
+            const date = new Date(timeUtc);
+            const newdate = new Date(timeUtc);
+            newdate.setDate(date.getDate() + 1);
+            return newdate.getTime();
+        },
+        getLabelData(datasDisponiveis) {
+            return datasDisponiveis.map((data) => {
+                return {descricao: moment(new Date(data)).format('DD/MM/YYYY'), valor: data }
+            });
+        },
         selecionarCondicaoPagamento(pedido) {
             const formaPagto = pedido.formaPagamento;
             if (formaPagto.id == this.condigoBrinde) {
@@ -239,17 +286,15 @@ export default {
             return this.condicoesPagto[idPedido];
         },
         selecionarEndereco() {
-            if (this.pedidoCapa.cliente && this.pedidoCapa.cliente.enderecos) {
-                if(this.pedidoCapa.cliente.enderecos.length > 0){
-                    const enderecoPrincipal = _.find(this.pedidoCapa.cliente.enderecos,['principal',true]);
-                    if (enderecoPrincipal) {
-                        this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(enderecoPrincipal), endereco: enderecoPrincipal };
-                    } else {
-                        this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco };
-                    }
+            if(this.pedidoCapa.cliente.enderecos.length > 0){
+                const enderecoPrincipal = this.pedidoCapa.cliente.enderecos.find((endereco) => endereco.principal);
+                if (enderecoPrincipal) {
+                    this.pedidoCapa.endEntrega = {descricao: this.getLabelEndereco(enderecoPrincipal), endereco: enderecoPrincipal };
                 } else {
-                    this.pedidoCapa.endEntrega = {label: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco};
+                    this.pedidoCapa.endEntrega = {descricao: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco };
                 }
+            } else {
+                this.pedidoCapa.endEntrega = {descricao: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco};
             }
         },
         getLabelEndereco(endereco) {
@@ -271,8 +316,9 @@ export default {
             this.$forceUpdate();
         },
         validarDadosPedido() {
-            
             PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa).then((pedidos) => {
+                console.log(pedidos);
+                
                 PedidoUtils.validarPedido(pedidos).then(() => {
                     this.$vs.dialog({
                         type:'confirm',
@@ -347,7 +393,7 @@ export default {
         selectSearchCliente(cliente) {
             this.pedidoCapa.cliente = cliente;
             this.pedidoCapa.emailNfe = cliente.emailNfe;
-            this.pedidoCapa.endEntrega = _.find(this.getEnderecosEntrega, (end) => end.endereco.endEntrega ); 
+            this.pedidoCapa.endEntrega = this.getEnderecosEntrega.find((end) => end.endereco.endEntrega ); 
             this.selecionarEndereco();
         },
         carregaItensTela() {
