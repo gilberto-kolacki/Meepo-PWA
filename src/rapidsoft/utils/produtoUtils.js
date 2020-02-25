@@ -29,6 +29,7 @@ class produtoUtils{
                 if (itemCarrinho) {
                     tamanho.quantidade = itemCarrinho.quantidade;
                 }
+                tamanho.fixadoAtivo = tamanho.ativo;
                 return tamanho;
             });
         } else {

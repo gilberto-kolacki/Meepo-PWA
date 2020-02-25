@@ -194,7 +194,7 @@ export default {
         replicarGradeRef() {
             this.$emit('replica-todas-grades', this.index,  this.produtoAdd);
         },
-        replicarGrade(indexCor){
+        replicarGrade(indexCor) {
             const listaBaseGrade2 = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos.reduce((grade, tamanho) => {
 				grade[tamanho.codigo] = tamanho.quantidade ? tamanho.quantidade : 0;
 				return grade;
@@ -210,22 +210,31 @@ export default {
         atualizarGrade(indexCor, indexTamanho) {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (Number(tamanho.quantidade) === 0 ? 0 :Number(tamanho.quantidade));
+            if (tamanho.quantidade > 10) {
+                this.alertaLimiteItens();
+            }
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
         disabledCorTamanho(produto, corTamanho, tipo) {
-            if(tipo === 2) {    
-                for (let indexCor = 0; indexCor < this.produtoAdd.produtoAddCores.length; indexCor++) {
-                    const cor = this.produtoAdd.produtoAddCores[indexCor];
-                    for (let indexTamanho = 0; indexTamanho < cor.produtoAddTamanhos.length; indexTamanho++) {
-                        const tamanho = cor.produtoAddTamanhos[indexTamanho];
-                        if (tamanho.codigo === corTamanho.codigo) {
-                            tamanho.ativo = corTamanho.ativo;
-                            // this.menosTamanho(indexCor, indexTamanho);
+            if (tipo === 1) {
+                corTamanho.tamanhos.map((cor) => {
+                    cor.quantidade = 0;
+                    cor.ativo = corTamanho.ativo;
+                    cor.ativo = cor.fixadoAtivo;
+                    this.getTotalPecas();
+                });
+            } else {
+                produto.produtoAddCores.map((produtoCor) => {
+                    produtoCor.produtoAddTamanhos.map((produtoTamanho) => {
+                        if (produtoTamanho.codigo === corTamanho.codigo) {
+                            produtoTamanho.ativo = corTamanho.ativo;
+                            produtoTamanho.ativo = produtoTamanho.fixadoAtivo;
+                            produtoTamanho.quantidade = produtoTamanho.codigo == corTamanho.codigo ? 0 : produtoTamanho.quantidade;
                             this.getTotalPecas();
                         }
-                    }
-                }
+                    });
+                });    
             }
             this.$forceUpdate();
         },
@@ -247,10 +256,20 @@ export default {
         maisTamanho(indexCor, indexTamanho) {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : parseInt(tamanho.quantidade)+1;
+            if (tamanho.quantidade > 10) {
+                this.alertaLimiteItens();
+            }
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
-
+        alertaLimiteItens(){
+            this.$vs.dialog({
+                color:'warning',
+                title: `Atenção`,
+                text: 'Você adicionou mais do que 10 peças desse item!',
+                acceptText:'OK'
+            });
+        },
         getTotalPecasCor(cor) {
             if (cor.ativo) {
                 return cor.produtoAddTamanhos.reduce((totalCor, tamanho) => {
@@ -267,12 +286,13 @@ export default {
         getTotalPecasTamanho(tamanho) {
             if (tamanho.ativo) {
                 return this.produtoAdd.produtoAddCores.reduce((totalTamanho, cor ) => {
+                    totalTamanho = totalTamanho ? totalTamanho : 0;
                     if (cor.ativo) {
                         return totalTamanho + cor.produtoAddTamanhos.reduce((totalCor, tamanhoCor) => {
                             if (tamanho.codigo === tamanhoCor.codigo && tamanhoCor.quantidade) {
-                                return totalCor + parseInt(tamanhoCor.quantidade);
+                                return Number(totalCor) + parseInt(tamanhoCor.quantidade);
                             } else {
-                                return totalCor;
+                                return Number(totalCor);
                             }
                         }, 0)
                     }

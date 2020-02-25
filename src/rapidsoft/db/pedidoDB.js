@@ -39,6 +39,7 @@ class pedidoDB extends BasicDB {
     }
     
     atualizarPedido(pedido) {
+        
         return new Promise((resolve) => {
             this._getById(pedido._id, true).then((pedidoById) => {
                 if (pedidoById.existe) {

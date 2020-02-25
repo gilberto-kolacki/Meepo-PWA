@@ -37,7 +37,7 @@
             >
             </add-carrinho-item>
         </div>
-        
+        <h2 class='mt-5' style="display:flex;justify-content: center;" v-if="this.produtosDoLook.length > 0">Complete o Look</h2>
         <div class='flex justify-center w-full' v-if="this.produtosDoLook.length > 0">
             <div class="produto-image-gallery vx-row mt-6" style="width:95%" id="content-produtos">
                 <div class="vx-col px-1 lg:w-1/4 md:w-1/4 sm:w-1/3 mb-4" v-for="(produtoLook, indextr) in this.produtosDoLook" :key="indextr">
@@ -52,16 +52,13 @@
                         <div class="flex justify-center flex-wrap">
                             <vs-button 
                                 class="mt-1 mr-2 shadow-lg" 
-                                type="gradient" 
                                 color="primary" 
-                                gradient-color-secondary="#FFFFFF"
                                 icon-pack="feather" 
                                 icon="icon-external-link"
                                 @click="openLook(produtoLook.produto)" 
                             />
                             <vs-button 
                                 class="mt-1" 
-                                type="border" 
                                 color="primary"
                                 icon-pack="feather" 
                                 icon="icon-shopping-cart"
