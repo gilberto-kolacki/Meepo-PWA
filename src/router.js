@@ -170,7 +170,7 @@ const router = new Router({
 					meta: {
                         requiresAuth: true,
                         rule: 'editor',
-                        navBar: false,
+                        navBar: true,
                     },
                 },
                 {

@@ -36,6 +36,7 @@ class usuarioDB {
             localStorage.removeItem('token');
             localStorage.removeItem('tokenExpiry');
             localStorage.removeItem('userRole');
+            localStorage.removeItem('sincTotal');
             resolve();
         });
     }

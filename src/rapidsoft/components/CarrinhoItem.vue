@@ -8,7 +8,7 @@
                         <span @click="confirmacaoDeletarItem()">Deletar Itens Selecionados</span>
                     </span>
                 </b-dropdown-item>
-                <div v-if="getArrayEmbarques.length > 1">
+                <div v-if="getArrayEmbarques.length > 0">
                     <b-dropdown-divider></b-dropdown-divider>
                     <b-dropdown-text>
                         <feather-icon icon="RefreshCwIcon" svgClasses="h-4 w-4" class="mr-2" />
@@ -30,19 +30,19 @@
                     <vx-card class="w-full">
                         <div slot="no-body">
                             <div class='vx-row flex pr-6 pl-6'>
-                                <div class="vx-col w-full lg:w-1/2 sm:w-1/3 flex" style="padding: 8px;">
+                                <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
                                     <vs-avatar class="mr-23" @click="somaPreviaValores()" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-package" size="30px" />
                                     <div class="truncate">
                                         <h5 class="mt-3 font-bold">Peças: {{embarque.quantidade}}</h5>
                                     </div>
                                 </div>
-                                <div class="vx-col w-full lg:w-1/2 sm:w-1/3 flex" style="padding: 8px;">
+                                <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
                                     <vs-avatar class="mr-3" @click="somaPreviaValores()" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" size="30px" />
                                     <div class="truncate">
                                         <h5 class="mt-3 font-bold">Valor: {{embarque.totalBruto | money}}</h5>
                                     </div>
                                 </div>
-                                <div class="vx-col w-full lg:w-1/2 sm:w-1/3 flex" style="padding: 8px;">
+                                <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
                                     <vs-avatar class="mr-3" @click="somaPreviaValores()" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-calendar" size="30px" />
                                     <div class="truncate">
                                         <h5 class="mt-3 font-bold">{{embarque.dataEmbarque | formatDate}}</h5>
