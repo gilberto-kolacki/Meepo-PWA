@@ -181,9 +181,18 @@
                             <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
                         </div>
                     </div>
+                    <h5 class="mt-5">Referências Comerciais</h5>
+                    <div class="vx-row flex justify-between" style="margin-left:20px;margin-right:20px;padding-top:20px;padding-bottom:20px">
+                        <vs-col vs-lg="5" vs-xs="12">
+                            <div class="vx-row" style="justify-content: flex-start;" v-for="(referenciaComercial, index) in listReferenciasComerciais" :key="`referenciaComercial-${index}`">
+                                <vs-checkbox v-model="referenciaComercial.refSelecionada"></vs-checkbox>
+                                <label>{{referenciaComercial.nome}}</label>
+                            </div>
+                        </vs-col>
+                    </div>
                     <div class="vx-row">
                         <div class="vx-col w-full mb-2">
-                            <label for="" class="vs-input--label">Referencias Comerciais</label>
+                            <label for="" class="vs-input--label">Referências Comerciais</label>
                             <vs-textarea @input="cnpjnulo(cpfCnpj,'referenciaComercial')" id="referenciaComercial" name="referenciaComercial" v-model="clienteEdit.referenciaComercial"/>
                         </div>
                     </div>
@@ -455,6 +464,7 @@ import CidadeService from '../../rapidsoft/service/cidadeService';
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
 import ErrorDB from '../../rapidsoft/db/errorDB';
 import SegmentoDB from '../../rapidsoft/db/segmentoDB';
+import ReferenciaComercialDB from "../../rapidsoft/db/referenciaComercialDB";
 
 Validator.localize('pt', validatePtBR);
 
@@ -477,6 +487,7 @@ export default {
                 segmentos: []
             },
             carrinhoCliente: false,
+            listReferenciasComerciais: [],     
             contatoEdit: {},
             enderecoEdit: {},
             isEditContato: false,
@@ -491,6 +502,7 @@ export default {
             newEndereco: false,
             cidadeEnderecoClienteSelecionado: null,
             idExistente: false,
+            referenciasSelecionadas: []
         }
     },
     components: {
@@ -947,6 +959,8 @@ export default {
             if (_.findIndex(this.segmentosCliente, {'value':3333}) >= 0) {
                 cliente.segmentos = ['3','5'];
             }
+            cliente.referenciasComerciais = this.listReferenciasComerciais.filter((refComercial) => refComercial.refSelecionada == true);
+            
             setTimeout(() => {
                 ClienteDB.salvar(cliente).then((clienteSalvo) => {
                     this.$vs.notify({
@@ -990,13 +1004,26 @@ export default {
                 this.$router.push('/cliente/consulta');
             }
         },
+
+        setReferenciasCliente(referenciasCliente){
+            this.listReferenciasComerciais.map((referenciaComercial) => {
+                const referencia = _.find(referenciasCliente, {'id':referenciaComercial.id});
+                if (referencia) {
+                    referenciaComercial.refSelecionada = true;
+                }
+            });
+            console.log('this.listReferenciasComerciais ',this.listReferenciasComerciais);
+        },
+
         findById(idCliente) {
             return new Promise((resolve) => {
                 ClienteDB.findById(idCliente).then((cliente) => {
                     cliente.grupoCliente = cliente.grupoCliente ? cliente.grupoCliente : 33;
                     this.grupoCliente = this.getGrupoClientesSelect.find((grupo) => grupo.value === cliente.grupoCliente );
                     this.grupoCliente = this.grupoCliente ? this.grupoCliente : {value:33,label:'PADRÃO',padrao:true}; 
-
+                    if (cliente.referenciasComerciais) {
+                        this.setReferenciasCliente(cliente.referenciasComerciais)
+                    }
                     if (cliente.segmentos && cliente.segmentos.length > 0) {
                         this.segmentosCliente = cliente.segmentos.map((segmentoCliente) => {
                             return this.getSegmentosCheckBox.find((segmento) => segmentoCliente.toString() == segmento.value.toString());
@@ -1017,6 +1044,12 @@ export default {
                 callback();
             })
         },
+        listaReferenciasComerciais(callback) {
+            ReferenciaComercialDB.getAll().then((referenciasComerciais) => {
+                this.listReferenciasComerciais = referenciasComerciais;
+                callback();
+            });
+        },
         buscaGrupos(callback) {
             GrupoClienteDB._getAll().then((grupos) => {
                 this.grupoClientes = grupos;
@@ -1035,25 +1068,27 @@ export default {
                 this.buscaGrupos(() => {
                     this.buscaSegmentos(() => {
                         this.listaCidades(() => {
-                            if (this.$route.params.clienteId) {
-                                this.findById(this.$route.params.clienteId).then(() => {
+                            this.listaReferenciasComerciais(() => {
+                                if (this.$route.params.clienteId) {
+                                    this.findById(this.$route.params.clienteId).then(() => {
+                                        setTimeout(() => {
+                                            this.proximoCampo('cpfCnpj');
+                                        }, 200);
+                                        resolve();
+                                    });
+                                } else {
+                                    if (this.$route.params.carrinhoCliente) {
+                                        this.carrinhoCliente = true;
+                                    } else {
+                                        this.carrinhoCliente = false;
+                                    }
                                     setTimeout(() => {
                                         this.proximoCampo('cpfCnpj');
                                     }, 200);
                                     resolve();
-                                });
-                            } else {
-                                if (this.$route.params.carrinhoCliente) {
-                                    this.carrinhoCliente = true;
-                                } else {
-                                    this.carrinhoCliente = false;
                                 }
-                                setTimeout(() => {
-                                    this.proximoCampo('cpfCnpj');
-                                }, 200);
-                                resolve();
-                            }
-                            document.getElementById('loading-bg').style.display = "none";
+                                document.getElementById('loading-bg').style.display = "none";
+                            });
                         });
                     });
                 });
