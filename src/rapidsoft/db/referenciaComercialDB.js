@@ -28,6 +28,13 @@ class refComercialDB extends BasicDB {
             })
         });
     }
+    getAll() {
+        return new Promise((resolve) => {
+            this._getAll().then((referenciasComerciais) => {
+                resolve(referenciasComerciais);
+            });
+        });
+    }
     
 
 }
