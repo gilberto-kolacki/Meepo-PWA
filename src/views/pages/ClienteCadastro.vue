@@ -968,7 +968,9 @@ export default {
             if (_.findIndex(this.segmentosCliente, {'value':3333}) >= 0) {
                 cliente.segmentos = ['3','5'];
             }
-            cliente.referenciaComercial = cliente.referenciaComercial + ' - ' + this.getReferencias();
+            cliente.referenciaComercial = cliente.referenciaComercial 
+                ? cliente.referenciaComercial  + ' - ' + this.getReferencias() 
+                    : this.getReferencias();
             
             setTimeout(() => {
                 ClienteDB.salvar(cliente).then((clienteSalvo) => {
