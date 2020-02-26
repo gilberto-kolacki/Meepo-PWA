@@ -15,31 +15,31 @@
                             <vs-button color="dark" type="filled" icon-pack="feather" class="w-full" icon="icon-menu" @click.stop="showSidebar"></vs-button>
                         </div>
                     </div>
-                    <div class="vx-row mt-base-top2">
+                    <div class="vx-row mt-4">
                         <vx-card>
                             <div class="vx-row items-center justify-center">
                                 <h6>{{this.produtoA.cores[this.corSelecionada].nome}}</h6>
                             </div>
-                            <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button produto-image-gallery-button-up" @click="scrollUp" style="margin-top: -10px" />
-                            <div id="produto-image-gallery" class="produto-image-gallery" v-if="getImagensCorProduto.length > 0">
+                            <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button mt-2 mb-2" @click="scrollUp" style="margin-top: -10px" />
+                            <div id="produto-image-gallery" class="produto-image-gallery on-scroll" v-if="getImagensCorProduto.length > 0">
                                 <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(index)">
                                     <b-img-lazy :src="imagem.base64" :id="'produto-image-gallery-item-'+imagem.seq" class="mb-4 responsive img-ref"/>
                                 </div>
                             </div>
-                            <div id="produto-image-gallery" class="produto-image-gallery" v-else>
+                            <div id="produto-image-gallery" class="produto-image-gallery on-scroll" v-else>
                                 <div class="produto-image-gallery-item">
                                     <b-img-lazy :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="mb-4 responsive img-ref"/>
                                 </div>
                             </div>
-                            <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button produto-image-gallery-button-down" @click="scrollDown" style="margin-bottom: -10px; margin-top: 10px" />
+                            <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button" @click="scrollDown" style="margin-bottom: -10px; margin-top: 10px" />
                         </vx-card>
                     </div>
-                    <div class="vx-row items-center justify-center mt-base-top3">
+                    <div class="vx-row items-center justify-center mt-6">
                         <div class="mr-2" v-for="(cor, index) in getCoresProduto" :key="index">
                             <vs-avatar class="m-0" :id="'icon-cor-'+cor.nome" :src="cor.imagemCor ? cor.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" size="36px" @click="selectCorImagemProduto(index)" style="border: 0.9px solid #7b7b7b;"/>
                         </div>
                     </div>
-                    <div class="vx-row items-center justify-center mt-base-top2">
+                    <div class="vx-row items-center justify-center mt-4">
                         <div class="btn-group centex w-full" >
                             <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-youtube" @click.stop="showVideo()" v-if="this.produtoA.video && false"></vs-button>
                             <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-zoom-in" @click.stop="showZoom()"></vs-button>
@@ -76,48 +76,45 @@
                             <vs-button color="primary" type="filled" icon-pack="feather" class="w-full" icon="icon-search" @click.stop="abrirPesquisaPodutos()"></vs-button>
                         </div>
                     </div>
-                    <div class="vx-row mt-base-top3">
+                    <div class="vx-row mt-6">
                         <h6 class="title-ref" v-if="this.produtoA">Ref: {{produtoA.referencia}}</h6>
                         <h6 class="title-ref" v-if="this.produtoB">Ref: {{produtoB.referencia}}</h6>
                         <h6 class="title-ref" v-if="this.produtoC">Ref: {{produtoC.referencia}}</h6>
                         <h6 class="title-ref" v-if="this.produtoD">Ref: {{produtoD.referencia}}</h6>
-                        <div class="btn-group centex mt-base-top1 w-full">
+                        <div class="btn-group centex mt-2 w-full">
                             <vs-button class="w-full" color="primary" icon="add_circle" @click.stop="addProduto()"></vs-button>
-                            <vs-button class="w-full" color="rgb(123, 123, 123)" size="36px" icon="attach_money" @click.stop="viewPreco()"></vs-button>
+                            <vs-button class="w-full" color="rgb(123, 123, 123)" size="36px" icon="attach_money" @click="popupPrecoRef=true"></vs-button>
                         </div>
                     </div>
-                    <!-- <div class="vx-row mt-base-top2">
-                    </div> -->
-                    <div class="vx-row mt-base-top3">
-                        <div class="centex mt-base-top1 w-full">
-                            <vs-collapse>
-                                <vs-collapse-item style="padding:0px; margin-top:-20px" class="w-full padding-zero" icon-pack="feather" icon-arrow="icon-filter">
-                                    <div slot="header" class="vx-row" style="margin-bottom:-20px">
-                                        <h6 class="title-ref" style="margin-top: -8px;margin-right:20px">Categorias</h6>
-                                    </div>
-                                    <div class="mt-base-top1 w-full">
-                                        <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button produto-image-gallery-button-up" @click="scrollUpCategoria" style="margin-bottom: -2px" />
-                                        <div id="categoria-gallery" class="produto-image-gallery w-full">
-                                            <div class="produto-image-gallery-item">
-                                                <div class="mt-base-top1 flex justify-center" style="width:75%">
-                                                    <button class="w-full" :class="filtro.categoria.id ? 'notHaveFilter' : 'input_filter'" @click.stop="categoriasSelecionadas(null)">
-                                                        <p class="flex justify-center" style="margin:auto">Todos</p>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            <div class="produto-image-gallery-item" v-for="(categoria, index) in getCategoriasCatalogo" :key="index">
-                                                <div class="mt-base-top1 flex justify-center" style="width:75%">
-                                                    <button class="w-full" :class="filtro.categoria.id === categoria.id ? 'input_filter' : 'notHaveFilter'" @click.stop="categoriasSelecionadas(categoria.id)">
-                                                        <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
-                                                    </button>
-                                                </div>
+                    <div class="vx-row mt-6">
+                        <vx-card>
+                            <div slot="no-body">
+                                <div class="vx-row items-center justify-center mt-3 mb-2" role="tab" v-b-toggle.accordion-1> 
+                                    <feather-icon icon="FilterIcon" class="cursor-pointer mr-1" svgClasses='h-4 w-4'/>
+                                    Categorias
+                                </div>
+                                <b-collapse id="accordion-1" visible accordion="my-accordion" role="tabpanel">
+                                    <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button mt-2" @click="scrollUpCategoria" />
+                                    <div id="categoria-filter" class="categoria-filter on-scroll">
+                                        <div class="categoria-filter-item">
+                                            <div class="mt-2 flex justify-center" style="width:77%">
+                                                <button class="w-full" :class="filtro.categoria.id ? 'notHaveFilter' : 'input_filter'" @click.stop="categoriasSelecionadas(null)">
+                                                    <p class="flex justify-center" style="margin:auto">Todos</p>
+                                                </button>
                                             </div>
                                         </div>
-                                        <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button produto-image-gallery-button-down" @click="scrollDownCategoria" style="margin-top: 10px" />
+                                        <div class="categoria-filter-item" v-for="(categoria, index) in getCategoriasCatalogo" :key="index">
+                                            <div class="mt-2 flex justify-center" style="width:77%">
+                                                <button class="w-full" :class="filtro.categoria.id === categoria.id ? 'input_filter' : 'notHaveFilter'" @click.stop="categoriasSelecionadas(categoria.id)">
+                                                    <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                </vs-collapse-item>
-                            </vs-collapse>
-                        </div>
+                                    <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button mt-2 mb-2" @click="scrollDownCategoria" />
+                                </b-collapse>
+                            </div>
+                        </vx-card>
                     </div>
                 </div>
             </div>
@@ -126,6 +123,34 @@
         <div id="zoom-produto" v-if="this.produtoZoomShow">
             <zoom-produto @zoom-closed="hideZoom" :produtoZoom="this.produtoZoom" :produtoImagens="this.produtoZoom.cores[this.corSelecionada].imagens" :id="idPopUpZoom"></zoom-produto>
         </div>
+        <vs-popup title="Preço das Referências" :active.sync="popupPrecoRef" :button-close-hidden="false">
+            <table style="width:100%" class="border-collapse">
+                <tr>
+                    <th class="p-2 border border-solid d-theme-border-grey-light">Ref.</th>
+                    <th class="p-2 border border-solid d-theme-border-grey-light">Nome</th>
+                    <th class="p-2 border border-solid d-theme-border-grey-light">Sell In</th>
+                    <th class="p-2 border border-solid d-theme-border-grey-light">Sell Out</th>
+                </tr>
+                <tr v-if="this.produtoA">
+                    <td class="p-2 border border-solid d-theme-border-grey-light">{{this.produtoA.referencia}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light">{{this.produtoA.nome}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{this.getPrecoRef(this.produtoA, 1) | moneyy}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{this.getPrecoRef(this.produtoA, 2) | moneyy}}</td>
+                </tr>
+                <tr v-if="this.produtoB">
+                    <td class="p-2 border border-solid d-theme-border-grey-light">{{this.produtoB.referencia}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light">{{this.produtoB.nome}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{this.getPrecoRef(this.produtoB, 1) | moneyy}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{this.getPrecoRef(this.produtoB, 2) | moneyy}}</td>
+                </tr>
+                <tr v-if="this.produtoC">
+                    <td class="p-2 border border-solid d-theme-border-grey-light">{{this.produtoC.referencia}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light">{{this.produtoC.nome}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{this.getPrecoRef(this.produtoC, 1) | moneyy}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{this.getPrecoRef(this.produtoC, 2) | moneyy}}</td>
+                </tr>
+            </table>
+        </vs-popup>
     </div>    
 </template>
 <script>
@@ -169,6 +194,7 @@ export default {
             idPopUpZoom: 'popup-produto-zoom',
             produtoZoomShow: false,
             grupoCliente: null,
+            popupPrecoRef: false,
         }
     },
     components: {
@@ -203,7 +229,7 @@ export default {
             } else {
                 return [];
             }
-        },
+        },        
     },
     methods: {
         // tela
@@ -211,21 +237,8 @@ export default {
             this.filtro.categoria = {id: idCategoria};
             await this.carregaItensTela();
         },
-
-        viewPreco() {
-            let texto = 'REF: ' + ProdutoUtils.calcularPreco(this.produtoA.cores[this.corSelecionada]);
-            if (this.produtoB) {
-                texto += '<br> REF: ' + ProdutoUtils.calcularPreco(this.produtoB.cores[this.corSelecionada]);
-            }
-
-            this.$vs.notify({
-                title: 'Preço Referência',
-                text: texto,
-                color:'dark',
-                time: 4000,
-                iconPack: 'feather',
-                icon:'icon-dollar-sign'
-            });
+        getPrecoRef(produto, tipo) {
+            return ProdutoUtils.calcularPreco(produto.cores[0], tipo)
         },
         existeCarrinho() {
             return !Storage.existeCarrinho();
@@ -250,11 +263,11 @@ export default {
             gallery.scrollTop = gallery.scrollTop + 80;
         },
         scrollUpCategoria() {
-            const gallery = document.getElementById("categoria-gallery");
+            const gallery = document.getElementById("categoria-filter");
             gallery.scrollTop = gallery.scrollTop - 80;
         },
         scrollDownCategoria() {
-            const gallery = document.getElementById("categoria-gallery");
+            const gallery = document.getElementById("categoria-filter");
             gallery.scrollTop = gallery.scrollTop + 80;
         },
         hideCard() {
@@ -316,7 +329,6 @@ export default {
                 this.$vs.loading();
                 this.paginaAtual = pagina;
                 ProdutoDB.getProdutoPaginaCatalogo(pagina).then((result) => {
-                    
                     this.popupSearchProdutos = false;
                     this.produtoA = result.produtoA;
                     this.produtoB = result.produtoB;
@@ -378,7 +390,7 @@ export default {
         this.grupoCliente = Storage.getGrupoCarrinho();
         await this.carregaItensTela();
         document.getElementById("page-catalogo").ontouchmove = (e) => {
-            if(!(e.target.className == "produto-image-gallery-item" || e.target.className == "mb-4 responsive img-ref")) {
+            if(!(e.target.className == "no-scroll" || e.target.className == "mb-4 responsive img-ref")) {
                 e.preventDefault();
             }
         }       
@@ -430,21 +442,6 @@ html {
 	-moz-transition: all 0.3s;
 	transition: all 0.3s;
     width:70%
-}
-
-.mt-base-bottom {
-    margin-bottom: 2rem !important
-}
-
-.mt-base-top3 {
-    margin-top: 2rem !important
-}
-
-.mt-base-top2 {
-    margin-top: 1.2rem !important
-}
-.mt-base-top1 {
-    margin-top: 0.6rem !important
 }
 
 .vs-divider--text {
@@ -521,23 +518,6 @@ html {
     }
 }
 
-.produto-image-gallery::-webkit-scrollbar-track
-{
-	background-color: #fff;
-}
-
-.produto-image-gallery::-webkit-scrollbar
-{
-	width: 4px;
-    height: 10px;
-	background-color: #fff;
-}
-
-.produto-image-gallery::-webkit-scrollbar-thumb
-{
-	background-color: #fff;    
-}
-
 .produto-image-gallery-button {
     width: 100% !important;
     cursor: pointer;
@@ -556,8 +536,32 @@ html {
     background-color: #fff;
 }
 
-.produto-image-gallery-button-up {
-    margin-bottom: 10px;
+.categoria-filter {
+    height: 42vh;
+    overflow-x: hidden;
+    overflow-y: scroll;  
+}
+
+.categoria-filter-item {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin: 0 -1rem;
+    -webkit-box-pack: center !important;
+    -ms-flex-pack: center !important;
+    justify-content: center !important;
+    -webkit-box-align: center !important;
+    -ms-flex-align: center !important;
+    align-items: center !important;
+
+    .selected {
+        border-radius: 2%;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        border-bottom: 2px solid #e41c40;
+    }
 }
 
 .page-catalogo {

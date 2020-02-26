@@ -216,10 +216,7 @@ export default {
             this.produtosCarrinho = this.getProdutosListNew(this.produtosCarrinho);
             this.itensSelecionados = [];
             this.notification('Removido!',this.montaMensagem(this.itensSelecionados.length),'primary');
-            setTimeout(() => {
-                this.$emit('atualiza-lista-produtos');
-                this.$forceUpdate();
-            }, 400);
+            this.$forceUpdate();
         },
         getProdutosListNew(produtos){
             return produtos.filter(produto => {

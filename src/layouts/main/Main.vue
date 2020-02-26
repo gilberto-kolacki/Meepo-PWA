@@ -330,4 +330,21 @@ html, body {
     }
 }
 
+.on-scroll::-webkit-scrollbar-track
+{
+	background-color: #fff;
+}
+
+.on-scroll::-webkit-scrollbar
+{
+	width: 4px;
+    height: 10px;
+	background-color: #fff;
+}
+
+.on-scroll::-webkit-scrollbar-thumb
+{
+	background-color: #fff;    
+}
+
 </style>

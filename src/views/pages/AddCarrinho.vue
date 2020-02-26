@@ -3,28 +3,6 @@
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-plus" @click="addReferenciaCarrinho()">Adicionar</vs-button>
         <vs-button class="btn-cancel" v-if="this.$route.params.edit" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
         <vs-button class="btn-cancel" v-else color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
-        <div class='vx-row' v-if="this.showPrevia">
-            <vx-card class="mb-4 w-full">
-                <div slot="no-body">
-                    <div class='vx-row flex pr-6 pl-6'>
-                        <div class="vx-col w-full lg:w-1/2 sm:w-1/2 flex" style="padding: 8px;">
-                            <vs-avatar class="mr-3" @click="somaPreviaValores()" color="warning" icon-pack="feather" icon="icon-layers" />
-                            <div class="truncate">
-                                <span>Total Itens:</span>
-                                <h3 class="mb-1 font-bold">{{totalItens}}</h3>
-                            </div>
-                        </div>
-                        <div class="vx-col w-full lg:w-1/2 sm:w-1/2 flex" style="padding: 8px;">
-                            <vs-avatar class="mr-3" @click="somaPreviaValores()" color="success" icon-pack="feather" icon="icon-dollar-sign" />
-                            <div class="truncate">
-                                <span>Total Valor:</span>
-                                <h3 class="mb-1 font-bold">{{previaTotal | moneyy}}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </vx-card>
-        </div>
         <div v-if="this.isShow"> 
             <add-carrinho-item v-for="(prodduto, indexProd) in this.produtos" :key="indexProd"
                 @atualiza-qtde-itens="atualizaQuantidadeItens" 
@@ -69,26 +47,6 @@
                 </div>
             </div>
         </div>
-        <!-- <div class="flex justify-center" v-if="this.produtosDoLook.length > 0 && isShow"> 
-            <div style="width:95%" class="vx-row flex justify-center">
-                <vs-button 
-                    class="mt-1 mr-4 shadow-lg w-1/5" 
-                    color="primary" 
-                    gradient-color-secondary="#FFFFFF"
-                    icon-pack="feather" 
-                    icon="icon-chevron-left"
-                    @click="scrollLeft()" 
-                />
-                <vs-button 
-                    class="mt-1 shadow-lg w-1/5" 
-                    color="primary" 
-                    gradient-color-secondary="#FFFFFF"
-                    icon-pack="feather" 
-                    icon="icon-chevron-right"
-                    @click="scrollRight()" 
-                />
-            </div>
-        </div> -->
     </div> 
 </template>
 <script>
@@ -106,33 +64,13 @@ export default {
         produtos: [],
         isShow: false,
         produtosDoLook: [],
-        showPrevia: false,
-        previaTotal: 0,
-        totalItens: 0,
     }),
     components: {
         AddCarrinhoItem,
     },
     computed: {
-
     },
     methods: {
-        
-        somaPreviaValores() {
-            if (this.carrinho.itens.length > 0) {
-                ProdutoUtils.calcularCarrinho(this.carrinho).then((carrinhoResult) => {
-                    this.previaTotal = carrinhoResult.valorTotal;
-                });
-                this.getTotalItens(this.carrinho.itens);
-            } else {
-                this.previaTotal = 0;
-            }
-        },
-        getTotalItens(carrinhoItens) {
-            this.totalItens = carrinhoItens.reduce(( itemAnterior, itemAtual ) => {
-                return Number(itemAnterior) + itemAtual.quantidade;
-            }, 0 );
-        },
         replicarTodasGrades(index) {
             const quantidades = this.produtos[index].produtoAddCores.reduce((map, corAdd) => {
                 map[corAdd.codigo] = corAdd.produtoAddTamanhos.reduce((map, tamanhoAdd) => {
@@ -215,7 +153,6 @@ export default {
                 }
             }
             this.carrinho.itens = itens;
-            this.somaPreviaValores();
         },
         carregaItensTela() {
             return new Promise((resolve) => {
@@ -224,8 +161,6 @@ export default {
                     this.produtos = produtos;
                     ProdutoDB.getProdutosLook(produtos[0].produtosLook).then((produtosLook) => {
                         this.produtosDoLook = produtosLook;
-                        this.showPrevia = true
-                        this.somaPreviaValores();
                         this.isShow = true;
                         document.getElementById('loading-bg').style.display = "none";
                         resolve();
