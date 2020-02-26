@@ -887,7 +887,7 @@ export default {
                 CidadeService.buscaEndereco(this.clienteEdit.endereco.cep).then((endereco) =>{
                     if (endereco) {
                         CidadeDB.buscaCidade(endereco.id).then((cidade) => {
-                            if (cidade.existe && cidade.result.rel === 0) {
+                            if (cidade.existe && cidade.result.rel === 1) {
                                 endereco.telefone = telefone
                                 endereco.cep = cep;
                                 endereco.endereco = endereco.e;
