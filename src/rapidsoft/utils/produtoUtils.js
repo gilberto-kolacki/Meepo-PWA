@@ -90,9 +90,9 @@ class produtoUtils{
         }, {});
     }
 
-    calcularPreco(itemCor) {
+    calcularPreco(itemCor, tipo = 1) {
         const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
-        const precoProduto = itemCor.precoCusto;
+        const precoProduto = tipo === 1 ? itemCor.precoCusto : itemCor.precoVenda;
         return _.round(precoProduto + ((percentual/100) * precoProduto), 2);
     }
 
