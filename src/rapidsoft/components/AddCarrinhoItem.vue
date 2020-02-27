@@ -7,9 +7,9 @@
                 </div>
             </div>
             <div class="vx-row">
-                <div class="vx-col w-2/3">
+                <!-- <div class="vx-col w-2/3">
                     <h6><strong>Política:</strong> {{this.grupoCliente.nome}}</h6>
-                </div>
+                </div> -->
                 <div class="vx-col w-1/3">
                     <h6><strong>Preço :</strong> {{getPreco}}</h6>
                 </div>
