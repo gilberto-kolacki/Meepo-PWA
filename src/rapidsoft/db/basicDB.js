@@ -342,23 +342,15 @@ class basicDB {
     }
 
     _criarLogDB(erro){
-        return new Promise((resolve) => {
-            const logger = newLog('DB', erro.method, erro.url, erro.error,erro.message);
-            this.__salvarErro(logger).then((result) => {
-                resolve(result);
-            });
-        });
+        const logger = newLog('DB', erro.method, erro.url, erro.error,erro.message);
+        this.__salvarErro(logger);
     }
 
     _criarLog(erro) {
-        return new Promise((resolve) => {
-            console.log(erro);
-            const caminho = erro.vm.$el ? erro.vm.$el.baseURI : erro.vm.$vnode.tag;
-            const logger = newLog('tela', erro.vm.id, caminho, erro.info, erro.err.message);
-            this.__salvarErro(logger).then((result) => {
-                resolve(result);
-            });
-        });
+        console.log(erro);
+        const caminho = erro.vm.$el ? erro.vm.$el.baseURI : erro.vm.$vnode.tag;
+        const logger = newLog('tela', erro.vm.id, caminho, erro.info, erro.err.message);
+        this.__salvarErro(logger);
     }
 
     _criarLogErroSinc(sinc, erro, mensagem) {
