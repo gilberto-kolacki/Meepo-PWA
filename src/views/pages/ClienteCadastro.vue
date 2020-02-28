@@ -181,8 +181,8 @@
                             <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
                         </div>
                     </div>
-                    <h5 class="mt-5">Referências Comerciais</h5>
-                    <div class="vx-row flex justify-between" style="margin-left:20px;margin-right:20px;padding-top:20px;padding-bottom:20px">
+                    <h5 v-if="!$route.params.clienteId" class="mt-5">Referências Comerciais</h5>
+                    <div v-if="!$route.params.clienteId" class="vx-row flex justify-between" style="margin-left:20px;margin-right:20px;padding-top:20px;padding-bottom:20px">
                         <vs-col vs-lg="5" vs-xs="12">
                             <div class="vx-row" style="justify-content: flex-start;" v-for="(referenciaComercial, index) in listReferenciasComerciais" :key="`referenciaComercial-${index}`">
                                 <vs-checkbox v-model="referenciaComercial.refSelecionada"></vs-checkbox>
@@ -942,6 +942,15 @@ export default {
                 });
             });
         },
+        getReferencias() {
+            const ref = this.listReferenciasComerciais.filter((refComercial) => refComercial.refSelecionada == true);
+            const listReferencias = ref.map((referencia) => {
+                return referencia['nome'];
+            });
+            // referenciaComercial
+            return _.join(listReferencias,', ');
+            
+        },
         salvarCliente() {
             this.$vs.loading();
             const cliente = _.cloneDeep(this.clienteEdit);
@@ -959,7 +968,9 @@ export default {
             if (_.findIndex(this.segmentosCliente, {'value':3333}) >= 0) {
                 cliente.segmentos = ['3','5'];
             }
-            cliente.referenciasComerciais = this.listReferenciasComerciais.filter((refComercial) => refComercial.refSelecionada == true);
+            cliente.referenciaComercial = cliente.referenciaComercial 
+                ? cliente.referenciaComercial  + ' - ' + this.getReferencias() 
+                    : this.getReferencias();
             
             setTimeout(() => {
                 ClienteDB.salvar(cliente).then((clienteSalvo) => {

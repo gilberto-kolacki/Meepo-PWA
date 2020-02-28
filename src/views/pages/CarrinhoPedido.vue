@@ -166,7 +166,7 @@
                                 :clearable=false                                     
                             />
                         </div>
-                        <div class="vx-col sm:w-2/5 w-full mb-2" v-if="!pedido.brinde">
+                        <div class="vx-col sm:w-2/5 w-full mb-2">
                             <label>Forma de Pagamento</label>
                             <v-select 
                                 @input="selecionarCondicaoPagamento(pedido)"
@@ -346,7 +346,7 @@ export default {
             return this.condicoesPagto[idPedido];
         },
         selecionarEndereco() {
-            if(this.pedidoCapa.cliente.enderecos.length > 0){
+            if(this.pedidoCapa.cliente.enderecos){
                 const enderecoPrincipal = this.pedidoCapa.cliente.enderecos.find((endereco) => endereco.principal);
                 if (enderecoPrincipal) {
                     this.pedidoCapa.endEntrega = {descricao: this.getLabelEndereco(enderecoPrincipal), endereco: enderecoPrincipal };
