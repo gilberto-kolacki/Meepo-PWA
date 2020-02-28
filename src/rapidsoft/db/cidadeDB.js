@@ -136,11 +136,8 @@ class cidadeDB extends BasicDB {
 
     getCidadesRelacionadas() {
         return new Promise((resolve) => {
-            this._localDB.find({
-                selector: {'rel': {$eq: 1}},
-                fields: ['idCidade', 'nome'],
-            }).then((result) => {
-                resolve(result.docs);
+            this._getFindCondition({rel : {$gte : 1}}).then((cidades) => {
+                resolve(cidades);
             });
         });
     }

@@ -13,10 +13,10 @@
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/4 w-full mb-2">
                             <!-- <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="isJuridico ? proximoCampo('razaoSocial') : proximoCampo('nomeCliente')"> -->
-                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="verificaCnpjClienteNovo(cpfCnpj)">
+                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="isJuridico ? proximoCampo('razaoSocial') : proximoCampo('nomeCliente')">
                                 <label for="" class="vs-input--label">CPF/CNPJ*</label>
                                 <div class="vs-con-input">
-                                    <the-mask v-validate="'required|min:14'" id="cpfCnpj" name="cpfCnpj" v-model="cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
+                                    <the-mask v-validate="'required|min:14'" @input="verificaCnpjClienteNovo(cpfCnpj)" id="cpfCnpj" name="cpfCnpj" v-model="cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
                                 </div>
                                 <span class="text-danger text-sm">{{ errors.first('cpfCnpj') }}</span>
                                 <span v-if="idExistente" class="text-danger text-sm">{{ isJuridico ? 'O CNPJ já existe na base de dados!' : 'O CPF já existe na base de dados!' }}</span>
@@ -177,7 +177,7 @@
                             <span class="text-danger text-sm">{{ errors.first('cidade') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/6 w-full mb-2">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" class="w-full" v-on:keyup.enter="getGroupClient(clienteEdit.endereco.estado)"/>
+                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco',clienteEdit.endereco.estado)" v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
                         </div>
                     </div>
@@ -568,12 +568,16 @@ export default {
         }
     },
     methods: {
-        cnpjnulo(cpfCnpj,key = null){
-            if (!cpfCnpj) {
+        cnpjnulo(cpfCnpj,key = null,uf = null) {
+            if (!cpfCnpj || cpfCnpj.length == 0) {
                 this.clienteEdit[key] = _.isObject(this.clienteEdit[key]) ? 
                     {cep: null,telefone: null, estado:null,bairro:null,complemento:null,numero:null,endereco:null} 
                 : null;
                 this.proximoCampo('cpfCnpj');
+            } else {
+                if (uf.length > 1) {
+                    this.getGroupClient(uf);
+                }
             }
         },
         getDateFromStringDate(inputFormat) {
@@ -592,11 +596,11 @@ export default {
                 id = id.replace(/[^a-z0-9]/gi, "");
                 ClienteDB._getById(id).then((cliente) => {
                     this.idExistente = cliente.existe;
-                    !this.idExistente ? 
-                        this.isJuridico ? 
-                            this.proximoCampo('razaoSocial') 
-                        : this.proximoCampo('nomeCliente') 
-                    : this.proximoCampo('cpfCnpj')
+                    // !this.idExistente ? 
+                    //     this.isJuridico ? 
+                    //         this.proximoCampo('razaoSocial') 
+                    //     : this.proximoCampo('nomeCliente') 
+                    // : this.proximoCampo('cpfCnpj')
                 });
             } else {
                 this.proximoCampo('cpfCnpj');
@@ -643,9 +647,6 @@ export default {
         },
         proximoCampo(refName) {                  
             document.getElementById(refName).focus();      
-            if (refName === "dataAniversario" || refName === "dataFundacao") {
-                this.$refs[refName].showCalendar()
-            } 
         },
         toBase64(file, callback) {
             const reader = new FileReader();
@@ -1016,25 +1017,12 @@ export default {
             }
         },
 
-        setReferenciasCliente(referenciasCliente){
-            this.listReferenciasComerciais.map((referenciaComercial) => {
-                const referencia = _.find(referenciasCliente, {'id':referenciaComercial.id});
-                if (referencia) {
-                    referenciaComercial.refSelecionada = true;
-                }
-            });
-            console.log('this.listReferenciasComerciais ',this.listReferenciasComerciais);
-        },
-
         findById(idCliente) {
             return new Promise((resolve) => {
                 ClienteDB.findById(idCliente).then((cliente) => {
                     cliente.grupoCliente = cliente.grupoCliente ? cliente.grupoCliente : 33;
                     this.grupoCliente = this.getGrupoClientesSelect.find((grupo) => grupo.value === cliente.grupoCliente );
                     this.grupoCliente = this.grupoCliente ? this.grupoCliente : {value:33,label:'PADRÃO',padrao:true}; 
-                    if (cliente.referenciasComerciais) {
-                        this.setReferenciasCliente(cliente.referenciasComerciais)
-                    }
                     if (cliente.segmentos && cliente.segmentos.length > 0) {
                         this.segmentosCliente = cliente.segmentos.map((segmentoCliente) => {
                             return this.getSegmentosCheckBox.find((segmento) => segmentoCliente.toString() == segmento.value.toString());
@@ -1050,10 +1038,14 @@ export default {
             });
         },
         listaCidades(callback) {
+            setTimeout(() => {
+                this.$vs.loading();
+            }, 100);
             CidadeDB.getCidadesRelacionadas().then((cidades) => {
                 this.listCidades = cidades;
                 callback();
-            })
+            });
+            
         },
         listaReferenciasComerciais(callback) {
             ReferenciaComercialDB.getAll().then((referenciasComerciais) => {
@@ -1079,6 +1071,7 @@ export default {
                 this.buscaGrupos(() => {
                     this.buscaSegmentos(() => {
                         this.listaCidades(() => {
+                            this.$vs.loading.close();
                             this.listaReferenciasComerciais(() => {
                                 if (this.$route.params.clienteId) {
                                     this.findById(this.$route.params.clienteId).then(() => {
