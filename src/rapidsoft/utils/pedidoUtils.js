@@ -195,14 +195,16 @@ class pedidoUtils {
         });
     }
 
-    concluirGeracaoPedidos(view, carrinho = false) {        
-        Storage.deleteCarrinho();
-        Storage.deleteGrupoCarrinho();
-        Storage.deleteClienteCarrinho();
-        if (carrinho) {
-            view.$router.push({ name: 'orcamentoConsulta'});
+    concluirGeracaoPedidos(view, carrinho = false, itens) {        
+        Storage.deleteCarrinhoItens(itens);
+        if (Storage.existeCarrinho()) {
+            view.$router.push({ name: 'carrinho'});
         } else {
-            view.$router.push({ name: 'pedidoConsulta'});
+            if (carrinho) {
+                view.$router.push({ name: 'orcamentoConsulta'});
+            } else {
+                view.$router.push({ name: 'pedidoConsulta'});
+            }
         }
     }
 

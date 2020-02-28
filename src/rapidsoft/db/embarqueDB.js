@@ -83,13 +83,10 @@ class embarqueDB extends BasicDB {
     }
 
     getEmbarquesPedido(pedido) {
-        
         return new Promise((resolve) => {
             const grupo = pedido.grupoCliente;
-            const done = _.after(pedido.listEmbarques.length,() => resolve(pedido));
-            
             pedido.listEmbarques = _.orderBy(pedido.listEmbarques, ['dataEmbarque', 'nome'], ['asc', 'asc']);
-            pedido.listEmbarques.forEach(embarque => {
+            pedido.listEmbarques = pedido.listEmbarques.reduce((listEmbarques, embarque) => {
                 embarque.brinde = false;
                 embarque.pedidoParcial = true;
                 embarque.antecipacaoPedido = true;
@@ -99,8 +96,10 @@ class embarqueDB extends BasicDB {
                 embarque.quantidade = this.getQuantidadeEmbarque(embarque.itensPedido);
                 embarque.valor = this.getValorEmbarque(embarque.itensPedido);
                 embarque.totalBruto = _.round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
-                done();
-            });
+                listEmbarques.push(embarque);
+                return listEmbarques;
+            }, []);
+            resolve(pedido);
         });
     }
 

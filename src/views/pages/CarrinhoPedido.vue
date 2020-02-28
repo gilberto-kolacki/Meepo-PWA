@@ -406,7 +406,7 @@ export default {
                     text:'Será gerado um orçamento, e seu carrinho será apagado!. Deseja continuar?',
                     acceptText: 'Sim',
                     cancelText: 'Cancelar',
-                    accept: this.gerarCarrinho,
+                    accept: this.gerarOrcamento,
                     parameters: orcamento
                 });
             });
@@ -429,10 +429,16 @@ export default {
                 });
             });
         },
-        gerarCarrinho(orcamento) {
+        gerarOrcamento(orcamento) {
             orcamento.emailEnviado = false;
+            const itens = orcamento.embarques.reduce((itens, embarque) => {
+                return embarque.itens.reduce((produtos, item) => {
+                    produtos.push(item.idProduto);
+                    return produtos;
+                }, []); 
+            }, []);
             OrcamentoDB.salvar(orcamento).then(() => {
-                PedidoUtils.concluirGeracaoPedidos(this, true);
+                PedidoUtils.concluirGeracaoPedidos(this, true, itens);
             });
         },
         voltarCarrinho() {

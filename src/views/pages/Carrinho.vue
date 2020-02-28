@@ -67,10 +67,10 @@ export default {
 		},
 		showAddCarrinho() {
 			this.gerenciaVisualizacao(1);
-
 			this.produtosAdd=null;
 		},
 		showPedidos() {
+			this.itensCarrinho = this.itensCarrinho.filter((item) => item.segmento.some((segmento) => segmento === this.segmentos[0].id));
 			CarrinhoUtils.setItensToPedidoEmbarques(this.embarques, this.itensCarrinho).then((pedidoEmbarques) => {
 				this.$router.push({ name: 'carrinhoPedido',
 					params: {pedidoEmbarques: pedidoEmbarques}
@@ -79,7 +79,7 @@ export default {
 		},
 		showEditCarrinho(produto) {
 			this.$router.push({ name: 'carrinhoAdd', 
-				params: {tela: 'carrinho', produtos: [produto], pag: 0,edit:true}
+				params: {tela: 'carrinho', produtos: [produto], pag: 0, edit:true}
 			});
 		},
 		voltar() {
