@@ -1,11 +1,10 @@
 <template>
     <b-modal 
         :id="id" 
-        class="popup-cliente-search" 
-        size="xl"
-          
+        class="popup-cliente-search"          
         @show="zoomSearch"
         hide-footer>
+        <!-- size="xl" -->
         <template v-slot:modal-header="{ close }">
             <header class="vs-popup--header">
                 <div class="vs-popup--title">
@@ -230,23 +229,21 @@ export default {
     z-index: 42000;
 }
 
+.modal-dialog {
+    max-width: 1024px;
+    width: 97% !important;
+    margin: 0.2rem 40.0rem;
+}
+
 .modal-content {
     height: 98.5vh !important;
+    width: 70rem !important;
 }
 
 .vs-table--content{
-    max-height: 65vh;
+    max-height: 75vh;
 }
 
-@media only screen and (max-width: 768px) {
-    .modal-content {
-        height: 98.5vh !important;
-    }
-
-    .vs-table--content{
-        max-height: 75vh;
-    }
-}
 
 .img-popup {
     max-height: 7rem;
@@ -280,6 +277,54 @@ export default {
     box-sizing: border-box;
     border: 3px solid transparent;
     top: 5% !important;
+}
+
+@media only screen and (max-width: 1370px) {
+
+    .modal-dialog {
+        margin: 0.2rem 30.0rem;
+    }
+
+    .modal-content {
+        height: 98.5vh !important;
+        width: 54rem !important;
+    }
+
+    .vs-table--content{
+        max-height: 66vh;
+    }
+}
+
+@media only screen and (max-width: 1200px) {
+
+    .modal-dialog {
+        margin: 0.2rem 10.0rem;
+    }
+
+    .modal-content {
+        height: 98.5vh !important;
+        width: 54rem !important;
+    }
+
+    .vs-table--content{
+        max-height: 69vh;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+
+    .modal-dialog {
+        margin: 0.2rem 0.5rem;
+    }
+
+    .modal-content {
+        height: 98.5vh !important;
+        width: 54rem !important;
+    }
+
+    .vs-table--content{
+        max-height: 75vh;
+    }
 }
     
 </style>

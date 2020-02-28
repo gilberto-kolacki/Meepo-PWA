@@ -230,14 +230,15 @@ html, body {
 .btn-left {
     position: fixed;
     top:50%;
-    left: 0;    
+    left: 262px;    
     border-top-left-radius: 0 !important;
     border-bottom-left-radius: 0 !important;
     border-top-right-radius: 50% !important;
     border-bottom-right-radius: 50% !important;
     z-index: 1000;
-    height: 6vw !important;
+    height: 6vh !important;
 }
+
 
 .btn-right {
     position: fixed;
@@ -249,7 +250,7 @@ html, body {
     border-bottom-left-radius: 50% !important;
     z-index: 1000;
     // z-index: 300001;
-    height: 6vw !important;
+    height: 6vh !important;
 }
 
 .btn-confirm {
@@ -267,7 +268,7 @@ html, body {
 .btn-cancel {
     position: fixed;
     top: 50%;
-    left: -50px;
+    left: 217px;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     z-index: 1000;
@@ -345,6 +346,17 @@ html, body {
 .on-scroll::-webkit-scrollbar-thumb
 {
 	background-color: #fff;    
+}
+
+@media only screen and (max-width: 1200px) {
+
+    .btn-left {
+        left: 0;    
+    }
+
+    .btn-cancel {
+        left: -50px;
+    }
 }
 
 </style>

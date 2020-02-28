@@ -1,5 +1,8 @@
 <template>
-    <b-modal :id="id" size="xl" class="w-full" hide-footer style="height:100vh">
+    <b-modal :id="id" 
+        class="w-full" 
+        hide-footer 
+        >
         <template v-slot:modal-header="{ close }">
             <header class="vs-popup--header">
                 <div class="vs-popup--title">
@@ -201,6 +204,22 @@ export default {
 
 <style lang="scss">
 
+.modal {    
+    position: fixed;
+    z-index: 42000;
+}
+
+.modal-dialog {
+    max-width: 1024px;
+    width: 97% !important;
+    margin: 0.2rem 40.0rem;
+}
+
+.modal-content {
+    height: 98.5vh !important;
+    width: 70rem !important;
+}
+
 .img-popup {
     max-height: 7rem;
     max-width: 4rem;
@@ -233,6 +252,54 @@ export default {
     box-sizing: border-box;
     border: 3px solid transparent;
     top: 5% !important;
+}
+
+@media only screen and (max-width: 1370px) {
+
+    .modal-dialog {
+        margin: 0.2rem 30.0rem;
+    }
+
+    .modal-content {
+        height: 98.5vh !important;
+        width: 54rem !important;
+    }
+
+    .vs-table--content{
+        max-height: 66vh;
+    }
+}
+
+@media only screen and (max-width: 1200px) {
+
+    .modal-dialog {
+        margin: 0.2rem 10.0rem;
+    }
+
+    .modal-content {
+        height: 98.5vh !important;
+        width: 54rem !important;
+    }
+
+    .vs-table--content{
+        max-height: 69vh;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+
+    .modal-dialog {
+        margin: 0.2rem 0.5rem;
+    }
+
+    .modal-content {
+        height: 98.5vh !important;
+        width: 54rem !important;
+    }
+
+    .vs-table--content{
+        max-height: 75vh;
+    }
 }
     
 </style>
