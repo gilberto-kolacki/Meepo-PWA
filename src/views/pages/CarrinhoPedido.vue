@@ -413,14 +413,7 @@ export default {
         },
 		gerarPedidos(pedidos) {
             const done = _.after(pedidos.length, () => {
-                const IdOrcamento = Storage.getIdOrcamentoCarrinho();
-                if (IdOrcamento) {
-                    OrcamentoDB._deletar(IdOrcamento).then(() => {
-                        PedidoUtils.concluirGeracaoPedidos(this);
-                    });
-                } else {
-                    PedidoUtils.concluirGeracaoPedidos(this);
-                }
+                PedidoUtils.concluirGeracaoPedidos(this, []);
             });
             
             pedidos.forEach(pedido => {
@@ -438,7 +431,7 @@ export default {
                 }, []); 
             }, []);
             OrcamentoDB.salvar(orcamento).then(() => {
-                PedidoUtils.concluirGeracaoPedidos(this, true, itens);
+                PedidoUtils.concluirGeracaoPedidos(this, itens, true);
             });
         },
         voltarCarrinho() {

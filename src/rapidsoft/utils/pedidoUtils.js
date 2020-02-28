@@ -195,7 +195,7 @@ class pedidoUtils {
         });
     }
 
-    concluirGeracaoPedidos(view, carrinho = false, itens) {        
+    concluirGeracaoPedidos(view, itens, carrinho = false) {        
         Storage.deleteCarrinhoItens(itens);
         if (Storage.existeCarrinho()) {
             view.$router.push({ name: 'carrinho'});

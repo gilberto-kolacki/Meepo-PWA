@@ -48,7 +48,7 @@ class storage {
     deleteCarrinhoItens(itens) {
         const carrinho = this.getCarrinho();
         carrinho.itens = carrinho.itens.filter((itemCarrinho) => !(itens.some((itemDelete) => itemDelete === itemCarrinho.idProduto)));
-        if (carrinho.itens.length > 0) {
+        if (carrinho.itens.length > 0 && itens.length > 0) {
             this.setCarrinho(carrinho);
         } else {
             this.deleteCarrinho();
