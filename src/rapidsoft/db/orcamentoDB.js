@@ -26,6 +26,9 @@ class orcamentoDB extends BasicDB {
                 });
             };
 
+
+            console.log(orcamento);
+            
             if (orcamento.id) {
                 this.get(orcamento.id).then((orcamentoDB) => {
                     orcamento._id = orcamentoDB._id;
@@ -38,6 +41,20 @@ class orcamentoDB extends BasicDB {
                     salva(orcamento);
                 });
             }
+        });
+    }
+
+    salvarSinc(orcamento) {
+        return new Promise((resolve) => {
+            this.get(orcamento.id).then((object) => {
+                orcamento._rev = object._rev;
+                orcamento.cliente.id = String(orcamento.cliente.id);
+                this._salvar(orcamento).then(() => {
+                    resolve();
+                });
+            }).catch(() => {
+                resolve();
+            });
         });
     }
 

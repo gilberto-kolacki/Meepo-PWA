@@ -339,6 +339,9 @@ class clienteDB extends BasicDB {
 
     findById(idCliente) {
         return new Promise((resolve) => {
+            console.log(idCliente);
+            
+
             this._localDB.get(idCliente).then((result) => {
                 result.dataAniversario = new Date(Number(result.dataAniversario));
                 result.dataFundacao = new Date(Number(result.dataFundacao));
@@ -392,7 +395,12 @@ class clienteDB extends BasicDB {
                         alterado: {$eq: true}
                     },
                 }).then((result) => {
-                    resolve(result.docs);
+                    const clientesSinc = result.docs.map((cliente) => {
+                        delete cliente.referenciasComerciais;
+                        delete cliente.alterado;
+                        return cliente;
+                    });
+                    resolve(clientesSinc);
                 });
             } else {
                 resolve([]);

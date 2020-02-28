@@ -2,8 +2,8 @@
     "codigo_empresa": 1,
     "empresa": "live",
     "endereco_api": "https://api.liveoficial.com.br/offline",
-    "endereco_couchdb": "http://sinc:sinc@rapidsoft.com.br:5984/",
+    "endereco_couchdb": "https://rapidsoft_sync:rapidsoft_sync@app.shoplive.com.br:8080/",
     "authorization": "Basic bHZfYzBuN2FyMzpyZkBpRCNlYU5jb2Qz",
     "versao": "Alfa"
-
+    
 }

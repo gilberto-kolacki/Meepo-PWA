@@ -289,6 +289,13 @@ export default {
                     if (orcamentos.length > 0) {
                         sinc.parcial = 0;
                         sinc.total = orcamentos.length;
+                        const done = _.after(orcamentos.length, () => SincUtils.closeLoading(this, sinc, all));
+                        orcamentos.forEach(orcamento => {
+                            OrcamentoDB.salvarSinc(orcamento).then(() => {
+                                SincUtils.atuaizaParcialSinc(sinc, 1);
+                                done();
+                            });
+                        });
                     } else {
                         SincUtils.closeLoading(this, sinc, all);
                     }

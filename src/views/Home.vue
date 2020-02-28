@@ -29,74 +29,38 @@
         <div class="vx-row flex justify-center" v-if="this.existeCarrinho">
             <div class="vx-col w-full" @click="$router.push('/carrinho')">
                 <vx-card class="cursor-pointer">
-                    <vs-table ref="table" :data="carrinho">
-                        <template slot="header">
-                            <h4>Carrinho</h4>
-                        </template>
-                        <template slot="thead">
-                            <vs-th style="width:40%">Cliente</vs-th>
-                            <vs-th style="width:30%">Grupo</vs-th>
-                            <vs-th style="width:10%">Itens</vs-th>
-                            <vs-th style="width:20%;">Total</vs-th>
-                        </template>
-                        <template>
-                            <vs-tr>
-                                <vs-td>
-                                    {{this.carrinho.cliente ? this.carrinho.cliente.nome : " - " | capitalize }}
-                                </vs-td>
-                                <vs-td>
-                                    {{this.carrinho.grupoCliente ? this.carrinho.grupoCliente.nome : " - " | capitalize}}
-                                </vs-td>
-                                <vs-td style="text-align:right">
-                                    {{this.carrinho.itens.length}}
-                                </vs-td>
-                                <vs-td style="text-align:right">
-                                    {{this.carrinho.valorTotal | moneyy }}
-                                </vs-td>
-                            </vs-tr>
-                        </template>
-                    </vs-table >
+                    <h5>Carrinho</h5>
+                    <table style="width:100%" class="border-collapse">
+                        <tr>
+                            <th class="p-2 border border-solid d-theme-border-grey-light">Cliente</th>
+                            <th class="p-2 border border-solid d-theme-border-grey-light">Itens</th>
+                            <th class="p-2 border border-solid d-theme-border-grey-light">Total</th>
+                        </tr>
+                        <tr>
+                            <td class="p-2 border border-solid d-theme-border-grey-light">{{this.carrinho.cliente ? this.carrinho.cliente.nome : " - " | capitalize}}</td>
+                            <td class="p-2 border border-solid d-theme-border-grey-light">{{this.carrinho.itens.length}}</td>
+                            <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{this.carrinho.valorTotal | moneyy}}</td>
+                        </tr>
+                    </table>
                 </vx-card>
             </div>
         </div>
         <div class="vx-row flex justify-center" style="margin-top:10px" v-if="this.existePedidoEmDigitacao">
-            <div class="vx-col w-full">
+            <div class="vx-col w-full" @click="$router.push('/pedido/consulta')">
                 <vx-card class="cursor-pointer">
-                    <vs-table ref="table" :data="pedidosEmDigitacao">
-                        <template slot="header">
-                            <h4>Pedidos em Digitação</h4>
-                        </template>
-                        <template slot="thead">
-                            <vs-th style="width:5%">Abrir</vs-th>
-                            <vs-th style="width:35%">CNPJ</vs-th>
-                            <vs-th style="width:30%">Cliente</vs-th>
-                            <vs-th style="width:10%">Itens</vs-th>
-                            <vs-th style="width:20%">Total</vs-th>
-                        </template>
-                        <template slot-scope="{data}">
-                            <vs-tr v-for="(pedido, indextr) in data" :key="indextr">
-                                <vs-td>
-                                    <div class="flex">
-                                        <div class="p-1">
-                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="success" icon="icon-maximize-2" @click="abrirPedido(data[indextr])" />
-                                        </div>
-                                    </div>
-                                </vs-td>
-                                <vs-td>
-                                    {{pedido.cliente.cpfCnpj}}
-                                </vs-td>
-                                <vs-td>
-                                    {{pedido.cliente.nome | capitalize }}
-                                </vs-td>
-                                <vs-td style="text-align:right">
-                                    {{pedido.quantidade }}
-                                </vs-td>
-                                <vs-td style="text-align:right">
-                                    {{ pedido.totalLiquido | moneyy(pedido.grupoCliente)}}
-                                </vs-td>
-                            </vs-tr>
-                        </template>
-                    </vs-table >
+                    <h5>Pedidos em Digitação</h5>
+                    <table style="width:100%" class="border-collapse">
+                        <tr>
+                            <th class="p-2 border border-solid d-theme-border-grey-light">Cliente</th>
+                            <th class="p-2 border border-solid d-theme-border-grey-light">Itens</th>
+                            <th class="p-2 border border-solid d-theme-border-grey-light">Total</th>
+                        </tr>
+                        <tr v-for="(pedido, indextr) in pedidosEmDigitacao" :key="indextr">
+                            <td class="p-2 border border-solid d-theme-border-grey-light">{{pedido.cliente.nome | capitalize }}</td>
+                            <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{pedido.quantidade }}</td>
+                            <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{ pedido.totalLiquido | moneyy(pedido.grupoCliente)}}</td>
+                        </tr>
+                    </table>
                 </vx-card>
             </div>
         </div>

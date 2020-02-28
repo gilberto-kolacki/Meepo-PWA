@@ -34,11 +34,8 @@
                         </vs-col>
                     </div>
                     <div class="vx-row">
-                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
                             <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedido.cliente.emailNfe" class="w-full" type="email" inputmode="email" />
-                        </vs-col>
-                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
-                            <vs-input label="Grupo Cliente" id="grupoCliente" name="grupoCliente" v-model="pedido.grupoCliente.nome" disabled class="w-full" type="text" />
                         </vs-col>
                     </div>
                     <div class="vx-row">
@@ -50,7 +47,6 @@
                                 :clearable=false 
                                 v-model="enderecoEntregaSelecionado" 
                                 :options="getEnderecosEntrega" 
-                                :dir="$vs.rtl ? 'rtl' : 'ltr'"
                             /> 
                         </div>
                     </div>
@@ -78,10 +74,6 @@
                             <div class="vx-row" style="justify-content: flex-start;">
                                 <vs-checkbox v-model="pedido.antecipacaoPedido"></vs-checkbox>
                                 <label>Aceita Antecipação do Pedido </label>
-                            </div>
-                            <div class="vx-row" style="justify-content: flex-start;">
-                                <vs-checkbox @input="setBrinde()" v-model="pedido.brinde"></vs-checkbox>
-                                <label>Brinde </label>
                             </div>
                         </vs-col>
                         <vs-col vs-lg="5" vs-sm="5" vs-xs="12">

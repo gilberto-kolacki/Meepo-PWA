@@ -179,34 +179,29 @@ class produtoDB extends BasicDB {
             this.getPaginasByCategorias(idCategoria, catalogo.paginas).then((paginas) => {
                 catalogo.paginas = paginas;
 
-                this.getProdutosFromPaginas(catalogo.paginas).then((produtos) => {
-                    CategoriaDB.getByIds(catalogo.categorias).then((categorias) => {
-                        produtos.categorias = categorias;
-                        resolve(produtos);
-                    });
+                const produtos = this.getProdutosFromPaginas(catalogo.paginas);
+                CategoriaDB.getByIds(catalogo.categorias).then((categorias) => {
+                    produtos.categorias = categorias;
+                    resolve(produtos);
                 });
             });
         });
     }
 
     getProdutosFromPaginas(paginas) {
-        return new Promise((resolve) => {
-            const paginasProdutos = paginas.map((pagina) => {
-                const prodOrderSeq = _.orderBy(pagina.produtos, ['seq']);
-                delete pagina['produtos'];
-                pagina.produtoA = prodOrderSeq[0];
-                if (prodOrderSeq[1]) {
-                    pagina.produtoB = prodOrderSeq[1];
-                }
-                if (prodOrderSeq[2]) {
-                    pagina.produtoC = prodOrderSeq[2];
-                }
-                if (prodOrderSeq[3]) {
-                    pagina.produtoD = prodOrderSeq[3];
-                }
-                return pagina;
-            });
-            resolve(paginasProdutos);
+        return paginas.map((pagina) => {
+            const prodOrderSeq = _.orderBy(pagina.produtos, ['seq']);
+            pagina.produtoA = prodOrderSeq[0];
+            // if (prodOrderSeq[1]) {
+            //     pagina.produtoB = prodOrderSeq[1];
+            // }
+            // if (prodOrderSeq[2]) {
+            //     pagina.produtoC = prodOrderSeq[2];
+            // }
+            // if (prodOrderSeq[3]) {
+            //     pagina.produtoD = prodOrderSeq[3];
+            // }
+            return pagina;
         });
     }
 
@@ -266,14 +261,6 @@ class produtoDB extends BasicDB {
             }
         });            
     }
-
-    // filtrarProdutosPesquisa(produtos) {
-    //     return this.produtos.filter((produto) => {
-    //         return this.getCategoriasCardPesquisa.some((categoria) => {
-    //             return categoria.check && produto.hasOwnProperty('categoria') && produto.categoria.hasOwnProperty('codigo') && produto.categoria.codigo == categoria.codigo;
-    //         });
-    //     });
-    // }
 
     getProdutosSearch(idsCategorias, textoSearch) {
         return new Promise((resolve) => {
