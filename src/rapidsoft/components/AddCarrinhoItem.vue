@@ -17,6 +17,14 @@
                             </div>
                         </div>
                     </div>
+                    <div class='vx-row flex pr-6 pl-6' v-if="this.cliente.razaoSocial ? this.cliente.razaoSocial : this.cliente.nome">
+                        <div class="vx-col w-full sm:w-2/3 flex" style="padding: 8px;">
+                            <vs-avatar class="mr-23" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-user" size="30px" />
+                            <div class="truncate">
+                                <h6 class="mt-3 font-bold">Cliente: {{cliente.nome}}</h6>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </vx-card>
         </b-card-header>
@@ -182,6 +190,7 @@ export default {
         openItems: false,
         grupoCliente: null,
         gradeRef: [],
+        cliente:null,
     }),
     computed: {
         getCoresProduto() {
@@ -337,6 +346,9 @@ export default {
     },
     created() {
         this.grupoCliente = Storage.getGrupoCarrinho();
+        this.cliente = Storage.getClienteCarrinho();
+        console.log('this.cliente ',this.cliente);
+        
     },
     mounted() {
         

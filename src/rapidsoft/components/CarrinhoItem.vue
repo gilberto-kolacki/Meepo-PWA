@@ -49,6 +49,14 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class='vx-row flex pr-6 pl-6' v-if="cliente.nome">
+                                <div class="vx-col w-full sm:w-2/3 flex" style="padding: 8px;">
+                                    <vs-avatar class="mr-23" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-user" size="30px" />
+                                    <div class="truncate">
+                                        <h6 class="mt-3 font-bold">Cliente: {{cliente.tipoPessoa == 0 ? cliente.nome : cliente.razaoSocial}}</h6>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </vx-card>
                 </b-card-header>
@@ -143,7 +151,8 @@ export default {
 	data: () => ({
         dataAtual: new Date().getTime(),
         itensSelecionados: [],
-        produtosCarrinho: [],    		
+        produtosCarrinho: [],
+        cliente:null,    		
     }),
     watch: {
     },
@@ -270,6 +279,8 @@ export default {
 	created() {
         try {
             this.produtosCarrinho = this.produtos;
+            this.cliente = Storage.getClienteCarrinho();
+            
             this.recalculaTotais();
         } catch (error) {
             console.log(error);
