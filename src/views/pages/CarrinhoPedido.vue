@@ -125,8 +125,19 @@
                         <div class="vx-row" style="justify-content: flex-start;">
                             <label>Subtotal: {{ pedido.totalBruto | moneyy }} </label>
                         </div>
-                        <div class="vx-row" style="justify-content: flex-start;">
-                            <label>Descontos: ({{pedidoCapa.desconto1}}%) ({{pedidoCapa.desconto2}}%) ({{pedidoCapa.desconto3}}%) </label>
+                        <div 
+                            class="vx-row" 
+                            style="justify-content: flex-start;" 
+                            v-if="pedidoCapa.desconto1 && pedidoCapa.desconto1 > 0 
+                                || pedidoCapa.desconto2 && pedidoCapa.desconto2 > 0 
+                                || pedidoCapa.desconto3 && pedidoCapa.desconto3 > 0"
+                        >
+                            <label>
+                                Descontos: 
+                                {{pedidoCapa.desconto1 && pedidoCapa.desconto1 > 0 ? `(${pedidoCapa.desconto1}%)` : ''}} 
+                                {{pedidoCapa.desconto2 && pedidoCapa.desconto2 > 0 ? `(${pedidoCapa.desconto2}%)` : ''}} 
+                                {{pedidoCapa.desconto3 && pedidoCapa.desconto3 > 0 ? `(${pedidoCapa.desconto3}%)` : ''}}
+                            </label>
                         </div>
                         <div class="vx-row" style="justify-content: flex-start;">
                             <label><strong>Total: {{getTotalPedido(pedido) | moneyy }}</strong> </label>
