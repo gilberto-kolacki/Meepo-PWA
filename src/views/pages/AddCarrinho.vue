@@ -7,7 +7,7 @@
             <add-carrinho-item v-for="(prodduto, indexProd) in this.produtos" :key="indexProd"
                 @atualiza-qtde-itens="atualizaQuantidadeItens" 
                 :idColapse="'accordion-ref-'+indexProd" 
-                :title="'Referencia '+(indexProd+1)" 
+                title="Referencia:" 
                 :index="indexProd"
                 :totalProdutos="produtos.length"
                 v-model="produtos[indexProd]"

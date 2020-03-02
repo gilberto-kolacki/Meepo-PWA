@@ -16,6 +16,15 @@ class orcamentoDB extends BasicDB {
         this._createIndex('alterado');
     }
 
+    findLastId() {
+        return new Promise((resolve) => {
+            this._count().then((count) => {
+                this._lastId = new Date().getTime() +''+ count;
+                resolve(this._lastId);
+            });
+        });
+    }
+
     salvar(orcamento) {
         return new Promise((resolve) => {
             
@@ -25,7 +34,7 @@ class orcamentoDB extends BasicDB {
                     resolve();
                 });
             };
-
+            
             if (orcamento.id) {
                 this.get(orcamento.id).then((orcamentoDB) => {
                     orcamento._id = orcamentoDB._id;
@@ -33,11 +42,25 @@ class orcamentoDB extends BasicDB {
                     salva(orcamento);
                 });
             } else {
-                this._getNextId().then((Id) => {
-                    orcamento.id = Id;
+                this.findLastId().then((idOrcamento) => {
+                    orcamento.id = idOrcamento;
                     salva(orcamento);
                 });
             }
+        });
+    }
+
+    salvarSinc(orcamento) {
+        return new Promise((resolve) => {
+            this.get(orcamento.id).then((object) => {
+                orcamento._rev = object._rev;
+                orcamento.cliente.id = String(orcamento.cliente.id);
+                this._salvar(orcamento).then(() => {
+                    resolve();
+                });
+            }).catch(() => {
+                resolve();
+            });
         });
     }
 

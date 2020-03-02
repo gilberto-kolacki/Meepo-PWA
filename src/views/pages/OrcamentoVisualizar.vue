@@ -3,7 +3,7 @@
         
         <div class="flex flex-wrap items-center justify-between">
             <div class="flex items-center">
-                <vs-button class="btn-confirm" color="success" type="filled" icon="restore" @click="carrinhoPedido()">Carrinho</vs-button>
+                <vs-button class="btn-confirm" color="success" type="filled" icon="restore" @click="carrinhoPedido()">Editar</vs-button>
                 <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
                 <vs-button @click.stop="printInvoice" color="primary" type="filled" class="btn-carrinho" icon-pack="feather" icon="icon-printer"></vs-button>
             </div>
@@ -23,14 +23,13 @@
                 <div class="vx-col w-full md:w-1/2 mt-12">
                     <h5>Cliente: {{ orcamento.cliente.cpfCnpj | cpfCnpj }}</h5>
                     <div class="invoice__recipient-info my-4">
-                        <p>Grupo : {{ orcamento.grupoCliente.nome }}</p>
                         <p>End.: {{ orcamento.cliente.endereco.endereco + ', ' + orcamento.cliente.endereco.numero}}</p>
                         <p>Cidade: {{ orcamento.cliente.endereco.cidade + '/' + orcamento.cliente.endereco.estado}}</p>
                     </div>
-                    <div class="invoice__recipient-contact ">
+                    <div class="invoice__recipient-contact " v-if="orcamento.cliente && orcamento.cliente.contatos">
                         <p class="flex items-center">
-                            <feather-icon v-if="orcamento.cliente && orcamento.cliente.contatos" icon="PhoneIcon" svgClasses="h-4 w-4"></feather-icon>
-                            <span class="ml-2" v-if="orcamento.cliente">{{ orcamento.cliente.contatos ? orcamento.cliente.contatos[0] : '' }}</span>
+                            <feather-icon icon="PhoneIcon" svgClasses="h-4 w-4"></feather-icon>
+                            <span class="ml-2">{{ orcamento.cliente.contatos[0].celular }}</span>
                         </p>
                     </div>
                 </div>
@@ -107,6 +106,7 @@
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import OrcamentoDB from '../../rapidsoft/db/orcamentoDB';
 import CarrinhoUtils from '../../rapidsoft/utils/carrinhoUtils';
+import Storage from '../../rapidsoft/utils/storage';
 
 export default {
     data() {
@@ -124,25 +124,31 @@ export default {
     },
     methods: {
         carrinhoPedido() {
-            this.$vs.dialog({
-                type:'confirm',
-                color:'warning',
-                title:'Atenção!',
-                text:'Seus itens do carrinho atual serão apagados!. Deseja continuar?',
-                acceptText: 'Sim',
-                cancelText: 'Cancelar',
-                accept: this.gerarCarrinho,
-            });
+            if (Storage.existeCarrinho()) {
+                this.$vs.dialog({
+                    type:'confirm',
+                    color:'warning',
+                    title:'Atenção!',
+                    text:'Seus itens do carrinho atual serão apagados!. Deseja continuar?',
+                    acceptText: 'Sim',
+                    cancelText: 'Cancelar',
+                    accept: this.gerarCarrinho,
+                });
+            } else {
+                this.gerarCarrinho();
+            }
         },
         gerarCarrinho() {
             CarrinhoUtils.setOrcamentoToCarrinho(this.orcamento).then(() => {
-                this.$router.push({ name: 'carrinho' });
+                OrcamentoDB.deletar(this.orcamento).then(() => {
+                    this.$router.push({ name: 'carrinho' });
+                });
             });
         },
         carregaItensTela() {
             return new Promise((resolve) => {
                 OrcamentoDB.get(this.$route.params.orcamentoId).then((orcamento) => {
-                    this.orcamento = orcamento
+                    this.orcamento = orcamento;
                     this.itensOrcamento = orcamento.embarques;
                     this.showScreen = true;
                     resolve();

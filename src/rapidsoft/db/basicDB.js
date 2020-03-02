@@ -41,7 +41,7 @@ const create = (name, remote, callback) => {
                 const localDB = new PouchDB(dataBaseLocal, {revs_limit: 1, auto_compaction: true});
                 const dataBaseRemote = createDBRemote(dataBaseLocal);
                 if (dataBaseRemote) {
-                    const remoteDB = new PouchDB(dataBaseRemote, {skip_setup: true, auto_compaction: true, ajax: {cache: false, timeout: 50000 }});
+                    const remoteDB = new PouchDB(dataBaseRemote, {skip_setup: false, auto_compaction: true, ajax: {cache: false, timeout: 50000 }});
                     callback(localDB, remoteDB);
                 }
             }
@@ -342,23 +342,15 @@ class basicDB {
     }
 
     _criarLogDB(erro){
-        return new Promise((resolve) => {
-            const logger = newLog('DB', erro.method, erro.url, erro.error,erro.message);
-            this.__salvarErro(logger).then((result) => {
-                resolve(result);
-            });
-        });
+        const logger = newLog('DB', erro.method, erro.url, erro.error,erro.message);
+        this.__salvarErro(logger);
     }
 
     _criarLog(erro) {
-        return new Promise((resolve) => {
-            console.log(erro);
-            const caminho = erro.vm.$el ? erro.vm.$el.baseURI : erro.vm.$vnode.tag;
-            const logger = newLog('tela', erro.vm.id, caminho, erro.info, erro.err.message);
-            this.__salvarErro(logger).then((result) => {
-                resolve(result);
-            });
-        });
+        console.log(erro);
+        const caminho = erro.vm.$el ? erro.vm.$el.baseURI : erro.vm.$vnode.tag;
+        const logger = newLog('tela', erro.vm.id, caminho, erro.info, erro.err.message);
+        this.__salvarErro(logger);
     }
 
     _criarLogErroSinc(sinc, erro, mensagem) {

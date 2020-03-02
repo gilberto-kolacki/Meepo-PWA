@@ -88,7 +88,11 @@
                                     style="width:100%" 
                                     class="img-catalogo responsive img-ref"
                                 >
-                                    <b-img slot="img" class="d-block img-fluid w-100" :src="catalogo.base64" alt="image slot" @click="selecionarCatalogo(catalogo)" fluid></b-img>
+                                    <b-img slot="img" 
+                                        class="d-block img-fluid w-100" 
+                                        :src="catalogo.base64" 
+                                        alt="image slot" 
+                                        @click="selecionarCatalogo(catalogo)" fluid></b-img>
                                 </b-carousel-slide>
                             </b-carousel>
                         </div>
@@ -161,7 +165,7 @@ export default {
             return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
         },
 		abrirPesquisaCliente() {
-			this.$bvModal.show(this.idPopUpSearch);
+            this.$bvModal.show(this.idPopUpSearch);
 		},
 		selectSearchCliente() {
 			
@@ -177,8 +181,6 @@ export default {
         carregaItensTela() {
             return new Promise((resolve) => {
                 CatalogoDB._getAll().then((catalogos) => {
-                    console.log(catalogos);
-                    
                     this.catalogos = catalogos;
                     if (!Storage.existeClienteCarrinho()) {
                         this.abrirPesquisaCliente();

@@ -280,23 +280,28 @@ class clienteDB extends BasicDB {
 
     salvarSinc(cliente) {
         return new Promise((resolve) => {
-            cliente.id = cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
-            if (cliente.enderecos.length == 0 && cliente.endereco) {
-                const enderecoEntrega = Object.assign({}, cliente.endereco);
-                enderecoEntrega.endEntrega = true;
-                cliente.enderecos.push(enderecoEntrega);
-            }
-            if (cliente.nome == null) {
-                cliente.nome = (cliente.nomeFantasia ? cliente.nomeFantasia : cliente.razaoSocial).toUpperCase();
-            }
-            cliente.clienteErp = true;
-            cliente.alterado = false;
-            this._salvar(cliente).then(() => {
+            try {
+                cliente.id = cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
+                if (cliente.enderecos.length == 0 && cliente.endereco) {
+                    const enderecoEntrega = Object.assign({}, cliente.endereco);
+                    enderecoEntrega.endEntrega = true;
+                    cliente.enderecos.push(enderecoEntrega);
+                }
+                if (cliente.nome == null) {
+                    cliente.nome = (cliente.nomeFantasia ? cliente.nomeFantasia : cliente.razaoSocial).toUpperCase();
+                }
+                cliente.clienteErp = true;
+                cliente.alterado = false;
+                this._salvar(cliente).then(() => {
+                    resolve();
+                }).catch((erro) => {
+                    throw erro;
+                });
+            } catch (error) {
+                this._criarLogDB({url:'db/clienteDB', method:'salvarSinc', message: error, error:'Failed Request'});
                 resolve();
-            }).catch((erro) => {
-                this._criarLogDB({url:'db/clienteDB', method:'salvarSinc', message: erro, error:'Failed Request'});
-                resolve();
-            });
+            }
+            
         });
     }
     listarConsulta() {
@@ -392,7 +397,11 @@ class clienteDB extends BasicDB {
                         alterado: {$eq: true}
                     },
                 }).then((result) => {
-                    resolve(result.docs);
+                    const clientesSinc = result.docs.map((cliente) => {
+                        delete cliente.alterado;
+                        return cliente;
+                    });
+                    resolve(clientesSinc);
                 });
             } else {
                 resolve([]);

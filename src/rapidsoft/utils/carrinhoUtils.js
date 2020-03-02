@@ -60,7 +60,6 @@ class carrinhoUtils {
 
     setOrcamentoToCarrinho(orcamento) {
         return new Promise((resolve) => {
-            Storage.setIdOrcamentoCarrinho(orcamento.id);
             ClienteDB.findById(orcamento.cliente.id).then((cliente) => {
                 cliente.grupoCliente = orcamento.cliente.grupoCliente;
                 Storage.setClienteCarrinho(cliente);

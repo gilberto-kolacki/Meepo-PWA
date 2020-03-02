@@ -1,6 +1,6 @@
 <template>
 	<div id="page-carrinho" class="page-carrinho">
-		<vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="showPedidos()">Pedidos</vs-button>
+		<vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="showPedidos()">Continuar</vs-button>
 		<vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltar()" icon="icon-x">Voltar</vs-button>
 		<b-tabs content-class="mt-5" justified v-if="this.showScreen" lazy no-fade >
 			<b-tab v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento" :active="isEdit && segmento.id === segmentoSelecionado" :id="'tab-item-'+segmento.id">
@@ -67,10 +67,10 @@ export default {
 		},
 		showAddCarrinho() {
 			this.gerenciaVisualizacao(1);
-
 			this.produtosAdd=null;
 		},
 		showPedidos() {
+			this.itensCarrinho = this.itensCarrinho.filter((item) => item.segmento.some((segmento) => segmento === this.segmentos[0].id));
 			CarrinhoUtils.setItensToPedidoEmbarques(this.embarques, this.itensCarrinho).then((pedidoEmbarques) => {
 				this.$router.push({ name: 'carrinhoPedido',
 					params: {pedidoEmbarques: pedidoEmbarques}
@@ -79,7 +79,7 @@ export default {
 		},
 		showEditCarrinho(produto) {
 			this.$router.push({ name: 'carrinhoAdd', 
-				params: {tela: 'carrinho', produtos: [produto], pag: 0,edit:true}
+				params: {tela: 'carrinho', produtos: [produto], pag: 0, edit:true}
 			});
 		},
 		voltar() {

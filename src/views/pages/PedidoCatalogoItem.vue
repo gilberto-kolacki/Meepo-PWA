@@ -362,14 +362,12 @@ export default {
                 const idCategoria = this.filtro.categoria.id ? this.filtro.categoria.id : null;
                 ProdutoDB.getPaginasCatalogo(idCategoria).then(paginas => {
                     this.paginas = paginas;
-                    if (this.paginaAtual) {
-                        this.$route.params.pag = null;
-                        this.selectProduto(this.paginaAtual);
-                    } else {
-                        this.selectProduto(paginas[0]);
-                    }
-                    document.getElementById('loading-bg').style.display = "none";
-                    resolve();
+                    this.paginaAtual = this.paginaAtual ? this.paginaAtual : paginas[0];
+                    this.$route.params.pag = null;
+                    this.selectProduto(this.paginaAtual).then(() => {
+                        document.getElementById('loading-bg').style.display = "none";
+                        resolve();
+                    });
                 });
             });
         }

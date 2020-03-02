@@ -36,11 +36,8 @@
                     </vs-col>
                 </div>
                 <div class="vx-row">
-                    <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
+                    <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
                         <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedidoCapa.emailNfe" class="w-full" type="email" />
-                    </vs-col>
-                    <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="6" vs-sm="6" vs-xs="12">
-                        <vs-input label="Grupo Cliente" id="grupoCliente" name="grupoCliente" v-model="pedidoCapa.grupoCliente.nome" disabled class="w-full" type="text" />
                     </vs-col>
                 </div>
                 <div class="vx-row">
@@ -409,21 +406,14 @@ export default {
                     text:'Será gerado um orçamento, e seu carrinho será apagado!. Deseja continuar?',
                     acceptText: 'Sim',
                     cancelText: 'Cancelar',
-                    accept: this.gerarCarrinho,
+                    accept: this.gerarOrcamento,
                     parameters: orcamento
                 });
             });
         },
 		gerarPedidos(pedidos) {
             const done = _.after(pedidos.length, () => {
-                const IdOrcamento = Storage.getIdOrcamentoCarrinho();
-                if (IdOrcamento) {
-                    OrcamentoDB._deletar(IdOrcamento).then(() => {
-                        PedidoUtils.concluirGeracaoPedidos(this);
-                    });
-                } else {
-                    PedidoUtils.concluirGeracaoPedidos(this);
-                }
+                PedidoUtils.concluirGeracaoPedidos(this, []);
             });
             
             pedidos.forEach(pedido => {
@@ -432,10 +422,16 @@ export default {
                 });
             });
         },
-        gerarCarrinho(orcamento) {
+        gerarOrcamento(orcamento) {
             orcamento.emailEnviado = false;
+            const itens = orcamento.embarques.reduce((itens, embarque) => {
+                return embarque.itens.reduce((produtos, item) => {
+                    produtos.push(item.idProduto);
+                    return produtos;
+                }, []); 
+            }, []);
             OrcamentoDB.salvar(orcamento).then(() => {
-                PedidoUtils.concluirGeracaoPedidos(this, true);
+                PedidoUtils.concluirGeracaoPedidos(this, itens, true);
             });
         },
         voltarCarrinho() {

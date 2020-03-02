@@ -1,19 +1,24 @@
 <template>
     <div class="parentx">
         <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="idColapse">
-            <div class="vx-row">
-                <div class="vx-col w-full">
-                    <h5><strong>{{ title }} : </strong>  {{produtoAdd.referencia +' - '+ produtoAdd.nome}}</h5>
+            <vx-card class="w-full">
+                <div slot="no-body">
+                    <div class='vx-row flex pr-6 pl-6'>
+                        <div class="vx-col w-full sm:w-2/3 flex" style="padding: 8px;">
+                            <vs-avatar class="mr-23" @click="somaPreviaValores()" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-package" size="30px" />
+                            <div class="truncate">
+                                <h5 class="mt-3 font-bold">{{produtoAdd.referencia +' - '+ produtoAdd.nome}}</h5>
+                            </div>
+                        </div>
+                        <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
+                            <vs-avatar class="mr-3" @click="somaPreviaValores()" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" size="30px" />
+                            <div class="truncate">
+                                <h6 class="mt-3 font-bold">Preço: {{getPreco}}</h6>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="vx-row">
-                <!-- <div class="vx-col w-2/3">
-                    <h6><strong>Política:</strong> {{this.grupoCliente.nome}}</h6>
-                </div> -->
-                <div class="vx-col w-1/3">
-                    <h6><strong>Preço :</strong> {{getPreco}}</h6>
-                </div>
-            </div>
+            </vx-card>
         </b-card-header>
         <b-collapse :id="idColapse" visible accordion="my-accordion" role="tabpanel">
             <b-card-body>
@@ -342,7 +347,7 @@ export default {
 <style lang="scss">
 
 .produto-add-button {
-    margin-top: 8px;
+    margin-top: 12px;
     margin-bottom: 0px;
 }
 

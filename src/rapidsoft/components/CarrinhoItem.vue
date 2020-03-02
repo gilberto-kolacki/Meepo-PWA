@@ -25,7 +25,7 @@
         </div>
         <div role="tablist" v-if="produtosCarrinho.length > 0">
             <b-card no-body class="mb-1" v-for="(embarque, indexEmbarque) in getArrayEmbarquesProdutos" :key="indexEmbarque">
-                <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle.accordion-1>
+                <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle.accordion-1  v-b-toggle="'embarque'+embarque.id">
                     <h5 class="m-3 font-bold">{{embarque.nome}}</h5>
                     <vx-card class="w-full">
                         <div slot="no-body">
@@ -52,7 +52,7 @@
                         </div>
                     </vx-card>
                 </b-card-header>
-                <b-collapse id="accordion-1" visible accordion="my-accordion" role="tabpanel">
+                <b-collapse :id="'embarque'+embarque.id" visible accordion="my-accordion" role="tabpanel">
                     <b-card-body style="background-color: rgba(0, 0, 0, 0.03); padding: 10px;">
                         <div class="flex carrinho-item" v-for="(produtoCor, indexItem) in getProdutosCarrinhoPorEmbarque(embarque.id)" :key="indexItem">
                             <div class="vx-col mx-3" style="justify-content:center;margin:auto">

@@ -45,6 +45,18 @@ class storage {
         localStorage.removeItem(CARRINHO);
     }
 
+    deleteCarrinhoItens(itens) {
+        const carrinho = this.getCarrinho();
+        carrinho.itens = carrinho.itens.filter((itemCarrinho) => !(itens.some((itemDelete) => itemDelete === itemCarrinho.idProduto)));
+        if (carrinho.itens.length > 0 && itens.length > 0) {
+            this.setCarrinho(carrinho);
+        } else {
+            this.deleteCarrinho();
+            this.deleteGrupoCarrinho();
+            this.deleteClienteCarrinho();
+        }
+    }
+
     getCarrinhoItens() {
         if (this.existeCarrinho()) {
             const carrinho = this.getCarrinho();
