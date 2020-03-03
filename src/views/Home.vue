@@ -33,12 +33,12 @@
                     <table style="width:100%" class="border-collapse">
                         <tr>
                             <th class="p-2 border border-solid d-theme-border-grey-light">Cliente</th>
-                            <th class="p-2 border border-solid d-theme-border-grey-light">Itens</th>
+                            <th class="p-2 border border-solid d-theme-border-grey-light">Total de Peças</th>
                             <th class="p-2 border border-solid d-theme-border-grey-light">Total</th>
                         </tr>
                         <tr>
                             <td class="p-2 border border-solid d-theme-border-grey-light">{{this.carrinho.cliente ? this.carrinho.cliente.nome : " - " | capitalize}}</td>
-                            <td class="p-2 border border-solid d-theme-border-grey-light">{{this.carrinho.itens.length}}</td>
+                            <td class="p-2 border border-solid d-theme-border-grey-light">{{getTotalPecas}}</td>
                             <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{this.carrinho.valorTotal | moneyy}}</td>
                         </tr>
                     </table>
@@ -95,12 +95,16 @@ export default {
             } else {
                 return false;
             }
-        }
+        },
+        getTotalPecas() {
+            return this.carrinho.itens.reduce((total, item) => {
+                return total + item.quantidade;
+            }, 0);
+        },
     },
     methods: {
         abrirPedido(pedido) {
             if (pedido) {
-                
                 this.$router.push({ name: 'pedidoEditar', params: {pedidoId: pedido._id} });
             } else {
                 this.$router.push('/pedido/cadastro');
@@ -109,6 +113,7 @@ export default {
         carregaItensTela() {
             return new Promise((resolve) => {
                 PedidoDB.existePedidoEmDigitacao().then((result) => {
+                    // this.getTotalPecas();
                     this.pedidosEmDigitacao = result;
                     this.carrinho = Storage.getCarrinho();   
                     this.showScreen = true;

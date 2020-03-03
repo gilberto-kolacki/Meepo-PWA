@@ -191,6 +191,7 @@ export default {
         grupoCliente: null,
         gradeRef: [],
         cliente:null,
+        limitesExcedidos: [],
     }),
     computed: {
         getCoresProduto() {
@@ -225,7 +226,11 @@ export default {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (Number(tamanho.quantidade) === 0 ? 0 :Number(tamanho.quantidade));
             if (tamanho.quantidade > 10) {
-                this.alertaLimiteItens();
+                const corTamanho = _.toString(indexCor) + _.toString(indexTamanho);
+                if (!_.find(this.limitesExcedidos, (corTamanhoByList) => { return corTamanho == corTamanhoByList})) {
+                    this.limitesExcedidos.push(corTamanho);
+                    this.alertaLimiteItens();
+                }
             }
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
@@ -271,12 +276,16 @@ export default {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : parseInt(tamanho.quantidade)+1;
             if (tamanho.quantidade > 10) {
-                this.alertaLimiteItens();
+                const corTamanho = _.toString(indexCor) + _.toString(indexTamanho);
+                if (!_.find(this.limitesExcedidos, (corTamanhoByList) => { return corTamanho == corTamanhoByList})) {
+                    this.limitesExcedidos.push(corTamanho);
+                    this.alertaLimiteItens(); 
+                }
             }
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
-        alertaLimiteItens(){
+        alertaLimiteItens() {
             this.$vs.dialog({
                 color:'warning',
                 title: `Atenção`,
@@ -347,8 +356,6 @@ export default {
     created() {
         this.grupoCliente = Storage.getGrupoCarrinho();
         this.cliente = Storage.getClienteCarrinho();
-        console.log('this.cliente ',this.cliente);
-        
     },
     mounted() {
         
