@@ -188,7 +188,7 @@
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2" v-if="!pedido.brinde && condicoesPagto[pedido.id]">
                             <label>Condição de Pagamento</label>
-                            <v-select 
+                            <v-select
                                 @input="alteraCondicaoPagamento(pedido)"
                                 id="condicaoPgto" 
                                 label="nome"
@@ -384,6 +384,7 @@ export default {
             this.$forceUpdate();
         },
         validarDadosPedido() {
+            
             PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa).then((pedidos) => {
                 PedidoUtils.validarPedido(pedidos).then(() => {
                     this.$vs.dialog({
@@ -404,7 +405,7 @@ export default {
                         color: 'danger',
                         iconPack: 'feather',
                         icon: 'icon-alert-circle'
-                    })
+                    });
                 });
             });
         },
@@ -477,7 +478,8 @@ export default {
                         pedido.listEmbarques.forEach(embarque => {
                             embarque.formaPagamento = this.formasPagto[0];
                             this.condicoesPagto[embarque.id] = PedidoUtils.getCondicoesPagamentoEmbarqueCatalogo(this.formasPagto[0].condicoes, embarque.dataEmbarque);
-                            embarque.condicaoPagamento = this.condicoesPagto[embarque.id][0];
+                            // embarque.condicaoPagamento = this.condicoesPagto[embarque.id][0];
+                            embarque.condicaoPagamento = {nome:'Selecione uma opção'};
                             done();
                         });
                     });                    

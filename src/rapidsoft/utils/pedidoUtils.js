@@ -16,12 +16,12 @@ const validarPedido = (pedidos) => {
                 });
 
                 valorMinimo = valorMinimo ? valorMinimo.val : 0;
-
-                console.log();
-                
                 
                 if (_.isNil(pedido.cliente) || _.isNil(pedido.cliente.cpfCnpj)){
                     throw { campo: "nomeCliente", label: "Cliente" };
+                }
+                else if (_.isNil(pedido.condicaoPagamento)) {
+                    throw { campo: "condicaoPgto", label: "Condição de Pagamento" };
                 }                
                 else if (_.isNil(pedido.emailNfe) || pedido.emailNfe === ""){
                     throw { campo: "emailNfe", label: "E-mail Nfe" };
