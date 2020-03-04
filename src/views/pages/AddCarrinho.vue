@@ -1,6 +1,6 @@
 <template>
 	<div id="page-catalogo-add" class="page-catalogo-add">
-        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="voltarCatalogo()">Continuar</vs-button>
+        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-shopping-cart" @click="abrirCarrinho()">Carrinho</vs-button>
         <vs-button class="btn-cancel" v-if="this.$route.params.edit" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
         <vs-button class="btn-cancel" v-else color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
         <div v-if="this.isShow"> 
@@ -154,6 +154,11 @@ export default {
             }
             this.carrinho.itens = itens;
             this.addReferenciaCarrinho();
+        },
+        abrirCarrinho() {
+            this.$router.push({ name: 'carrinho',
+                params: {tela: 'catalogoItem'}
+            });
         },
         carregaItensTela() {
             return new Promise((resolve) => {
