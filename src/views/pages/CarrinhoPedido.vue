@@ -479,7 +479,7 @@ export default {
                             embarque.formaPagamento = this.formasPagto[0];
                             this.condicoesPagto[embarque.id] = PedidoUtils.getCondicoesPagamentoEmbarqueCatalogo(this.formasPagto[0].condicoes, embarque.dataEmbarque);
                             // embarque.condicaoPagamento = this.condicoesPagto[embarque.id][0];
-                            embarque.condicaoPagamento = {nome:'Selecione uma opção'};
+                            embarque.condicaoPagamento = {nome:'Selecione a opção'};
                             done();
                         });
                     });                    

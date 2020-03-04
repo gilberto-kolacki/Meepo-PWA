@@ -366,11 +366,7 @@ export default {
                 const idCategoria = this.filtro.categoria.id ? this.filtro.categoria.id : null;
                 ProdutoDB.getPaginasCatalogo(idCategoria).then(paginas => {
                     this.cliente = Storage.getClienteCarrinho();
-                    console.log('this.cliente ',this.cliente);
-                    
                     this.paginas = paginas;
-                    console.log('pags ', this.paginas);
-                    
                     this.paginaAtual = this.paginaAtual ? this.paginaAtual : paginas[0];
                     this.$route.params.pag = null;
                     this.selectProduto(this.paginaAtual).then(() => {

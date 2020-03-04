@@ -73,10 +73,10 @@
                                         <div v-if="(produtoAdd.cores[indexCor].tamanhos[indexTamanho] && produtoAdd.cores[indexCor].tamanhos[indexTamanho].ativo) && tamanho.ativo && produtoAdd.produtoAddCores[indexCor].ativo">
                                             <input 
                                                 @input="atualizarGrade(indexCor,indexTamanho)"
-                                                type="number" 
+                                                type="number"
                                                 :class="'input-quantidade-tam-'+tamanho.codigo+ ' input-quantidade-cor-'+cor.codigo" 
                                                 v-model="produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho].quantidade" 
-                                                class="form-control" 
+                                                class="form-control"
                                                 style="margin-top: 0rem;min-width: 5rem;padding: 1px 4px;"
                                             />
                                             <div class="produto-add-button">
