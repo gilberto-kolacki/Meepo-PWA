@@ -17,6 +17,14 @@
                             </div>
                         </div>
                     </div>
+                    <div class='vx-row flex pr-6 pl-6' v-if="this.cliente.razaoSocial ? this.cliente.razaoSocial : this.cliente.nome">
+                        <div class="vx-col w-full sm:w-2/3 flex" style="padding: 8px;">
+                            <vs-avatar class="mr-23" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-user" size="30px" />
+                            <div class="truncate">
+                                <h6 class="mt-3 font-bold">Cliente: {{cliente.nome}}</h6>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </vx-card>
         </b-card-header>
@@ -65,10 +73,10 @@
                                         <div v-if="(produtoAdd.cores[indexCor].tamanhos[indexTamanho] && produtoAdd.cores[indexCor].tamanhos[indexTamanho].ativo) && tamanho.ativo && produtoAdd.produtoAddCores[indexCor].ativo">
                                             <input 
                                                 @input="atualizarGrade(indexCor,indexTamanho)"
-                                                type="number" 
+                                                type="number"
                                                 :class="'input-quantidade-tam-'+tamanho.codigo+ ' input-quantidade-cor-'+cor.codigo" 
                                                 v-model="produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho].quantidade" 
-                                                class="form-control" 
+                                                class="form-control"
                                                 style="margin-top: 0rem;min-width: 5rem;padding: 1px 4px;"
                                             />
                                             <div class="produto-add-button">
@@ -182,6 +190,8 @@ export default {
         openItems: false,
         grupoCliente: null,
         gradeRef: [],
+        cliente:null,
+        limitesExcedidos: [],
     }),
     computed: {
         getCoresProduto() {
@@ -216,7 +226,11 @@ export default {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (Number(tamanho.quantidade) === 0 ? 0 :Number(tamanho.quantidade));
             if (tamanho.quantidade > 10) {
-                this.alertaLimiteItens();
+                const corTamanho = _.toString(indexCor) + _.toString(indexTamanho);
+                if (!_.find(this.limitesExcedidos, (corTamanhoByList) => { return corTamanho == corTamanhoByList})) {
+                    this.limitesExcedidos.push(corTamanho);
+                    this.alertaLimiteItens();
+                }
             }
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
@@ -262,12 +276,16 @@ export default {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : parseInt(tamanho.quantidade)+1;
             if (tamanho.quantidade > 10) {
-                this.alertaLimiteItens();
+                const corTamanho = _.toString(indexCor) + _.toString(indexTamanho);
+                if (!_.find(this.limitesExcedidos, (corTamanhoByList) => { return corTamanho == corTamanhoByList})) {
+                    this.limitesExcedidos.push(corTamanho);
+                    this.alertaLimiteItens(); 
+                }
             }
             this.$emit('atualiza-qtde-itens', _.clone(tamanho));
             this.$forceUpdate();
         },
-        alertaLimiteItens(){
+        alertaLimiteItens() {
             this.$vs.dialog({
                 color:'warning',
                 title: `Atenção`,
@@ -337,6 +355,7 @@ export default {
     },
     created() {
         this.grupoCliente = Storage.getGrupoCarrinho();
+        this.cliente = Storage.getClienteCarrinho();
     },
     mounted() {
         

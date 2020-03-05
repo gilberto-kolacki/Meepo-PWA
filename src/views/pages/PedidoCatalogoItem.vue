@@ -15,6 +15,9 @@
                             <vs-button color="dark" type="filled" icon-pack="feather" class="w-full" icon="icon-menu" @click.stop="showSidebar"></vs-button>
                         </div>
                     </div>
+                    <div class="vx-row mt-4" v-if="this.cliente.nome">
+                        <h6 class="title-ref">{{this.cliente.razaoSocial ? this.cliente.razaoSocial : this.cliente.nome}}</h6>
+                    </div>
                     <div class="vx-row mt-4">
                         <vx-card>
                             <div class="vx-row items-center justify-center">
@@ -194,6 +197,7 @@ export default {
             idPopUpZoom: 'popup-produto-zoom',
             produtoZoomShow: false,
             grupoCliente: null,
+            cliente:null,
             popupPrecoRef: false,
         }
     },
@@ -361,6 +365,7 @@ export default {
                 this.paginaAtual = this.$route.params.pag ? this.$route.params.pag : null;
                 const idCategoria = this.filtro.categoria.id ? this.filtro.categoria.id : null;
                 ProdutoDB.getPaginasCatalogo(idCategoria).then(paginas => {
+                    this.cliente = Storage.getClienteCarrinho();
                     this.paginas = paginas;
                     this.paginaAtual = this.paginaAtual ? this.paginaAtual : paginas[0];
                     this.$route.params.pag = null;
