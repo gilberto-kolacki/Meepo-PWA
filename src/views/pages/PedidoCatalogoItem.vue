@@ -15,9 +15,7 @@
                             <vs-button color="dark" type="filled" icon-pack="feather" class="w-full" icon="icon-menu" @click.stop="showSidebar"></vs-button>
                         </div>
                     </div>
-                    <div class="vx-row mt-4" v-if="this.cliente.nome">
-                        <h6 class="title-ref">{{this.cliente.razaoSocial ? this.cliente.razaoSocial : this.cliente.nome}}</h6>
-                    </div>
+    
                     <div class="vx-row mt-4">
                         <vx-card>
                             <div class="vx-row items-center justify-center">
@@ -51,7 +49,13 @@
                 </div>
                 <!-- IMAGEM PRINCIPAL -->
                 <div class="vx-col w-full lg:w-3/5 sm:w-3/5 h-12" style="z-index: 10;" v-if="this.produtoA">
+                    <div class="vx-row items-center justify-center" v-if="this.cliente.nome">
+                    <div class="truncate">
+                        <h6>CLIENTE: {{this.cliente.nome}}</h6>
+                    </div>
+                    </div>
                     <div class="vx-row items-center justify-center" style="z-index: 15; margin-bottom: 2rem;">
+                     
                         <h6 class="title-ref">{{produtoA.referencia}} - {{produtoA.nome}}</h6>
                     </div>
                     <Vue2InteractDraggable
@@ -197,7 +201,7 @@ export default {
             idPopUpZoom: 'popup-produto-zoom',
             produtoZoomShow: false,
             grupoCliente: null,
-            cliente:null,
+            cliente: null,
             popupPrecoRef: false,
         }
     },

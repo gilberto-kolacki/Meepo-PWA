@@ -313,8 +313,11 @@ export default {
             } else {                
                 const condicoes = PedidoUtils.getCondicoesPagamentoEmbarqueCatalogo(formaPagto.condicoes, pedido.dataEmbarque);
                 this.condicoesPagto[pedido.id] = condicoes;
-                if (condicoes.length > 0) {
+                pedido.brinde = false;
+                if (condicoes.length == 1) {
                     pedido.condicaoPagamento = condicoes[0];
+                } else {
+                    pedido.condicaoPagamento = {nome:'Selecione a opção'};
                 }
             }
             this.$forceUpdate();

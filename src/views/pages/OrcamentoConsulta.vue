@@ -9,7 +9,6 @@
                     <vs-th class="th-acoes">Ações</vs-th>
                     <vs-th sort-key="numero" style="width: 10%">Nr.</vs-th>
                     <vs-th sort-key="nome" style="width: 30%">Cliente</vs-th>
-                    <vs-th sort-key="grupoCliente.nome" style="width: 20%">Grupo</vs-th>
                     <vs-th sort-key="itens.length" style="width: 10%">Itens</vs-th>
                     <vs-th sort-key="valorTotal" style="width: 20%">Valor</vs-th>
                 </template> 
@@ -30,9 +29,6 @@
                         </vs-td>
                         <vs-td :data="data[indextr].cliente.nome">
                             {{ data[indextr].cliente.nome }}
-                        </vs-td>
-                        <vs-td :data="data[indextr].cliente.grupoCliente.nome">
-                            {{ data[indextr].grupoCliente.nome }}
                         </vs-td>
                         <vs-td :data="data[indextr].quantidade" style="text-align:right">
                             {{ data[indextr].quantidade }}

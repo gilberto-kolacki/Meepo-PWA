@@ -1,6 +1,7 @@
 <template>
     <div class="parentx">
-        <div class="demo-alignment" style="margin-bottom:20px">
+        <div class="vx-row flex w-full items-center justify-start" style="margin-bottom:20px">
+           <div clas="vx-col flex w-full items-center justify-start">
             <b-dropdown text="Ações" split size="sm" variant="danger" class="m-1">
                 <b-dropdown-item>
                     <span class="flex items-center">
@@ -21,8 +22,15 @@
                     </b-dropdown-item>
                 </div>
             </b-dropdown>
-            <h3 class="ml-5">Embarques</h3>
-        </div>
+            </div>     
+              <div class="vx-col items-center justify-center" v-if="this.cliente.nome">
+                    <div class="truncate">
+                        <h6>CLIENTE: {{this.cliente.nome}}</h6>
+                    </div>
+                    </div>   
+   </div>
+ 
+        
         <div role="tablist" v-if="produtosCarrinho.length > 0">
             <b-card no-body class="mb-1" v-for="(embarque, indexEmbarque) in getArrayEmbarquesProdutos" :key="indexEmbarque">
                 <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle.accordion-1  v-b-toggle="'embarque'+embarque.id">
@@ -46,14 +54,6 @@
                                     <vs-avatar class="mr-3" @click="somaPreviaValores()" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-calendar" size="30px" />
                                     <div class="truncate">
                                         <h5 class="mt-3 font-bold">{{embarque.dataEmbarque | formatDate}}</h5>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class='vx-row flex pr-6 pl-6' v-if="cliente.nome">
-                                <div class="vx-col w-full sm:w-2/3 flex" style="padding: 8px;">
-                                    <vs-avatar class="mr-23" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-user" size="30px" />
-                                    <div class="truncate">
-                                        <h6 class="mt-3 font-bold">Cliente: {{cliente.tipoPessoa == 0 ? cliente.nome : cliente.razaoSocial}}</h6>
                                     </div>
                                 </div>
                             </div>

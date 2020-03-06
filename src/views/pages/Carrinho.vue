@@ -7,7 +7,7 @@
 				<template v-slot:title>
 					<strong>
 						<feather-icon icon="BoxIcon" style="color:warning;" class="cursor-pointer"/>
-						{{segmento.nome}}
+						<div class="itens-center"> Embarques {{segmento.nome}} </div>
 					</strong>
 				</template>
 				<carrinho-item

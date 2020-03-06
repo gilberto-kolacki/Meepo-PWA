@@ -3,7 +3,7 @@
         
         <div class="flex flex-wrap items-center justify-between">
             <div class="flex items-center">
-                <vs-button class="btn-confirm" color="success" type="filled" icon="restore" @click="carrinhoPedido()">Editar</vs-button>
+                <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="carrinhoPedido()">Contiuar</vs-button>
                 <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
                 <vs-button @click.stop="printInvoice" color="primary" type="filled" class="btn-carrinho" icon-pack="feather" icon="icon-printer"></vs-button>
             </div>
