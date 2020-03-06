@@ -18,6 +18,26 @@
 					:produtos="getProdutosSegmento(segmento)"/>
 			</b-tab>
 		</b-tabs>
+		<vs-popup title="Selecione o segmento" :active.sync="popupSegmentos" :button-close-hidden="false" v-if="this.segmentos.length > 1">
+            <table style="width:100%" class="border-collapse">
+                <tr>
+                    <th class="p-2 border border-solid d-theme-border-grey-light">Segmento</th>
+                    <th class="p-2 border border-solid d-theme-border-grey-light text-right">Peças</th>
+                    <th class="p-2 border border-solid d-theme-border-grey-light text-right">Total</th>
+                    <th class="p-2 border border-solid d-theme-border-grey-light"></th>
+                </tr>
+                <tr v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento">
+                    <td class="p-2 border border-solid d-theme-border-grey-light">{{segmento.nome}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{getPecasSegmento(segmento)}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{getTotalSegmento(segmento) | moneyy}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light">
+						<div class="flex w-full items-center justify-center">
+                            <vs-button color="warning" type="filled" size="small" icon-pack="feather" class="w-full" icon="icon-check" @click.stop="proximaTela(segmento.id)"></vs-button>
+                        </div>
+					</td>
+                </tr>      
+            </table>
+        </vs-popup>
 	</div>
 </template>
 <script>
@@ -42,6 +62,7 @@ export default {
 		showScreen: false,
 		isEdit: false,
 		segmentoSelecionado: null,
+		popupSegmentos: false,
 	}),
 	watch: {
 
@@ -54,12 +75,18 @@ export default {
 
 	},
     methods: {
+		getPecasSegmento(segmento) {
+			const embarquesSegmento = Object.values(this.getEmbarquesSegmento(segmento));
+			return embarquesSegmento.reduce((total, segmento) => total + segmento.quantidade, 0);
+		},
+		getTotalSegmento(segmento) {
+			const embarquesSegmento = Object.values(this.getEmbarquesSegmento(segmento));
+			return embarquesSegmento.reduce((total, segmento) => total + segmento.totalBruto, 0);
+		},
 		getEmbarquesSegmento(segmento) {
-			return this.embarquesOption.filter((embarque) => {
-                return embarque.idSegmento == segmento.id;
-            }).reduce((map, embarque) => {
-				map[embarque.id] = embarque;
-				return map;
+			return this.embarquesOption.reduce((object, embarque) => {
+				if (embarque.idSegmento == segmento.id) object[embarque.id] = embarque;
+				return object;
 			}, {});
 		},
 		getProdutosSegmento(segmento) {
@@ -69,13 +96,21 @@ export default {
 			this.gerenciaVisualizacao(1);
 			this.produtosAdd=null;
 		},
-		showPedidos() {
-			this.itensCarrinho = this.itensCarrinho.filter((item) => item.segmento.some((segmento) => segmento === this.segmentos[0].id));
+		proximaTela(idSegmentoSelecionado) {
+			this.popupSegmentos = false;
+			this.itensCarrinho = this.itensCarrinho.filter((item) => item.segmento.some((segmento) => segmento === idSegmentoSelecionado));
 			CarrinhoUtils.setItensToPedidoEmbarques(this.embarques, this.itensCarrinho).then((pedidoEmbarques) => {
 				this.$router.push({ name: 'carrinhoPedido',
 					params: {pedidoEmbarques: pedidoEmbarques}
 				});
 			});
+		},
+		showPedidos() {
+			if (this.segmentos.length > 1) {
+				this.popupSegmentos = true;
+			} else {
+				this.proximaTela(this.segmentos[0].id)
+			}
 		},
 		showEditCarrinho(produto) {
 			this.$router.push({ name: 'carrinhoAdd', 

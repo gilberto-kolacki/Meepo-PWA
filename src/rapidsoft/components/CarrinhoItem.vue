@@ -23,13 +23,12 @@
                 </div>
             </b-dropdown>
             </div>     
-              <div class="vx-col items-center justify-center" v-if="this.cliente.nome">
-                    <div class="truncate">
-                        <h6>CLIENTE: {{this.cliente.nome}}</h6>
-                    </div>
-                    </div>   
-   </div>
- 
+            <div class="vx-col items-center justify-center" v-if="this.cliente.nome">
+                <div class="truncate">
+                    <h6>CLIENTE: {{this.cliente.nome}}</h6>
+                </div>
+            </div>   
+        </div>
         
         <div role="tablist" v-if="produtosCarrinho.length > 0">
             <b-card no-body class="mb-1" v-for="(embarque, indexEmbarque) in getArrayEmbarquesProdutos" :key="indexEmbarque">
@@ -220,12 +219,17 @@ export default {
             }
         },
 		deleteItems() {
-            const itensCarrinho = Storage.getCarrinhoItens();
-            Storage.setCarrinhoItens(this.getProdutosListNew(itensCarrinho));
-            this.produtosCarrinho = this.getProdutosListNew(this.produtosCarrinho);
-            this.itensSelecionados = [];
-            this.notification('Removido!',this.montaMensagem(this.itensSelecionados.length),'primary');
-            this.$forceUpdate();
+            let itensCarrinho = Storage.getCarrinhoItens();
+            itensCarrinho = this.getProdutosListNew(itensCarrinho);
+            Storage.setCarrinhoItens(itensCarrinho);
+            if (itensCarrinho.length > 0) {
+                this.produtosCarrinho = this.getProdutosListNew(this.produtosCarrinho);
+                this.notification('Removido!',this.montaMensagem(this.itensSelecionados.length),'primary');
+                this.itensSelecionados = [];
+                this.$forceUpdate();
+            } else {
+                this.$router.push({ name: 'home'});
+            }
         },
         getProdutosListNew(produtos){
             return produtos.filter(produto => {

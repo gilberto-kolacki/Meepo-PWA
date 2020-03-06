@@ -4,7 +4,7 @@
         <div v-if="this.produtoA">
             <vs-button @click.stop="prevRef" color="primary" type="filled" class="btn-left" icon="chevron_left"></vs-button>
             <vs-button @click.stop="nextRef" color="primary" type="filled" class="btn-right" icon="chevron_right"></vs-button>
-            <vs-button @click.stop="abrirCarrinho" color="warning" type="filled" class="btn-carrinho" :disabled="existeCarrinho()" icon="shopping_cart"></vs-button>
+            <vs-button @click.stop="abrirCarrinho" color="warning" type="filled" class="btn-carrinho" :disabled="existeCarrinho" icon="shopping_cart"></vs-button>
         </div>
         <vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12">
             <div class="vx-row">
@@ -238,6 +238,9 @@ export default {
                 return [];
             }
         },        
+         existeCarrinho() {
+            return !Storage.existeCarrinho();
+        },
     },
     methods: {
         // tela
@@ -247,10 +250,7 @@ export default {
         },
         getPrecoRef(produto, tipo) {
             return ProdutoUtils.calcularPreco(produto.cores[0], tipo)
-        },
-        existeCarrinho() {
-            return !Storage.existeCarrinho();
-        },
+        },       
         selectCorImagemProduto(indexCor) {
             this.corSelecionada = indexCor;
             this.selectSequenciaImagemProduto(0);

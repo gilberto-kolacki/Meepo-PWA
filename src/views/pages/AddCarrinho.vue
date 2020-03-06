@@ -1,8 +1,8 @@
 <template>
 	<div id="page-catalogo-add" class="page-catalogo-add">
-        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-shopping-cart" @click="abrirCarrinho()">Carrinho</vs-button>
-        <vs-button class="btn-cancel" v-if="this.$route.params.edit" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
-        <vs-button class="btn-cancel" v-else color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
+        <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
+        <vs-button @click.stop="abrirCarrinho()" color="warning" type="filled" class="btn-carrinho" :disabled="existeCarrinho()" icon="shopping_cart"></vs-button>
+
         <div v-if="this.isShow"> 
             <add-carrinho-item v-for="(prodduto, indexProd) in this.produtos" :key="indexProd"
                 @atualiza-qtde-itens="atualizaQuantidadeItens" 
@@ -18,7 +18,7 @@
         <h2 class='mt-5' style="display:flex;justify-content: center;" v-if="this.produtosDoLook.length > 0">Complete o Look</h2>
         <div class='flex justify-center w-full' v-if="this.produtosDoLook.length > 0">
             <div class="produto-image-gallery vx-row mt-6" style="width:95%" id="content-produtos">
-                <div class="vx-col px-1 lg:w-1/4 md:w-1/4 sm:w-1/3 mb-4" v-for="(produtoLook, indextr) in this.produtosDoLook" :key="indextr">
+                <div class="vx-col px-1 lg:w-1/4 md:w-1/4 sm:w-1/3 mb-4" v-for="(produtoLook, indextr) in this.produtosDoLook" :key="indextr" style="min-width: 13rem;">
                     <vx-card class="w-full text-center cursor-pointer; height:100%;">
                         <b-card-text style="display:flex;align-items:center;justify-content:center;">
                             <b-img-lazy :src="produtoLook.img ? produtoLook.img : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded user-latest-image responsive img-popup product-img"/>
@@ -27,21 +27,11 @@
                             <span class="vx-row" style="font-weight:bold">{{'Ref: ' + produtoLook.id}}</span>
                             <span class="vx-row" style="max-width: 15ch; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{{produtoLook.nome}}</span>
                         </b-card-text>
-                        <div class="flex justify-center flex-wrap">
-                            <vs-button 
-                                class="mt-1 mr-2 shadow-lg" 
-                                color="primary" 
-                                icon-pack="feather" 
-                                icon="icon-external-link"
-                                @click="openLook(produtoLook.produto)" 
-                            />
-                            <vs-button 
-                                class="mt-1" 
-                                color="primary"
-                                icon-pack="feather" 
-                                icon="icon-shopping-cart"
-                                @click="openGradeLookSelecionado(produtoLook.produto)"
-                            />
+                        <div class="vx-row items-center justify-center mt-3">
+                            <div class="btn-group centex w-full">
+                                <vs-button class="w-full" color="primary" icon="add_circle" @click.stop="openGradeLookSelecionado(produtoLook.produto)"></vs-button>
+                                <vs-button class="w-full" color="rgb(123, 123, 123)" icon="shopping_cart" @click.stop="openLook(produtoLook.produto)"></vs-button>
+                            </div>
                         </div>
                     </vx-card>
                 </div>
@@ -68,9 +58,12 @@ export default {
     components: {
         AddCarrinhoItem,
     },
-    computed: {
+    computed: {        
     },
     methods: {
+        existeCarrinho() {
+            return !Storage.existeCarrinho();
+        },
         replicarTodasGrades(index) {
             const quantidades = this.produtos[index].produtoAddCores.reduce((map, corAdd) => {
                 map[corAdd.codigo] = corAdd.produtoAddTamanhos.reduce((map, tamanhoAdd) => {
@@ -125,6 +118,7 @@ export default {
                     this.produtosDoLook = produtosLook;
                     this.produtos = produtos;
                     this.isShow = true;
+                    this.$forceUpdate();
                 });
             });
         },
@@ -136,7 +130,6 @@ export default {
                 return total = total + (item.quantidade * ProdutoUtils.calcularPreco(item));
             }, 0), 2);
             Storage.setCarrinho(this.carrinho);
-			// this.voltarCatalogo();
         },
         voltarCatalogo() {
             this.$router.push({ name: this.$route.params.tela, 

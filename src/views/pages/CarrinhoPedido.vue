@@ -195,6 +195,7 @@
                                 style="width:100%" 
                                 :clearable=false
                                 v-model="pedido.condicaoPagamento" 
+                                placeholder="Selecione a opção"
                                 :options="getCondicoesPagamento(pedido.id)" 
                             />
                         </div>
@@ -387,7 +388,6 @@ export default {
             this.$forceUpdate();
         },
         validarDadosPedido() {
-            
             PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa).then((pedidos) => {
                 PedidoUtils.validarPedido(pedidos).then(() => {
                     this.$vs.dialog({
@@ -427,8 +427,18 @@ export default {
             });
         },
 		gerarPedidos(pedidos) {
+
+            console.log(pedidos);
+            
             const done = _.after(pedidos.length, () => {
-                PedidoUtils.concluirGeracaoPedidos(this, []);
+                const itens = pedidos.reduce((itens, embarque) => {
+                    return embarque.itens.reduce((produtos, item) => {
+                        produtos.push(item.sku);
+                        return produtos;
+                    }, []); 
+                }, []);
+
+                PedidoUtils.concluirGeracaoPedidos(this, itens);
             });
             
             pedidos.forEach(pedido => {
@@ -441,7 +451,7 @@ export default {
             orcamento.emailEnviado = false;
             const itens = orcamento.embarques.reduce((itens, embarque) => {
                 return embarque.itens.reduce((produtos, item) => {
-                    produtos.push(item.idProduto);
+                    produtos.push(item.sku);
                     return produtos;
                 }, []); 
             }, []);

@@ -47,7 +47,7 @@ class storage {
 
     deleteCarrinhoItens(itens) {
         const carrinho = this.getCarrinho();
-        carrinho.itens = carrinho.itens.filter((itemCarrinho) => !(itens.some((itemDelete) => itemDelete === itemCarrinho.idProduto)));
+        carrinho.itens = carrinho.itens.filter((itemCarrinho) => !(itens.some((itemDelete) => itemDelete === itemCarrinho.sku)));
         if (carrinho.itens.length > 0 && itens.length > 0) {
             this.setCarrinho(carrinho);
         } else {
@@ -74,10 +74,14 @@ class storage {
     }
 
     setCarrinhoItens(itens) {
-        const carrinho = this.getCarrinho();
-        carrinho.valorTotal = this.getValorTotalCarrinho(itens);
-        carrinho.itens = itens;
-        this.setCarrinho(carrinho);
+        if (itens.length > 0) {
+            const carrinho = this.getCarrinho();
+            carrinho.valorTotal = this.getValorTotalCarrinho(itens);
+            carrinho.itens = itens;
+            this.setCarrinho(carrinho);
+        } else {
+            this.deleteCarrinho();
+        }
     }
 
     setIdOrcamentoCarrinho(idOrcamento) {
