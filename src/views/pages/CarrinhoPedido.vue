@@ -427,9 +427,6 @@ export default {
             });
         },
 		gerarPedidos(pedidos) {
-
-            console.log(pedidos);
-            
             const done = _.after(pedidos.length, () => {
                 const itens = pedidos.reduce((itens, embarque) => {
                     return embarque.itens.reduce((produtos, item) => {
@@ -451,7 +448,7 @@ export default {
             orcamento.emailEnviado = false;
             const itens = orcamento.embarques.reduce((itens, embarque) => {
                 return embarque.itens.reduce((produtos, item) => {
-                    produtos.push(item.sku);
+                    produtos.push(item.idProduto);
                     return produtos;
                 }, []); 
             }, []);

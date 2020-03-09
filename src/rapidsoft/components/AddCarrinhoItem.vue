@@ -71,6 +71,7 @@
                                             <input 
                                                 @input="atualizarGrade(indexCor,indexTamanho)"
                                                 type="number"
+                                                :id="'input-quantidade-tam-'+tamanho.codigo+'-cor-'+cor.codigo"
                                                 :class="'input-quantidade-tam-'+tamanho.codigo+ ' input-quantidade-cor-'+cor.codigo" 
                                                 v-model="produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho].quantidade" 
                                                 class="form-control"
@@ -92,7 +93,10 @@
                                             </div>
                                         </div>
                                         <div v-else>
-                                            <input type="number" class="form-control" placeholder="Inativado" disabled style="margin-top: 0.6rem; min-width: 5rem;"/>
+                                            <input 
+                                                type="text" 
+                                                :id="'input-quantidade-tam-'+tamanho.codigo+'-cor-'+cor.codigo"
+                                                class="form-control" placeholder="Inativado" disabled style="margin-top: 0.6rem; min-width: 5rem;"/>
                                         </div>
                                     </td>
                                     <td>
@@ -109,7 +113,7 @@
                                     </th>
                                     <th><strong>Totais</strong></th>
                                     <th v-for="(tamanho, indexTamanho) in getTamanhosProduto" :key="indexTamanho">
-                                        <div class="flex w-full items-center justify-center">
+                                        <div :id="'tot-tam-'+tamanho.codigo" class="flex w-full items-center justify-center">
                                             <strong>{{getTotalPecasTamanho(tamanho)}}</strong>
                                         </div>
                                     </th>
@@ -213,7 +217,7 @@ export default {
             return this.produtoAdd.cores;
         },
         getTamanhosProduto() {
-            return _.orderBy(this.produtoAdd.produtoLabelTamanhos, ['seq'], ['asc'])
+            return this.produtoAdd.produtoLabelTamanhos;
         },
         getPreco() {
             return UtilMask.getMoney(ProdutoUtils.calcularPreco(this.produtoAdd.cores[0]));

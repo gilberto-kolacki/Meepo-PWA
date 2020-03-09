@@ -83,22 +83,15 @@
                             <div class="vx-col mx-6 w-3/6" style="justify-content:center; margin:auto">
                                 <table>
                                     <thead class="border-solid">
-                                        <th 
-                                            style="background-color:#808080;color:white" 
-                                            class="border-solid" 
-                                            v-for="(tamanho, indexTamanho) in getTamanhosProduto(produtoCor.idProduto)"
-                                            :key="indexTamanho + ' - ' + tamanho.sku"
-                                        >
+                                        <th class="grade-tam-prod-title" 
+                                            v-for="(tamanho, indexTamanho) in getTamanhosProduto(produtoCor.idProduto)" :key="indexTamanho + ' - ' + tamanho.sku">
                                             {{tamanho.codigo}}
                                         </th>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td
-                                                style="border-color:#808080;font-weight:bold"
-                                                class="border-solid text-center"
-                                                v-for="(tamanho, indexTamanho) in getTamanhosProduto(produtoCor.idProduto)"
-                                                :key="indexTamanho + ' - ' + tamanho.sku">
+                                            <td class="grade-tam-prod-qtde"
+                                                v-for="(tamanho, indexTamanho) in getTamanhosProduto(produtoCor.idProduto)" :key="indexTamanho + ' - ' + tamanho.sku">
                                             {{tamanho.quantidade}}</td>
                                         </tr>
                                     </tbody>
@@ -123,7 +116,7 @@
     </div>
 </template>
 <script>
-// import _ from "lodash";
+import _ from "lodash";
 import Storage from "../../rapidsoft/utils/storage";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
@@ -181,7 +174,7 @@ export default {
 	},
     methods: {
 		getTamanhosProduto(idProduto) {
-			return this.produtosCarrinho.find((produto) => produto.idProduto === idProduto).tamanhos;
+            return _.orderBy(this.produtosCarrinho.find((produto) => produto.idProduto === idProduto).tamanhos, ['seq'], ['asc']);
         },
 		setPopupAddProduto(produto){
 			ProdutoDB.getProdutoEdicaoCarrinho(produto).then((result) => {
@@ -301,6 +294,19 @@ export default {
 </script>
 
 <style lang="scss">
+
+.grade-tam-prod-title {
+    background-color:#808080;
+    color:white;
+    border-style: solid !important
+}
+
+.grade-tam-prod-qtde {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: center !important;
+    border-style: solid !important
+}
 
 .carrinho-item {
     padding: 2px;

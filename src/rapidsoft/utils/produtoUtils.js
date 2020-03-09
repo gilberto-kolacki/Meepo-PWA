@@ -4,43 +4,33 @@ import Storage from '../utils/storage';
 class produtoUtils{
 
     getTamanhosLabelProduto(produto) {
-        const tamanhos = [];
-        let labels = [];
-        for (let index = 0; index < produto.cores.length; index++) {
-            const cor = produto.cores[index];
-            if (cor.tamanhos && cor.tamanhos.length > 0) {
-                for (let index = 0; index < cor.tamanhos.length; index++) {
-                    const tamanho = cor.tamanhos[index];
-                    if (_.indexOf(tamanhos, tamanho.codigo) == -1) {
-                        tamanhos.push(tamanho.codigo);
-                        labels.push({codigo: tamanho.codigo, ativo: true, seq: tamanho.seq});
-                    }
-                }
+        const labels = produto.cores.reduce((labels, cor) => {
+            for (let index = 0; index < cor.tamanhos.length; index++) {
+                const tamanho = cor.tamanhos[index];
+                labels[tamanho.codigo] = {codigo: tamanho.codigo, ativo: true, seq: tamanho.seq};
             }
-        }
-        return labels;
+            return labels;
+        }, {});
+        return Object.values(labels);
     }
 
     getTamanhosCor(cor) {
         const carrinho = Storage.getCarrinho();
-        if (cor.tamanhos && cor.tamanhos.length > 0) {
-            return cor.tamanhos.map((tamanho) => {
-                const itemCarrinho = _.find(carrinho.itens, (item) => item.id == tamanho.id);
-                if (itemCarrinho) {
-                    tamanho.quantidade = itemCarrinho.quantidade;
-                }
-                tamanho.fixadoAtivo = tamanho.ativo;
-                return tamanho;
-            });
-        } else {
-            return [];
-        }
+        return cor.tamanhos.reduce((tamanhosCor, tamanho) => {
+            const itemCarrinho = carrinho.itens.find((item) => item.id == tamanho.id);
+            if (itemCarrinho) {
+                tamanho.quantidade = itemCarrinho.quantidade;
+            }
+            tamanho.fixadoAtivo = tamanho.ativo;
+            tamanhosCor.push(tamanho);
+            return tamanhosCor;
+        }, []);
     }
 
     getCoresProduto(produto) {
-        return produto.cores.map((cor) => {
+        return _.orderBy(produto.cores.map((cor) => {
             return {codigo: cor.codigo, ativo: true, idCor: cor.idCor, idProduto: cor.idProduto, tamanhos: cor.tamanhos};
-        });
+        }), ['seq'], ['asc']);
     }
 
     createProdutosAddCarrinho(produtos) {
