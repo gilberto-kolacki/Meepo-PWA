@@ -37,6 +37,18 @@ class pedidoDB extends BasicDB {
             });
         });
     }
+
+    getPedidoByCliente(idCliente) {
+        return new Promise((resolve) => {
+            this._getAll().then((pedidos) => {
+                if (_.find(pedidos, (pedido) => { return pedido.cliente.id == idCliente; })) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
     
     atualizarPedido(pedido) {
         

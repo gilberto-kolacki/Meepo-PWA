@@ -569,13 +569,13 @@ export default {
     },
     methods: {
         cnpjnulo(cpfCnpj,key = null,uf = null) {
-            if (!cpfCnpj || cpfCnpj.length == 0) {
+            if (!cpfCnpj) {
                 this.clienteEdit[key] = _.isObject(this.clienteEdit[key]) ? 
                     {cep: null,telefone: null, estado:null,bairro:null,complemento:null,numero:null,endereco:null} 
                 : null;
                 this.proximoCampo('cpfCnpj');
             } else {
-                if (uf.length > 1) {
+                if (uf) {
                     this.getGroupClient(uf);
                 }
             }

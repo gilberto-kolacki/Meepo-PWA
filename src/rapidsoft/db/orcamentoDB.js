@@ -6,7 +6,7 @@
 ==========================================================================================*/
 // import _ from 'lodash';
 import BasicDB from './basicDB';
-
+import _ from 'lodash';
 
 class orcamentoDB extends BasicDB {
 
@@ -47,6 +47,20 @@ class orcamentoDB extends BasicDB {
                     salva(orcamento);
                 });
             }
+        });
+    }
+
+    getExisteClienteOrcamento(idCliente) {
+        return new Promise((resolve) => {
+            this._getAll().then((orcamentos) => {
+                if (_.find(orcamentos, (orcamento) => { 
+                    return orcamento.cliente.id == idCliente; })
+                ) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            });
         });
     }
 

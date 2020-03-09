@@ -58,6 +58,17 @@ class carrinhoUtils {
         });
     }
 
+    getExisteClienteCarrinho(idCliente) {
+        return new Promise((resolve) => {
+            const cliente = Storage.getClienteCarrinho();
+            if (cliente && idCliente == cliente.id) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
+    }
+
     setOrcamentoToCarrinho(orcamento) {
         return new Promise((resolve) => {
             ClienteDB.findById(orcamento.cliente.id).then((cliente) => {

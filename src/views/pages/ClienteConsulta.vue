@@ -47,7 +47,10 @@
 <script>
 
 import clienteDB from '../../rapidsoft/db/clienteDB';
+import PedidoDB from '../../rapidsoft/db/pedidoDB';
+import OrcamentoDB from '../../rapidsoft/db/orcamentoDB';
 import ErrorDB from '../../rapidsoft/db/errorDB';
+import CarrinhoUtils from "../../rapidsoft/utils/carrinhoUtils";
 
 export default {
     data() {
@@ -84,9 +87,29 @@ export default {
                 parameters: data
             })
         },
+        erroDeletar() {
+            this.$vs.notify({
+                title: 'Erro!',
+                text: 'O Cliente não pode ser removido pois possui algum pedido, orçamento ou carrinho ativo',
+                color: 'danger',
+                iconPack: 'feather',
+                icon: 'icon-alert-circle',
+                position:'top-right'
+            })
+        },
         deletar(parameters) {
-            clienteDB.deletar(parameters.id).then(() => {
-                this.listar();
+            CarrinhoUtils.getExisteClienteCarrinho(parameters.id).then((existeCarrinho) => {
+                PedidoDB.getPedidoByCliente(parameters.id).then((existePedido) => {
+                    OrcamentoDB.getExisteClienteOrcamento(parameters.id).then((existeOrcamento) => {
+                        if (existePedido || existeCarrinho || existeOrcamento) {
+                            this.erroDeletar();
+                        } else {
+                            clienteDB.deletar(parameters.id).then(() => {
+                                this.listar();
+                            });
+                        }
+                    });
+                });
             });
         },
     },
