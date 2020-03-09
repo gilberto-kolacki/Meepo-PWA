@@ -282,7 +282,7 @@ export default {
 @media only screen and (max-width: 1370px) {
 
     .modal-dialog {
-        margin: 0.2rem 30.0rem;
+        margin: 0.2rem auto;
     }
 
     .modal-content {
@@ -298,7 +298,7 @@ export default {
 @media only screen and (max-width: 1200px) {
 
     .modal-dialog {
-        margin: 0.2rem 10.0rem;
+        margin: 0.2rem auto;
     }
 
     .modal-content {
@@ -314,7 +314,23 @@ export default {
 @media only screen and (max-width: 768px) {
 
     .modal-dialog {
-        margin: 0.2rem 0.5rem;
+        margin: 0.2rem auto;
+    }
+
+    .modal-content {
+        height: 98.5vh !important;
+        width: 54rem !important;
+    }
+
+    .vs-table--content{
+        max-height: 75vh;
+    }
+}
+
+@media only screen and (max-width: 575px) {
+
+    .modal-dialog {
+        margin: 0.2rem auto;
     }
 
     .modal-content {
