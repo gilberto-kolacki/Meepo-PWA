@@ -478,7 +478,7 @@ export default {
             cepCobranca: null,
             clienteEdit: {
                 tipoPessoa: 1,
-                inscricaoEstadual: "ISENTO",
+                inscricaoEstadual: "",
                 clienteErp: false,
                 endereco: {},
                 contatos: [],
