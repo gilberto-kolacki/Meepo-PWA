@@ -1,9 +1,9 @@
 <template>
     <div id="page-orders" v-if="this.showScreen">
-        <vs-table pagination max-items="10" search :data="pedidos">            
-            <!-- <template slot="header">
-                <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editar(null)">Novo</vs-button>
-            </template> -->
+        <vs-table pagination max-items="10" search :data="pedidos">           
+            <template slot="header">
+                <h3>Pedidos</h3>
+            </template>
             <template slot="thead">
                 <vs-th class="th-acoes">Ações</vs-th>
                 <vs-th sort-key="cnpj" style="width: 30%">CNPJ</vs-th>
@@ -33,7 +33,7 @@
                         {{ data[indextr].dataEmbarque | formatDate }}
                     </vs-td>
                     <vs-td :data="data[indextr]" v-if="data[indextr].status">
-                        <vs-chip :color="getStatusColor(data[indextr].status)" class="product-order-status">{{ getNameStatus(data[indextr].status) }}</vs-chip>
+                         {{ getNameStatus(data[indextr].status) | capitalize }}
                     </vs-td>
                 </vs-tr>
             </template>
@@ -56,7 +56,7 @@ export default {
     },
     methods: {
         getNameStatus(status) {
-            if(status == 20) return "Enviar";      
+            if(status == 20) return "Aguardando Sicronização";      
             if(status == 50) return "Sincronizado"; 
             if(status == 99) return "Cancelado";
             else return "Digitação";
