@@ -13,4 +13,4 @@ export const http = Axios.create({
     }
 });
 
-export default http
+export default http;
