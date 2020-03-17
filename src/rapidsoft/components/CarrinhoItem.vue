@@ -119,6 +119,7 @@
 import _ from "lodash";
 import Storage from "../../rapidsoft/utils/storage";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
+import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 
 export default {
@@ -212,17 +213,20 @@ export default {
             }
         },
 		deleteItems() {
-            let itensCarrinho = Storage.getCarrinhoItens();
-            itensCarrinho = this.getProdutosListNew(itensCarrinho);
-            Storage.setCarrinhoItens(itensCarrinho);
-            if (itensCarrinho.length > 0) {
-                this.produtosCarrinho = this.getProdutosListNew(this.produtosCarrinho);
-                this.notification('Removido!',this.montaMensagem(this.itensSelecionados.length),'primary');
-                this.itensSelecionados = [];
-                this.$forceUpdate();
-            } else {
-                this.$router.push({ name: 'home'});
-            }
+            // let itensCarrinho = Storage.getCarrinhoItens();
+            CarrinhoDB.getCarrinhoItens().then((itensCarrinho) => {
+                itensCarrinho = this.getProdutosListNew(itensCarrinho);
+                // Storage.setCarrinhoItens(itensCarrinho);
+                CarrinhoDB.setCarrinhoItens(itensCarrinho);
+                if (itensCarrinho.length > 0) {
+                    this.produtosCarrinho = this.getProdutosListNew(this.produtosCarrinho);
+                    this.notification('Removido!',this.montaMensagem(this.itensSelecionados.length),'primary');
+                    this.itensSelecionados = [];
+                    this.$forceUpdate();
+                } else {
+                    this.$router.push({ name: 'home'});
+                }
+            });
         },
         getProdutosListNew(produtos){
             return produtos.filter(produto => {

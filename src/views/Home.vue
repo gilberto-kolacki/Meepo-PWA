@@ -70,6 +70,7 @@
 <script>
 
 import PedidoDB from '../rapidsoft/db/pedidoDB';
+import CarrinhoDB from '../rapidsoft/db/carrinhoDB';
 import Storage from '../rapidsoft/utils/storage';
 
 export default {
@@ -86,7 +87,7 @@ export default {
         
     },
     computed: {
-        existeCarrinho() {
+         existeCarrinho() {
             return Storage.existeCarrinho();
         },
         existePedidoEmDigitacao() {
@@ -113,12 +114,13 @@ export default {
         carregaItensTela() {
             return new Promise((resolve) => {
                 PedidoDB.existePedidoEmDigitacao().then((result) => {
-                    // this.getTotalPecas();
                     this.pedidosEmDigitacao = result;
-                    this.carrinho = Storage.getCarrinho();   
-                    this.showScreen = true;
-                    document.getElementById('loading-bg').style.display = "none";
-                    resolve();
+                    CarrinhoDB.getCarrinho().then((carrinho) => {
+                        this.carrinho = carrinho;
+                        this.showScreen = true;
+                        document.getElementById('loading-bg').style.display = "none";
+                        resolve();
+                    });
                 });
             });
         }

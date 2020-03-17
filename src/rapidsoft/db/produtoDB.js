@@ -138,7 +138,6 @@ class produtoDB extends BasicDB {
             const refsCarrinho = getReferenciasCarrinho(carrinho);
             this._getFindCondition({referencia : {$in : refsCarrinho}}).then((produtos) => {
                 produtos = this.getProdutoCorCarrinho(produtos, carrinho);
-                
                 const done = _.after(produtos.length, () => resolve(produtosCarrinho));
                 produtos.forEach(produto => {
                     produto.quantidade = this.getTotalCor(produto.tamanhos, carrinho);

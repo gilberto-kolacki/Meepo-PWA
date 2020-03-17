@@ -6,8 +6,8 @@
 ==========================================================================================*/
 // import _ from 'lodash';
 import BasicDB from './basicDB';
+import Storage from '../utils/storage';
 
-// const CARRINHO = "carrinho";
 const GRUPO_CLIENTE_CARRINHO = "grupoCliente";
 const CLIENTE_CARRINHO = "cliente";
 
@@ -20,9 +20,17 @@ class carrinhoDB extends BasicDB {
     getCarrinho() {
         return new Promise((resolve) => {
             this._localDB.get("1").then((result) => {
+                delete result._rev;
+                Storage.setCarrinho(result);
                 resolve(result);
             }).catch(() => {
-                resolve(null);
+                let newCarrinho = {};
+                newCarrinho._id = "1";
+                newCarrinho.cliente = { cpfCnpj: null, nome: null, grupoCliente: null };
+                newCarrinho.valorTotal = 0;
+                newCarrinho.itens = [];     
+                Storage.setCarrinho(newCarrinho);       
+                resolve(newCarrinho);
             });
         });
     }
@@ -30,49 +38,52 @@ class carrinhoDB extends BasicDB {
     setCarrinho(carrinho) {
         return new Promise((resolve) => {
             carrinho._id = "1";
+            carrinho.alterado = true;
+            carrinho.valorTotal = this.getValorTotalCarrinho(carrinho.itens);
             this._localDB.put(carrinho).then((result) => {
+                Storage.setCarrinho(carrinho);
                 resolve(result);
             }).catch((erro) => {
-                this._criarLogDB({url:'db/carrinhoDB',method:'setCarrinho',message: erro,error:'Failed Request'});
-                resolve(erro);
-            });
-        });
-    }
-
-    existeCarrinho() {
-        return new Promise((resolve) => {
-            this.getCarrinho().then((carrinho) => {
-                if (carrinho && carrinho.itens && carrinho.itens.length > 0) {
-                    resolve(true);
+                console.log(erro);
+                
+                if (erro.status == 409) {
+                    this.getCarrinho().then((carrinhoBanco) => {
+                        this._localDB.remove(carrinhoBanco).then(() => {
+                            this.setCarrinho(carrinho).then((result) => {
+                                resolve(result);
+                            });
+                        });
+                    });
                 } else {
-                    resolve(false);
+                    this._criarLogDB({url:'db/carrinhoDB', method:'setCarrinho', message: erro, error:'Failed Request'});
+                    resolve(erro);
                 }
             });
         });
     }
 
-    deleteCarrinho() {
+    deleteCarrinho(itens = []) {
         return new Promise((resolve) => {
             this.getCarrinho().then((carrinho) => {
-                this._localDB.remove(carrinho).then((result) => {
-                    resolve(result);
-                }).catch(() => {
-                    resolve();
-                });
+                if (itens.length > 0) {
+                    carrinho.itens = carrinho.itens.filter((itemCarrinho) => !(itens.some((itemDelete) => itemDelete === itemCarrinho.sku || itemDelete === itemCarrinho.idProduto)));
+                    if (carrinho.itens.length > 0 && itens.length > 0) {
+                        Storage.setCarrinho(carrinho);
+                        this.setCarrinho(carrinho).then(resolve());
+                    } else {
+                        this.deleteCarrinho().then(() => {
+                            resolve();
+                        });
+                    }
+                } else {
+                    this._localDB.remove(carrinho).then((result) => {
+                        Storage.deleteCarrinho();
+                        resolve(result);
+                    }).catch(() => {
+                        resolve();
+                    });
+                }
             });
-        });
-    }
-
-    deleteCarrinhoItens(itens) {
-        return new Promise((resolve) => {
-            const carrinho = this.getCarrinho();
-            carrinho.itens = carrinho.itens.filter((itemCarrinho) => !(itens.some((itemDelete) => itemDelete === itemCarrinho.sku || itemDelete === itemCarrinho.idProduto)));
-            if (carrinho.itens.length > 0 && itens.length > 0) {
-                this.setCarrinho(carrinho).then(resolve());
-            } else {
-                this.deleteCarrinho();
-                resolve();
-            }
         });
     }
 
@@ -95,62 +106,31 @@ class carrinhoDB extends BasicDB {
         }, 0).toFixed(2));
     }
 
-    setCarrinhoItens(itens) {
-        if (itens.length > 0) {
-            this.getCarrinho().then((carrinho) => {
-                carrinho.valorTotal = this.getValorTotalCarrinho(itens);
-                carrinho.itens = itens;
-                this.setCarrinho(carrinho);
-            });
-        } else {
-            this.deleteCarrinho();
-        }
-    }
-
     getGrupoCarrinho() {
         this.getCarrinho().then((carrinho) => {
-            return carrinho[GRUPO_CLIENTE_CARRINHO];
+            return carrinho.cliente[GRUPO_CLIENTE_CARRINHO];
         });
     }
 
     setGrupoCarrinho(grupoCliente) {
         this.getCarrinho().then((carrinho) => {
-            carrinho[GRUPO_CLIENTE_CARRINHO] = grupoCliente;
+            carrinho.cliente[GRUPO_CLIENTE_CARRINHO] = grupoCliente;
             this.setCarrinho(carrinho);
         });
     }
 
     deleteGrupoCarrinho() {
         this.getCarrinho().then((carrinho) => {
-            carrinho[GRUPO_CLIENTE_CARRINHO] = null;
-            this.setCarrinho(carrinho);
-        });
-    }
-
-    existeClienteCarrinho() {
-        return new Promise((resolve) => {
-            this.getCarrinho().then((carrinho) => {
-                if (carrinho && carrinho.cliente && carrinho.cliente.cpfCnpj) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            });
-        });
-    }
-
-    setClienteCarrinho(cliente) {
-        delete cliente['_id'];
-        delete cliente['_rev'];
-        this.getCarrinho().then((carrinho) => {
-            carrinho[CLIENTE_CARRINHO] = cliente;
+            carrinho.cliente[GRUPO_CLIENTE_CARRINHO] = null;
             this.setCarrinho(carrinho);
         });
     }
 
     getClienteCarrinho() {
-        this.getCarrinho().then((carrinho) => {
-            return carrinho[CLIENTE_CARRINHO];
+        return new Promise((resolve) => {
+            this.getCarrinho().then((carrinho) => {
+                resolve(carrinho[CLIENTE_CARRINHO]);
+            });
         });
     }
 
@@ -158,6 +138,19 @@ class carrinhoDB extends BasicDB {
         this.getCarrinho().then((carrinho) => {
             carrinho[CLIENTE_CARRINHO] = null;
             this.setCarrinho(carrinho);
+        });
+    }
+
+    getCouchDB() {
+        return new Promise((resolve) => {
+            this._remoteDB.get("1").then((carrinhoCouch) => {
+                this.setCarrinho(carrinhoCouch).then((result) => {
+                    Storage.setCarrinho(result);
+                    resolve();
+                });
+            }).catch(() => {
+                resolve();
+            });
         });
     }
 

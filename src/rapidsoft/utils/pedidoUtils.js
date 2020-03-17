@@ -159,10 +159,6 @@ class pedidoUtils {
     gerarOrcamento(pedido) {
         return new Promise((resolve) => {
             const orcamento = {};
-            const idOrcamento = Storage.getIdOrcamentoCarrinho();
-            if (idOrcamento) {
-                orcamento.id = idOrcamento;
-            }
             orcamento.dataOrcamento = new Date().getTime();
             orcamento.cliente = pedido.cliente;
             orcamento.grupoCliente = pedido.grupoCliente;

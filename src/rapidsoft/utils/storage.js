@@ -116,12 +116,12 @@ class storage {
 
     getGrupoCarrinho() {
         const carrinho = this.getCarrinho();
-        return carrinho[GRUPO_CLIENTE_CARRINHO];
+        return carrinho.cliente[GRUPO_CLIENTE_CARRINHO];
     }
 
     setGrupoCarrinho(grupoCliente) {
         const carrinho = this.getCarrinho();
-        carrinho[GRUPO_CLIENTE_CARRINHO] = grupoCliente;
+        carrinho.cliente[GRUPO_CLIENTE_CARRINHO] = grupoCliente;
         this.setCarrinho(carrinho);
     }
 
@@ -133,25 +133,18 @@ class storage {
         }
     }
 
-    existeClienteCarrinho() {
-        if (this.existeCarrinho()) {
-            const carrinho = this.getCarrinho();
-            if (carrinho.cliente && carrinho.cliente.cpfCnpj) {
-                return true;
+    existeClienteCarrinho(carrinho = null) {
+        const existe = (cliente) => (cliente && cliente.cpfCnpj) ? true : false;
+        if (carrinho) {
+            return existe(carrinho.cliente);
+        } else {
+            if (this.existeCarrinho()) {
+                carrinho = this.getCarrinho();
+                return existe(carrinho.cliente);
             } else {
                 return false;
             }
-        } else {
-            return false;
         }
-    }
-
-    setClienteCarrinho(cliente) {
-        delete cliente['_id'];
-        delete cliente['_rev'];
-        const carrinho = this.getCarrinho();
-        carrinho[CLIENTE_CARRINHO] = cliente;
-        this.setCarrinho(carrinho);
     }
 
     getClienteCarrinho() {

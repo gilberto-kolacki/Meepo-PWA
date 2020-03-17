@@ -111,6 +111,7 @@ import SearchCliente  from '../../rapidsoft/components/SearchCliente'
 import CatalogoDB from '../../rapidsoft/db/catalogoDB'
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
+import CarrinhoDB from '../../rapidsoft/db/carrinhoDB'
 import Storage from '../../rapidsoft/utils/storage'
 
 export default {
@@ -121,7 +122,8 @@ export default {
 			idPopUpSearch: 'popup-cliente-search',
 			catalogos: [],
             grupoClientePadrao: null,
-            slide: 0
+            slide: 0,
+            carrinho: null,
 		}
 	},
 	components: {
@@ -144,21 +146,15 @@ export default {
 		selecionarCatalogo(catalogo) {
             this.isShowing = false;
             document.getElementById('loading-bg').style.display = null;
-			const clientePedido = Storage.getClienteCarrinho();
-			if (clientePedido && clientePedido.grupoCliente) {
-                GrupoClienteDB.getById(clientePedido.grupoCliente).then((grupoCliente) => {
-					Storage.setGrupoCarrinho(grupoCliente);
-					this.carregarCatalogo(catalogo);
-				});
-			} else {
-                Storage.setGrupoCarrinho(this.grupoClientePadrao);
-				this.carregarCatalogo(catalogo);
-			}
+			if (!(this.carrinho.cliente && this.carrinho.cliente.grupoCliente)) {
+                this.carrinho.cliente.grupoCliente = this.grupoClientePadrao;
+            }
+            this.carregarCatalogo(catalogo);
 		},
 		carregarCatalogo(catalogo) {
             Storage.setCatalogo(catalogo);
             setTimeout(() => {
-				this.$router.push({ name: 'catalogoItem', params: {idCatalogo: catalogo.idCatalogo, idSegmento: catalogo.idSegmento }});
+				this.$router.push({ name: 'catalogoItem'});
 			}, 10);
 		},
 		showSidebar() {
@@ -167,8 +163,8 @@ export default {
 		abrirPesquisaCliente() {
             this.$bvModal.show(this.idPopUpSearch);
 		},
-		selectSearchCliente() {
-			
+		selectSearchCliente(cliente) {
+            this.carrinho.cliente = cliente;
         },
         buscaGrupoPadrao() {
             return new Promise((resolve) => {
@@ -182,12 +178,15 @@ export default {
             return new Promise((resolve) => {
                 CatalogoDB._getAll().then((catalogos) => {
                     this.catalogos = catalogos;
-                    if (!Storage.existeClienteCarrinho()) {
-                        this.abrirPesquisaCliente();
-                    }
-                    this.isShowing = true;
-                    document.getElementById('loading-bg').style.display = "none";
-                    resolve();
+                    CarrinhoDB.getCarrinho().then((carrinho) => {
+                        this.carrinho = carrinho;
+                        if (!Storage.existeClienteCarrinho(carrinho)) {
+                            this.abrirPesquisaCliente();
+                        }
+                        this.isShowing = true;
+                        document.getElementById('loading-bg').style.display = "none";
+                        resolve();
+                    });
                 });
             });
         }
@@ -208,6 +207,13 @@ export default {
     errorCaptured(err, vm, info) {
         ErrorDB._criarLog({err, vm, info});
         return true;
+    },
+    async beforeDestroy() {
+        return new Promise((resolve) => {
+            CarrinhoDB.setCarrinho(this.carrinho).then(() => {
+                resolve();
+            });
+        });
     }
 }
 </script>

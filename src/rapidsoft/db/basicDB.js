@@ -16,6 +16,37 @@ PouchDB.plugin(PouchDBUPSert);
 import Config from '../../../public/config.json';
 // import ErrorUtils from './errorDB';
 
+const replicate = (localDb, remoteDb) => {
+    if (remoteDb) {
+        PouchDB.replicate(localDb, remoteDb, {
+            // Replicate from Pouch to Couch
+            live: true,
+            retry: false,
+            filter: (doc) => {
+                if(doc.alterado || doc._deleted || doc.status <= 50) {
+                    // These are deleted transactions which I dont want to replicate to Couch
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }).on('change', (info) => {
+            console.log("handle change", info);
+        }).on('paused', (err) => {
+            console.log("replication paused (e.g. replication up to date, user went offline)", err);
+        }).on('active', function () {
+            console.log("replicate resumed (e.g. new changes replicating, user went back online)");
+        }).on('denied', function (err) {
+            console.log("a document failed to replicate (e.g. due to permissions)", err);
+        }).on('complete', function (info) {
+            console.log("handle complete", info);
+        }).on('error', function (err) {
+            console.log("handle error", err);
+         });
+    }
+}
+
+
 const createDBLocal = (dataBaseName, representante) => {
     return "meepo_"+Config.empresa+"_rep_"+representante.id+"_"+dataBaseName;
 };
@@ -80,6 +111,7 @@ class basicDB {
         create(this._name, this._remote, (localDB, remoteDB) => {
             this._localDB = localDB;
             this._remoteDB = remoteDB;
+            replicate(this._localDB, this._remoteDB);
             create("erros", true, (localErroDB, remoteErroDB) => {
                 this._localErroDB = localErroDB;
                 this._remoteErroDB = remoteErroDB;
@@ -132,15 +164,34 @@ class basicDB {
         }) >= 0 ? true : false;
     }
 
-    _limparBase() {
+    _limparBase(dados = null) {
         return new Promise((resolve) => {
             if (this._localDB) {
-                this._localDB.destroy().then(() => {
-                    this.createBases();
-                    resolve();
-                }).catch((err) => {
-                    this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: err,error:'Failed Request'});
-                    resolve(err);
+                this._delete(dados).then(() => {
+                    this._localDB.destroy().then(() => {
+                        this.createBases();
+                        resolve();
+                    }).catch((err) => {
+                        this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: err,error:'Failed Request'});
+                        resolve(err);
+                    });
+                });
+            } else {
+                resolve();
+            }
+        });
+    }
+
+    _delete(dados) {
+        return new Promise((resolve) => {
+            if (dados && dados.length > 0) {
+                const done = _.after(dados.length, () => resolve());    
+                dados.forEach(object => {
+                    this._localDB.remove(object).then(() => {
+                        done();
+                    }).catch(() => {
+                        done();
+                    });
                 });
             } else {
                 resolve();
@@ -395,7 +446,9 @@ class basicDB {
                         const done = _.after(objectsLocal.length, () => resolve());      
                         objectsLocal.forEach(object => {
                             delete object._rev;
-                            this._remoteDB.put(object).then(() => {
+                            this._remoteDB.put(object).then((teste) => {
+                                console.log(teste);
+                                
                                 done();
                             }).catch((error) => {
                                 if (error.status == 409 ) {

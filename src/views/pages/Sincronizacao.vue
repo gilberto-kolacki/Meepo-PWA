@@ -64,6 +64,7 @@ import RefComercialDB from '../../rapidsoft/db/referenciaComercialDB';
 import ErrorDB from '../../rapidsoft/db/errorDB';
 import PedidoDB from '../../rapidsoft/db/pedidoDB';
 import OrcamentoDB from '../../rapidsoft/db/orcamentoDB';
+import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
 
 export default {
     data() {
@@ -112,11 +113,10 @@ export default {
         sincronizarTodos() {
             this.sincAll = true;
             const done = _.after(this.tabelasSincronizacao.length, () => this.$store.dispatch('updateSincDados', true));
-
             this.tabelasSincronizacao.forEach(sinc => {        
                 sinc.parcial = 0;
                 sinc.percent = 0;
-                if (!(sinc.type == "imagem" || sinc.type == "orcamento")) {
+                if (!(sinc.type == "imagem")) {
                     _.defer(() => this.sincronizar(sinc, true));
                 }
                 done();
@@ -208,7 +208,7 @@ export default {
             ClienteDB.buscaClientesSinc().then((clientesSinc) => {
                 ClienteService.sincCliente(clientesSinc).then((clientes) => {
                     sinc.total = clientes.length;
-                    ClienteDB._limparBase().then(() => {
+                    ClienteDB._limparBase(clientesSinc).then(() => {
                         const done = _.after(clientes.length, () => SincUtils.closeLoading(this, sinc, all));
                         clientes.forEach(cliente => {
                             ClienteDB.salvarSinc(cliente).then(() => {
@@ -302,7 +302,6 @@ export default {
                 });
             });
         },
-
         carregaItensTela() {
             return new Promise((resolve) => {
                 ClienteDB.createBases();
@@ -319,10 +318,27 @@ export default {
                 });
             });
         },
+        //verifica se alguma tabela está a mais de 3 dias sem sincronizar, caso esteja, não deixa sair da tela de sincronização
+        verificaSincronizacaoTotal() {
+            return new Promise((resolve) => {
+                const dataLimite = new Date().setDate(new Date().getDate() - 3);
+                const sincsTotal = this.tabelasSincronizacao.reduce((sincsTotal, tabela) => {
+                    if (tabela.dataSincronizacao == null || tabela.dataSincronizacao < dataLimite) return false;
+                    else return true;
+                }, false)
+                resolve(sincsTotal);
+            });
+        },
+        buscaDadosCouchDB() {
+            return new Promise((resolve) => {
+                CarrinhoDB.getCouchDB().then(() => {
+                    resolve();
+                });
+            });
+        }
 
     },
     beforeCreate() {
-        
         
     },
     created() {
@@ -334,11 +350,18 @@ export default {
     async mounted() {
         await this.carregaItensTela();
     },
-    beforeDestroy () {
-        const sincTotal = localStorage.getItem('sincTotal') ? JSON.parse(localStorage.getItem('sincTotal')) : false;
-        if (sincTotal == false) {
-            this.$router.push({ name: 'sincronizacao'});
-        }
+    async beforeDestroy () {
+        return new Promise((resolve) => {
+            this.verificaSincronizacaoTotal().then((sincTotal) => {
+                if (sincTotal) {
+                    this.buscaDadosCouchDB().then(() => {
+                        resolve();
+                    });
+                } else {
+                    resolve(this.$router.push({ name: 'sincronizacao'}));
+                }
+            });
+        });
     },
     errorCaptured(err, vm, info) {
         ErrorDB._criarLog({err, vm, info});

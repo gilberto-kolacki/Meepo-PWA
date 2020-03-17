@@ -224,6 +224,7 @@ import OrcamentoDB from "../../rapidsoft/db/orcamentoDB";
 import vSelect from 'vue-select';
 import clienteDB from '../../rapidsoft/db/clienteDB';
 import grupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
+import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
 import moment from 'moment';
 
 export default {
@@ -447,13 +448,15 @@ export default {
         gerarOrcamento(orcamento) {
             orcamento.emailEnviado = false;
             const itens = orcamento.embarques.reduce((itens, embarque) => {
-                return embarque.itens.reduce((produtos, item) => {
+                return itens.concat(embarque.itens.reduce((produtos, item) => {
                     produtos.push(item.idProduto);
                     return produtos;
-                }, []); 
+                }, [])); 
             }, []);
             OrcamentoDB.salvar(orcamento).then(() => {
-                PedidoUtils.concluirGeracaoPedidos(this, itens, true);
+                CarrinhoDB.deleteCarrinho(itens).then(() => {
+                    PedidoUtils.concluirGeracaoPedidos(this, itens, true);
+                });
             });
         },
         voltarCarrinho() {
