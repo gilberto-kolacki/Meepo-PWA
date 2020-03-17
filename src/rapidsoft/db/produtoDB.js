@@ -64,12 +64,21 @@ class produtoDB extends BasicDB {
         });
     }
 
-    getProdutosByIdCategorias(idCategoria) {
-        
+    getAllProdutosBySegmento(idSegmento) {
         return new Promise((resolve) => {
-                this.getAllProdutos().then((produtos) => {
-                    resolve(getProdutoToDBCategoria(produtos, idCategoria));
-                });
+            this._getFindCondition({segmento : {$gte : idSegmento}}).then((produtos) => {
+                console.log('Teste ', produtos);
+                
+                resolve(produtos);
+            });
+        });
+    }
+
+    getProdutosByIdCategorias(idCategoria) {
+        return new Promise((resolve) => {
+            this.getAllProdutos().then((produtos) => {
+                resolve(getProdutoToDBCategoria(produtos, idCategoria));
+            });
         });
     }
 

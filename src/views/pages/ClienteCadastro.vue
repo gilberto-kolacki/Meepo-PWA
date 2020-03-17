@@ -1038,9 +1038,6 @@ export default {
             });
         },
         listaCidades(callback) {
-            setTimeout(() => {
-                this.$vs.loading();
-            }, 100);
             CidadeDB.getCidadesRelacionadas().then((cidades) => {
                 this.listCidades = cidades;
                 callback();
