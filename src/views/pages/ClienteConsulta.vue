@@ -4,6 +4,7 @@
             <vs-table pagination max-items="10" search :data="clientes">            
                 <template slot="header">
                     <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editar(null)">Novo</vs-button>
+                    <h3 class="ml-3" >Clientes</h3>
                 </template>
                 <template slot="thead">
                     <vs-th class="th-acoes">Ações</vs-th>
