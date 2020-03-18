@@ -74,11 +74,11 @@ class orcamentoDB extends BasicDB {
     deletar(orcamento) {
         return new Promise((resolve) => {
             this._localDB.remove(orcamento).then(() => {
-                this._remoteDB.get(orcamento.id).then((orcamentoRemote) => {
-                    this._remoteDB.remove(orcamentoRemote).then(() => {
+                // this._remoteDB.get(orcamento.id).then((orcamentoRemote) => {
+                    // this._remoteDB.remove(orcamentoRemote).then(() => {
                         resolve();
-                    });
-                });
+                    // });
+                // });
             }).catch((err) => {
                 this._criarLogDB({url:'db/orcamentoDB',method:'deletar',message: err,error:'Failed Request'});
                 resolve();

@@ -17,10 +17,10 @@ class carrinhoDB extends BasicDB {
         super("carrinho", true);
     }
 
-    getCarrinho() {
+    getCarrinho(rev = false) {
         return new Promise((resolve) => {
             this._localDB.get("1").then((result) => {
-                delete result._rev;
+                if (!rev) delete result._rev;
                 Storage.setCarrinho(result);
                 resolve(result);
             }).catch(() => {
@@ -44,10 +44,8 @@ class carrinhoDB extends BasicDB {
                 Storage.setCarrinho(carrinho);
                 resolve(result);
             }).catch((erro) => {
-                console.log(erro);
-                
                 if (erro.status == 409) {
-                    this.getCarrinho().then((carrinhoBanco) => {
+                    this.getCarrinho(true).then((carrinhoBanco) => {
                         this._localDB.remove(carrinhoBanco).then(() => {
                             this.setCarrinho(carrinho).then((result) => {
                                 resolve(result);
@@ -82,18 +80,6 @@ class carrinhoDB extends BasicDB {
                     }).catch(() => {
                         resolve();
                     });
-                }
-            });
-        });
-    }
-
-    getCarrinhoItens() {
-        return new Promise((resolve) => {
-            this.getCarrinho().then((carrinho) => {
-                if (carrinho && carrinho.itens && carrinho.itens.length > 0) {
-                    resolve(carrinho.itens);
-                } else {
-                    resolve([]);
                 }
             });
         });
