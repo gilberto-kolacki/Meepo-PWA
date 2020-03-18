@@ -1,12 +1,15 @@
 <template>
     <div id="page-customer">
         <div class="vx-row">
-                <div class="vx-col w-3/4 mt-4">
-                    <monte-look-item 
-                        :produtos="produtos"
-                        :segmento="segmento"
-                    />
-                </div>
+            <div class="vx-col w-3/4 mt-4">
+                <monte-look-item
+                    @atualiza-produtos="atualizarProdutos"
+                    @atualiza-lista-produtos="atualizaListaProdutos" 
+                    :produtos="produtos"
+                    :segmento="segmento"
+                    :listaProdutosCategoria="listaProdutosPesquisa"
+                />
+            </div>
             <div class="vx-col w-1/4">
                 <div class="vx-row mt-4">
                     <vx-card>
@@ -27,12 +30,12 @@
                             <div class="vx-col w-full mb-2">
                                 <label for="segmentoFiltro" class="vs-input--label">Categorias Produto {{index + 1}}</label>
                                 <v-select
-                                    @input="searchFindProduto(produto)"
+                                    @input="searchFindProduto(produto,index)"
                                     multiple 
-                                    id="categoriaFiltro" 
+                                    id="categoriaFiltro"
                                     name="segmento"
-                                    v-model="produto.categoriasSelecionadas"
-                                    label="nome" 
+                                    v-model="categoriasSelecionadas[index]"
+                                    label="nome"
                                     :options="getCategoriasSearch"
                                 />
                             </div>
@@ -60,10 +63,7 @@
     export default {
         data: () => ({
             segmento: null,
-            produtos:[
-                {},
-                {},
-            ],
+            produtos:[{},{},],
             categoriasFiltro: [],
             categoriasSelecionadas: [],
             listaProdutosPesquisa: [],
@@ -80,11 +80,19 @@
             },
         },
         methods: {
-            searchFindProduto(produto) {
-                const idsCategorias = produto.categoriasSelecionadas.map((categoria) => {return categoria.id})
+            atualizaListaProdutos() {
+                console.log('atualizaListaProdutos');
+            },
+            atualizarProdutos(produtos) {
+                this.produtos = produtos;
+                this.$forceUpdate();
+            },
+            searchFindProduto(produto,index) {
+                this.$vs.loading();
+                const idsCategorias = this.categoriasSelecionadas[index].map((categoria) => {return categoria.id})
                 ProdutoDB.getProdutosSearch(idsCategorias).then((result) => {
-                    this.listaProdutosPesquisa = result;
-                    produto.listaProdutosCategoria = this.listaProdutosPesquisa;
+                    this.listaProdutosPesquisa[index] = result;
+                    this.$vs.loading.close();
                 });
             },
             searchCategorias() {
@@ -113,7 +121,6 @@
             this.searchCategorias();
         },
         mounted() {
-            console.log('mounted');
         },    
 }
 
