@@ -14,84 +14,85 @@ PouchDB.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBUPSert);
 
 import Config from '../../../public/config.json';
-// import ErrorUtils from './errorDB';
-
-// const replicate = (localDb, remoteDb) => {
-//     if (remoteDb) {
-//         PouchDB.replicate(localDb, remoteDb, {
-//             // Replicate from Pouch to Couch
-//             live: true,
-//             retry: false,
-//             filter: (doc) => {
-//                 if(doc.alterado || doc._deleted || doc.status <= 50) {
-//                     // These are deleted transactions which I dont want to replicate to Couch
-//                     return true;
-//                 } else {
-//                     return false;
-//                 }
-//             }
-//         }).on('change', (info) => {
-//             console.log("handle change", info);
-//         }).on('paused', (err) => {
-//             console.log("replication paused (e.g. replication up to date, user went offline)", err);
-//         }).on('active', function () {
-//             console.log("replicate resumed (e.g. new changes replicating, user went back online)");
-//         }).on('denied', function (err) {
-//             console.log("a document failed to replicate (e.g. due to permissions)", err);
-//         }).on('complete', function (info) {
-//             console.log("handle complete", info);
-//         }).on('error', function (err) {
-//             console.log("handle error", err);
-//          });
-//     }
-// };
 
 const filter = (doc) => {
     if(doc.alterado || doc._deleted || doc.status < 50) {
-        console.log(doc);
+        if (doc._deleted) console.log('filter', doc);
         return true;
     } else {
         return false;
     }
 };
 
+const setTimeout = (delay) => {
+    if (delay === 0) return 1000;
+    return delay * 3;
+};
+
+const changeMethod = (origem, change) => {
+    console.log("'change "+origem+"' yo, something changed!", change);
+};
+
+const pausedMethod = (origem, info) => {
+    console.log("'paused "+origem+"' replication was paused, usually because of a lost connection", info);
+};
+
+const activeMethod = (origem, info) => {
+    console.log("'active "+origem+"' replication was resumed", info);
+};
+
+const deniedMethod = (origem, err) => {
+    console.log("'denied "+origem+"'a document failed to replicate (e.g. due to permissions)", err);
+};
+
+const completeMethod = (origem, info) => {
+    console.log("'complete "+origem+"' handle complete", info);
+};
+
+const errorMethod = (origem, err) => {
+    console.log("'error "+origem+"' totally unhandled error (shouldn't happen)", err);
+};
+
+
+// const changes = (localDB) => {
+//     localDB.changes({
+//         since: 'now',
+//         live: true,
+//         include_docs: false,
+//         conflicts: true,
+//         filter: (doc) => filter(doc)
+//     }).on('change', (change) => changeMethod('changes', change)
+//     ).on('complete', (info) => completeMethod('changes', info)
+//     ).on('error', (err) => errorMethod('changes', err));
+// };
+
 const sync = (localDB, remoteDB) => {
     if (remoteDB) {
+        // changes(localDB);
         localDB.replicate.to(remoteDB, {
+            since: 'now',
             live: true,
             retry: true,
+            back_off_function: (delay) => setTimeout(delay),
             filter: (doc) => filter(doc)
-        }).on('change', (change) => {
-            console.log("'change to' yo, something changed!", change);
-        }).on('paused', (info) => {
-            console.log("'paused to' replication was paused, usually because of a lost connection", info);
-        }).on('active', (info) => {
-            console.log("'active to' replication was resumed", info);
-        }).on('denied', (err) => {
-            console.log("'denied to'a document failed to replicate (e.g. due to permissions)", err);
-        }).on('complete', (info) => {
-            console.log("'complete to' handle complete", info);
-        }).on('error', (err) => {
-            console.log("'error to' totally unhandled error (shouldn't happen)", err);
-        });
+        }).on('change', (change) => changeMethod('to', change)
+        ).on('paused', (info) => pausedMethod('to', info)
+        ).on('active', (info) => activeMethod('to', info)
+        ).on('denied', (err) => deniedMethod('to', err)
+        ).on('complete', (info) => completeMethod('to', info)
+        ).on('error', (err) => errorMethod('to', err));
 
         localDB.replicate.from(remoteDB, {
+            since: 'now',
             live: true,
-            retry: true,
-            filter: (doc) => filter(doc)
-        }).on('change', (change) => {
-            console.log("'change from' yo, something changed!", change);
-        }).on('paused', (info) => {
-            console.log("'paused from' replication was paused, usually because of a lost connection", info);
-        }).on('active', (info) => {
-            console.log("'active from' replication was resumed", info);
-        }).on('denied', (err) => {
-            console.log("'denied from'a document failed to replicate (e.g. due to permissions)", err);
-        }).on('complete', (info) => {
-            console.log("'complete from' handle complete", info);
-        }).on('error', (err) => {
-            console.log("'error from' totally unhandled error (shouldn't happen)", err);
-        });
+            retry: true,            
+            back_off_function: (delay) => setTimeout(delay),
+        }).on('change', (change) => changeMethod('from', change)
+        ).on('paused', (info) => pausedMethod('from', info)
+        ).on('active', (info) => activeMethod('from', info)
+        ).on('denied', (err) => deniedMethod('from', err)
+        ).on('complete', (info) => completeMethod('from', info)
+        ).on('error', (err) => errorMethod('from', err));
     }
 };
 

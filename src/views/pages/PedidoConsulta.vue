@@ -74,8 +74,6 @@ export default {
             return new Promise((resolve) => {
                 PedidoDB._getAll().then((result) => {
                     ClienteDB.getClientesPedidos(result).then((pedidos) => {
-                        console.log(pedidos);
-                        
                         this.pedidos = pedidos;
                         document.getElementById('loading-bg').style.display = 'none';
                         resolve();

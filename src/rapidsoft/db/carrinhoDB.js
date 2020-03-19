@@ -62,10 +62,10 @@ class carrinhoDB extends BasicDB {
 
     deleteCarrinho(itens = []) {
         return new Promise((resolve) => {
-            this.getCarrinho().then((carrinho) => {
-                if (itens.length > 0) {
+            if (itens.length > 0) {
+                this.getCarrinho().then((carrinho) => {
                     carrinho.itens = carrinho.itens.filter((itemCarrinho) => !(itens.some((itemDelete) => itemDelete === itemCarrinho.sku || itemDelete === itemCarrinho.idProduto)));
-                    if (carrinho.itens.length > 0 && itens.length > 0) {
+                    if (carrinho.itens.length > 0) {
                         Storage.setCarrinho(carrinho);
                         this.setCarrinho(carrinho).then(resolve());
                     } else {
@@ -73,15 +73,18 @@ class carrinhoDB extends BasicDB {
                             resolve();
                         });
                     }
-                } else {
+                });
+            } else {
+                this.getCarrinho(true).then((carrinho) => {
                     this._localDB.remove(carrinho).then((result) => {
                         Storage.deleteCarrinho();
                         resolve(result);
-                    }).catch(() => {
+                    }).catch((error) => {
+                        console.log('erro deletar carrinho', carrinho, error);
                         resolve();
                     });
-                }
-            });
+                });
+            }
         });
     }
 
@@ -139,7 +142,6 @@ class carrinhoDB extends BasicDB {
             });
         });
     }
-
 
 }
 

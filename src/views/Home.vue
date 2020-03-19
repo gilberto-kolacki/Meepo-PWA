@@ -113,7 +113,7 @@ export default {
         },
         carregaItensTela() {
             return new Promise((resolve) => {
-                PedidoDB.existePedidoEmDigitacao().then((result) => {
+                PedidoDB.buscaPedidosEmDigitacao().then((result) => {
                     this.pedidosEmDigitacao = result;
                     CarrinhoDB.getCarrinho().then((carrinho) => {
                         this.carrinho = carrinho;

@@ -1,6 +1,3 @@
-// import _ from "lodash";
-import PedidoUtils from './pedidoUtils';
-
 const CARRINHO = "carrinho";
 const GRUPO_CLIENTE_CARRINHO = "grupoCliente";
 const CLIENTE_CARRINHO = "cliente";
@@ -30,11 +27,7 @@ class storage {
 
     getCarrinho() {
         const carrinho = localStorage.getItem(CARRINHO);
-        if (carrinho) {
-            return JSON.parse(carrinho);
-        } else {
-            return PedidoUtils.newCarrinho();
-        }
+        return JSON.parse(carrinho);
     }
 
     setCarrinho(carrinho) {
@@ -45,92 +38,9 @@ class storage {
         localStorage.removeItem(CARRINHO);
     }
 
-    deleteCarrinhoItens(itens) {
-        const carrinho = this.getCarrinho();
-        carrinho.itens = carrinho.itens.filter((itemCarrinho) => !(itens.some((itemDelete) => itemDelete === itemCarrinho.sku || itemDelete === itemCarrinho.idProduto)));
-        if (carrinho.itens.length > 0 && itens.length > 0) {
-            this.setCarrinho(carrinho);
-        } else {
-            this.deleteCarrinho();
-            this.deleteGrupoCarrinho();
-            this.deleteClienteCarrinho();
-        }
-    }
-
-    getCarrinhoItens() {
-        if (this.existeCarrinho()) {
-            const carrinho = this.getCarrinho();
-            return carrinho.itens;
-        } else {
-            return [];
-        }
-    }
-
-    getValorTotalCarrinho(itens) {
-        return Number(itens.reduce((total, item) => {
-            total = total + (item.quantidade * item.precoCusto);
-            return total;
-        }, 0).toFixed(2));
-    }
-
-    setCarrinhoItens(itens) {
-        if (itens.length > 0) {
-            const carrinho = this.getCarrinho();
-            carrinho.valorTotal = this.getValorTotalCarrinho(itens);
-            carrinho.itens = itens;
-            this.setCarrinho(carrinho);
-        } else {
-            this.deleteCarrinho();
-        }
-    }
-
-    setIdOrcamentoCarrinho(idOrcamento) {
-        const carrinho = this.getCarrinho();
-        carrinho.idOrcamento = idOrcamento;
-        this.setCarrinho(carrinho);
-    }
-
-    getIdOrcamentoCarrinho() {
-        if (this.existeCarrinho()) {
-            const carrinho = this.getCarrinho();
-            return carrinho.idOrcamento;
-        } else {
-            return null;
-        }
-    }
-
-    setEmbarquesCarrinho(embarques) {
-        const carrinho = this.getCarrinho();
-        carrinho.embarques = embarques;
-        this.setCarrinho(carrinho);
-    }
-
-    getEmbarquesCarrinho() {
-        if (this.existeCarrinho()) {
-            const carrinho = this.getCarrinho();
-            return carrinho.embarques;
-        } else {
-            return null;
-        }
-    }
-
     getGrupoCarrinho() {
         const carrinho = this.getCarrinho();
         return carrinho.cliente[GRUPO_CLIENTE_CARRINHO];
-    }
-
-    setGrupoCarrinho(grupoCliente) {
-        const carrinho = this.getCarrinho();
-        carrinho.cliente[GRUPO_CLIENTE_CARRINHO] = grupoCliente;
-        this.setCarrinho(carrinho);
-    }
-
-    deleteGrupoCarrinho() {
-        if (this.existeCarrinho()) {
-            const carrinho = this.getCarrinho();
-            carrinho[GRUPO_CLIENTE_CARRINHO] = null;
-            this.setCarrinho(carrinho);
-        }
     }
 
     existeClienteCarrinho(carrinho = null) {
@@ -150,14 +60,6 @@ class storage {
     getClienteCarrinho() {
         const carrinho = this.getCarrinho();
         return carrinho[CLIENTE_CARRINHO];
-    }
-
-    deleteClienteCarrinho() {
-        if (this.existeCarrinho()) {
-            const carrinho = this.getCarrinho();
-            carrinho[CLIENTE_CARRINHO] = null;
-            this.setCarrinho(carrinho);
-        }
     }
 
     setUsuario(usuario) {

@@ -100,16 +100,15 @@ class pedidoDB extends BasicDB {
         });
     }
 
-    existePedidoEmDigitacao() {
+    buscaPedidosEmDigitacao() {
         return new Promise((resolve) => {
             this._localDB.find({
                 selector: { status: {$eq: 10}},
             }).then((result) => {
-                if (result.docs.length > 0) {
-                    resolve(result.docs);
-                } else {
-                    resolve(false);
-                }
+                resolve(result.docs.reduce((pedidos, doc) => {
+                    if (doc) pedidos.push(doc);
+                    return pedidos;
+                }, []));
             });
         });
     }

@@ -27,18 +27,14 @@
         >
             <div class="vx-row">
                 <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 50;">
-                    <div class="vx-row">
-                        <div class="flex w-full items-center justify-center">
-                            <vs-button
-                                color="dark"
-                                type="filled"
-                                icon-pack="feather"
-                                class="w-full"
-                                icon="icon-menu"
-                                @click.stop="showSidebar"
-                            ></vs-button>
-                        </div>
-                    </div>
+                    <vs-button
+                        color="dark"
+                        type="filled"
+                        icon-pack="feather"
+                        class="w-full"
+                        icon="icon-menu"
+                        @click.stop="showSidebar"
+                    ></vs-button>
                 </div>
                 <div class="vx-col w-full lg:w-3/5 sm:w-3/5 h-12">
                     <div
@@ -50,18 +46,14 @@
                     </div>
                 </div>
                 <div class="vx-col w-full sm:w-1/5 h-12">
-                    <div class="vx-row">
-                        <div class="flex w-full items-center justify-center">
-                            <vs-button
-                                color="primary"
-                                type="filled"
-                                icon-pack="feather"
-                                class="w-full"
-                                icon="icon-search"
-                                @click.stop="abrirPesquisaCliente()"
-                            ></vs-button>
-                        </div>
-                    </div>
+                    <vs-button
+                        color="primary"
+                        type="filled"
+                        icon-pack="feather"
+                        class="w-full"
+                        icon="icon-search"
+                        @click.stop="abrirPesquisaCliente()"
+                    ></vs-button>
                 </div>
             </div>
         </vs-col>

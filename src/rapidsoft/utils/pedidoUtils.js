@@ -137,7 +137,6 @@ class pedidoUtils {
                 newPedido.pedidoParcial = item.pedidoParcial;
                 newPedido.copiaEmail = item.copiaEmail;
                 newPedido.antecipacaoPedido = item.antecipacaoPedido;
-
                 return newPedido;
             });
             resolve(pedidos);
@@ -192,7 +191,6 @@ class pedidoUtils {
     }
 
     concluirGeracaoPedidos(view, itens, carrinho = false) {        
-        Storage.deleteCarrinhoItens(itens);
         if (Storage.existeCarrinho()) {
             view.$router.push({ name: 'carrinho'});
         } else {
