@@ -112,14 +112,12 @@ export default {
         },
         sincronizarTodos() {
             this.sincAll = true;
-            const done = _.after(this.tabelasSincronizacao.length, () => this.$store.dispatch('updateSincDados', true));
             this.tabelasSincronizacao.forEach(sinc => {        
                 sinc.parcial = 0;
                 sinc.percent = 0;
                 if (!(sinc.type == "imagem")) {
                     _.defer(() => this.sincronizar(sinc, true));
                 }
-                done();
             });
         },
         sincronizar(sinc, all = false) {

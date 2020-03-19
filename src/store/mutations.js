@@ -47,6 +47,7 @@ const mutations = {
         if (val) {
             localStorage.setItem('userInfo', JSON.stringify(val));
             localStorage.setItem('token', JSON.stringify(val.token));
+            localStorage.removeItem('carrinho');
         }
     },
     // UPDATE_STATUS_CHAT(state, value) {
@@ -62,12 +63,6 @@ const mutations = {
     UPDATE_NAVBAR_TYPE(state, val) {
         state.navbarType = val;
     },
-
-    UPDATE_SINC_DADOS(state, val) {
-        state.sincTotal = val;
-        localStorage.setItem('sincTotal', val);
-    },
-
 
     // ////////////////////////////////////////////
     // COMPONENT

@@ -8,9 +8,6 @@
 import BasicDB from './basicDB';
 import Storage from '../utils/storage';
 
-const GRUPO_CLIENTE_CARRINHO = "grupoCliente";
-const CLIENTE_CARRINHO = "cliente";
-
 class carrinhoDB extends BasicDB {
 
     constructor() {
@@ -95,46 +92,11 @@ class carrinhoDB extends BasicDB {
         }, 0).toFixed(2));
     }
 
-    getGrupoCarrinho() {
-        this.getCarrinho().then((carrinho) => {
-            return carrinho.cliente[GRUPO_CLIENTE_CARRINHO];
-        });
-    }
-
-    setGrupoCarrinho(grupoCliente) {
-        this.getCarrinho().then((carrinho) => {
-            carrinho.cliente[GRUPO_CLIENTE_CARRINHO] = grupoCliente;
-            this.setCarrinho(carrinho);
-        });
-    }
-
-    deleteGrupoCarrinho() {
-        this.getCarrinho().then((carrinho) => {
-            carrinho.cliente[GRUPO_CLIENTE_CARRINHO] = null;
-            this.setCarrinho(carrinho);
-        });
-    }
-
-    getClienteCarrinho() {
-        return new Promise((resolve) => {
-            this.getCarrinho().then((carrinho) => {
-                resolve(carrinho[CLIENTE_CARRINHO]);
-            });
-        });
-    }
-
-    deleteClienteCarrinho() {
-        this.getCarrinho().then((carrinho) => {
-            carrinho[CLIENTE_CARRINHO] = null;
-            this.setCarrinho(carrinho);
-        });
-    }
-
     getCouchDB() {
         return new Promise((resolve) => {
             this._remoteDB.get("1").then((carrinhoCouch) => {
-                this.setCarrinho(carrinhoCouch).then((result) => {
-                    Storage.setCarrinho(result);
+                delete carrinhoCouch._rev;
+                this.setCarrinho(carrinhoCouch).then(() => {
                     resolve();
                 });
             }).catch(() => {

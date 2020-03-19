@@ -66,7 +66,7 @@ const errorMethod = (origem, err) => {
 //     ).on('error', (err) => errorMethod('changes', err));
 // };
 
-const sync = (localDB, remoteDB) => {
+const replicate = (localDB, remoteDB) => {
     if (remoteDB) {
         // changes(localDB);
         localDB.replicate.to(remoteDB, {
@@ -162,7 +162,7 @@ class basicDB {
             this._localDB = localDB;
             this._remoteDB = remoteDB;
             // replicate(this._localDB, this._remoteDB);
-            sync(this._localDB, this._remoteDB);
+            replicate(this._localDB, this._remoteDB);
             create("erros", true, (localErroDB, remoteErroDB) => {
                 this._localErroDB = localErroDB;
                 this._remoteErroDB = remoteErroDB;
