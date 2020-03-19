@@ -67,8 +67,6 @@ class produtoDB extends BasicDB {
     getAllProdutosBySegmento(idSegmento) {
         return new Promise((resolve) => {
             this._getFindCondition({segmento : {$gte : idSegmento}}).then((produtos) => {
-                console.log('Teste ', produtos);
-                
                 resolve(produtos);
             });
         });
@@ -285,6 +283,32 @@ class produtoDB extends BasicDB {
                         } else {
                             done();
                         }
+                    });
+                }
+            });
+        });
+    }
+
+    getProdutosMonteLook(idsCategorias, textoSearch) {
+        return new Promise((resolve) => {
+            this.getAllProdutosByIdCategorias(idsCategorias, textoSearch).then((produtos) => {
+                if(produtos.length > 0) {
+                    const done = _.after(produtos.length, () => resolve(produtos));
+                    produtos.forEach(produto => {
+                        this.getImagensCorProduto(produto).then((resultCor) => {
+                            ImagemDB.getFotosByCores(resultCor.cores).then((cores) => {
+                                resultCor.cores = cores;
+                                produto = resultCor;
+                                if(produto.cores.length > 0) {
+                                    ImagemDB.getFotoPrincipal(produto).then((result) => {
+                                        produto.imagemPrincipal = result;
+                                        done();
+                                    });
+                                } else {
+                                    done();
+                                }
+                            });
+                        })
                     });
                 }
             });

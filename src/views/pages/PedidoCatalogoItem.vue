@@ -368,7 +368,7 @@ export default {
             console.log('this.paginaAtual ',this.$route.params.idSegmento);
             
             this.$router.push({ name: 'monteLook',
-                params: {segmento: this.$route.params.idSegmento}
+                params: {segmento: this.$route.params.idSegmento, pag: this.paginaAtual, paginas: this.paginas}
             });
         },
         abrirCarrinho() {

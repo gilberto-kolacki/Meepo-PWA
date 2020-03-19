@@ -6,17 +6,18 @@
                     <vs-avatar @click="produtoActiveTop = !produtoActiveTop; produtoActiveDown = false; setProdutosList(produtos[0])" class="m-0 ml-6" src="https://imagens.liveoficial.com.br/app/img/grouper/357.png" size="40px" style="border: 0.9px solid #7b7b7b;"/>
                     <vs-avatar @click="selectCorTop = !selectCorTop;" class="m-0 ml-2 mr-6" src="https://image.freepik.com/vetores-gratis/fundo-gradiente-de-papel-de-parede_1159-5356.jpg" size="40px"/>
                 </div>
-                <!-- <div class="vx-row mt-6 ml-2" v-if="selectCorTop">
-                    <div class="mr-2 vx-row w-full produto-image-gallery" style="height: auto;">
-                        <div class="vx-col px-1 lg:w-2/4 md:w-1/4 sm:w-1/3 mb-4" v-for="(cor, index) in produtos[0].cores" :key="index" @click="setSelecionarTop()">
-                            <vx-card class="w-full text-center cursor-pointer; height:100%;">
-                                <b-card-text style="display:flex;align-items:center;justify-content:center;">
-                                    <b-img-lazy :src="cor.imagemCor ? produto.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded user-latest-image responsive img-popup product-img"/>
-                                </b-card-text >
-                            </vx-card>
+                <div class="vx-row mt-6 ml-2" v-if="selectCorTop">
+                    <vx-card class="w-full mr-6 text-center cursor-pointer; height:100%">
+                        <div class="vx-row">
+                            <h6>Cores Disponíveis:</h6>
                         </div>
-                    </div>
-                </div> -->
+                        <div class="mr-2 vx-row w-full produto-image-gallery" style="height: auto;">
+                            <div class="vx-col px-1 lg:w-1/12 md:w-1/12 sm:w-1/3 mr-2" v-for="(cor, index) in produtos[0].cores" :key="index">
+                                <vs-avatar @click="setProdutoCorA(cor)" :src="cor.imagemCor ? cor.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="m-0" size="40px"/>
+                            </div>
+                        </div>
+                    </vx-card>
+                </div>
                 <div class="vx-row flex justify-center mt-4">
                     <div>
                         <b-img-lazy center :src="produtos[0].imagemPrincipal ? produtos[0].imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" style="" class="card-img-principal responsive" id="produto-swipe-area"/>
@@ -39,7 +40,7 @@
                 </div>
             </div>
         </div>
-        <div class="vx-row">
+        <!-- <div class="vx-row">
             <div class="vx-col w-full mt-4">
                 <div class="vx-row flex justify-end">
                     <vs-avatar @click="produtoActiveDown = !produtoActiveDown; produtoActiveTop = false; setProdutosList(produtos[1])" class="m-0  ml-6" src="https://imagens.liveoficial.com.br/app/img/grouper/357.png" size="40px" style="border: 0.9px solid #7b7b7b;"/>
@@ -51,11 +52,12 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 
 <script>
+// import imagemDB from '../db/imagemDB';
 
 // import ProdutoDB from '../../rapidsoft/db/produtoDB';
 
@@ -70,6 +72,7 @@ export default {
             {imagemCor:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATEAAAClCAMAAAADOzq7AAAAA1BMVEUAAKqReXcsAAAASElEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/A8U6AAHe5bCKAAAAAElFTkSuQmCC',nome:'Um'},
             {imagemCor:'https://i0.wp.com/followthecolours.com.br/wp-content/uploads/2015/08/follow-the-colours-curiosidades-cor-preta-preto-10.jpg?w=960&ssl=1',nome:'Dois'}
         ],
+        corSelecionadaProdutoA: {},
         produtoList: [],
     }),
 
@@ -93,8 +96,14 @@ export default {
     computed: {
     },
     methods: {
+        setProdutoCorA(cor) {
+            this.produtos[0].imagemPrincipal = cor.imagens[0].imagemCor;
+            this.produtos[0].corSelecionada = cor;
+            this.$forceUpdate();
+        },
         setProduto(pos,produto) {
             this.produtos[pos] = produto;
+            this.produtos[pos].corSelecionada = this.produtos[pos].cores[0];
             this.$emit('atualiza-produtos',this.produtos,pos);
             this.$forceUpdate();
         },

@@ -4,7 +4,6 @@
             <div class="vx-col w-3/4 mt-4">
                 <monte-look-item
                     @atualiza-produtos="atualizarProdutos"
-                    @atualiza-lista-produtos="atualizaListaProdutos" 
                     :produtos="produtos"
                     :segmento="segmento"
                     :listaProdutosCategoria="listaProdutosPesquisa"
@@ -18,8 +17,8 @@
                         </div>
                         <div class="vx-row">
                             <div class="btn-group centex mt-2 w-full">
-                                <vs-button class="w-full" color="primary" icon="add_circle"></vs-button>
-                                <vs-button class="w-full" color="rgb(123, 123, 123)" size="36px" icon="attach_money"></vs-button>
+                                <vs-button @click="addProduto" class="w-full" color="primary" icon="add_circle"></vs-button>
+                                <vs-button @click="popupPrecoRef=true" class="w-full" color="rgb(123, 123, 123)" size="36px" icon="attach_money"></vs-button>
                             </div>
                         </div>
                     </vx-card>
@@ -49,6 +48,22 @@
                 </div>
             </div>
         </div>
+        <vs-popup title="Preço das Referências" :active.sync="popupPrecoRef" :button-close-hidden="false">
+            <table style="width:100%" class="border-collapse">
+                <tr>
+                    <th class="p-2 border border-solid d-theme-border-grey-light">Ref.</th>
+                    <th class="p-2 border border-solid d-theme-border-grey-light">Nome</th>
+                    <th class="p-2 border border-solid d-theme-border-grey-light">Sell In</th>
+                    <th class="p-2 border border-solid d-theme-border-grey-light">Sell Out</th>
+                </tr>
+                <tr>
+                    <td class="p-2 border border-solid d-theme-border-grey-light">{{produtos[0].referencia}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light">{{produtos[0].nome}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{produtos[0].corSelecionada ? produtos[0].corSelecionada.precoCusto : ''}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{produtos[0].corSelecionada ? produtos[0].corSelecionada.precoVenda : ''}}</td>
+                </tr>
+            </table>
+        </vs-popup>
     </div>
 </template>
 
@@ -67,6 +82,7 @@
             categoriasFiltro: [],
             categoriasSelecionadas: [],
             listaProdutosPesquisa: [],
+            popupPrecoRef: false,
         }),
         components: {
             'v-select': vSelect,
@@ -80,17 +96,24 @@
             },
         },
         methods: {
-            atualizaListaProdutos() {
-                console.log('atualizaListaProdutos');
-            },
             atualizarProdutos(produtos) {
                 this.produtos = produtos;
                 this.$forceUpdate();
             },
+            addProduto() {
+                const produtos = [this.produtos[0]];
+                console.log('this.$route.params ',this.$route.params);
+                const paginaAtual = this.$route.params.pag;
+                const paginas = this.$route.params.paginas
+                console.log('Add Produto ',produtos);
+                this.$router.push({ name: 'carrinhoAdd', 
+                    params: {produtos: produtos, tela: 'catalogoItem', pag: paginaAtual, paginas: paginas}
+                });
+            },
             searchFindProduto(produto,index) {
                 this.$vs.loading();
                 const idsCategorias = this.categoriasSelecionadas[index].map((categoria) => {return categoria.id})
-                ProdutoDB.getProdutosSearch(idsCategorias).then((result) => {
+                ProdutoDB.getProdutosMonteLook(idsCategorias).then((result) => {
                     this.listaProdutosPesquisa[index] = result;
                     this.$vs.loading.close();
                 });
