@@ -2,11 +2,25 @@
     <div>
         <div class="vx-row">
             <div class="vx-col w-full mt-4">
-                <div class="vx-row flex justify-center">
+                <div class="vx-row flex justify-end">
+                    <vs-avatar @click="produtoActiveTop = !produtoActiveTop; produtoActiveDown = false; setProdutosList(produtos[0])" class="m-0 ml-6" src="https://imagens.liveoficial.com.br/app/img/grouper/357.png" size="40px" style="border: 0.9px solid #7b7b7b;"/>
+                    <vs-avatar @click="selectCorTop = !selectCorTop;" class="m-0 ml-2 mr-6" src="https://image.freepik.com/vetores-gratis/fundo-gradiente-de-papel-de-parede_1159-5356.jpg" size="40px"/>
+                </div>
+                <!-- <div class="vx-row mt-6 ml-2" v-if="selectCorTop">
+                    <div class="mr-2 vx-row w-full produto-image-gallery" style="height: auto;">
+                        <div class="vx-col px-1 lg:w-2/4 md:w-1/4 sm:w-1/3 mb-4" v-for="(cor, index) in produtos[0].cores" :key="index" @click="setSelecionarTop()">
+                            <vx-card class="w-full text-center cursor-pointer; height:100%;">
+                                <b-card-text style="display:flex;align-items:center;justify-content:center;">
+                                    <b-img-lazy :src="cor.imagemCor ? produto.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded user-latest-image responsive img-popup product-img"/>
+                                </b-card-text >
+                            </vx-card>
+                        </div>
+                    </div>
+                </div> -->
+                <div class="vx-row flex justify-center mt-4">
                     <div>
                         <b-img-lazy center :src="produtos[0].imagemPrincipal ? produtos[0].imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" style="" class="card-img-principal responsive" id="produto-swipe-area"/>
                     </div>
-                    <vs-avatar @click="produtoActiveTop = !produtoActiveTop; produtoActiveDown = false; setProdutosList(produtos[0])" class="m-0 ml-6" src="https://imagens.liveoficial.com.br/app/img/grouper/357.png" size="60px" style="border: 0.9px solid #7b7b7b;"/>
                 </div>
             </div>
         </div>
@@ -27,11 +41,14 @@
         </div>
         <div class="vx-row">
             <div class="vx-col w-full mt-4">
+                <div class="vx-row flex justify-end">
+                    <vs-avatar @click="produtoActiveDown = !produtoActiveDown; produtoActiveTop = false; setProdutosList(produtos[1])" class="m-0  ml-6" src="https://imagens.liveoficial.com.br/app/img/grouper/357.png" size="40px" style="border: 0.9px solid #7b7b7b;"/>
+                    <vs-avatar @click="produtoActiveTop = !produtoActiveTop; produtoActiveDown = false; setProdutosList(produtos[0])" class="m-0 ml-2 mr-6" src="https://image.freepik.com/vetores-gratis/fundo-gradiente-de-papel-de-parede_1159-5356.jpg" size="40px"/>
+                </div>
                 <div class="vx-row flex justify-center">
                     <div>
                         <b-img-lazy center :src="produtos[1].imagemPrincipal ? produtos[1].imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" style="" class="card-img-principal responsive" id="produto-swipe-area"/>
                     </div>
-                    <vs-avatar @click="produtoActiveDown = !produtoActiveDown; produtoActiveTop = false; setProdutosList(produtos[1])" class="m-0  ml-6" src="https://imagens.liveoficial.com.br/app/img/grouper/357.png" size="60px" style="border: 0.9px solid #7b7b7b;"/>
                 </div>
             </div>
         </div>
@@ -44,13 +61,11 @@
 
 export default {
     data: () => ({
-        produtosLook:[],
-        showAddCarrinhoItem:false,
-        produtoLookSelecionado:{},
         showProdutosLook: false,
         produtoActiveTop: false,
         produtoActiveDown: false,
         acessorioActive: false,
+        selectCorTop: false,
         cores: [
             {imagemCor:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATEAAAClCAMAAAADOzq7AAAAA1BMVEUAAKqReXcsAAAASElEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/A8U6AAHe5bCKAAAAAElFTkSuQmCC',nome:'Um'},
             {imagemCor:'https://i0.wp.com/followthecolours.com.br/wp-content/uploads/2015/08/follow-the-colours-curiosidades-cor-preta-preto-10.jpg?w=960&ssl=1',nome:'Dois'}
@@ -80,7 +95,7 @@ export default {
     methods: {
         setProduto(pos,produto) {
             this.produtos[pos] = produto;
-            this.$emit('atualiza-produtos',this.produtos);
+            this.$emit('atualiza-produtos',this.produtos,pos);
             this.$forceUpdate();
         },
         setProdutosList(produto) {

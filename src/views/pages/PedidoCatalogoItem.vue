@@ -46,11 +46,11 @@
                             <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-zoom-in" @click.stop="showZoom()"></vs-button>
                         </div>
                     </div>
-                    <!-- <div class="vx-row items-center justify-center mt-4">
+                    <div class="vx-row items-center justify-center mt-4">
                         <div class="btn-group centex w-full" >
                             <vs-button class="w-full" color="primary" @click.stop="monteLook()">Monte seu Look</vs-button>
                         </div>
-                    </div> -->
+                    </div>
                 </div>
                 <!-- IMAGEM PRINCIPAL -->
                 <div class="vx-col w-full lg:w-3/5 sm:w-3/5 h-12" style="z-index: 10;" v-if="this.produtoA">
@@ -364,13 +364,13 @@ export default {
                 this.selectProduto(this.paginas[this.paginas.length-1]);
             });
         },
-        // monteLook(){
-        //     console.log('this.paginaAtual ',this.$route.params.idSegmento);
+        monteLook(){
+            console.log('this.paginaAtual ',this.$route.params.idSegmento);
             
-        //     this.$router.push({ name: 'monteLook',
-        //         params: {segmento: this.$route.params.idSegmento}
-        //     });
-        // },
+            this.$router.push({ name: 'monteLook',
+                params: {segmento: this.$route.params.idSegmento}
+            });
+        },
         abrirCarrinho() {
             this.$router.push({ name: 'carrinho',
                 params: {tela: 'catalogoItem'}

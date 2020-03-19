@@ -117,7 +117,7 @@
             },
         },
         created() {
-            this.segmento = 3;
+            this.segmento = this.$route.params.segmento;
             this.searchCategorias();
         },
         mounted() {
