@@ -26,7 +26,7 @@
                         <p>End.: {{ orcamento.cliente.endereco.endereco + ', ' + orcamento.cliente.endereco.numero}}</p>
                         <p>Cidade: {{ orcamento.cliente.endereco.cidade + '/' + orcamento.cliente.endereco.estado}}</p>
                     </div>
-                    <div class="invoice__recipient-contact " v-if="orcamento.cliente && orcamento.cliente.contatos">
+                    <div class="invoice__recipient-contact " v-if="orcamento.cliente && orcamento.cliente.contatos && orcamento.cliente.contatos.lenght > 0">
                         <p class="flex items-center">
                             <feather-icon icon="PhoneIcon" svgClasses="h-4 w-4"></feather-icon>
                             <span class="ml-2">{{ orcamento.cliente.contatos[0].celular }}</span>

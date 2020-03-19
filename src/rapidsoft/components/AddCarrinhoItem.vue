@@ -206,9 +206,8 @@ export default {
     data: () => ({
         maxHeight: '0px',
         openItems: false,
-        grupoCliente: null,
         gradeRef: [],
-        cliente:null,
+        cliente: null,
         limitesExcedidos: [],
         popupPreco: false,
     }),
@@ -245,8 +244,8 @@ export default {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
             tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (Number(tamanho.quantidade) === 0 ? 0 :Number(tamanho.quantidade));
             if (tamanho.quantidade > 10) {
-                const corTamanho = _.toString(indexCor) + _.toString(indexTamanho);
-                if (!_.find(this.limitesExcedidos, (corTamanhoByList) => { return corTamanho == corTamanhoByList})) {
+                const corTamanho = String(indexCor) + String(indexTamanho);
+                if (!this.limitesExcedidos.find((corTamanhoByList) => corTamanho == corTamanhoByList)) {
                     this.limitesExcedidos.push(corTamanho);
                     this.alertaLimiteItens();
                 }
@@ -373,7 +372,6 @@ export default {
         }
     },
     created() {
-        this.grupoCliente = Storage.getGrupoCarrinho();
         this.cliente = Storage.getClienteCarrinho();
     },
     mounted() {

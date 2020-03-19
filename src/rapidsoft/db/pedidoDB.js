@@ -100,16 +100,15 @@ class pedidoDB extends BasicDB {
         });
     }
 
-    existePedidoEmDigitacao() {
+    buscaPedidosEmDigitacao() {
         return new Promise((resolve) => {
             this._localDB.find({
                 selector: { status: {$eq: 10}},
             }).then((result) => {
-                if (result.docs.length > 0) {
-                    resolve(result.docs);
-                } else {
-                    resolve(false);
-                }
+                resolve(result.docs.reduce((pedidos, doc) => {
+                    if (doc) pedidos.push(doc);
+                    return pedidos;
+                }, []));
             });
         });
     }
@@ -199,11 +198,11 @@ class pedidoDB extends BasicDB {
     deletar(idPedido) {
         return new Promise((resolve, reject) => {
             this._deletar(idPedido).then((result) => {
-                this._remoteDB.get(idPedido).then((objectRemote) => {
-                    this._remoteDB.remove(objectRemote).then(() => {
+                // this._remoteDB.get(idPedido).then((objectRemote) => {
+                    // this._remoteDB.remove(objectRemote).then(() => {
                         resolve(result);
-                    });
-                });
+                    // });
+                // });
             }).catch((err) => {
                 this._criarLogDB({url:'db/pedidoDB',method:'deletar',message: err,error:'Failed Request'});
                 reject(err);

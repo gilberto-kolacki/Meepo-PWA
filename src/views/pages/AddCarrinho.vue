@@ -1,7 +1,7 @@
 <template>
 	<div id="page-catalogo-add" class="page-catalogo-add">
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="cancelarAdd()" icon="icon-x">Voltar</vs-button>
-        <vs-button @click.stop="abrirCarrinho()" color="warning" type="filled" class="btn-carrinho" :disabled="existeCarrinho()" icon="shopping_cart"></vs-button>
+        <vs-button @click.stop="abrirCarrinho()" color="warning" type="filled" class="btn-carrinho" :disabled="!this.existeCarrinho" icon="shopping_cart"></vs-button>
 
         <div v-if="this.isShow"> 
             <add-carrinho-item v-for="(prodduto, indexProd) in this.produtos" :key="indexProd"
@@ -44,9 +44,10 @@
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import _ from 'lodash';
 import AddCarrinhoItem  from '../../rapidsoft/components/AddCarrinhoItem';
-import Storage  from '../../rapidsoft/utils/storage';
 import ProdutoUtils  from '../../rapidsoft/utils/produtoUtils';
 import ProdutoDB from '../../rapidsoft/db/produtoDB';
+import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
+import Storage from '../../rapidsoft/utils/storage';
 
 export default {
 	data: () => ({
@@ -58,12 +59,12 @@ export default {
     components: {
         AddCarrinhoItem,
     },
-    computed: {        
+    computed: {   
+        existeCarrinho() {
+            return Storage.existeCarrinho();
+        },    
     },
     methods: {
-        existeCarrinho() {
-            return !Storage.existeCarrinho();
-        },
         replicarTodasGrades(index) {
             const quantidades = this.produtos[index].produtoAddCores.reduce((map, corAdd) => {
                 map[corAdd.codigo] = corAdd.produtoAddTamanhos.reduce((map, tamanhoAdd) => {
@@ -86,15 +87,6 @@ export default {
                 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade);
             this.atualizaQuantidadeItens(_.clone(tamanho))
         },
-
-        scrollRight() {
-            document.getElementById("content-produtos").scrollLeft += 247;
-        },
-
-        scrollLeft() {
-            document.getElementById("content-produtos").scrollLeft -= 247;
-        },
-
         criaTamanho(indexCor, indexTamanho, key) {
             const tamanho = this.produtoAdd[key].cores[indexCor].tamanhos[indexTamanho];
             tamanho.ref = this.produtoAdd[key].referencia;
@@ -104,21 +96,21 @@ export default {
             tamanho.idSegmento = this.produtoAdd[key].segmento;
             return tamanho
         },
-
         openLook(produto) {
             this.$router.push({ name: 'catalogoItem',
                 params: {pag: {pag:0,produtoA:{id: produto.id, ref:produto.referencia, seq:1}}}
             });
         },
         openGradeLookSelecionado (produtoLookSelecionado) {
-            this.carrinho = Storage.getCarrinho();
-            const produtosLook = [produtoLookSelecionado]
-            ProdutoUtils.createProdutosAddCarrinho(produtosLook).then((produtos) => {
-                ProdutoDB.getProdutosLook(produtos[0].produtosLook).then((produtosLook) => {
-                    this.produtosDoLook = produtosLook;
+            CarrinhoDB.setCarrinho(this.carrinho).then(() => {
+                const produtosLook = [produtoLookSelecionado]
+                ProdutoUtils.createProdutosAddCarrinho(produtosLook).then((produtos) => {
                     this.produtos = produtos;
-                    this.isShow = true;
-                    this.$forceUpdate();
+                    ProdutoDB.getProdutosLook(produtos[0].produtosLook).then((produtosLook) => {
+                        this.produtosDoLook = produtosLook;
+                        this.isShow = true;
+                        this.$forceUpdate();
+                    });
                 });
             });
         },
@@ -149,20 +141,20 @@ export default {
             this.addReferenciaCarrinho();
         },
         abrirCarrinho() {
-            this.$router.push({ name: 'carrinho',
-                params: {tela: 'catalogoItem'}
-            });
+            this.$router.push({ name: 'carrinho', params: {tela: 'catalogoItem'} });
         },
         carregaItensTela() {
             return new Promise((resolve) => {
-                this.carrinho = Storage.getCarrinho();
-                ProdutoUtils.createProdutosAddCarrinho(this.$route.params.produtos).then((produtos) => {
-                    this.produtos = produtos;
-                    ProdutoDB.getProdutosLook(produtos[0].produtosLook).then((produtosLook) => {
-                        this.produtosDoLook = produtosLook;
-                        this.isShow = true;
-                        document.getElementById('loading-bg').style.display = "none";
-                        resolve();
+                CarrinhoDB.getCarrinho().then((carrinho) => {
+                    this.carrinho = carrinho;
+                    ProdutoUtils.createProdutosAddCarrinho(this.$route.params.produtos).then((produtos) => {
+                        this.produtos = produtos;
+                        ProdutoDB.getProdutosLook(produtos[0].produtosLook).then((produtosLook) => {
+                            this.produtosDoLook = produtosLook;
+                            this.isShow = true;
+                            document.getElementById('loading-bg').style.display = "none";
+                            resolve();
+                        });
                     });
                 });
             });
@@ -180,6 +172,13 @@ export default {
 	errorCaptured(err, vm, info) {
         ErrorDB._criarLog({ err, vm, info });
         return true;
+    },
+    async beforeDestroy() {
+        return new Promise((resolve) => {
+            CarrinhoDB.setCarrinho(this.carrinho).then(() => {
+                resolve();
+            });
+        });
     }
 
 };

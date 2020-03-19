@@ -14,7 +14,88 @@ PouchDB.plugin(PouchDBFind);
 PouchDB.plugin(PouchDBUPSert);
 
 import Config from '../../../public/config.json';
-// import ErrorUtils from './errorDB';
+
+const filter = (doc) => {
+    if(doc.alterado || doc._deleted || doc.status < 50) {
+        if (doc._deleted) console.log('filter', doc);
+        return true;
+    } else {
+        return false;
+    }
+};
+
+const setTimeout = (delay) => {
+    if (delay === 0) return 1000;
+    return delay * 3;
+};
+
+const changeMethod = (origem, change) => {
+    console.log("'change "+origem+"' yo, something changed!", change);
+};
+
+const pausedMethod = (origem, info) => {
+    console.log("'paused "+origem+"' replication was paused, usually because of a lost connection", info);
+};
+
+const activeMethod = (origem, info) => {
+    console.log("'active "+origem+"' replication was resumed", info);
+};
+
+const deniedMethod = (origem, err) => {
+    console.log("'denied "+origem+"'a document failed to replicate (e.g. due to permissions)", err);
+};
+
+const completeMethod = (origem, info) => {
+    console.log("'complete "+origem+"' handle complete", info);
+};
+
+const errorMethod = (origem, err) => {
+    console.log("'error "+origem+"' totally unhandled error (shouldn't happen)", err);
+};
+
+
+// const changes = (localDB) => {
+//     localDB.changes({
+//         since: 'now',
+//         live: true,
+//         include_docs: false,
+//         conflicts: true,
+//         filter: (doc) => filter(doc)
+//     }).on('change', (change) => changeMethod('changes', change)
+//     ).on('complete', (info) => completeMethod('changes', info)
+//     ).on('error', (err) => errorMethod('changes', err));
+// };
+
+const sync = (localDB, remoteDB) => {
+    if (remoteDB) {
+        // changes(localDB);
+        localDB.replicate.to(remoteDB, {
+            since: 'now',
+            live: true,
+            retry: true,
+            back_off_function: (delay) => setTimeout(delay),
+            filter: (doc) => filter(doc)
+        }).on('change', (change) => changeMethod('to', change)
+        ).on('paused', (info) => pausedMethod('to', info)
+        ).on('active', (info) => activeMethod('to', info)
+        ).on('denied', (err) => deniedMethod('to', err)
+        ).on('complete', (info) => completeMethod('to', info)
+        ).on('error', (err) => errorMethod('to', err));
+
+        localDB.replicate.from(remoteDB, {
+            since: 'now',
+            live: true,
+            retry: true,            
+            back_off_function: (delay) => setTimeout(delay),
+        }).on('change', (change) => changeMethod('from', change)
+        ).on('paused', (info) => pausedMethod('from', info)
+        ).on('active', (info) => activeMethod('from', info)
+        ).on('denied', (err) => deniedMethod('from', err)
+        ).on('complete', (info) => completeMethod('from', info)
+        ).on('error', (err) => errorMethod('from', err));
+    }
+};
+
 
 const createDBLocal = (dataBaseName, representante) => {
     return "meepo_"+Config.empresa+"_rep_"+representante.id+"_"+dataBaseName;
@@ -80,6 +161,8 @@ class basicDB {
         create(this._name, this._remote, (localDB, remoteDB) => {
             this._localDB = localDB;
             this._remoteDB = remoteDB;
+            // replicate(this._localDB, this._remoteDB);
+            sync(this._localDB, this._remoteDB);
             create("erros", true, (localErroDB, remoteErroDB) => {
                 this._localErroDB = localErroDB;
                 this._remoteErroDB = remoteErroDB;
@@ -132,15 +215,37 @@ class basicDB {
         }) >= 0 ? true : false;
     }
 
-    _limparBase() {
+    _limparBase(dados = null) {
         return new Promise((resolve) => {
             if (this._localDB) {
-                this._localDB.destroy().then(() => {
-                    this.createBases();
-                    resolve();
-                }).catch((err) => {
-                    this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: err,error:'Failed Request'});
-                    resolve(err);
+                this._delete(dados).then(() => {
+                    this._localDB.destroy().then(() => {
+                        this.createBases();
+                        resolve();
+                    }).catch((err) => {
+                        this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: err,error:'Failed Request'});
+                        resolve(err);
+                    });
+                });
+            } else {
+                resolve();
+            }
+        });
+    }
+
+    _delete(dados) {
+        console.log(dados);
+        
+
+        return new Promise((resolve) => {
+            if (dados && dados.length > 0) {
+                const done = _.after(dados.length, () => resolve());    
+                dados.forEach(object => {
+                    this._localDB.remove(object).then(() => {
+                        done();
+                    }).catch(() => {
+                        done();
+                    });
                 });
             } else {
                 resolve();
@@ -395,7 +500,9 @@ class basicDB {
                         const done = _.after(objectsLocal.length, () => resolve());      
                         objectsLocal.forEach(object => {
                             delete object._rev;
-                            this._remoteDB.put(object).then(() => {
+                            this._remoteDB.put(object).then((teste) => {
+                                console.log(teste);
+                                
                                 done();
                             }).catch((error) => {
                                 if (error.status == 409 ) {

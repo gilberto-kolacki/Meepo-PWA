@@ -68,12 +68,11 @@
 </template>    
 <script>
 
-import _ from 'lodash'
 import vSelect from 'vue-select';
-import ClienteDB from '../db/clienteDB'
-import CidadeDB from '../db/cidadeDB'
-import GrupoClienteDB from '../db/grupoClienteDB'
-import Storage from '../utils/storage'
+import ClienteDB from '../db/clienteDB';
+import CidadeDB from '../db/cidadeDB';
+import GrupoClienteDB from '../db/grupoClienteDB';
+import Storage from '../utils/storage';
 
 export default {
     name: 'search-cliente',
@@ -143,13 +142,10 @@ export default {
                 cliente = result.value;
                 GrupoClienteDB.getById(cliente.grupoCliente).then((grupo) => {
                     cliente.grupoCliente = grupo;
-                    Storage.setGrupoCarrinho(grupo);
-                    Storage.setClienteCarrinho(cliente);
                     this.$bvModal.hide(this.id);
                     this.$emit('search-selected', cliente);
-                })
-
-            })
+                });
+            });
         },
         searchCidades(callback) {
             this.cidadeSelecionada = null;
@@ -193,7 +189,7 @@ export default {
             return new Promise((resolve) => {
                 CidadeDB.getEstados().then((estados) => {
                     this.estadosFiltro = estados;
-                    this.estadoSelecionado = this.createEstadoSelect(_.find(estados, (estado) => { return estado.sigla === Storage.getUsuario().estado; }));
+                    this.estadoSelecionado = this.createEstadoSelect(estados.find((estado) => estado.sigla === Storage.getUsuario().estado));
                     resolve();
                 });
             });

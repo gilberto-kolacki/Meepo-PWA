@@ -73,10 +73,6 @@ export default {
         listar() {
             return new Promise((resolve) => {
                 PedidoDB._getAll().then((result) => {
-
-                    console.log(result);
-                    
-                            // resolve();
                     ClienteDB.getClientesPedidos(result).then((pedidos) => {
                         this.pedidos = pedidos;
                         document.getElementById('loading-bg').style.display = 'none';
