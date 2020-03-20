@@ -181,7 +181,6 @@ export default {
 
     data() {
         return {
-            idSegmento: null,
             imagemProdutoPrincipal: null,
             produtoA: null,
             produtoB: null,
@@ -365,8 +364,7 @@ export default {
             });
         },
         monteLook(){
-            console.log('this.paginaAtual ',this.$route.params.idSegmento);
-            
+            console.log('this.paginaAtual ',this.$route);
             this.$router.push({ name: 'monteLook',
                 params: {segmento: this.$route.params.idSegmento, pag: this.paginaAtual, paginas: this.paginas}
             });
@@ -384,6 +382,8 @@ export default {
                     this.cliente = Storage.getClienteCarrinho();
                     this.paginas = paginas;
                     this.paginaAtual = this.paginaAtual ? this.paginaAtual : paginas[0];
+                    console.log('this.paginaAtual ',this.paginaAtual);
+                    
                     this.$route.params.pag = null;
                     this.selectProduto(this.paginaAtual).then(() => {
                         document.getElementById('loading-bg').style.display = "none";

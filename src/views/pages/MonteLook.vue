@@ -1,14 +1,20 @@
 <template>
     <div id="page-customer">
         <div class="vx-row">
+            <!-- Produtos -->
             <div class="vx-col w-3/4 mt-4">
-                <monte-look-item
-                    @atualiza-produtos="atualizarProdutos"
-                    :produtos="produtos"
-                    :segmento="segmento"
-                    :listaProdutosCategoria="listaProdutosPesquisa"
-                />
+                <div v-for="(produto, index) in produtos" :key="index">
+                    <monte-look-item
+                        v-if="idSegmento"
+                        @atualiza-produtos="atualizarProdutos"
+                        @mostrar-produtos-categorias="mostrarProdutosCategorias"
+                        @mostrar-cores-produto="mostrarCoresProduto"
+                        :produto="produtos[index]"
+                        :produtoSeq="index"
+                    />
+                </div>
             </div>
+            <!-- informações -->
             <div class="vx-col w-1/4">
                 <div class="vx-row mt-4">
                     <vx-card>
@@ -48,6 +54,7 @@
                 </div>
             </div>
         </div>
+        <!-- popup Preço Referências -->
         <vs-popup title="Preço das Referências" :active.sync="popupPrecoRef" :button-close-hidden="false">
             <table style="width:100%" class="border-collapse">
                 <tr>
@@ -64,6 +71,53 @@
                 </tr>
             </table>
         </vs-popup>
+        <!-- popup Escolha o Segmento -->
+        <vs-popup title="Escolha o Segmento" :active.sync="popupSegmento" :button-close-hidden="false">
+            <div class="vx-row flex justify-center">
+                <div class="vx-col w-2/5" @click="setSegmento(segmento)" v-for="(segmento,index) in listaSegmentos" :key="index">
+                    <vx-card>
+                        <h1>{{segmento.nome}}</h1>
+                    </vx-card>
+                </div>
+            </div>
+        </vs-popup>
+        <!-- popup produtos -->
+        <vs-popup title="Escolha o Produto" :active.sync="popupProdutosCategoria" :button-close-hidden="false">
+            <div class="vx-row flex justify-center">
+                <div class="vx-row mt-6 ml-2">
+                    <div class="mr-2 vx-row w-full produto-image-gallery" style="height: auto;">
+                        <div class="vx-col px-1 lg:w-2/5 md:w-1/5 sm:w-1/3 mb-4" @click="setProduto(produto)" v-for="(produto, index) in listaProdutosPesquisa[posicaoProduto]" :key="index">
+                            <vx-card class="w-full text-center cursor-pointer; height:100%;">
+                                <b-card-text style="display:flex;align-items:center;justify-content:center;">
+                                    <b-img-lazy :src="produto.imagemPrincipal ? produto.imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded user-latest-image responsive img-popup product-img"/>
+                                </b-card-text >
+                                <b-card-text style="padding:10px">
+                                    <span class="vx-row" style="font-weight:bold">{{'Ref: ' + produto.referencia}}</span>
+                                    <span class="vx-row" style="max-width: 10ch; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{{produto.nome}}</span>
+                                </b-card-text>
+                            </vx-card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </vs-popup>
+        <!-- popupcores -->
+        <!-- <vs-popup title="Escolha o Segmento" :active.sync="popupSegmento" :button-close-hidden="false">
+            <div class="vx-row flex justify-center">
+                <div class="vx-row mt-6 ml-2" v-if="selectCorTop">
+                    <vx-card class="w-full mr-6 text-center cursor-pointer; height:100%">
+                        <div class="vx-row">
+                            <h6>Cores Disponíveis:</h6>
+                        </div>
+                        <div class="mr-2 vx-row w-full produto-image-gallery" style="height: auto;">
+                            <div class="vx-col px-1 lg:w-1/12 md:w-1/12 sm:w-1/3 mr-2" v-for="(cor, index) in produtos[0].cores" :key="index">
+                                <vs-avatar @click="setProdutoCor(cor,0)" :src="cor.imagemCor ? cor.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="m-0" size="40px"/>
+                            </div>
+                        </div>
+                    </vx-card>
+                </div>
+            </div>
+        </vs-popup> -->
     </div>
 </template>
 
@@ -72,17 +126,24 @@
     import MonteLookItem  from '../../rapidsoft/components/MonteLookItem';
     import CategoriaDB from '../../rapidsoft/db/categoriaDB';
     import ProdutoDB from '../../rapidsoft/db/produtoDB';
+    import Segmento from '../../rapidsoft/db/segmentoDB';
     import vSelect from 'vue-select';
     import _ from 'lodash';
 
     export default {
         data: () => ({
-            segmento: null,
-            produtos:[{},{},],
+            idSegmento: null,
+            produtos:[{},{},{}],
             categoriasFiltro: [],
             categoriasSelecionadas: [],
             listaProdutosPesquisa: [],
             popupPrecoRef: false,
+            popupSegmento: false,
+            popupProdutosCategoria: false,
+            popupCorProduto: false,
+            listaSegmentos: [],
+            mostrarCoresDisponiveis:false,
+            posicaoProduto:null,
         }),
         components: {
             'v-select': vSelect,
@@ -96,6 +157,27 @@
             },
         },
         methods: {
+            setProduto(produto) {
+                this.produtos[this.posicaoProduto] = produto;
+                this.produtos[this.posicaoProduto].corSelecionada = this.produtos[this.posicaoProduto].cores[0];
+                this.popupProdutosCategoria = false;
+            },
+            mostrarProdutosCategorias(produtoSeq) {
+                this.popupProdutosCategoria = true;
+                this.posicaoProduto = produtoSeq;
+                console.log('Produtos ', this.listaProdutosPesquisa);
+                console.log('this.posicaoProduto ', this.posicaoProduto);
+            },
+            mostrarCoresProduto(cores,produtoSeq) {
+                this.popupCorProduto = true;
+                console.log('cores ', cores);
+                console.log('produtoSeq ', produtoSeq);
+            },
+            setSegmento(segmento) {
+                this.idSegmento = segmento.id;
+                this.popupSegmento = false;
+                this.searchCategorias();
+            },
             atualizarProdutos(produtos) {
                 this.produtos = produtos;
                 this.$forceUpdate();
@@ -121,14 +203,17 @@
             },
             searchCategorias() {
                 this.categoriasSelecionadas = [];
-                CategoriaDB.getAllBySegmento(this.segmento).then((categorias) => {
+                CategoriaDB.getAllBySegmento(this.idSegmento).then((categorias) => {
                     this.categoriasFiltro = _.cloneDeep(categorias);
                     this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
                 });
             },
             carregaItensTela() {
                 return new Promise((resolve) => {
-                    resolve();
+                    Segmento._getAll().then((segmentos) => {
+                        this.listaSegmentos = segmentos;
+                        resolve();
+                    });
                 });
             },
             scrollUp() {
@@ -141,8 +226,8 @@
             },
         },
         created() {
-            this.segmento = this.$route.params.segmento;
-            this.searchCategorias();
+            this.popupSegmento = true;
+            this.carregaItensTela();
         },
         mounted() {
         },    

@@ -1,68 +1,18 @@
 <template>
-    <div class="parentx">
-        <div class="vx-row">
-            <div class="vx-col w-full mt-4">
-                <div class="vx-row flex justify-end">
-                    <vs-avatar @click="produtoActiveTop = !produtoActiveTop; produtoActiveDown = false; setProdutosList(produtos[0])" class="m-0 ml-6" src="https://imagens.liveoficial.com.br/app/img/grouper/357.png" size="40px" style="border: 0.9px solid #7b7b7b;"/>
-                    <vs-avatar @click="selectCorTop = !selectCorTop;" class="m-0 ml-2 mr-6" src="https://image.freepik.com/vetores-gratis/fundo-gradiente-de-papel-de-parede_1159-5356.jpg" size="40px"/>
-                </div>
-                <div class="vx-row mt-6 ml-2" v-if="selectCorTop">
-                    <vx-card class="w-full mr-6 text-center cursor-pointer; height:100%">
-                        <div class="vx-row">
-                            <h6>Cores Disponíveis:</h6>
-                        </div>
-                        <div class="mr-2 vx-row w-full produto-image-gallery" style="height: auto;">
-                            <div class="vx-col px-1 lg:w-1/12 md:w-1/12 sm:w-1/3 mr-2" v-for="(cor, index) in produtos[0].cores" :key="index">
-                                <vs-avatar @click="setProdutoCor(cor,0)" :src="cor.imagemCor ? cor.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="m-0" size="40px"/>
-                            </div>
-                        </div>
-                    </vx-card>
-                </div>
+    <div class="parentx on-scroll">
+        <div class="vx-row mt-4">
+            <div class="vx-col w-full mr-6">
+                <!-- <vx-card> -->
                 <div class="vx-row flex justify-center mt-4">
                     <div>
-                        <b-img-lazy center :src="produtos[0].imagemPrincipal ? produtos[0].imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" style="" class="card-img-principal responsive" id="produto-swipe-area"/>
+                        <b-img-lazy center :src="produto.imagemPrincipal ? produto.imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" style="" class="card-img-principal responsive" id="produto-swipe-area"/>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="vx-row mt-6 ml-2" v-if="produtoActiveTop || produtoActiveDown || acessorioActive">
-            <div class="mr-2 vx-row w-full produto-image-gallery" style="height: auto;">
-                <div class="vx-col px-1 lg:w-2/4 md:w-1/4 sm:w-1/3 mb-4" v-for="(produto, index) in listaProdutosCategoria[produtoActiveDown ? 1 : produtoActiveTop ? 0 : '']" :key="index" @click="produtoActiveTop ? setProduto(0,produto) : produtoActiveDown ? setProduto(1,produto) : setProduto()">
-                    <vx-card class="w-full text-center cursor-pointer; height:100%;">
-                        <b-card-text style="display:flex;align-items:center;justify-content:center;">
-                            <b-img-lazy :src="produto.imagemPrincipal ? produto.imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded user-latest-image responsive img-popup product-img"/>
-                        </b-card-text >
-                        <b-card-text style="padding:10px">
-                            <span class="vx-row" style="font-weight:bold">{{'Ref: ' + produto.referencia}}</span>
-                            <span class="vx-row" style="max-width: 10ch; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{{produto.nome}}</span>
-                        </b-card-text>
-                    </vx-card>
+                <div class="vx-row flex justify-center mt-4 ">
+                    <vs-button @click="mostrarCores()" color="primary" type="filled" class="customizer-btn ml-3 w-1/4" icon-pack="feather" icon="icon-settings">Cor</vs-button>
+                    <vs-button @click="mostrarProdutos()" color="primary" type="filled" class="customizer-btn ml-3 w-1/4" icon-pack="feather" icon="icon-list">Produtos</vs-button>
                 </div>
-            </div>
-        </div>
-        <div class="vx-row">
-            <div class="vx-col w-full mt-4">
-                <div class="vx-row flex justify-end">
-                    <vs-avatar @click="produtoActiveDown = !produtoActiveDown; produtoActiveTop = false; setProdutosList(produtos[1])" class="m-0  ml-6" src="https://imagens.liveoficial.com.br/app/img/grouper/357.png" size="40px" style="border: 0.9px solid #7b7b7b;"/>
-                    <vs-avatar @click="selectCorDown = !selectCorDown" class="m-0 ml-2 mr-6" src="https://image.freepik.com/vetores-gratis/fundo-gradiente-de-papel-de-parede_1159-5356.jpg" size="40px"/>
-                </div>
-                <div class="vx-row mt-6 ml-2" v-if="selectCorDown">
-                    <vx-card class="w-full mr-6 text-center cursor-pointer; height:100%">
-                        <div class="vx-row">
-                            <h6>Cores Disponíveis:</h6>
-                        </div>
-                        <div class="mr-2 vx-row w-full produto-image-gallery" style="height: auto;">
-                            <div class="vx-col px-1 lg:w-1/12 md:w-1/12 sm:w-1/3 mr-2" v-for="(cor, index) in produtos[1].cores" :key="index">
-                                <vs-avatar @click="setProdutoCor(cor,1)" :src="cor.imagemCor ? cor.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="m-0" size="40px"/>
-                            </div>
-                        </div>
-                    </vx-card>
-                </div>
-                <div class="vx-row flex justify-center">
-                    <div>
-                        <b-img-lazy center :src="produtos[1].imagemPrincipal ? produtos[1].imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" style="" class="card-img-principal responsive" id="produto-swipe-area"/>
-                    </div>
-                </div>
+                <!-- </vx-card> -->
             </div>
         </div>
     </div>
@@ -72,35 +22,28 @@
 
 export default {
     data: () => ({
-        showProdutosLook: false,
-        produtoActiveTop: false,
-        produtoActiveDown: false,
-        acessorioActive: false,
-        selectCorTop: false,
-        selectCorDown:false,
         produtoList: [],
+        selectCorAcessorio: []
     }),
 
     name: 'monte-look-item',
     props: {
-        produtos: {
-            type: Array,
+        produto: {
+            type: Object,
             required: true,
         },
-        segmento: {
+        produtoSeq: {
             type: Number,
-            required:true,
-        },
-        listaProdutosCategoria: {
-            type: Array,
             required: true,
-        }
-    },
-    components: {
-    },
-    computed: {
+        },
     },
     methods: {
+        mostrarCores() {
+            this.$emit('mostrar-cores-produto',this.produtoSeq);
+        },
+        mostrarProdutos() {
+            this.$emit('mostrar-produtos-categorias',this.produto.cores,this.produtoSeq);
+        },
         setProdutoCor(cor,pos) {
             this.produtos[pos].imagemPrincipal = cor.imagens[0].imagemCor;
             this.produtos[pos].corSelecionada = cor;
@@ -114,10 +57,11 @@ export default {
         },
         setProdutosList(produto) {
             this.produtoList = produto.listaProdutosCategoria;
-            this.$emit('atualiza-lista-produtos');
+            this.$emit('cores-disponiveis');
         }
     },
     created(){
+        console.log(this.listaProdutosCategoria);
     }
 }
 </script>
@@ -140,7 +84,7 @@ export default {
         }
     }
     .card-img-principal {
-        width: 30vh;
+        width: 22vh;
         -webkit-animation: rebound .4s;
         animation: rebound .4s;
         -webkit-box-pack: center !important;
