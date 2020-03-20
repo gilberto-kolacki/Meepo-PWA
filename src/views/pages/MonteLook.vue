@@ -2,12 +2,12 @@
     <div id="page-customer">
         <div class="vx-row">
             <div class="vx-col w-3/4 mt-4">
-                <!-- <monte-look-item
+                <monte-look-item
                     @atualiza-produtos="atualizarProdutos"
                     :produtos="produtos"
                     :segmento="segmento"
                     :listaProdutosCategoria="listaProdutosPesquisa"
-                /> -->
+                />
             </div>
             <div class="vx-col w-1/4">
                 <div class="vx-row mt-4">

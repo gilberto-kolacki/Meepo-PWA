@@ -69,9 +69,6 @@
 </template>
 
 <script>
-// import imagemDB from '../db/imagemDB';
-
-// import ProdutoDB from '../../rapidsoft/db/produtoDB';
 
 export default {
     data: () => ({
@@ -81,11 +78,6 @@ export default {
         acessorioActive: false,
         selectCorTop: false,
         selectCorDown:false,
-        cores: [
-            {imagemCor:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATEAAAClCAMAAAADOzq7AAAAA1BMVEUAAKqReXcsAAAASElEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/A8U6AAHe5bCKAAAAAElFTkSuQmCC',nome:'Um'},
-            {imagemCor:'https://i0.wp.com/followthecolours.com.br/wp-content/uploads/2015/08/follow-the-colours-curiosidades-cor-preta-preto-10.jpg?w=960&ssl=1',nome:'Dois'}
-        ],
-        corSelecionadaProdutoA: {},
         produtoList: [],
     }),
 
