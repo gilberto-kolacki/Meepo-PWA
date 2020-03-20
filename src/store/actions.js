@@ -38,9 +38,6 @@ const actions = {
     updatePlatform({ commit }, val) {
         commit('UPDATE_PLATFORM', val);
     },
-    updateSincDados({ commit }, val) {
-        commit('UPDATE_SINC_DADOS', val);
-    },
 
     // ////////////////////////////////////////////
     // COMPONENT

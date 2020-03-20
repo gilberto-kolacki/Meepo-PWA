@@ -445,19 +445,20 @@ class clienteDB extends BasicDB {
     getClientesPedidos(pedidos) {
         return new Promise((resolve) => {
             const newPedidos = [];
-            const done = _.after(pedidos.length, () => resolve(newPedidos));
-            pedidos.forEach(pedido => {
-
-                console.log(pedido);
-                
-                this._getById(pedido.cliente.id).then((cliente) => {
-                    if (cliente.existe) {
-                        pedido.cliente = cliente.value;
-                    }
-                    newPedidos.push(pedido);
-                    done();
+            if (pedidos && pedidos.length > 0) {
+                const done = _.after(pedidos.length, () => resolve(newPedidos));
+                pedidos.forEach(pedido => {
+                    this._getById(pedido.cliente.id).then((cliente) => {
+                        if (cliente.existe) {
+                            pedido.cliente = cliente.value;
+                        }
+                        newPedidos.push(pedido);
+                        done();
+                    });
                 });
-            });
+            } else {
+                resolve(newPedidos);
+            }
         });
     }
    

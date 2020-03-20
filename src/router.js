@@ -20,31 +20,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import auth from "./rapidsoft/auth/authService";
-import ClienteDB from './rapidsoft/db/clienteDB';
-import PedidoDB from './rapidsoft/db/pedidoDB';
-import OrcamentoDB from './rapidsoft/db/orcamentoDB';
-import ErrorDB from './rapidsoft/db/errorDB';
-
 Vue.use(Router);
-
-const syncNuvem = (to) => {
-    return new Promise((resolve) => {
-        const paginas = ['home', 'pedidoConsulta', 'clienteConsulta'];
-        if (window.navigator.onLine && paginas.indexOf(to) >= 0) {
-            ClienteDB._sincNuvem().then(() => {
-                OrcamentoDB._sincNuvem().then(() => {
-                    PedidoDB._sincNuvem().then(() => {
-                        ErrorDB._sincNuvem().then(() => {
-                            resolve();
-                        });
-                    });
-                });
-            });
-        } else {
-            resolve();
-        }
-    });
-};
 
 const router = new Router({
     mode: 'history',
@@ -295,7 +271,6 @@ router.beforeEach((to, from, next) => {
     document.getElementById('loading-bg').style.display = null;
     if(to.matched.some(record => record.meta.requiresAuth)) {
         if(auth.isAuthenticated()) {
-            syncNuvem(to.name);
             next();
         } else {
             next('/login');

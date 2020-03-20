@@ -137,7 +137,6 @@ class pedidoUtils {
                 newPedido.pedidoParcial = item.pedidoParcial;
                 newPedido.copiaEmail = item.copiaEmail;
                 newPedido.antecipacaoPedido = item.antecipacaoPedido;
-
                 return newPedido;
             });
             resolve(pedidos);
@@ -159,10 +158,6 @@ class pedidoUtils {
     gerarOrcamento(pedido) {
         return new Promise((resolve) => {
             const orcamento = {};
-            const idOrcamento = Storage.getIdOrcamentoCarrinho();
-            if (idOrcamento) {
-                orcamento.id = idOrcamento;
-            }
             orcamento.dataOrcamento = new Date().getTime();
             orcamento.cliente = pedido.cliente;
             orcamento.grupoCliente = pedido.grupoCliente;
@@ -196,7 +191,6 @@ class pedidoUtils {
     }
 
     concluirGeracaoPedidos(view, itens, carrinho = false) {        
-        Storage.deleteCarrinhoItens(itens);
         if (Storage.existeCarrinho()) {
             view.$router.push({ name: 'carrinho'});
         } else {

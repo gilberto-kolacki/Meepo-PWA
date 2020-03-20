@@ -568,11 +568,10 @@ export default {
         }
     },
     methods: {
-        cnpjnulo(cpfCnpj,key = null,uf = null) {
-            if (!cpfCnpj) {
-                this.clienteEdit[key] = _.isObject(this.clienteEdit[key]) ? 
-                    {cep: null,telefone: null, estado:null,bairro:null,complemento:null,numero:null,endereco:null} 
-                : null;
+        cnpjnulo(cpfCnpj, key = null, uf = null) {
+            const cliente = {cep: null,telefone: null, estado:null,bairro:null,complemento:null,numero:null,endereco:null};
+            if (cpfCnpj || cpfCnpj.length == 0) {
+                this.clienteEdit[key] = _.isObject(this.clienteEdit[key]) ? cliente : null;
                 this.proximoCampo('cpfCnpj');
             } else {
                 if (uf) {

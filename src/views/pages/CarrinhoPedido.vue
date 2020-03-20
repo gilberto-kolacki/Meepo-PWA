@@ -1,9 +1,9 @@
 <template>
     <div class="page-carrinho-pedido">
-        <vs-button class="btn-orcamento" color="success" type="filled" icon-pack="feather" icon="icon-file-text" @click="validarDadosOrcamento()">Orçamento</vs-button>
-        <vs-button class="btn-pedido" color="warning" type="filled" icon-pack="feather" icon="icon-play" @click="validarDadosPedido()">Finalizar</vs-button>
-        <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarCarrinho()" icon="icon-arrow-down">Carrinho</vs-button>
         <div class="m-2" justified v-if="this.showScreen">
+            <vs-button class="btn-orcamento" color="success" type="filled" icon-pack="feather" icon="icon-file-text" @click="validarDadosOrcamento()">Orçamento</vs-button>
+            <vs-button class="btn-pedido" color="warning" type="filled" icon-pack="feather" icon="icon-play" @click="validarDadosPedido()">Finalizar</vs-button>
+            <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarCarrinho()" icon="icon-arrow-down">Carrinho</vs-button>
             <div class="my-6" v-if="this.pedidoCapa">
                 <div class="vx-row">
                     <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="2" vs-sm="3" vs-xs="12" >
@@ -224,6 +224,7 @@ import OrcamentoDB from "../../rapidsoft/db/orcamentoDB";
 import vSelect from 'vue-select';
 import clienteDB from '../../rapidsoft/db/clienteDB';
 import grupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
+import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
 import moment from 'moment';
 
 export default {
@@ -273,6 +274,9 @@ export default {
         }     
 	},
     methods: {
+        showSidebar() {
+            return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
+        },
         datasEmbarque(embarque) {
             const datasDisponiveis = [];        
             if (embarque.periodos) {
@@ -429,13 +433,14 @@ export default {
 		gerarPedidos(pedidos) {
             const done = _.after(pedidos.length, () => {
                 const itens = pedidos.reduce((itens, embarque) => {
-                    return embarque.itens.reduce((produtos, item) => {
+                    return itens.concat(embarque.itens.reduce((produtos, item) => {
                         produtos.push(item.sku);
                         return produtos;
-                    }, []); 
+                    }, [])); 
                 }, []);
-
-                PedidoUtils.concluirGeracaoPedidos(this, itens);
+                CarrinhoDB.deleteCarrinho(itens).then(() => {
+                    PedidoUtils.concluirGeracaoPedidos(this, itens);
+                });
             });
             
             pedidos.forEach(pedido => {
@@ -447,13 +452,15 @@ export default {
         gerarOrcamento(orcamento) {
             orcamento.emailEnviado = false;
             const itens = orcamento.embarques.reduce((itens, embarque) => {
-                return embarque.itens.reduce((produtos, item) => {
+                return itens.concat(embarque.itens.reduce((produtos, item) => {
                     produtos.push(item.idProduto);
                     return produtos;
-                }, []); 
+                }, [])); 
             }, []);
             OrcamentoDB.salvar(orcamento).then(() => {
-                PedidoUtils.concluirGeracaoPedidos(this, itens, true);
+                CarrinhoDB.deleteCarrinho(itens).then(() => {
+                    PedidoUtils.concluirGeracaoPedidos(this, itens, true);
+                });
             });
         },
         voltarCarrinho() {
