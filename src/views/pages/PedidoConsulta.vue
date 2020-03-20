@@ -106,7 +106,9 @@ export default {
                     } else {
                         this.pedidos = pedidos;
                     }
-                    this.$vs.loading.close();
+                    setTimeout(() => {
+                        this.$vs.loading.close();
+                    }, 300);
                 });
             });
         },
