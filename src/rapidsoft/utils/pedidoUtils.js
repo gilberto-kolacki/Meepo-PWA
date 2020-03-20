@@ -61,19 +61,6 @@ const validarPedido = (pedidos) => {
 
 class pedidoUtils {
 
-    newCarrinho() {
-        return {
-            id: 0,
-            grupoCliente: null,
-            cliente: {
-                cpfCnpj: null,
-                nome: null,
-            },
-            valorTotal: 0,
-            itens: [],            
-        };
-    }
-
     newPedido() {
         return new Promise((resolve) => {
             const pedido = {};

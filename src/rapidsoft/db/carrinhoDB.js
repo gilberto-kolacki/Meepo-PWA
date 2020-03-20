@@ -25,8 +25,7 @@ class carrinhoDB extends BasicDB {
                 newCarrinho._id = "1";
                 newCarrinho.cliente = { cpfCnpj: null, nome: null, grupoCliente: null };
                 newCarrinho.valorTotal = 0;
-                newCarrinho.itens = [];     
-                Storage.setCarrinho(newCarrinho);       
+                newCarrinho.itens = [];   
                 resolve(newCarrinho);
             });
         });

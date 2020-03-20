@@ -47,7 +47,6 @@ const mutations = {
         if (val) {
             localStorage.setItem('userInfo', JSON.stringify(val));
             localStorage.setItem('token', JSON.stringify(val.token));
-            localStorage.removeItem('carrinho');
         }
     },
     // UPDATE_STATUS_CHAT(state, value) {
