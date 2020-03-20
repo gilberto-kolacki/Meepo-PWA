@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="parentx">
         <div class="vx-row">
             <div class="vx-col w-full mt-4">
                 <div class="vx-row flex justify-end">
@@ -13,7 +13,7 @@
                         </div>
                         <div class="mr-2 vx-row w-full produto-image-gallery" style="height: auto;">
                             <div class="vx-col px-1 lg:w-1/12 md:w-1/12 sm:w-1/3 mr-2" v-for="(cor, index) in produtos[0].cores" :key="index">
-                                <vs-avatar @click="setProdutoCorA(cor)" :src="cor.imagemCor ? cor.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="m-0" size="40px"/>
+                                <vs-avatar @click="setProdutoCor(cor,0)" :src="cor.imagemCor ? cor.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="m-0" size="40px"/>
                             </div>
                         </div>
                     </vx-card>
@@ -40,11 +40,23 @@
                 </div>
             </div>
         </div>
-        <!-- <div class="vx-row">
+        <div class="vx-row">
             <div class="vx-col w-full mt-4">
                 <div class="vx-row flex justify-end">
                     <vs-avatar @click="produtoActiveDown = !produtoActiveDown; produtoActiveTop = false; setProdutosList(produtos[1])" class="m-0  ml-6" src="https://imagens.liveoficial.com.br/app/img/grouper/357.png" size="40px" style="border: 0.9px solid #7b7b7b;"/>
-                    <vs-avatar @click="produtoActiveTop = !produtoActiveTop; produtoActiveDown = false; setProdutosList(produtos[0])" class="m-0 ml-2 mr-6" src="https://image.freepik.com/vetores-gratis/fundo-gradiente-de-papel-de-parede_1159-5356.jpg" size="40px"/>
+                    <vs-avatar @click="selectCorDown = !selectCorDown" class="m-0 ml-2 mr-6" src="https://image.freepik.com/vetores-gratis/fundo-gradiente-de-papel-de-parede_1159-5356.jpg" size="40px"/>
+                </div>
+                <div class="vx-row mt-6 ml-2" v-if="selectCorDown">
+                    <vx-card class="w-full mr-6 text-center cursor-pointer; height:100%">
+                        <div class="vx-row">
+                            <h6>Cores Disponíveis:</h6>
+                        </div>
+                        <div class="mr-2 vx-row w-full produto-image-gallery" style="height: auto;">
+                            <div class="vx-col px-1 lg:w-1/12 md:w-1/12 sm:w-1/3 mr-2" v-for="(cor, index) in produtos[1].cores" :key="index">
+                                <vs-avatar @click="setProdutoCor(cor,1)" :src="cor.imagemCor ? cor.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="m-0" size="40px"/>
+                            </div>
+                        </div>
+                    </vx-card>
                 </div>
                 <div class="vx-row flex justify-center">
                     <div>
@@ -52,7 +64,7 @@
                     </div>
                 </div>
             </div>
-        </div> -->
+        </div>
     </div>
 </template>
 
@@ -68,6 +80,7 @@ export default {
         produtoActiveDown: false,
         acessorioActive: false,
         selectCorTop: false,
+        selectCorDown:false,
         cores: [
             {imagemCor:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATEAAAClCAMAAAADOzq7AAAAA1BMVEUAAKqReXcsAAAASElEQVR4nO3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIA/A8U6AAHe5bCKAAAAAElFTkSuQmCC',nome:'Um'},
             {imagemCor:'https://i0.wp.com/followthecolours.com.br/wp-content/uploads/2015/08/follow-the-colours-curiosidades-cor-preta-preto-10.jpg?w=960&ssl=1',nome:'Dois'}
@@ -96,9 +109,9 @@ export default {
     computed: {
     },
     methods: {
-        setProdutoCorA(cor) {
-            this.produtos[0].imagemPrincipal = cor.imagens[0].imagemCor;
-            this.produtos[0].corSelecionada = cor;
+        setProdutoCor(cor,pos) {
+            this.produtos[pos].imagemPrincipal = cor.imagens[0].imagemCor;
+            this.produtos[pos].corSelecionada = cor;
             this.$forceUpdate();
         },
         setProduto(pos,produto) {

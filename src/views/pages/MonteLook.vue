@@ -2,12 +2,12 @@
     <div id="page-customer">
         <div class="vx-row">
             <div class="vx-col w-3/4 mt-4">
-                <monte-look-item
+                <!-- <monte-look-item
                     @atualiza-produtos="atualizarProdutos"
                     :produtos="produtos"
                     :segmento="segmento"
                     :listaProdutosCategoria="listaProdutosPesquisa"
-                />
+                /> -->
             </div>
             <div class="vx-col w-1/4">
                 <div class="vx-row mt-4">
@@ -101,11 +101,12 @@
                 this.$forceUpdate();
             },
             addProduto() {
-                const produtos = [this.produtos[0]];
-                console.log('this.$route.params ',this.$route.params);
+                const produtoA = this.produtos[0];
+                const produtoB = this.produtos[1] && this.produtos[1].nome ? this.produtos[1] : undefined;
+                const produtoC = this.produtos[2] && this.produtos[2].nome ? this.produtos[2] : undefined;
+                const produtos = [produtoA,produtoB,produtoC];
                 const paginaAtual = this.$route.params.pag;
                 const paginas = this.$route.params.paginas
-                console.log('Add Produto ',produtos);
                 this.$router.push({ name: 'carrinhoAdd', 
                     params: {produtos: produtos, tela: 'catalogoItem', pag: paginaAtual, paginas: paginas}
                 });
