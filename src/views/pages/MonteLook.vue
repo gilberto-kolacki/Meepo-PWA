@@ -3,26 +3,30 @@
         <div class="vx-row">
             <!-- Produtos -->
             <div class="vx-col w-3/4 mt-4">
-                <div v-for="(produto, index) in produtos" :key="index">
-                    <monte-look-item
-                        v-if="idSegmento && index != 2"
-                        @atualiza-produtos="atualizarProdutos"
-                        @mostrar-produtos-categorias="mostrarProdutosCategorias"
-                        @set-cor-produto="setCorProduto"
-                        :produto="produtos[index]"
-                        :produtoSeq="index"
-                    />
-                </div>
-                <div v-if="acessorioView">
-                    <monte-look-item
-                        v-if="idSegmento"
-                        @atualiza-produtos="atualizarProdutos"
-                        @mostrar-produtos-categorias="mostrarProdutosCategorias"
-                        @set-cor-produto="setCorProduto"
-                        :produto="produtos[2]"
-                        :produtoSeq="2"
-                    />
-                </div>
+                <vx-card>
+                    <div>
+                        <div v-for="(produto, index) in produtos" :key="index">
+                            <monte-look-item
+                                v-if="idSegmento && index != 2"
+                                @atualiza-produtos="atualizarProdutos"
+                                @mostrar-produtos-categorias="mostrarProdutosCategorias"
+                                @set-cor-produto="setCorProduto"
+                                :produto="produtos[index]"
+                                :produtoSeq="index"
+                            />
+                        </div>
+                        <div v-if="acessorioView">
+                            <monte-look-item
+                                v-if="idSegmento"
+                                @atualiza-produtos="atualizarProdutos"
+                                @mostrar-produtos-categorias="mostrarProdutosCategorias"
+                                @set-cor-produto="setCorProduto"
+                                :produto="produtos[2]"
+                                :produtoSeq="2"
+                            />
+                        </div>
+                    </div>
+                </vx-card>
             </div>
             <!-- informações -->
             <div class="vx-col w-1/4">
@@ -197,16 +201,15 @@
                 const produtoB = this.produtos[1] && this.produtos[1].nome ? this.produtos[1] : undefined;
                 const produtoC = this.produtos[2] && this.produtos[2].nome ? this.produtos[2] : undefined;
                 const produtos = [produtoA,produtoB,produtoC];
-                produtos.map((produto) => {
-                    if (produto) {
-                        produto.produtosLook = [];
-                    }
-                })
+                // produtos.map((produto) => {
+                //     if (produto) {
+                //         produto.produtosLook = [];
+                //     }
+                // });
+                const pag = {pag: 1,produtoA: produtoA,produtos: produtos}
                 console.log("Produtos: ", produtos);
-                const paginaAtual = this.$route.params.pag;
-                const paginas = this.$route.params.paginas
                 this.$router.push({ name: 'carrinhoAdd', 
-                    params: {produtos: produtos, tela: 'catalogoItem', pag: paginaAtual, paginas: paginas}
+                    params: {produtos: produtos, tela: 'monteLook', pag: pag, paginas: {},viewCompleteLook: false}
                 });
             },
             searchFindProduto(produto,index) {
@@ -258,11 +261,11 @@
         height: 100%
     }
     
-    .produto-image-scroll{
-        overflow-x: hidden;
-        overflow-y: scroll;
-        flex-wrap: nowrap;    
-    }
+    // .produto-image-scroll{
+    //     overflow-x: hidden;
+    //     overflow-y: scroll;
+    //     flex-wrap: nowrap;    
+    // }
     .input_filter{
         background-color: rgb(228,28,64);
         color:rgb(228,255,255);
