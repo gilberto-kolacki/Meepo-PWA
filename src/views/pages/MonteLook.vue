@@ -5,12 +5,22 @@
             <div class="vx-col w-3/4 mt-4">
                 <div v-for="(produto, index) in produtos" :key="index">
                     <monte-look-item
+                        v-if="idSegmento && index != 2"
+                        @atualiza-produtos="atualizarProdutos"
+                        @mostrar-produtos-categorias="mostrarProdutosCategorias"
+                        @set-cor-produto="setCorProduto"
+                        :produto="produtos[index]"
+                        :produtoSeq="index"
+                    />
+                </div>
+                <div v-if="acessorioView">
+                    <monte-look-item
                         v-if="idSegmento"
                         @atualiza-produtos="atualizarProdutos"
                         @mostrar-produtos-categorias="mostrarProdutosCategorias"
-                        @mostrar-cores-produto="mostrarCoresProduto"
-                        :produto="produtos[index]"
-                        :produtoSeq="index"
+                        @set-cor-produto="setCorProduto"
+                        :produto="produtos[2]"
+                        :produtoSeq="2"
                     />
                 </div>
             </div>
@@ -19,7 +29,10 @@
                 <div class="vx-row mt-4">
                     <vx-card>
                         <div class="vx-row" v-for="(produto, index) in produtos" :key="index">
-                            <h6><b>Produto {{index+1}}: </b>{{produto.nome}}</h6>
+                            <h6 v-if="index != 2"><b>Produto {{index+1}}: </b>{{produto.nome}}</h6>
+                        </div>
+                        <div class="vx-row" v-if="acessorioView">
+                            <h6><b>Produto 3: </b>{{produtos[2].nome}}</h6>
                         </div>
                         <div class="vx-row">
                             <div class="btn-group centex mt-2 w-full">
@@ -32,7 +45,7 @@
                 <div class="vx-row mt-4">
                     <vx-card>
                         <div class="vx-row" v-for="(produto, index) in produtos" :key="index">
-                            <div class="vx-col w-full mb-2">
+                            <div class="vx-col w-full mb-2" v-if="index != 2">
                                 <label for="segmentoFiltro" class="vs-input--label">Categorias Produto {{index + 1}}</label>
                                 <v-select
                                     @input="searchFindProduto(produto,index)"
@@ -45,9 +58,23 @@
                                 />
                             </div>
                         </div>
+                        <div class="vx-row" v-if="acessorioView">
+                            <div class="vx-col w-full mb-2">
+                                <label for="segmentoFiltro" class="vs-input--label">Categorias Produto 3</label>
+                                <v-select
+                                    @input="searchFindProduto(produtos[2],2)"
+                                    multiple 
+                                    id="categoriaFiltro"
+                                    name="segmento"
+                                    v-model="categoriasSelecionadas[2]"
+                                    label="nome"
+                                    :options="getCategoriasSearch"
+                                />
+                            </div>
+                        </div>
                         <div class="vx-row">
                             <div class="vx-col w-full mt-6">
-                                <vs-button class="w-full" color="primary" icon="add_circle">Acessório</vs-button>
+                                <vs-button @click="acessorioView = !acessorioView" class="w-full" color="primary" :icon="!acessorioView ? 'add_circle':'remove_circle'">Acessório</vs-button>
                             </div>
                         </div>
                     </vx-card>
@@ -63,11 +90,11 @@
                     <th class="p-2 border border-solid d-theme-border-grey-light">Sell In</th>
                     <th class="p-2 border border-solid d-theme-border-grey-light">Sell Out</th>
                 </tr>
-                <tr>
-                    <td class="p-2 border border-solid d-theme-border-grey-light">{{produtos[0].referencia}}</td>
-                    <td class="p-2 border border-solid d-theme-border-grey-light">{{produtos[0].nome}}</td>
-                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{produtos[0].corSelecionada ? produtos[0].corSelecionada.precoCusto : ''}}</td>
-                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{produtos[0].corSelecionada ? produtos[0].corSelecionada.precoVenda : ''}}</td>
+                <tr v-for="(produto, index) in produtos" :key="index">
+                    <td v-if="produto.referencia" class="p-2 border border-solid d-theme-border-grey-light">{{produto.referencia}}</td>
+                    <td v-if="produto.nome" class="p-2 border border-solid d-theme-border-grey-light">{{produto.nome}}</td>
+                    <td v-if="produto.corSelecionada" class="p-2 border border-solid d-theme-border-grey-light text-right">{{produto.corSelecionada ? produto.corSelecionada.precoCusto : ''}}</td>
+                    <td v-if="produto.corSelecionada" class="p-2 border border-solid d-theme-border-grey-light text-right">{{produto.corSelecionada ? produto.corSelecionada.precoVenda : ''}}</td>
                 </tr>
             </table>
         </vs-popup>
@@ -101,23 +128,6 @@
                 </div>
             </div>
         </vs-popup>
-        <!-- popupcores -->
-        <!-- <vs-popup title="Escolha o Segmento" :active.sync="popupSegmento" :button-close-hidden="false">
-            <div class="vx-row flex justify-center">
-                <div class="vx-row mt-6 ml-2" v-if="selectCorTop">
-                    <vx-card class="w-full mr-6 text-center cursor-pointer; height:100%">
-                        <div class="vx-row">
-                            <h6>Cores Disponíveis:</h6>
-                        </div>
-                        <div class="mr-2 vx-row w-full produto-image-gallery" style="height: auto;">
-                            <div class="vx-col px-1 lg:w-1/12 md:w-1/12 sm:w-1/3 mr-2" v-for="(cor, index) in produtos[0].cores" :key="index">
-                                <vs-avatar @click="setProdutoCor(cor,0)" :src="cor.imagemCor ? cor.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="m-0" size="40px"/>
-                            </div>
-                        </div>
-                    </vx-card>
-                </div>
-            </div>
-        </vs-popup> -->
     </div>
 </template>
 
@@ -137,6 +147,7 @@
             categoriasFiltro: [],
             categoriasSelecionadas: [],
             listaProdutosPesquisa: [],
+            listaCores: [],
             popupPrecoRef: false,
             popupSegmento: false,
             popupProdutosCategoria: false,
@@ -144,6 +155,7 @@
             listaSegmentos: [],
             mostrarCoresDisponiveis:false,
             posicaoProduto:null,
+            acessorioView: false,
         }),
         components: {
             'v-select': vSelect,
@@ -157,6 +169,10 @@
             },
         },
         methods: {
+            setCorProduto(produto) {
+                this.produtos[this.posicaoProduto] = produto;
+                this.popupCorProduto = false;
+            },
             setProduto(produto) {
                 this.produtos[this.posicaoProduto] = produto;
                 this.produtos[this.posicaoProduto].corSelecionada = this.produtos[this.posicaoProduto].cores[0];
@@ -165,13 +181,6 @@
             mostrarProdutosCategorias(produtoSeq) {
                 this.popupProdutosCategoria = true;
                 this.posicaoProduto = produtoSeq;
-                console.log('Produtos ', this.listaProdutosPesquisa);
-                console.log('this.posicaoProduto ', this.posicaoProduto);
-            },
-            mostrarCoresProduto(cores,produtoSeq) {
-                this.popupCorProduto = true;
-                console.log('cores ', cores);
-                console.log('produtoSeq ', produtoSeq);
             },
             setSegmento(segmento) {
                 this.idSegmento = segmento.id;
@@ -183,10 +192,17 @@
                 this.$forceUpdate();
             },
             addProduto() {
+                
                 const produtoA = this.produtos[0];
                 const produtoB = this.produtos[1] && this.produtos[1].nome ? this.produtos[1] : undefined;
                 const produtoC = this.produtos[2] && this.produtos[2].nome ? this.produtos[2] : undefined;
                 const produtos = [produtoA,produtoB,produtoC];
+                produtos.map((produto) => {
+                    if (produto) {
+                        produto.produtosLook = [];
+                    }
+                })
+                console.log("Produtos: ", produtos);
                 const paginaAtual = this.$route.params.pag;
                 const paginas = this.$route.params.paginas
                 this.$router.push({ name: 'carrinhoAdd', 
@@ -241,6 +257,7 @@
         width: 100%; 
         height: 100%
     }
+    
     .produto-image-scroll{
         overflow-x: hidden;
         overflow-y: scroll;
