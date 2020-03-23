@@ -4,6 +4,11 @@
         <vs-button @click.stop="abrirCarrinho()" color="warning" type="filled" class="btn-carrinho" :disabled="!this.existeCarrinho" icon="shopping_cart"></vs-button>
 
         <div v-if="this.isShow"> 
+            <div class="vx-row items-center justify-center" v-if="this.carrinho.cliente.nome">
+                <div class="truncate">
+                    <h6>CLIENTE: {{this.carrinho.cliente.nome}}</h6>
+                </div>
+            </div>
             <add-carrinho-item v-for="(prodduto, indexProd) in this.produtos" :key="indexProd"
                 @atualiza-qtde-itens="atualizaQuantidadeItens" 
                 :idColapse="'accordion-ref-'+indexProd" 
@@ -121,7 +126,6 @@ export default {
             this.carrinho.valorTotal = _.round(this.carrinho.itens.reduce((total, item) => {
                 return total = total + (item.quantidade * ProdutoUtils.calcularPreco(item));
             }, 0), 2);
-            Storage.setCarrinho(this.carrinho);
         },
         voltarCatalogo() {
             this.$router.push({ name: this.$route.params.tela, 

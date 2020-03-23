@@ -49,13 +49,12 @@
                 </div>
                 <!-- IMAGEM PRINCIPAL -->
                 <div class="vx-col w-full lg:w-3/5 sm:w-3/5 h-12" style="z-index: 10;" v-if="this.produtoA">
-                    <div class="vx-row items-center justify-center" v-if="this.cliente.nome">
-                    <div class="truncate">
-                        <h6>CLIENTE: {{this.cliente.nome}}</h6>
-                    </div>
+                    <div class="vx-row items-center justify-center" v-if="this.cliente">
+                        <div class="truncate">
+                            <h6>CLIENTE: {{this.cliente.nome}}</h6>
+                        </div>
                     </div>
                     <div class="vx-row items-center justify-center" style="z-index: 15; margin-bottom: 2rem;">
-                     
                         <h6 class="title-ref">{{produtoA.referencia}} - {{produtoA.nome}}</h6>
                     </div>
                     <Vue2InteractDraggable

@@ -29,8 +29,8 @@ class orcamentoDB extends BasicDB {
         return new Promise((resolve) => {
             const salva = (orcamento) => {
                 orcamento.alterado = true;
-                this._salvar(orcamento).then(() => {
-                    resolve();
+                this._salvar(orcamento).then((result) => {
+                    resolve(result);
                 });
             };
             

@@ -1,48 +1,54 @@
-const CARRINHO = "carrinho";
-const GRUPO_CLIENTE_CARRINHO = "grupoCliente";
-const CLIENTE_CARRINHO = "cliente";
+class Storage {
 
-class storage {
+    constructor() {
+        this.CARRINHO = "carrinho";
+        this.GRUPO_CLIENTE_CARRINHO = "grupoCliente";
+        this.CLIENTE_CARRINHO = "cliente";        
+    }
 
     get(chave) {
         return JSON.parse(localStorage.getItem(chave));
     }
-
+    
     set(chave, valor) {
         localStorage.setItem(chave, JSON.stringify(valor));
     }
-
-    delete(chave) {
+    
+    deleteStorage(chave) {
         localStorage.removeItem(chave);
     }
-
+    
     existeCarrinho() {
-        const carrinho = this.get(CARRINHO);
+        const carrinho = this.get(this.CARRINHO);
         if (carrinho && carrinho.itens && carrinho.itens.length > 0) {
             return true;
         } else {
             return false;
         }
     }
-
+    
     getCarrinho() {
-        const carrinho = localStorage.getItem(CARRINHO);
+        const carrinho = localStorage.getItem(this.CARRINHO);
         return JSON.parse(carrinho);
     }
-
+    
     setCarrinho(carrinho) {
-        localStorage.setItem(CARRINHO, JSON.stringify(carrinho));
+        localStorage.setItem(this.CARRINHO, JSON.stringify(carrinho));
     }
-
+    
     deleteCarrinho() {
-        localStorage.removeItem(CARRINHO);
+        localStorage.removeItem(this.CARRINHO);
     }
-
+    
     getGrupoCarrinho() {
         const carrinho = this.getCarrinho();
-        return carrinho.cliente[GRUPO_CLIENTE_CARRINHO];
+        if (carrinho && carrinho[this.CLIENTE_CARRINHO]) {
+            return carrinho[this.CLIENTE_CARRINHO][this.GRUPO_CLIENTE_CARRINHO];
+        } else {
+            return null;
+        }
     }
-
+    
     existeClienteCarrinho(carrinho = null) {
         const existe = (cliente) => (cliente && cliente.cpfCnpj) ? true : false;
         if (carrinho) {
@@ -56,12 +62,16 @@ class storage {
             }
         }
     }
-
+    
     getClienteCarrinho() {
         const carrinho = this.getCarrinho();
-        return carrinho[CLIENTE_CARRINHO];
+        if (carrinho && carrinho[this.CLIENTE_CARRINHO].nome) {
+            return carrinho[this.CLIENTE_CARRINHO];
+        } else {
+            return null;
+        }
     }
-
+    
     setUsuario(usuario) {
         localStorage.setItem('userInfo', JSON.stringify(usuario));
     }
@@ -70,12 +80,12 @@ class storage {
         if (localStorage.getItem('userInfo')) return JSON.parse(localStorage.getItem('userInfo'));
         else return null;
     }
-
+    
     getCatalogo() {
         if (localStorage.getItem('catalogoCarrinho')) return JSON.parse(localStorage.getItem('catalogoCarrinho'));
         else return null;
     }
-
+    
     setCatalogo(catalogo) {
         delete catalogo.capa;
         delete catalogo.base64;
@@ -83,7 +93,7 @@ class storage {
         delete catalogo._rev;
         localStorage.setItem('catalogoCarrinho', JSON.stringify(catalogo));
     }
-
 }
 
-export default new storage();
+export default new Storage();
+

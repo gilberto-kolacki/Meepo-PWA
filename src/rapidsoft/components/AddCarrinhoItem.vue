@@ -1,10 +1,5 @@
 <template>
     <div class="parentx">
-    <div class="vx-row items-center justify-center" v-if="this.cliente.nome">
-                    <div class="truncate">
-                        <h6>CLIENTE: {{this.cliente.nome}}</h6>
-                    </div>
-                    </div>
         <b-card-header header-tag="header" class="p-1" role="tab">
             <vx-card class="w-full">
                 <div slot="no-body">
@@ -165,7 +160,6 @@
 <script>
 
 import _ from 'lodash';
-import Storage from '../utils/storage';
 import ProdutoUtils from '../utils/produtoUtils';
 import UtilMask from '../utils/utilMask';
 
@@ -372,7 +366,6 @@ export default {
         }
     },
     created() {
-        this.cliente = Storage.getClienteCarrinho();
     },
     mounted() {
         

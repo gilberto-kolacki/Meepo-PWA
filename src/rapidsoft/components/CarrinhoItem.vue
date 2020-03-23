@@ -23,7 +23,7 @@
                 </div>
             </b-dropdown>
             </div>     
-            <div class="vx-col items-center justify-center" v-if="this.cliente.nome">
+            <div class="vx-col items-center justify-center" v-if="this.cliente">
                 <div class="truncate">
                     <h6>CLIENTE: {{this.cliente.nome}}</h6>
                 </div>
@@ -282,10 +282,10 @@ export default {
         try {
             this.produtosCarrinho = this.produtos;
             this.cliente = Storage.getClienteCarrinho();
-            
             this.recalculaTotais();
         } catch (error) {
             console.log(error);
+            alert(error);
         }
 	},
     mounted() {        

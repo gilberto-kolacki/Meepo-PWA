@@ -15,27 +15,27 @@ PouchDB.plugin(PouchDBUPSert);
 
 import Config from '../../../public/config.json';
 
-const filter = (doc) => {
-    if(doc.alterado || doc._deleted || doc.status < 50) {
-        if (doc._deleted) console.log('filter', doc);
-        return true;
-    } else {
-        return false;
-    }
-};
+// const filter = (doc) => {
+//     if(doc.alterado || doc._deleted || doc.status < 50) {
+//         if (doc._deleted) console.log('filter', doc);
+//         return true;
+//     } else {
+//         return false;
+//     }
+// };
 
-const setTimeout = (delay) => {
-    if (delay === 0) return 1000;
-    return delay * 3;
-};
+// const setTimeout = (delay) => {
+//     if (delay === 0) return 1000;
+//     return delay * 3;
+// };
 
-const changeMethod = (origem, change) => {
-    console.log("'change "+origem+"' yo, something changed!", change);
-};
+// const changeMethod = (origem, change) => {
+//     console.log("'change "+origem+"' yo, something changed!", change);
+// };
 
-const pausedMethod = (origem, info) => {
-    console.log("'paused "+origem+"' replication was paused, usually because of a lost connection", info);
-};
+// const pausedMethod = (origem, info) => {
+//     console.log("'paused "+origem+"' replication was paused, usually because of a lost connection", info);
+// };
 
 // const activeMethod = (origem, info) => {
 //     console.log("'active "+origem+"' replication was resumed", info);
@@ -49,9 +49,9 @@ const pausedMethod = (origem, info) => {
 //     console.log("'complete "+origem+"' handle complete", info);
 // };
 
-const errorMethod = (origem, err) => {
-    console.log("'error "+origem+"' totally unhandled error (shouldn't happen)", err);
-};
+// const errorMethod = (origem, err) => {
+//     console.log("'error "+origem+"' totally unhandled error (shouldn't happen)", err);
+// };
 
 
 // const changes = (localDB) => {
@@ -96,22 +96,22 @@ const errorMethod = (origem, err) => {
 //     }
 // };
 
-const sync = (localDB, remoteDB) => {
-    if (remoteDB) {
-        localDB.replicate.from(remoteDB).on('complete', function(info) {
-            console.log('complete sync', info);
-            localDB.sync(remoteDB, { 
-                live: true, 
-                retry: true,
-                back_off_function: (delay) => setTimeout(delay),
-                filter: (doc) => filter(doc),
-            })
-            .on('change', (change) => changeMethod('sync', change))
-            .on('paused', (info) => pausedMethod('sync', info))
-            .on('error', (err) => errorMethod('sync', err));
-        }).on('error', (err) => errorMethod('from', err));
-    }
-};
+// const sync = (localDB, remoteDB) => {
+//     if (remoteDB) {
+//         localDB.replicate.from(remoteDB).on('complete', function(info) {
+//             console.log('complete sync', info);
+//             localDB.sync(remoteDB, { 
+//                 live: true, 
+//                 retry: true,
+//                 back_off_function: (delay) => setTimeout(delay),
+//                 filter: (doc) => filter(doc),
+//             })
+//             .on('change', (change) => changeMethod('sync', change))
+//             .on('paused', (info) => pausedMethod('sync', info))
+//             .on('error', (err) => errorMethod('sync', err));
+//         }).on('error', (err) => errorMethod('from', err));
+//     }
+// };
 
 
 const createDBLocal = (dataBaseName, representante) => {
@@ -180,7 +180,7 @@ class basicDB {
             this._remoteDB = remoteDB;
             // replicate(this._localDB, this._remoteDB);
             // replicate(this._localDB, this._remoteDB);
-            sync(this._localDB, this._remoteDB);
+            // sync(this._localDB, this._remoteDB);
             create("erros", true, (localErroDB, remoteErroDB) => {
                 this._localErroDB = localErroDB;
                 this._remoteErroDB = remoteErroDB;

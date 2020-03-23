@@ -156,6 +156,7 @@ export default {
             this.$bvModal.show(this.idPopUpSearch);
 		},
 		selectSearchCliente(cliente) {
+            
             this.carrinho.cliente = cliente;
         },
         buscaGrupoPadrao() {

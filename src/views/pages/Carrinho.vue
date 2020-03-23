@@ -45,9 +45,10 @@
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import SegmentoDB from "../../rapidsoft/db/segmentoDB";
 import PeriodoDB from "../../rapidsoft/db/periodoDB";
+import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
+import ProdutoDB from "../../rapidsoft/db/produtoDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import CarrinhoItem from "../../rapidsoft/components/CarrinhoItem";
-import EmbarqueItem from "../../rapidsoft/components/EmbarqueItem";
 import ProdutoUtils from "../../rapidsoft/utils/produtoUtils";
 import CarrinhoUtils from "../../rapidsoft/utils/carrinhoUtils";
 
@@ -69,7 +70,6 @@ export default {
     },
 	components: {
 		CarrinhoItem,
-		EmbarqueItem,
 	},
 	computed: {
 
@@ -126,20 +126,26 @@ export default {
 		carregaItensTela() {
 			return new Promise((resolve) => {
 				this.segmentoSelecionado = this.$route.params.segmento;
-				this.isEdit = this.$route.params.edit;				
-				CarrinhoUtils.getCarrinho().then(carrinho => {
-					this.itensCarrinho = carrinho;
-					EmbarqueDB.getInfosEmbarques(carrinho).then((embarques) => {
-						this.embarquesOption = embarques;
-						PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
-							this.embarques = embarques;
-							SegmentoDB.getSegmentosCarrinho(carrinho).then((segmentos) => {
-								this.segmentos = segmentos;
-								this.produtosSegmento = ProdutoUtils.getProdutosSegmentos(segmentos, carrinho);
-								this.showScreen = true;
-								resolve();
+				this.isEdit = this.$route.params.edit;		
+				CarrinhoDB.getCarrinho().then(carrinho => {
+					ProdutoDB.getProdutosFromCarrinho(carrinho).then((carrinhoTela) => {
+						if (carrinhoTela.length > 0) {
+							this.itensCarrinho = carrinhoTela;
+							EmbarqueDB.getInfosEmbarques(carrinhoTela).then((embarques) => {
+								this.embarquesOption = embarques;
+								PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
+									this.embarques = embarques;
+									SegmentoDB.getSegmentosCarrinho(carrinhoTela).then((segmentos) => {
+										this.segmentos = segmentos;
+										this.produtosSegmento = ProdutoUtils.getProdutosSegmentos(segmentos, carrinhoTela);
+										this.showScreen = true;
+										resolve();
+									});
+								});
 							});
-						});
+						} else {
+							resolve(this.$router.push({ name: 'catalogoItem'}));
+						}
 					});
 				});
 			});
@@ -150,6 +156,7 @@ export default {
 			await this.carregaItensTela();
 		} catch (error) {
 			console.log(error);
+			alert(error);
 		}
 	},
     async mounted() {

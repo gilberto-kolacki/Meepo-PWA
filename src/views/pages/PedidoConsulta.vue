@@ -3,23 +3,23 @@
         <div class="vx-row">
             <vs-col vs-type="flex">
                 <vs-chip class="product-order-status">
-                    <vs-avatar @click="filtrar()" icon="done" />
+                    <vs-avatar @click="filtrar()" icon="done_outline" />
                     Todos
                 </vs-chip>
                 <vs-chip class="product-order-status" color="dark">
-                    <vs-avatar @click="filtrar(10)" icon="done" />
+                    <vs-avatar @click="filtrar(10)" icon="done_outline" />
                     Digitação
                 </vs-chip>
                 <vs-chip class="product-order-status" color="warning">
-                    <vs-avatar @click="filtrar(20)" icon="done" />
+                    <vs-avatar @click="filtrar(20)" icon="done_outline" />
                     Aguardando Sinc...
                 </vs-chip>
                 <vs-chip class="product-order-status" color="success">
-                    <vs-avatar @click="filtrar(50)" icon="done" />
+                    <vs-avatar @click="filtrar(50)" icon="done_outline" />
                     Sincronizado
                 </vs-chip>
                 <vs-chip class="product-order-status" color="danger">
-                    <vs-avatar @click="filtrar(99)" icon="done" />
+                    <vs-avatar @click="filtrar(99)" icon="done_outline" />
                     Cancelado
                 </vs-chip>
             </vs-col>

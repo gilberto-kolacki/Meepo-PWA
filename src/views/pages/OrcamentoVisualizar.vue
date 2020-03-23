@@ -4,12 +4,16 @@
         <div class="flex flex-wrap items-center justify-between">
             <div class="flex items-center">
                 <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="carrinhoPedido()">Contiuar</vs-button>
-                <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
+                <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarConsulta()" icon="icon-x">Voltar</vs-button>
                 <vs-button @click.stop="printInvoice" color="primary" type="filled" class="btn-carrinho" icon-pack="feather" icon="icon-printer"></vs-button>
+
             </div>
         </div>
         
         <vx-card id="invoice-container" v-if="this.showScreen">
+            <vs-button class='w-full' color="primary" type="filled" icon-pack="feather" icon="icon-external-link" @click="replicar()"> 
+                Replicar
+            </vs-button>
 
             <div class="vx-row leading-loose p-base">
                 <div class="vx-col w-full md:w-1/2">
@@ -126,28 +130,38 @@ export default {
         carrinhoPedido() {
             if (Storage.existeCarrinho()) {
                 this.$vs.dialog({
-                    type:'confirm',
                     color:'warning',
                     title:'Atenção!',
-                    text:'Seus itens do carrinho atual serão apagados!. Deseja continuar?',
-                    acceptText: 'Sim',
-                    cancelText: 'Cancelar',
-                    accept: this.gerarCarrinho,
+                    text:'Para continuar um orçamento você deve limpar o carrinho ou finalizar a compra!',
+                    acceptText: 'Ok',
                 });
             } else {
                 this.gerarCarrinho();
             }
         },
-        gerarCarrinho() {
-            CarrinhoUtils.setOrcamentoToCarrinho(this.orcamento).then(() => {
-                OrcamentoDB.deletar(this.orcamento).then(() => {
-                    this.$router.push({ name: 'carrinho' });
+        replicar() {
+            this.$vs.loading();
+            const orcamento = {...this.orcamento, dataOrcamento: new Date().getTime()};
+            delete orcamento.id;
+            delete orcamento._id;
+            delete orcamento._rev;
+            OrcamentoDB.salvar(orcamento).then((id) => {
+                this.carregaItensTela(id).then(() => {
+                    this.$vs.loading.close();
                 });
             });
         },
-        carregaItensTela() {
+        gerarCarrinho() {
+            CarrinhoUtils.setOrcamentoToCarrinho(this.orcamento).then(() => {
+                // OrcamentoDB.deletar(this.orcamento).then(() => {
+                //     this.$router.push({ name: 'carrinho' });
+                // });
+            });
+        },
+        carregaItensTela(idOrcamento = null) {
             return new Promise((resolve) => {
-                OrcamentoDB.get(this.$route.params.orcamentoId).then((orcamento) => {
+                idOrcamento = idOrcamento ? idOrcamento : this.$route.params.orcamentoId;
+                OrcamentoDB.get(idOrcamento).then((orcamento) => {
                     this.orcamento = orcamento;
                     this.itensOrcamento = orcamento.embarques;
                     this.showScreen = true;
@@ -155,7 +169,7 @@ export default {
                 });
             });
         },
-        voltarPedido() {
+        voltarConsulta() {
             this.$router.go(-1);
         },
         printInvoice() {

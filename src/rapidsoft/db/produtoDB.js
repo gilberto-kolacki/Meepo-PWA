@@ -138,24 +138,28 @@ class produtoDB extends BasicDB {
             const refsCarrinho = getReferenciasCarrinho(carrinho);
             this._getFindCondition({referencia : {$in : refsCarrinho}}).then((produtos) => {
                 produtos = this.getProdutoCorCarrinho(produtos, carrinho);
-                const done = _.after(produtos.length, () => resolve(produtosCarrinho));
-                produtos.forEach(produto => {
-                    produto.quantidade = this.getTotalCor(produto.tamanhos, carrinho);
-                    produto.tamanhos = this.getTamanhosProdutoCarrinho(produto.tamanhos, carrinho);
-                    produto.embarqueSelecionado = this.getEmbarqueSelecionado(produto, carrinho);
-                    ImagemDB.getFotoById(produto.imagem).then(imagem => {
-                        produto.imagemPrincipal = imagem;
-                        EmbarqueDB.getEmbarqueProduto(produto).then((embarque) => {
-                            if (embarque) {
-                                produto.embarque = embarque.id;
-                                produto.embarqueSelecionado = produto.embarqueSelecionado ? produto.embarqueSelecionado : embarque.id;
-                                produto.segmento = produto.segmento;
-                                produtosCarrinho.push(produto);
-                            }
-                            done();
+                if (produtos.length > 0) {
+                    const done = _.after(produtos.length, () => resolve(produtosCarrinho));
+                    produtos.forEach(produto => {
+                        produto.quantidade = this.getTotalCor(produto.tamanhos, carrinho);
+                        produto.tamanhos = this.getTamanhosProdutoCarrinho(produto.tamanhos, carrinho);
+                        produto.embarqueSelecionado = this.getEmbarqueSelecionado(produto, carrinho);
+                        ImagemDB.getFotoById(produto.imagem).then(imagem => {
+                            produto.imagemPrincipal = imagem;
+                            EmbarqueDB.getEmbarqueProduto(produto).then((embarque) => {
+                                if (embarque) {
+                                    produto.embarque = embarque.id;
+                                    produto.embarqueSelecionado = produto.embarqueSelecionado ? produto.embarqueSelecionado : embarque.id;
+                                    produto.segmento = produto.segmento;
+                                    produtosCarrinho.push(produto);
+                                }
+                                done();
+                            });
                         });
                     });
-                });
+                } else {
+                    resolve(produtosCarrinho);
+                }
             });
         });
     }
@@ -409,38 +413,39 @@ class produtoDB extends BasicDB {
 
     getIdsFotos(produto) {
         return new Promise((resolve) => {
-            const IdsFotos = _.flattenDeep(getCoresAtivas(produto.cores).map((cor) => {
-                return cor.imagens.map((imagem) => {
-                    return imagem.id.toString();
-                });
-            }));
+            const IdsFotos = getCoresAtivas(produto.cores).reduce((idsFotos, cor) => {
+                return idsFotos.concat(cor.imagens.map((imagem) => imagem.id.toString()));
+            }, []);
             resolve(IdsFotos);
         });
     }
 
     getIdsCores(produto) {
         return new Promise((resolve) => {
-            const IdsCores = _.flattenDeep(getCoresAtivas(produto.cores).filter((cor) => cor != undefined && cor.idCor).map((cor) => {
-                return cor.idCor.toString();
-            }));
+            const IdsCores = getCoresAtivas(produto.cores).reduce((idsCores, cor) => {
+                if (cor && cor.idCor) idsCores.push(cor.idCor.toString());
+                return idsCores;
+            }, []);
             resolve(IdsCores);
         });
     }
 
     getIdsSelos(produto) {
         return new Promise((resolve) => {
-            const IdsSelos = _.flattenDeep(getCoresAtivas(produto.cores).filter((cor) => cor != undefined && _.isArray(cor.selos)).map((cor) => {
-                return cor.selos.map((selo) => selo.toString());
-            }));
+            const IdsSelos = getCoresAtivas(produto.cores).reduce((selos, cor) => {
+                if (cor && cor.selos && cor.selos.length > 0) selos = selos.concat(cor.selos.map((selo) => selo.toString()));
+                return selos;
+            }, []);
             resolve(IdsSelos);
         });
     }
 
     getIdsSimbolos(produto) {
         return new Promise((resolve) => {
-            const IdsSimbolos = _.flattenDeep(getCoresAtivas(produto.cores).filter((cor) => cor != undefined && _.isArray(cor.simbolos)).map((cor) => {
-                return cor.simbolos.map((simbolo) => simbolo.toString());
-            }));
+            const IdsSimbolos = getCoresAtivas(produto.cores).reduce((simbolos, cor) => {
+                if (cor && cor.simbolos && cor.simbolos.length > 0) simbolos = simbolos.concat(cor.simbolos.map((simbolo) => simbolo.toString()));
+                return simbolos;
+            }, []);
             resolve(IdsSimbolos);
         });
     }
@@ -523,6 +528,28 @@ class produtoDB extends BasicDB {
                                 resolve();
                             });
                         });
+                    });
+                });
+            });
+        });
+    }
+
+    getProdutosAtivosFromEmbarques(embarques) {
+        return new Promise((resolve) => {
+            const done = _.after(embarques.length, () => resolve(embarques));
+            embarques.forEach(embarque => {
+                const arrayRemove = [];
+                const done2 = _.after(embarque.itens, () => done());
+                embarque.itens.forEach(item => {
+                    console.log(item);
+                    this.getById(item.referencia).then((produto) => {
+                        if (produto.existe) {
+                            console.log('produto', produto);
+
+                        } else {
+                            arrayRemove.push(item.idProduto);
+                            done2();
+                        }
                     });
                 });
             });

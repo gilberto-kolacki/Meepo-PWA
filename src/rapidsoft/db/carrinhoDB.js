@@ -21,11 +21,17 @@ class carrinhoDB extends BasicDB {
                 Storage.setCarrinho(result);
                 resolve(result);
             }).catch(() => {
+                const cliente = Storage.getClienteCarrinho();
                 let newCarrinho = {};
                 newCarrinho._id = "1";
-                newCarrinho.cliente = { cpfCnpj: null, nome: null, grupoCliente: null };
                 newCarrinho.valorTotal = 0;
                 newCarrinho.itens = [];   
+                if (cliente) {
+                    newCarrinho.cliente = cliente;
+                } else {
+                    const grupoCliente = Storage.getGrupoCarrinho();
+                    newCarrinho.cliente = { cpfCnpj: null, nome: null, grupoCliente };
+                }
                 resolve(newCarrinho);
             });
         });
@@ -35,24 +41,31 @@ class carrinhoDB extends BasicDB {
         return new Promise((resolve) => {
             carrinho._id = "1";
             carrinho.alterado = true;
-            carrinho.valorTotal = this.getValorTotalCarrinho(carrinho.itens);
-            this._localDB.put(carrinho).then((result) => {
-                Storage.setCarrinho(carrinho);
-                resolve(result);
-            }).catch((erro) => {
-                if (erro.status == 409) {
-                    this.getCarrinho(true).then((carrinhoBanco) => {
-                        this._localDB.remove(carrinhoBanco).then(() => {
-                            this.setCarrinho(carrinho).then((result) => {
-                                resolve(result);
+            if (carrinho.itens.length > 0) {
+                carrinho.valorTotal = this.getValorTotalCarrinho(carrinho.itens);
+                this._localDB.put(carrinho).then((result) => {
+                    Storage.setCarrinho(carrinho);
+                    resolve(result);
+                }).catch((erro) => {
+                    if (erro.status == 409) {
+                        this.getCarrinho(true).then((carrinhoBanco) => {
+                            this._localDB.remove(carrinhoBanco).then(() => {
+                                this.setCarrinho(carrinho).then((result) => {
+                                    resolve(result);
+                                });
                             });
                         });
-                    });
-                } else {
-                    this._criarLogDB({url:'db/carrinhoDB', method:'setCarrinho', message: erro, error:'Failed Request'});
-                    resolve(erro);
-                }
-            });
+                    } else {
+                        this._criarLogDB({url:'db/carrinhoDB', method:'setCarrinho', message: erro, error:'Failed Request'});
+                        resolve(erro);
+                    }
+                });
+            } else {
+                Storage.setCarrinho(carrinho);
+                this.deleteCarrinho().then(() => {
+                    resolve();
+                });
+            }
         });
     }
 
