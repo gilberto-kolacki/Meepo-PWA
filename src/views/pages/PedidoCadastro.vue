@@ -22,15 +22,7 @@
                             </div>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="10" vs-sm="9" vs-xs="12">
-                            <vs-input v-validate="'required'" label="Nome" id="nome" name="nome" disabled v-model="pedido.cliente.nome" class="w-full input-line-group-rapid" />
-                            <vs-button
-                                color="primary"
-                                type="filled"
-                                icon-pack="feather"
-                                class="w-full btn-line-group-rapid"
-                                icon="icon-search"                                    
-                                @click.stop="abrirPesquisaCliente()"
-                            ></vs-button>
+                            <vs-input v-validate="'required'" label="Nome" id="nome" name="nome" disabled v-model="pedido.cliente.nome" class="w-full" />
                         </vs-col>
                     </div>
                     <div class="vx-row">
@@ -183,7 +175,6 @@
                 </div>
             </b-tab>
         </b-tabs>
-        <search-cliente @search-selected="selectSearchCliente" :id="idPopUpSearch"></search-cliente>
     </div>
 </template>
 
@@ -194,7 +185,6 @@ import Datepicker from 'vuejs-datepicker';
 import vSelect from 'vue-select';
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import ErrorDB from '../../rapidsoft/db/errorDB'
-import SearchCliente  from '../../rapidsoft/components/SearchCliente';
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
 // import ClienteDB from "../../rapidsoft/db/clienteDB";
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
@@ -220,7 +210,6 @@ export default {
     components: {
         Datepicker,
         'v-select': vSelect,
-        SearchCliente,
     },
     watch: {
 

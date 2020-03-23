@@ -1,5 +1,4 @@
 // import _ from "lodash";
-// import Storage from '../utils/storage';
 import ProdutoDB from '../db/produtoDB';
 import ClienteDB from '../db/clienteDB';
 import GrupoClienteDB from '../db/grupoClienteDB';
@@ -7,24 +6,11 @@ import CarrinhoDB from '../db/carrinhoDB';
 
 class carrinhoUtils {
 
-    newCarrinho() {
-        return {
-            id: 0,
-            grupoCliente: null,
-            cliente: {
-                cpfCnpj: null,
-                nome: null,
-            },
-            valorTotal: 0,
-            itens: [],            
-        };
-    }
-
     newPedido() {
         return new Promise((resolve) => {
             const pedido = {};
-            CarrinhoDB.getClienteCarrinho().then((clienteCarrinho) => {
-                pedido.cliente = clienteCarrinho;
+            CarrinhoDB.getCarrinho().then((carrinho) => {
+                pedido.cliente = carrinho.cliente;
                 pedido.endEntrega = null;
                 pedido.observacao = null;
                 pedido.desconto1 = 0;

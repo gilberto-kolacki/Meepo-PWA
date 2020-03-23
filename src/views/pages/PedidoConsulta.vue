@@ -1,5 +1,29 @@
 <template>
     <div id="page-orders" v-if="this.showScreen">
+        <div class="vx-row">
+            <vs-col vs-type="flex">
+                <vs-chip class="product-order-status">
+                    <vs-avatar @click="filtrar()" icon="done" />
+                    Todos
+                </vs-chip>
+                <vs-chip class="product-order-status" color="dark">
+                    <vs-avatar @click="filtrar(10)" icon="done" />
+                    Digitação
+                </vs-chip>
+                <vs-chip class="product-order-status" color="warning">
+                    <vs-avatar @click="filtrar(20)" icon="done" />
+                    Aguardando Sinc...
+                </vs-chip>
+                <vs-chip class="product-order-status" color="success">
+                    <vs-avatar @click="filtrar(50)" icon="done" />
+                    Sincronizado
+                </vs-chip>
+                <vs-chip class="product-order-status" color="danger">
+                    <vs-avatar @click="filtrar(99)" icon="done" />
+                    Cancelado
+                </vs-chip>
+            </vs-col>
+        </div>
         <vs-table pagination max-items="10" search :data="pedidos">           
             <template slot="header">
                 <h3>Pedidos</h3>
@@ -12,7 +36,7 @@
                 <vs-th sort-key="status" style="width: 20%" >Status</vs-th>
             </template> 
             <template slot-scope="{data}">
-                <vs-tr :key="indextr" v-for="(tr, indextr) in data">
+                <vs-tr :key="indextr" v-for="(tr, indextr) in data" :state="getStatusColor(data[indextr].status)">
                     <vs-td v-if="data[indextr].cliente">
                         <div class="flex">
                             <div class="p-1">
@@ -32,7 +56,7 @@
                     <vs-td :data="data[indextr].dataEmbarque">
                         {{ data[indextr].dataEmbarque | formatDate }}
                     </vs-td>
-                    <vs-td :data="data[indextr]" v-if="data[indextr].status">
+                    <vs-td>
                          {{ getNameStatus(data[indextr].status) | capitalize }}
                     </vs-td>
                 </vs-tr>
@@ -56,19 +80,37 @@ export default {
     },
     methods: {
         getNameStatus(status) {
-            if(status == 20) return "Aguardando Sicronização";      
+            if(status == 20) return "Aguardando Sincronização";      
             if(status == 50) return "Sincronizado"; 
             if(status == 99) return "Cancelado";
             else return "Digitação";
         },
         getStatusColor(status) {
-            if(status == 20) return "#24c1a0";
+            if(status == 20) return "warning";
             if(status == 50) return "success";
             if(status == 99) return "danger";
-            else return "warning";
+            else return null;
         },
         editar(pedido) {
             this.$router.push({ name: 'pedidoEditar', params: {pedidoId: pedido.id} });
+        },
+        filtrar(status = null) {
+            this.$vs.loading();
+            PedidoDB._getAll().then((result) => {
+                ClienteDB.getClientesPedidos(result).then((pedidos) => {
+                    if (status) {
+                        this.pedidos = pedidos.reduce((pedidos, pedido) => {
+                            if (pedido.status == status) pedidos.push(pedido);
+                            return pedidos;
+                        }, []);
+                    } else {
+                        this.pedidos = pedidos;
+                    }
+                    setTimeout(() => {
+                        this.$vs.loading.close();
+                    }, 300);
+                });
+            });
         },
         listar() {
             return new Promise((resolve) => {

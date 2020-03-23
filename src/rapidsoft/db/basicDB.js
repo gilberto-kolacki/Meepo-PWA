@@ -37,17 +37,17 @@ const pausedMethod = (origem, info) => {
     console.log("'paused "+origem+"' replication was paused, usually because of a lost connection", info);
 };
 
-const activeMethod = (origem, info) => {
-    console.log("'active "+origem+"' replication was resumed", info);
-};
+// const activeMethod = (origem, info) => {
+//     console.log("'active "+origem+"' replication was resumed", info);
+// };
 
-const deniedMethod = (origem, err) => {
-    console.log("'denied "+origem+"'a document failed to replicate (e.g. due to permissions)", err);
-};
+// const deniedMethod = (origem, err) => {
+//     console.log("'denied "+origem+"'a document failed to replicate (e.g. due to permissions)", err);
+// };
 
-const completeMethod = (origem, info) => {
-    console.log("'complete "+origem+"' handle complete", info);
-};
+// const completeMethod = (origem, info) => {
+//     console.log("'complete "+origem+"' handle complete", info);
+// };
 
 const errorMethod = (origem, err) => {
     console.log("'error "+origem+"' totally unhandled error (shouldn't happen)", err);
@@ -66,33 +66,50 @@ const errorMethod = (origem, err) => {
 //     ).on('error', (err) => errorMethod('changes', err));
 // };
 
-const replicate = (localDB, remoteDB) => {
-    if (remoteDB) {
-        // changes(localDB);
-        localDB.replicate.to(remoteDB, {
-            since: 'now',
-            live: true,
-            retry: true,
-            back_off_function: (delay) => setTimeout(delay),
-            filter: (doc) => filter(doc)
-        }).on('change', (change) => changeMethod('to', change)
-        ).on('paused', (info) => pausedMethod('to', info)
-        ).on('active', (info) => activeMethod('to', info)
-        ).on('denied', (err) => deniedMethod('to', err)
-        ).on('complete', (info) => completeMethod('to', info)
-        ).on('error', (err) => errorMethod('to', err));
+// const replicate = (localDB, remoteDB) => {
+//     if (remoteDB) {
+//         // changes(localDB);
+//         localDB.replicate.to(remoteDB, {
+//             since: 'now',
+//             live: true,
+//             retry: true,
+//             back_off_function: (delay) => setTimeout(delay),
+//             filter: (doc) => filter(doc)
+//         }).on('change', (change) => changeMethod('to', change)
+//         ).on('paused', (info) => pausedMethod('to', info)
+//         ).on('active', (info) => activeMethod('to', info)
+//         ).on('denied', (err) => deniedMethod('to', err)
+//         ).on('complete', (info) => completeMethod('to', info)
+//         ).on('error', (err) => errorMethod('to', err));
 
-        localDB.replicate.from(remoteDB, {
-            since: 'now',
-            live: true,
-            retry: true,            
-            back_off_function: (delay) => setTimeout(delay),
-        }).on('change', (change) => changeMethod('from', change)
-        ).on('paused', (info) => pausedMethod('from', info)
-        ).on('active', (info) => activeMethod('from', info)
-        ).on('denied', (err) => deniedMethod('from', err)
-        ).on('complete', (info) => completeMethod('from', info)
-        ).on('error', (err) => errorMethod('from', err));
+//         localDB.replicate.from(remoteDB, {
+//             since: 'now',
+//             live: true,
+//             retry: true,            
+//             back_off_function: (delay) => setTimeout(delay),
+//         }).on('change', (change) => changeMethod('from', change)
+//         ).on('paused', (info) => pausedMethod('from', info)
+//         ).on('active', (info) => activeMethod('from', info)
+//         ).on('denied', (err) => deniedMethod('from', err)
+//         ).on('complete', (info) => completeMethod('from', info)
+//         ).on('error', (err) => errorMethod('from', err));
+//     }
+// };
+
+const sync = (localDB, remoteDB) => {
+    if (remoteDB) {
+        localDB.replicate.from(remoteDB).on('complete', function(info) {
+            console.log('complete sync', info);
+            localDB.sync(remoteDB, { 
+                live: true, 
+                retry: true,
+                back_off_function: (delay) => setTimeout(delay),
+                filter: (doc) => filter(doc),
+            })
+            .on('change', (change) => changeMethod('sync', change))
+            .on('paused', (info) => pausedMethod('sync', info))
+            .on('error', (err) => errorMethod('sync', err));
+        }).on('error', (err) => errorMethod('from', err));
     }
 };
 
@@ -162,7 +179,8 @@ class basicDB {
             this._localDB = localDB;
             this._remoteDB = remoteDB;
             // replicate(this._localDB, this._remoteDB);
-            replicate(this._localDB, this._remoteDB);
+            // replicate(this._localDB, this._remoteDB);
+            sync(this._localDB, this._remoteDB);
             create("erros", true, (localErroDB, remoteErroDB) => {
                 this._localErroDB = localErroDB;
                 this._remoteErroDB = remoteErroDB;

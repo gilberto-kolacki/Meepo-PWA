@@ -123,6 +123,7 @@ export default {
     mounted() {
         UsuarioDB.limparBase().then(() => {
             this.$store.dispatch('updateUserActive', null);
+            localStorage.removeItem('carrinho');
         });
     },
     errorCaptured(err, vm, info) {
