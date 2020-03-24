@@ -55,7 +55,7 @@
             </div>
         </vs-popup>
 
-        <div id="zoom-produto" class="monte-look-item" style="margin-top: 80px" v-if="this.showProdutoZoom">
+        <div id="zoom-produto" v-if="this.showProdutoZoom">
             <zoom-produto @zoom-closed="hideZoom" :produtoZoom="this.produto" :produtoImagens="this.produto.corSelecionada.imagens" :id="idPopUpZoom"></zoom-produto>
         </div>
     </div>

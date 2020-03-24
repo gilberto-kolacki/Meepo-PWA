@@ -21,7 +21,7 @@
                             </b-collapse>
                         </vx-card>
                         <vx-card v-if="acessorioView" class="mt-4">
-                            <h4 v-b-toggle="'acessorio'" class="m-1">Acessórios</h4>
+                            <h3 v-b-toggle="'acessorio'" class="m-1">Acessórios</h3>
                             <b-collapse :id="'acessorio'" visible accordion="my-accordion" role="tabpanel">
                                 <div>
                                     <monte-look-item
@@ -116,8 +116,8 @@
         <vs-popup title="Escolha o Segmento" :active.sync="popupSegmento" :button-close-hidden="false">
             <div class="vx-row flex justify-center">
                 <div class="vx-col w-2/5" @click="setSegmento(segmento)" v-for="(segmento,index) in listaSegmentos" :key="index">
-                    <vx-card>
-                        <h1>{{segmento.nome}}</h1>
+                    <vx-card color="rgb(123, 123, 123)" style="background-color:rgb(123, 123, 123);color:#fff" class="flex justify-center">
+                        <h1 style="color:#fff">{{segmento.nome}}</h1>
                     </vx-card>
                 </div>
             </div>
@@ -211,13 +211,7 @@
                 const produtoB = this.produtos[1] && this.produtos[1].nome ? this.produtos[1] : undefined;
                 const produtoC = this.produtos[2] && this.produtos[2].nome ? this.produtos[2] : undefined;
                 const produtos = [produtoA,produtoB,produtoC];
-                // produtos.map((produto) => {
-                //     if (produto) {
-                //         produto.produtosLook = [];
-                //     }
-                // });
                 const pag = {pag: 1,produtoA: produtoA,produtos: produtos}
-                console.log("Produtos: ", produtos);
                 this.$router.push({ name: 'carrinhoAdd', 
                     params: {produtos: produtos, tela: 'monteLook', pag: pag, paginas: {},viewCompleteLook: false}
                 });
