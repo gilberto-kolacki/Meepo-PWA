@@ -3,30 +3,40 @@
         <div class="vx-row">
             <!-- Produtos -->
             <div class="vx-col w-3/4 mt-4">
-                <vx-card>
+                
                     <div>
-                        <div v-for="(produto, index) in produtos" :key="index">
-                            <monte-look-item
-                                v-if="idSegmento && index != 2"
-                                @atualiza-produtos="atualizarProdutos"
-                                @mostrar-produtos-categorias="mostrarProdutosCategorias"
-                                @set-cor-produto="setCorProduto"
-                                :produto="produtos[index]"
-                                :produtoSeq="index"
-                            />
-                        </div>
-                        <div v-if="acessorioView">
-                            <monte-look-item
-                                v-if="idSegmento"
-                                @atualiza-produtos="atualizarProdutos"
-                                @mostrar-produtos-categorias="mostrarProdutosCategorias"
-                                @set-cor-produto="setCorProduto"
-                                :produto="produtos[2]"
-                                :produtoSeq="2"
-                            />
-                        </div>
+                        <vx-card>
+                            <h4 v-b-toggle="'look'" class="m-1">Produtos do Look</h4>
+                            <b-collapse :id="'look'" visible accordion="my-accordion" role="tabpanel">
+                                <div v-for="(produto, index) in produtos" :key="index">
+                                    <monte-look-item
+                                        v-if="idSegmento && index != 2"
+                                        @atualiza-produtos="atualizarProdutos"
+                                        @mostrar-produtos-categorias="mostrarProdutosCategorias"
+                                        @set-cor-produto="setCorProduto"
+                                        :produto="produtos[index]"
+                                        :produtoSeq="index"
+                                    />
+                                </div>
+                            </b-collapse>
+                        </vx-card>
+                        <vx-card v-if="acessorioView" class="mt-4">
+                            <h4 v-b-toggle="'acessorio'" class="m-1">Acessórios</h4>
+                            <b-collapse :id="'acessorio'" visible accordion="my-accordion" role="tabpanel">
+                                <div>
+                                    <monte-look-item
+                                        v-if="idSegmento"
+                                        @atualiza-produtos="atualizarProdutos"
+                                        @mostrar-produtos-categorias="mostrarProdutosCategorias"
+                                        @set-cor-produto="setCorProduto"
+                                        :produto="produtos[2]"
+                                        :produtoSeq="2"
+                                    />
+                                </div>
+                            </b-collapse>
+                        </vx-card>
                     </div>
-                </vx-card>
+                
             </div>
             <!-- informações -->
             <div class="vx-col w-1/4">
