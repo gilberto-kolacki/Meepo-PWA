@@ -276,6 +276,9 @@
     //     overflow-y: scroll;
     //     flex-wrap: nowrap;    
     // }
+    .vx-navbar-wrapper {
+        z-index: 0;
+    }
     .input_filter{
         background-color: rgb(228,28,64);
         color:rgb(228,255,255);

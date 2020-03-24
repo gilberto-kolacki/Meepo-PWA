@@ -55,8 +55,8 @@
             </div>
         </vs-popup>
 
-        <div id="zoom-produto" v-if="this.showProdutoZoom">
-            <zoom-produto class="monte-look-item" @zoom-closed="hideZoom" :produtoZoom="this.produto" :produtoImagens="this.produto.corSelecionada.imagens" :id="idPopUpZoom"></zoom-produto>
+        <div id="zoom-produto" class="monte-look-item" style="margin-top: 80px" v-if="this.showProdutoZoom">
+            <zoom-produto @zoom-closed="hideZoom" :produtoZoom="this.produto" :produtoImagens="this.produto.corSelecionada.imagens" :id="idPopUpZoom"></zoom-produto>
         </div>
     </div>
 </template>
@@ -130,7 +130,7 @@ export default {
 
 <style lang='scss' scoped>
     .monte-look-item {
-        z-index: 9000000;
+        z-index: 1000;
     }
     .btn-produto{
         position: fixed;
@@ -185,5 +185,6 @@ export default {
 .produto-image-gallery-button-up {
     margin-bottom: 10px;
 }
+
 </style>
           
