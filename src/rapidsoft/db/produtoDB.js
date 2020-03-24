@@ -521,31 +521,48 @@ class produtoDB extends BasicDB {
     removeImagensSemProduto() {
         return new Promise((resolve) => {
             this.getIdsImagens().then((idsImagens) => {
-                ImagemDB.getIdsFotosSemProduto(idsImagens.data.fotos).then(() => {
-                    ImagemDB.getIdsCoresSemProduto(idsImagens.data.cores).then(() => {
-                        ImagemDB.getIdsSelosSemProduto(idsImagens.data.selos).then(() => {
-                            ImagemDB.getIdsSimbolosSemProduto(idsImagens.data.simbolos).then(() => {
-                                resolve();
+                if (idsImagens.data) {
+                    ImagemDB.getIdsFotosSemProduto(idsImagens.data.fotos).then(() => {
+                        ImagemDB.getIdsCoresSemProduto(idsImagens.data.cores).then(() => {
+                            ImagemDB.getIdsSelosSemProduto(idsImagens.data.selos).then(() => {
+                                ImagemDB.getIdsSimbolosSemProduto(idsImagens.data.simbolos).then(() => {
+                                    resolve();
+                                });
                             });
                         });
                     });
-                });
+                } else {
+                    resolve();
+                }
             });
         });
     }
 
     getProdutosAtivosFromEmbarques(embarques) {
         return new Promise((resolve) => {
-            const done = _.after(embarques.length, () => resolve(embarques));
+            const arrayRemove = [];
+            const done = _.after(embarques.length, () => {
+                embarques = embarques.reduce((embarquesNew, embarque) => {
+                    embarque.itens = embarque.itens.reduce((itens, item) => {
+                        if (!arrayRemove.some((idProduto) => idProduto === item.idProduto)) itens.push(item);
+                        return itens;
+                    }, []);
+                    embarquesNew.push(embarque);
+                    return embarquesNew;
+                }, []);
+                resolve({embarques, menssagem: `Foram removidos ${arrayRemove.length} produtos, pois não estão mais disponiveis para venda!`});
+            });
             embarques.forEach(embarque => {
-                const arrayRemove = [];
-                const done2 = _.after(embarque.itens, () => done());
+                const done2 = _.after(embarque.itens.length, () => done());
                 embarque.itens.forEach(item => {
-                    console.log(item);
                     this.getById(item.referencia).then((produto) => {
                         if (produto.existe) {
-                            console.log('produto', produto);
-
+                            const cor = produto.result.cores.find((cor) => cor.idCor === item.idCor);
+                            if (cor.ativo) done2();
+                            else {
+                                arrayRemove.push(item.idProduto);
+                                done2();
+                            }
                         } else {
                             arrayRemove.push(item.idProduto);
                             done2();

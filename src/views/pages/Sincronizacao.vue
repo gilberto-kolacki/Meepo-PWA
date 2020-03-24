@@ -167,16 +167,21 @@ export default {
             ProdutoService.sincProduto().then((produtos) => {
                 sinc.total = produtos.length;
                 ProdutoDB._limparBase().then(() => {
-                    const done = _.after(produtos.length, () => {
+                    if (produtos.length > 0) {
+                        const done = _.after(produtos.length, () => {
+                            SincUtils.closeLoading(this, sinc, all);
+                            this.sincronizar(this.sincImagemObject, all);
+                        });
+                        produtos.forEach(produto => {
+                            ProdutoDB.salvar(produto).then(() => {
+                                SincUtils.atuaizaParcialSinc(sinc, 1);            
+                                done();
+                            });
+                        });
+                    } else {
                         SincUtils.closeLoading(this, sinc, all);
                         this.sincronizar(this.sincImagemObject, all);
-                    });
-                    produtos.forEach(produto => {
-                        ProdutoDB.salvar(produto).then(() => {
-                            SincUtils.atuaizaParcialSinc(sinc, 1);            
-                            done();
-                        });
-                    });
+                    }
                 });
             }).catch((error) => {
                 this.errorSinc(sinc, error);
@@ -321,9 +326,12 @@ export default {
             return new Promise((resolve) => {
                 const dataLimite = new Date().setDate(new Date().getDate() - 3);
                 const sincsTotal = this.tabelasSincronizacao.reduce((sincsTotal, tabela) => {
-                    if (tabela.dataSincronizacao == null || tabela.dataSincronizacao < dataLimite) return false;
-                    else return true;
-                }, false)
+                    if ((tabela.dataSincronizacao == null 
+                        || tabela.dataSincronizacao < dataLimite)
+                            || ((tabela.type != "pedido" && tabela.type != "orcamento") && tabela.total === 0)) sincsTotal.push(false);
+                    else sincsTotal.push(true);
+                    return sincsTotal;
+                }, [])
                 resolve(sincsTotal);
             });
         },
@@ -351,12 +359,12 @@ export default {
     async beforeDestroy () {
         return new Promise((resolve) => {
             this.verificaSincronizacaoTotal().then((sincTotal) => {
-                if (sincTotal) {
+                if (!sincTotal.some((sinc) => sinc == false)) {
+                    resolve(this.$router.push({ name: 'sincronizacao'}));
+                } else {
                     this.buscaDadosCouchDB().then(() => {
                         resolve();
                     });
-                } else {
-                    resolve(this.$router.push({ name: 'sincronizacao'}));
                 }
             });
         });

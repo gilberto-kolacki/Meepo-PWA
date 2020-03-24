@@ -107,6 +107,7 @@
 
 <script>
 
+import _ from "lodash";
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import OrcamentoDB from '../../rapidsoft/db/orcamentoDB';
 import CarrinhoUtils from '../../rapidsoft/utils/carrinhoUtils';
@@ -152,10 +153,21 @@ export default {
             });
         },
         gerarCarrinho() {
-            CarrinhoUtils.setOrcamentoToCarrinho(this.orcamento).then(() => {
-                // OrcamentoDB.deletar(this.orcamento).then(() => {
-                //     this.$router.push({ name: 'carrinho' });
-                // });
+            CarrinhoUtils.setOrcamentoToCarrinho(_.cloneDeep(this.orcamento)).then((result) => {
+                if (result.deleta) {
+                    if (result.menssagem) this.$vs.dialog({color:'warning', title:'Atenção!', text: result.menssagem, acceptText: 'Ok'});
+                    OrcamentoDB.deletar(this.orcamento).then(() => {
+                        this.$router.push({ name: 'carrinho' });
+                    });
+                } else {
+                    const menssagem = `Orçamento não pode ser aditado, por que nenhum produto está disponível no momento!`;
+                    this.$vs.dialog({
+                        color:'warning',
+                        title:'Atenção!',
+                        text: menssagem,
+                        acceptText: 'Ok',
+                    });
+                }
             });
         },
         carregaItensTela(idOrcamento = null) {

@@ -59,31 +59,35 @@ class carrinhoUtils {
                     GrupoClienteDB.getById(orcamento.cliente.grupoCliente).then((grupoCliente) => {
                         carrinhoNovo.cliente = cliente;
                         carrinhoNovo.cliente.grupoCliente = grupoCliente;
-                        ProdutoDB.getProdutosAtivosFromEmbarques(orcamento.embarques).then((embarques) => {
-                            carrinhoNovo.embarques = embarques.map((embarque) => ({id: embarque.id, dataEmbarque: embarque.dataEmbarque}));
-                            carrinhoNovo.itens = orcamento.embarques.reduce((itens, embarque) => {
-                                itens = itens.concat(embarque.itens.reduce((tamanhos, item) => {
-                                    tamanhos = tamanhos.concat(item.tamanhos.map((tamanho) => {
-                                        const tamanhoNew = {};
-                                        tamanhoNew.id = tamanho.id;
-                                        tamanhoNew.sku = tamanho.sku;
-                                        tamanhoNew.seq = tamanho.seq;
-                                        tamanhoNew.codigo = tamanho.codigo;
-                                        tamanhoNew.quantidade = tamanho.quantidade;
-                                        tamanhoNew.referencia = item.referencia;
-                                        tamanhoNew.cor = item.idCor;
-                                        tamanhoNew.precoCusto = item.precoCusto;
-                                        tamanhoNew.idProduto = item.idProduto;
-                                        tamanhoNew.idSegmento = item.segmento;
-                                        return tamanhoNew;
-                                    }));
-                                    return tamanhos;
-                                }, []));
-                                return itens;
-                            }, []);
-                            
-                            // CarrinhoDB.setCarrinho(carrinhoNovo);
-                            resolve();
+                        ProdutoDB.getProdutosAtivosFromEmbarques(orcamento.embarques).then((result) => {
+                            if (result.embarques.some((embarque) => embarque.itens.length > 0)) {
+                                carrinhoNovo.embarques = result.embarques.map((embarque) => ({id: embarque.id, dataEmbarque: embarque.dataEmbarque}));
+                                carrinhoNovo.itens = orcamento.embarques.reduce((itens, embarque) => {
+                                    itens = itens.concat(embarque.itens.reduce((tamanhos, item) => {
+                                        tamanhos = tamanhos.concat(item.tamanhos.map((tamanho) => {
+                                            const tamanhoNew = {};
+                                            tamanhoNew.id = tamanho.id;
+                                            tamanhoNew.sku = tamanho.sku;
+                                            tamanhoNew.seq = tamanho.seq;
+                                            tamanhoNew.codigo = tamanho.codigo;
+                                            tamanhoNew.quantidade = tamanho.quantidade;
+                                            tamanhoNew.referencia = item.referencia;
+                                            tamanhoNew.cor = item.idCor;
+                                            tamanhoNew.precoCusto = item.precoCusto;
+                                            tamanhoNew.idProduto = item.idProduto;
+                                            tamanhoNew.idSegmento = item.segmento;
+                                            return tamanhoNew;
+                                        }));
+                                        return tamanhos;
+                                    }, []));
+                                    return itens;
+                                }, []);
+                                CarrinhoDB.setCarrinho(carrinhoNovo).then(() => {
+                                    resolve({deleta: true});
+                                });
+                            } else {
+                                resolve({deleta: false, menssagem: result.menssagem});
+                            }
                         });
                     });
                 });

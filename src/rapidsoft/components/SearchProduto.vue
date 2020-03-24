@@ -11,24 +11,6 @@
                 <i class="vs-icon notranslate icon-scale vs-popup--close vs-popup--close--icon material-icons null" style="background: rgb(255, 255, 255);" @click.stop="close()">close</i>
             </header>
         </template>
-        <!-- <div class="vx-row">
-            <div class="vx-col sm:w-1/2 w-full mb-2">
-                <vs-select
-                    class="vx-col w-full mb-2"
-                    label="Segmentos"
-                    v-model="segmentoSelecionado" @change="searchCategorias()">
-                    <vs-select-item :key="index" :value="item.id" :text="item.nome" v-for="(item,index) in getSegmentosSearch" />
-                </vs-select>
-            </div>
-            <div class="vx-col sm:w-1/2 w-full mb-2">
-                <vs-select
-                    class="vx-col w-full mb-2"
-                    label="Categorias"
-                    v-model="categoriaSelecionada" >
-                    <vs-select-item :key="index" :value="item.id" :text="item.nome" v-for="(item,index) in getCategoriasSearch" />
-                </vs-select>
-            </div>
-        </div> -->
         <div class="vx-row">
             <div class="vx-col sm:w-1/2 w-full">
                 <vs-input v-validate="'required'" label="Pesquisar" v-model="textoSearch" class="w-full" />
