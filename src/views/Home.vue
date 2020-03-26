@@ -131,20 +131,21 @@ export default {
     created() {
 
     },
-    async mounted() {
-        await this.carregaItensTela();
-        const dataLimite = new Date().setDate(new Date().getDate() - 5);
-        if (this.lastDateSinc <= dataLimite) {
-            this.$vs.dialog({
-                type: 'confirm',
-                color: 'warning',
-                title: 'Atenção!',
-                text: 'Faz 5 dias ou mais desde a sua última sincronização Completa, Deseja sincronizar ?',
-                acceptText: 'Sim',
-                cancelText: 'Cancelar',
-                accept: () => this.$router.push({ name: 'sincronizacao'})
-            });
-        }
+    mounted() {
+        this.carregaItensTela().then(() => {
+            const dataLimite = new Date().setDate(new Date().getDate() - 5);
+            if (this.lastDateSinc <= dataLimite) {
+                this.$vs.dialog({
+                    type: 'confirm',
+                    color: 'warning',
+                    title: 'Atenção!',
+                    text: 'Faz 5 dias ou mais desde a sua última sincronização Completa, Deseja sincronizar ?',
+                    acceptText: 'Sim',
+                    cancelText: 'Cancelar',
+                    accept: () => this.$router.push({ name: 'sincronizacao'})
+                });
+            }
+        });
     },
 }
 
