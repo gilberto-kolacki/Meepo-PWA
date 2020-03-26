@@ -324,16 +324,27 @@ export default {
         //verifica se alguma tabela está a mais de 3 dias sem sincronizar, caso esteja, não deixa sair da tela de sincronização
         verificaSincronizacaoTotal() {
             return new Promise((resolve) => {
-                const dataLimite = new Date().setDate(new Date().getDate() - 3);
+                // const dataLimite = new Date().setDate(new Date().getDate() - 3);
                 const sincsTotal = this.tabelasSincronizacao.reduce((sincsTotal, tabela) => {
-                    if ((tabela.dataSincronizacao == null 
-                        || tabela.dataSincronizacao < dataLimite)
-                            || ((tabela.type != "pedido" && tabela.type != "orcamento") && tabela.total === 0)) sincsTotal.push(false);
+                    if ((tabela.type != "pedido" && tabela.type != "orcamento") && tabela.total === 0) sincsTotal.push(false);
                     else sincsTotal.push(true);
                     return sincsTotal;
-                }, [])
-                resolve(sincsTotal);
+                }, []);
+
+                if (sincsTotal.some((sinc) => sinc == false)) {
+                    resolve(this.$router.push({ name: 'sincronizacao'}));
+                } else {
+                    this.buscaDadosCouchDB().then(() => {
+                        resolve();
+                    });
+                }
             });
+        },
+        setLastDateSinc() {
+            this.$store.commit('UPDATE_LAST_SINC', this.tabelasSincronizacao.reduce((lastDate, sinc) => {
+                if (sinc.dataSincronizacao < lastDate) lastDate = sinc.dataSincronizacao;
+                return lastDate;
+            }, new Date().getTime()));
         },
         buscaDadosCouchDB() {
             return new Promise((resolve) => {
@@ -357,17 +368,8 @@ export default {
         await this.carregaItensTela();
     },
     async beforeDestroy () {
-        return new Promise((resolve) => {
-            this.verificaSincronizacaoTotal().then((sincTotal) => {
-                if (!sincTotal.some((sinc) => sinc == false)) {
-                    resolve(this.$router.push({ name: 'sincronizacao'}));
-                } else {
-                    this.buscaDadosCouchDB().then(() => {
-                        resolve();
-                    });
-                }
-            });
-        });
+        this.setLastDateSinc();
+        await this.verificaSincronizacaoTotal();
     },
     errorCaptured(err, vm, info) {
         ErrorDB._criarLog({err, vm, info});

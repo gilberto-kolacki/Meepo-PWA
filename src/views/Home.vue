@@ -90,6 +90,9 @@ export default {
          existeCarrinho() {
             return Storage.existeCarrinho();
         },
+        lastDateSinc() {
+            return this.$store.state.lastDateSinc;
+        },
         existePedidoEmDigitacao() {
             if (this.pedidosEmDigitacao.length > 0) {
                 return true;
@@ -130,6 +133,18 @@ export default {
     },
     async mounted() {
         await this.carregaItensTela();
+        const dataLimite = new Date().setDate(new Date().getDate() - 5);
+        if (this.lastDateSinc <= dataLimite) {
+            this.$vs.dialog({
+                type: 'confirm',
+                color: 'warning',
+                title: 'Atenção!',
+                text: 'Faz 5 dias ou mais desde a sua última sincronização Completa, Deseja sincronizar ?',
+                acceptText: 'Sim',
+                cancelText: 'Cancelar',
+                accept: () => this.$router.push({ name: 'sincronizacao'})
+            });
+        }
     },
 }
 

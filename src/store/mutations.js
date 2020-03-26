@@ -91,18 +91,23 @@ const mutations = {
         state.starredPages = list.concat(starredPagesMore);
     },
     ARRANGE_STARRED_PAGES_MORE(state, list) {
-        let downToUp = false
+        let downToUp = false;
         let lastItemInStarredLimited = state.starredPages[10];
         const starredPagesLimited = state.starredPages.slice(0, 10);
         state.starredPages = starredPagesLimited.concat(list);
 
         state.starredPages.slice(0,10).map((i) => {
-            if(list.indexOf(i) > -1) downToUp = true
+            if(list.indexOf(i) > -1) downToUp = true;
         })
         if(!downToUp) {
             state.starredPages.splice(10, 0, lastItemInStarredLimited);
         }
     },
-}
 
-export default mutations
+    UPDATE_LAST_SINC(state, lastDate) {
+        state.lastDateSinc = lastDate;
+        if (lastDate) localStorage.setItem('last_sinc', lastDate);
+    },
+};
+
+export default mutations;

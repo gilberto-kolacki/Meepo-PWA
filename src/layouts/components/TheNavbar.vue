@@ -20,22 +20,12 @@
       <!-- USER META -->
       <div class="the-navbar__user-meta flex items-center">
         <div class="text-right leading-tight hidden sm:block" v-if="breakpoint != 'sm'">
-          <p class="font-semibold">{{ user_displayName }}</p>
-          <!-- <small>Available</small> -->
+          <p class="font-semibold mb-1">{{ user_displayName }}</p>
+          <small>Última sinc: {{lastDateSinc | formatDate }}</small>
         </div>
         <vs-dropdown vs-custom-content vs-trigger-click class="cursor-pointer">
           <div class="con-img ml-3">
-            <img
-              v-if="activeUserImg.startsWith('http')"
-              key="onlineImg"
-              :src="activeUserImg"
-              alt="user-img"
-              width="40"
-              height="40"
-              class="rounded-full shadow-md cursor-pointer block" />
-            <img
-              v-else
-              key="localImg"              
+            <b-img
               :src="require(`@/assets/images/rapidsoft/${activeUserImg}`)"
               alt="user-img"
               width="40"
@@ -64,8 +54,7 @@
 
 <script>
 import auth from "../../rapidsoft/auth/authService";
-import VuePerfectScrollbar from 'vue-perfect-scrollbar';
-import draggable from 'vuedraggable';
+// import SincDataDB from '../../rapidsoft/db/sincDataDB';
 
 export default {
     name: "the-navbar",
@@ -77,29 +66,13 @@ export default {
     },
     data() {
         return {
-            logoutPrompt: false,
-            navbarSearchAndPinList: this.$store.state.navbarSearchAndPinList,
-            searchQuery: '',
-            showFullSearch: false,
-            unreadNotifications: [
-                { index: 0, title: 'New Message', msg: 'Are your going to meet me tonight?', icon: 'MessageSquareIcon', time: 'Wed Jan 30 2019 07:45:23 GMT+0000 (GMT)', category: 'primary' },
-                { index: 1, title: 'New Order Recieved', msg: 'You got new order of goods.', icon: 'PackageIcon', time: 'Wed Jan 30 2019 07:45:23 GMT+0000 (GMT)', category: 'success' },
-                { index: 2, title: 'Server Limit Reached!', msg: 'Server have 99% CPU usage.', icon: 'AlertOctagonIcon', time: 'Thu Jan 31 2019 07:45:23 GMT+0000 (GMT)', category: 'danger' },
-                { index: 3, title: 'New Mail From Peter', msg: 'Cake sesame snaps cupcake', icon: 'MailIcon', time: 'Fri Feb 01 2019 07:45:23 GMT+0000 (GMT)', category: 'primary' },
-                { index: 4, title: 'Bruce\'s Party', msg: 'Chocolate cake oat cake tiramisu', icon: 'CalendarIcon', time: 'Fri Feb 02 2019 07:45:23 GMT+0000 (GMT)', category: 'warning' },
-            ],
             settings: { // perfectscrollbar settings
                 maxScrollbarLength: 60,
                 wheelSpeed: .60,
             },
-            autoFocusSearch: false,
-            showBookmarkPagesDropdown: false,
         }
     },
     watch: {
-        '$route'() {
-            if (this.showBookmarkPagesDropdown) this.showBookmarkPagesDropdown = false
-        }
     },
     computed: {
         // HELPER
@@ -109,41 +82,19 @@ export default {
         breakpoint() {
             return this.$store.state.breakpoint;
         },
+        lastDateSinc() {
+            return this.$store.state.lastDateSinc;
+        },
 
         // NAVBAR STYLE
         classObj() {
-            if (this.sidebarWidth == "default") return "navbar-default"
-            else if (this.sidebarWidth == "reduced") return "navbar-reduced"
-            else if (this.sidebarWidth) return "navbar-full"
+            if (this.sidebarWidth == "default") return "navbar-default";
+            else if (this.sidebarWidth == "reduced") return "navbar-reduced";
+            else if (this.sidebarWidth) return "navbar-full";
         },
-
-        // BOOKMARK & SEARCH
-        data() {
-            return this.$store.state.navbarSearchAndPinList;
-        },
-        starredPages() {
-            return this.$store.state.starredPages;
-        },
-        starredPagesLimited: {
-            get() {
-                return this.starredPages.slice(0, 10);
-            },
-            set(list) {
-                this.$store.dispatch('arrangeStarredPagesLimited', list);
-            }
-        },
-        starredPagesMore: {
-            get() {
-                return this.starredPages.slice(10);
-            },
-            set(list) {
-                this.$store.dispatch('arrangeStarredPagesMore', list);
-            }
-        },
-
         // PROFILE
         user_displayName() {
-            return JSON.parse(localStorage.getItem('userInfo')).displayName
+            return JSON.parse(localStorage.getItem('userInfo')).displayName;
         },
         activeUserImg() {
             return JSON.parse(localStorage.getItem('userInfo')).img || this.$store.state.AppActiveUser.img;
@@ -152,17 +103,6 @@ export default {
     methods: {
         showSidebar() {
             this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
-        },
-        selected(item) {
-            this.$router.push(item.url)
-            this.showFullSearch = false;
-        },
-        actionClicked(item) {
-            // e.stopPropogation();
-            this.$store.dispatch('updateStarredPage', { index: item.index, val: !item.highlightAction });
-        },
-        outside: function() {
-            this.showBookmarkPagesDropdown = false
         },
         logout() {
             this.$vs.loading();
@@ -181,32 +121,14 @@ export default {
                 acceptText: 'Sair',
                 cancelText: 'Cancelar',
                 accept: this.logout
-            })
+            });
         },
     },
     directives: {
-        'click-outside': {
-            bind: function(el, binding) {
-                const bubble = binding.modifiers.bubble
-                const handler = (e) => {
-                    if (bubble || (!el.contains(e.target) && el !== e.target)) {
-                        binding.value(e)
-                    }
-                }
-                el.__vueClickOutside__ = handler
-                document.addEventListener('click', handler)
-            },
 
-            unbind: function(el) {
-                document.removeEventListener('click', el.__vueClickOutside__)
-                el.__vueClickOutside__ = null
-
-            }
-        }
     },
-    components: {
-        VuePerfectScrollbar,
-        draggable
+    mounted() {
+        
     },
 }
 </script>

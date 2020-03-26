@@ -32,6 +32,7 @@ const state = {
     // Can be used to get current window with
     // Note: Above breakpoint state is for internal use of sidebar component
     windowWidth: null,
-}
+    lastDateSinc: localStorage.getItem('last_sinc') || new Date().getTime(),
+};
 
 export default state;

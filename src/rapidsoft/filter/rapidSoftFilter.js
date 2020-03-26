@@ -16,7 +16,7 @@ Vue.filter('formatDateTime', (value) => {
 
 Vue.filter('formatDate', (value) => {
     if (value) {
-        return moment(new Date(value)).format('DD/MM/YYYY');
+        return moment(new Date(Number(value))).format('DD/MM/YYYY');
     } 
 });
 

@@ -22,16 +22,18 @@
                                 <h6>{{this.produtoA.cores[this.corSelecionada].nome}}</h6>
                             </div>
                             <feather-icon icon="ChevronUpIcon" class="produto-image-gallery-button mt-2 mb-2" @click="scrollUp" style="margin-top: -10px" />
-                            <div id="produto-image-gallery" class="produto-image-gallery on-scroll" v-if="getImagensCorProduto.length > 0">
-                                <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(index)">
-                                    <b-img-lazy :src="imagem.base64" :id="'produto-image-gallery-item-'+imagem.seq" class="mb-4 responsive img-ref"/>
+                            <transition name="fade" mode="out-in">
+                                <div id="produto-image-gallery" class="produto-image-gallery on-scroll" v-if="getImagensCorProduto.length > 0">
+                                    <div class="produto-image-gallery-item" v-for="(imagem, index) in getImagensCorProduto" :key="index" @click="selectSequenciaImagemProduto(index)">
+                                        <b-img-lazy :src="imagem.base64" :id="'produto-image-gallery-item-'+imagem.seq" class="mb-4 responsive img-ref"/>
+                                    </div>
                                 </div>
-                            </div>
-                            <div id="produto-image-gallery" class="produto-image-gallery on-scroll" v-else>
-                                <div class="produto-image-gallery-item">
-                                    <b-img-lazy :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="mb-4 responsive img-ref"/>
+                                <div id="produto-image-gallery" class="produto-image-gallery on-scroll" v-else>
+                                    <div class="produto-image-gallery-item">
+                                        <b-img-lazy :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="mb-4 responsive img-ref"/>
+                                    </div>
                                 </div>
-                            </div>
+                            </transition>
                             <feather-icon icon="ChevronDownIcon" class="produto-image-gallery-button" @click="scrollDown" style="margin-bottom: -10px; margin-top: 10px" />
                         </vx-card>
                     </div>
