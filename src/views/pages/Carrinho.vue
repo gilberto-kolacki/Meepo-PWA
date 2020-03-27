@@ -18,6 +18,44 @@
 					:produtos="getProdutosSegmento(segmento)"/>
 			</b-tab>
 		</b-tabs>
+
+
+		<b-card no-body class="mb-1" v-for="(categoria, indexCat) in totalizadorCategorias" :key="indexCat">
+			<b-card-header header-tag="header" class="p-1" role="tab"  v-b-toggle="'categoria-'+categoria.id">
+				<span class="font-bold card-header-categorias">+ {{categoria.nome}}: </span>
+			</b-card-header>
+			<b-collapse :id="'categoria-'+categoria.id" :ref="'embarque-'+categoria.id">
+				<b-card-body style="background-color: rgba(0, 0, 0, 0.03); padding: 10px;">
+					<table>
+						<!-- <thead class="border-solid">
+							<th class="grade-tam-prod-title" 
+								v-for="(tamanho, indexTamanho) in getTamanhosProduto(produtoCor.idProduto)" :key="indexTamanho + ' - ' + tamanho.sku">
+								{{tamanho.codigo}}
+							</th>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="grade-tam-prod-qtde"
+									v-for="(tamanho, indexTamanho) in getTamanhosProduto(produtoCor.idProduto)" :key="indexTamanho + ' - ' + tamanho.sku">
+								{{tamanho.quantidade}}</td>
+							</tr>
+						</tbody> -->
+					</table>
+				</b-card-body>
+			</b-collapse>
+		</b-card>
+		<b-card no-body class="mb-1">
+			<b-card-header header-tag="header" class="p-1" role="tab">
+				<span class="font-bold card-header-categorias">Total peças:</span>
+			</b-card-header>
+		</b-card>
+		<b-card no-body class="mb-1">
+			<b-card-header header-tag="header" class="p-1" role="tab">
+				<span class="font-bold card-header-categorias">Total:</span>
+			</b-card-header>
+		</b-card>
+
+
 		<vs-popup title="Selecione o segmento" :active.sync="popupSegmentos" :button-close-hidden="false" v-if="this.segmentos.length > 1">
             <table style="width:100%" class="border-collapse">
                 <tr>
@@ -44,6 +82,7 @@
 // import _ from "lodash";
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import SegmentoDB from "../../rapidsoft/db/segmentoDB";
+import CategoriaDB from "../../rapidsoft/db/categoriaDB";
 import PeriodoDB from "../../rapidsoft/db/periodoDB";
 import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
@@ -58,12 +97,13 @@ export default {
 		segmentos: [],
 		embarques: [],
 		embarquesOption: [],
-		itensCarrinho: [],
+		itensCarrinho: [],		
 		produtosSegmento: null,
 		showScreen: false,
 		isEdit: false,
 		segmentoSelecionado: null,
 		popupSegmentos: false,
+		totalizadorCategorias: [],
 	}),
 	watch: {
 
@@ -123,6 +163,37 @@ export default {
 		voltarCarrinho() {
 			this.gerenciaVisualizacao(1);
 		},
+		buscaAgrupadorCategorias(carrinho) {
+			return new Promise((resolve) => {
+				const totCategorias = carrinho.reduce((categoriasCarrinho, item) => {
+					return categoriasCarrinho.concat(item.categorias.reduce((categorias, categoria) => {
+						if (!categoriasCarrinho.some((cat) => cat === categoria)) categorias.push(categoria)
+						return categorias;
+					}, []));
+				}, []).reduce((totCategorias, cat) => {
+					const categ = {id: cat};
+					categ.itens = carrinho.reduce((totaisCategoria, item) => {
+						if (item.categorias.some((categ) => categ === cat)) {
+							totaisCategoria.push({
+								idProduto: item.idProduto,
+								preco: item.precoCusto,
+								tamanhos: item.tamanhos.map((tamanho) => ({codigo: tamanho.codigo, quantidade: tamanho.quantidade}))
+							});
+						}
+						return totaisCategoria;
+					}, []);
+					totCategorias.push(categ)
+					return totCategorias;
+				}, []);
+				CategoriaDB.getNomesAgrupadores(totCategorias).then((totalizadorCategorias) => {
+
+					console.log(totalizadorCategorias);
+					
+					this.totalizadorCategorias = totalizadorCategorias;
+					resolve();
+				});
+			});
+		},
 		carregaItensTela() {
 			return new Promise((resolve, reject) => {
 				this.segmentoSelecionado = this.$route.params.segmento;
@@ -130,15 +201,17 @@ export default {
 				CarrinhoDB.getCarrinho().then(carrinho => {
 					ProdutoDB.getProdutosFromCarrinho(carrinho).then((carrinhoTela) => {
 						if (carrinhoTela.length > 0) {
-							this.itensCarrinho = carrinhoTela;
-							EmbarqueDB.getInfosEmbarques(carrinhoTela).then((embarques) => {
-								this.embarquesOption = embarques;
-								PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
-									this.embarques = embarques;
-									SegmentoDB.getSegmentosCarrinho(carrinhoTela).then((segmentos) => {
-										this.segmentos = segmentos;
-										this.produtosSegmento = ProdutoUtils.getProdutosSegmentos(segmentos, carrinhoTela);										
-										resolve();
+							this.buscaAgrupadorCategorias(carrinhoTela).then(() => {
+								this.itensCarrinho = carrinhoTela;
+								EmbarqueDB.getInfosEmbarques(carrinhoTela).then((embarques) => {
+									this.embarquesOption = embarques;
+									PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
+										this.embarques = embarques;
+										SegmentoDB.getSegmentosCarrinho(carrinhoTela).then((segmentos) => {
+											this.segmentos = segmentos;
+											this.produtosSegmento = ProdutoUtils.getProdutosSegmentos(segmentos, carrinhoTela);										
+											resolve();
+										});
 									});
 								});
 							});
@@ -192,6 +265,12 @@ export default {
     border-radius: 5px;
     border-left: 1px solid rgba(255, 255, 255, 0.2);
   }
+}
+
+.card-header-categorias {
+	float: right;
+    font-size: 0.9rem;
+    margin: 0.2rem 0.75rem !important;
 }
 
 .page-carrinho {

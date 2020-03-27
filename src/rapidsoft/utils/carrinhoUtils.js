@@ -76,6 +76,7 @@ class carrinhoUtils {
                                             tamanhoNew.precoCusto = item.precoCusto;
                                             tamanhoNew.idProduto = item.idProduto;
                                             tamanhoNew.idSegmento = item.segmento;
+                                            tamanhoNew.embarqueSelecionado = item.embarqueSelecionado;
                                             return tamanhoNew;
                                         }));
                                         return tamanhos;

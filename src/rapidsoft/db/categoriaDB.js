@@ -43,9 +43,25 @@ class categoriaDB extends BasicDB {
         return new Promise((resolve) => {
             ProdutoDB.getIdsCategoria().then((idsCategorias) => {
                 this.getByIds(idsCategorias).then((categorias) => {
-                    resolve(categorias.filter((categoria) => { return categoria.idSegmento === idSegmento }));
+                    resolve(categorias.filter((categoria) => categoria.idSegmento === idSegmento));
                 });
             });
+        });
+    }
+
+    getNomesAgrupadores(categorias) {
+        return new Promise((resolve) => {
+            if(categorias.length > 0) {
+                const done = _.after(categorias.length, () => resolve(categorias));
+                categorias.forEach(categoria => {
+                    this._getById(categoria.id).then((cat) => {
+                        categoria.nome = cat.value.nome;
+                        done();
+                    });
+                });
+            } else {
+                resolve();
+            }
         });
     }
 

@@ -32,7 +32,7 @@
         
         <div role="tablist" v-if="produtosCarrinho.length > 0">
             <b-card no-body class="mb-1" v-for="(embarque, indexEmbarque) in getArrayEmbarquesProdutos" :key="indexEmbarque">
-                <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle.accordion-1  v-b-toggle="'embarque'+embarque.id">
+                <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="'embarque'+embarque.id">
                     <h5 class="m-3 font-bold">{{embarque.nome}}</h5>
                     <vx-card class="w-full">
                         <div slot="no-body">
