@@ -170,6 +170,8 @@ export default {
         carregaItensTela() {
             return new Promise((resolve) => {
                 CatalogoDB._getAll().then((catalogos) => {
+                    console.log(catalogos);
+                    
                     this.catalogos = catalogos;
                     CarrinhoDB.getCarrinho().then((carrinho) => {
                         this.carrinho = carrinho;

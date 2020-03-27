@@ -21,12 +21,12 @@ class catalogoDB extends BasicDB {
                     const done = _.after(catalogos.length, () => resolve());
                     catalogos.forEach(catalogo => {
                         catalogo.id = String(catalogo.idCatalogo);
-                        const categorias = catalogo.paginas.map((pagina) => {
-                            return pagina.produtos.map((produto) => {
-                                return produto.cat;
-                            });
-                        });
-                        catalogo.categorias = _.uniq(_.flattenDeep(categorias));
+                        const categorias = catalogo.paginas.reduce((categPag, pagina) => {
+                            return categPag.concat(pagina.produtos.reduce((categProd, produto) => {
+                                return categProd.concat(produto.cat);
+                            }, []));
+                        }, []);
+                        catalogo.categorias = _.uniq(categorias);
                         catalogo.paginas = catalogo.paginas.sort((a, b) => {
                             if (a.pag > b.pag) return 1;
                             if (a.pag < b.pag) return -1;

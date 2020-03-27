@@ -124,7 +124,7 @@ export default {
 			this.gerenciaVisualizacao(1);
 		},
 		carregaItensTela() {
-			return new Promise((resolve) => {
+			return new Promise((resolve, reject) => {
 				this.segmentoSelecionado = this.$route.params.segmento;
 				this.isEdit = this.$route.params.edit;		
 				CarrinhoDB.getCarrinho().then(carrinho => {
@@ -137,26 +137,31 @@ export default {
 									this.embarques = embarques;
 									SegmentoDB.getSegmentosCarrinho(carrinhoTela).then((segmentos) => {
 										this.segmentos = segmentos;
-										this.produtosSegmento = ProdutoUtils.getProdutosSegmentos(segmentos, carrinhoTela);
-										this.showScreen = true;
+										this.produtosSegmento = ProdutoUtils.getProdutosSegmentos(segmentos, carrinhoTela);										
 										resolve();
 									});
 								});
 							});
-						} else {
-							resolve(this.$router.push({ name: 'catalogoItem'}));
-						}
+						} else reject("Não foi possivel encontrar embarques disponiveis para os Produtos!");							
 					});
 				});
 			});
 		},
 	},
 	async created() {
+		const error = (erro) => {
+			console.log(erro);
+			alert(erro);
+			this.$router.push({ name: 'catalogoItem'});
+		}
 		try {
-			await this.carregaItensTela();
+			this.carregaItensTela().then(() => {
+				this.showScreen = true;
+			}).catch((erro) => error(erro));
 		} catch (error) {
 			console.log(error);
 			alert(error);
+			this.$router.push({ name: 'catalogoItem'});
 		}
 	},
     async mounted() {

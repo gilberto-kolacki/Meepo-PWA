@@ -44,7 +44,7 @@ class sincUtils {
 
     downloadImagensFromData(sinc, data) {
         return new Promise((resolve) => {
-            const quantidadeSinc = 50;
+            const quantidadeSinc = 10;
             const idsFotos = _.take(data.fotos, quantidadeSinc);
             
             ImagemService.sincImagemFoto(idsFotos).then((resultFotos) => {

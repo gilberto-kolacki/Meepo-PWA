@@ -212,18 +212,22 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             this._getFindCondition({referencia : {$in : produtosLook}}).then((produtos) => {
                 const produtosLook = [];
-                const done = _.after(produtos.length, () => resolve(produtosLook));
-                produtos.forEach(produto => {
-                    ImagemDB.getFotoPrincipal(produto).then((imagemProdutoPrincipal) => {
-                        produtosLook.push({
-                            id: produto.referencia, 
-                            nome: produto.nome, 
-                            img: imagemProdutoPrincipal,
-                            produto: produto
+                if (produtos.length > 0) {
+                    const done = _.after(produtos.length, () => resolve(produtosLook));
+                    produtos.forEach(produto => {
+                        ImagemDB.getFotoPrincipal(produto).then((imagemProdutoPrincipal) => {
+                            produtosLook.push({
+                                id: produto.referencia, 
+                                nome: produto.nome, 
+                                img: imagemProdutoPrincipal,
+                                produto: produto
+                            });
+                            done();
                         });
-                        done();
                     });
-                });
+                } else {
+                    resolve(produtosLook);
+                }
             });
         });
     }
