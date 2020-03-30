@@ -55,7 +55,8 @@ class categoriaDB extends BasicDB {
                 const done = _.after(categorias.length, () => resolve(categorias));
                 categorias.forEach(categoria => {
                     this._getById(categoria.id).then((cat) => {
-                        categoria.nome = cat.value.nome;
+                        if (cat.existe) categoria.nome = cat.value.nome;
+                        else categoria.nome = `'${categoria.id}' NÂO CADASTRADA`;
                         done();
                     });
                 });

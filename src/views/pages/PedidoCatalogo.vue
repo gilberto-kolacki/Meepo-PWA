@@ -99,12 +99,12 @@
 <script>
 
 // import _ from 'lodash'
-import SearchCliente  from '../../rapidsoft/components/SearchCliente'
+// import SearchCliente  from '../../rapidsoft/components/SearchCliente'
 import CatalogoDB from '../../rapidsoft/db/catalogoDB'
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'
 import CarrinhoDB from '../../rapidsoft/db/carrinhoDB'
-import Storage from '../../rapidsoft/utils/storage'
+import Storage from '../../rapidsoft/utils/storage';
 
 export default {
 
@@ -119,7 +119,11 @@ export default {
 		}
 	},
 	components: {
-		SearchCliente,
+        SearchCliente: () => ({
+            component: import('../../rapidsoft/components/SearchCliente'),
+            delay: 200,
+            timeout: 3000
+        }),
 	},
 	computed: {
 		getCatalogos() {
@@ -170,8 +174,6 @@ export default {
         carregaItensTela() {
             return new Promise((resolve) => {
                 CatalogoDB._getAll().then((catalogos) => {
-                    console.log(catalogos);
-                    
                     this.catalogos = catalogos;
                     CarrinhoDB.getCarrinho().then((carrinho) => {
                         this.carrinho = carrinho;

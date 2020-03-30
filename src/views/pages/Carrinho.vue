@@ -22,36 +22,35 @@
 
 		<b-card no-body class="mb-1" v-for="(categoria, indexCat) in totalizadorCategorias" :key="indexCat">
 			<b-card-header header-tag="header" class="p-1" role="tab"  v-b-toggle="'categoria-'+categoria.id">
-				<span class="font-bold card-header-categorias">+ {{categoria.nome}}: </span>
+				<span class="font-bold card-header-categorias">+ {{categoria.nome}}: {{getQuantidadeCat(categoria)}} </span>
 			</b-card-header>
 			<b-collapse :id="'categoria-'+categoria.id" :ref="'embarque-'+categoria.id">
-				<b-card-body style="background-color: rgba(0, 0, 0, 0.03); padding: 10px;">
-					<table>
-						<!-- <thead class="border-solid">
-							<th class="grade-tam-prod-title" 
-								v-for="(tamanho, indexTamanho) in getTamanhosProduto(produtoCor.idProduto)" :key="indexTamanho + ' - ' + tamanho.sku">
+				<b-card-body style="padding: 5px;">
+					<table class="table-categorias">
+						<thead class="border-solid">
+							<th class="grade-tam-prod-title" v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
 								{{tamanho.codigo}}
 							</th>
 						</thead>
 						<tbody>
 							<tr>
 								<td class="grade-tam-prod-qtde"
-									v-for="(tamanho, indexTamanho) in getTamanhosProduto(produtoCor.idProduto)" :key="indexTamanho + ' - ' + tamanho.sku">
+									v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
 								{{tamanho.quantidade}}</td>
 							</tr>
-						</tbody> -->
+						</tbody>
 					</table>
 				</b-card-body>
 			</b-collapse>
 		</b-card>
 		<b-card no-body class="mb-1">
 			<b-card-header header-tag="header" class="p-1" role="tab">
-				<span class="font-bold card-header-categorias">Total peças:</span>
+				<span class="font-bold card-header-categorias">Total peças: {{this.getTotalPecas}}</span>
 			</b-card-header>
 		</b-card>
 		<b-card no-body class="mb-1">
 			<b-card-header header-tag="header" class="p-1" role="tab">
-				<span class="font-bold card-header-categorias">Total:</span>
+				<span class="font-bold card-header-categorias">Total: {{this.getTotalValor | moneyy}}</span>
 			</b-card-header>
 		</b-card>
 
@@ -112,9 +111,30 @@ export default {
 		CarrinhoItem,
 	},
 	computed: {
-
+		getTotalValor() {
+			return this.totalizadorCategorias.reduce((vlrTotal, cat) => vlrTotal + this.getValorCat(cat), 0);
+		},
+		getTotalPecas() {
+			return this.totalizadorCategorias.reduce((qtdeTotal, cat) => qtdeTotal + this.getQuantidadeCat(cat), 0);
+		},
 	},
-    methods: {
+    methods: {		
+		getTamanhosItens(categoria) {
+			return categoria.itens.reduce((tamanhosCategoria, item) => {
+				return tamanhosCategoria.concat(item.tamanhos.reduce((tamanhos, tamanho) => {
+					const indexTam = tamanhosCategoria.findIndex((tam) => tam.codigo == tamanho.codigo);
+					if (indexTam >= 0 ) tamanhosCategoria[indexTam].quantidade = tamanhosCategoria[indexTam].quantidade + tamanho.quantidade;
+					else tamanhos.push({codigo: tamanho.codigo, quantidade: tamanho.quantidade});
+					return tamanhos;
+				}, []));
+			}, []);
+		},
+		getValorCat(categoria) {
+			return categoria.itens.reduce((vlrTotal, item) => vlrTotal + (item.preco * item.tamanhos.reduce((qtde, tamanho) => qtde + tamanho.quantidade, 0)), 0);
+		},
+		getQuantidadeCat(categoria) {
+			return categoria.itens.reduce((qtdeTotal, item) => qtdeTotal + item.tamanhos.reduce((qtde, tamanho) => qtde + tamanho.quantidade, 0), 0);
+		},
 		getPecasSegmento(segmento) {
 			const embarquesSegmento = Object.values(this.getEmbarquesSegmento(segmento));
 			return embarquesSegmento.reduce((total, segmento) => total + segmento.quantidade, 0);
@@ -186,9 +206,6 @@ export default {
 					return totCategorias;
 				}, []);
 				CategoriaDB.getNomesAgrupadores(totCategorias).then((totalizadorCategorias) => {
-
-					console.log(totalizadorCategorias);
-					
 					this.totalizadorCategorias = totalizadorCategorias;
 					resolve();
 				});
@@ -271,6 +288,11 @@ export default {
 	float: right;
     font-size: 0.9rem;
     margin: 0.2rem 0.75rem !important;
+}
+
+.table-categorias {
+	float: right;
+    margin: 0.5rem 0.75rem !important;
 }
 
 .page-carrinho {
