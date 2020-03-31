@@ -308,6 +308,13 @@ html, body {
     border-bottom-left-radius: 0;
 }
 
+.input-group-rapid {
+    margin-top: 26px;
+    height: 38px !important;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
 .rapid-input-date {
     font-size: 1rem !important;
     padding: .4rem !important;

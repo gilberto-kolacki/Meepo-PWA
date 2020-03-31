@@ -1,31 +1,53 @@
 <template>
     <div class="parentx">
-        <div class="vx-row flex w-full items-center justify-start" style="margin-bottom:20px">
-           <div clas="vx-col flex w-full items-center justify-start">
-            <b-dropdown text="Ações" split size="sm" variant="danger" class="m-1">
-                <b-dropdown-item>
-                    <span class="flex items-center">
-                        <feather-icon icon="TrashIcon" svgClasses="h-4 w-4" class="mr-2" />
-                        <span @click="confirmacaoDeletarItem()">Deletar Itens Selecionados</span>
-                    </span>
-                </b-dropdown-item>
-                <div v-if="getArrayEmbarques.length > 0">
-                    <b-dropdown-divider></b-dropdown-divider>
-                    <b-dropdown-text>
-                        <feather-icon icon="RefreshCwIcon" svgClasses="h-4 w-4" class="mr-2" />
-                        Mover Itens Selecionados
-                    </b-dropdown-text>
-                    <b-dropdown-item v-for="(embarque, indexEmbarque) in getArrayEmbarques" :key="indexEmbarque">
-                        <span class="flex items-center mt-2">
-                            <span @click="moverItemEmbarque(embarque.id)">{{embarque.nome}}</span>
-                        </span>
-                    </b-dropdown-item>
-                </div>
-            </b-dropdown>
+        <div class="flex flex-wrap" style="margin-bottom:20px;">
+            <div class="w-1/5">
+                <div clas="vx-col flex items-center justify-start" style="margin-top:1rem;">
+                    <b-dropdown text="Ações" split size="sm" variant="danger" class="m-1">
+                        <b-dropdown-item>
+                            <span class="flex items-center">
+                                <feather-icon icon="TrashIcon" svgClasses="h-4 w-4" class="mr-2" />
+                                <span @click="confirmacaoDeletarItem()">Deletar Itens Selecionados</span>
+                            </span>
+                        </b-dropdown-item>
+                        <div v-if="getArrayEmbarques.length > 0">
+                            <b-dropdown-divider></b-dropdown-divider>
+                            <b-dropdown-text>
+                                <feather-icon icon="RefreshCwIcon" svgClasses="h-4 w-4" class="mr-2" />
+                                Mover Itens Selecionados
+                            </b-dropdown-text>
+                            <b-dropdown-item v-for="(embarque, indexEmbarque) in getArrayEmbarques" :key="indexEmbarque">
+                                <span class="flex items-center mt-2">
+                                    <span @click="moverItemEmbarque(embarque.id)">{{embarque.nome}}</span>
+                                </span>
+                            </b-dropdown-item>
+                        </div>
+                    </b-dropdown>
+                </div>     
             </div>     
-            <div class="vx-col items-center justify-center" v-if="this.cliente">
-                <div class="truncate">
-                    <h6>CLIENTE: {{this.cliente.nome}}</h6>
+            <div class="w-4/5">
+                <div class="flex flex-wrap">
+                    <div class="w-1/4">
+                        <div class="mr-2">
+                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary mr-2">
+                                <label for="cpfCnpj" class="vs-input--label">Cliente</label>
+                                <div class="vs-con-input">
+                                    <the-mask v-validate="'required|min:14'" id="cpfCnpj" disabled name="cpfCnpj" v-model="cliente.cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex w-3/4">
+                        <vs-input v-validate="'required'" id="nomeCliente" name="nomeCliente" v-model="cliente.nome" disabled class="w-full input-line-group-rapid input-group-rapid" />
+                        <vs-button
+                            color="primary"
+                            type="filled"
+                            icon-pack="feather"
+                            class="w-full btn-line-group-rapid"
+                            icon="icon-search"                                    
+                            @click.stop="abrirPesquisaCliente()"
+                        ></vs-button>
+                    </div>
                 </div>
             </div>   
         </div>
@@ -139,13 +161,16 @@ export default {
         embarques: {
             type: Object,
             required: true,
+        },
+        cliente: {
+            type: Object,
+            required: true,
         }
     },
 	data: () => ({
         dataAtual: new Date().getTime(),
         itensSelecionados: [],
         produtosCarrinho: [],
-        cliente:null,    		
     }),
     watch: {
     },
@@ -274,14 +299,16 @@ export default {
             this.setEmbarqueCarrinho(idEmbarque);
             this.recalculaTotais();
             this.notification('Movidos!', 'Itens Selecionados foram movidos para o Embarque','success');
-        }
+        },
+        abrirPesquisaCliente() {
+			this.$bvModal.show("popup-cliente-search");
+        },
 	},
 	beforeCreate() {		                
     },
 	created() {
         try {
             this.produtosCarrinho = this.produtos;
-            this.cliente = Storage.getClienteCarrinho();
             this.recalculaTotais();
         } catch (error) {
             console.log(error);

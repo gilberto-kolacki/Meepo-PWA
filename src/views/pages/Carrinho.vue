@@ -5,21 +5,19 @@
 		<b-tabs content-class="mt-5" justified v-if="this.showScreen" lazy no-fade >
 			<b-tab v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento" :active="isEdit && segmento.id === segmentoSelecionado" :id="'tab-item-'+segmento.id">
 				<template v-slot:title>
-					<strong>
-						<feather-icon icon="BoxIcon" style="color:warning;" class="cursor-pointer"/>
-						<div class="itens-center"> Embarques {{segmento.nome}} </div>
-					</strong>
+					<div class="itens-center font-bold"> Embarques {{segmento.nome}} </div>
 				</template>
 				<carrinho-item
 					@show-add-carrinho="showAddCarrinho"
 					@edicao-item-carrinho="showEditCarrinho"
+					:cliente="cliente"
 					:segmento="segmento"
 					:embarques="getEmbarquesSegmento(segmento)"
 					:produtos="getProdutosSegmento(segmento)"/>
 			</b-tab>
 		</b-tabs>
 
-
+		<!-- Agrupador de de categorias -->
 		<b-card no-body class="mb-1" v-for="(categoria, indexCat) in totalizadorCategorias" :key="indexCat">
 			<b-card-header header-tag="header" class="p-1" role="tab"  v-b-toggle="'categoria-'+categoria.id">
 				<span class="font-bold card-header-categorias">+ {{categoria.nome}}: {{getQuantidadeCat(categoria)}} </span>
@@ -53,8 +51,7 @@
 				<span class="font-bold card-header-categorias">Total: {{this.getTotalValor | moneyy}}</span>
 			</b-card-header>
 		</b-card>
-
-
+		<!-- Modal seleção de segmento para carregar na tela de pedido -->
 		<vs-popup title="Selecione o segmento" :active.sync="popupSegmentos" :button-close-hidden="false" v-if="this.segmentos.length > 1">
             <table style="width:100%" class="border-collapse">
                 <tr>
@@ -63,7 +60,7 @@
                     <th class="p-2 border border-solid d-theme-border-grey-light text-right">Total</th>
                     <th class="p-2 border border-solid d-theme-border-grey-light"></th>
                 </tr>
-                <tr v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento">
+                <tr v-for="(segmento, indexSegmento) in segmentos" :key="indexSegmento">
                     <td class="p-2 border border-solid d-theme-border-grey-light">{{segmento.nome}}</td>
                     <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{getPecasSegmento(segmento)}}</td>
                     <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{getTotalSegmento(segmento) | moneyy}}</td>
@@ -75,6 +72,7 @@
                 </tr>      
             </table>
         </vs-popup>
+		<search-cliente v-if="showScreen" @search-selected="selectSearchCliente" id="popup-cliente-search"></search-cliente>
 	</div>
 </template>
 <script>
@@ -89,12 +87,14 @@ import ErrorDB from "../../rapidsoft/db/errorDB";
 import CarrinhoItem from "../../rapidsoft/components/CarrinhoItem";
 import ProdutoUtils from "../../rapidsoft/utils/produtoUtils";
 import CarrinhoUtils from "../../rapidsoft/utils/carrinhoUtils";
+import SearchCliente  from '../../rapidsoft/components/SearchCliente';
 
 export default {
 	data: () => ({
 		selected: [],
 		segmentos: [],
 		embarques: [],
+		cliente: null,
 		embarquesOption: [],
 		itensCarrinho: [],		
 		produtosSegmento: null,
@@ -109,6 +109,7 @@ export default {
     },
 	components: {
 		CarrinhoItem,
+		SearchCliente,
 	},
 	computed: {
 		getTotalValor() {
@@ -166,10 +167,20 @@ export default {
 			});
 		},
 		showPedidos() {
-			if (this.segmentos.length > 1) {
-				this.popupSegmentos = true;
+			if (this.cliente.cpfCnpj) {
+				if (this.segmentos.length > 1) {
+					this.popupSegmentos = true;
+				} else {
+					this.proximaTela(this.segmentos[0].id)
+				}
 			} else {
-				this.proximaTela(this.segmentos[0].id)
+				const menssagem = `Selecione um cliente para continuar!`;
+				this.$vs.dialog({
+					color:'warning',
+					title:'Atenção!',
+					text: menssagem,
+					acceptText: 'Ok',
+				});
 			}
 		},
 		showEditCarrinho(produto) {
@@ -216,6 +227,7 @@ export default {
 				this.segmentoSelecionado = this.$route.params.segmento;
 				this.isEdit = this.$route.params.edit;		
 				CarrinhoDB.getCarrinho().then(carrinho => {
+					this.cliente = carrinho.cliente;
 					ProdutoDB.getProdutosFromCarrinho(carrinho).then((carrinhoTela) => {
 						if (carrinhoTela.length > 0) {
 							this.buscaAgrupadorCategorias(carrinhoTela).then(() => {
@@ -237,6 +249,9 @@ export default {
 				});
 			});
 		},
+		selectSearchCliente(cliente) {
+			this.cliente = cliente;
+        },
 	},
 	async created() {
 		const error = (erro) => {
@@ -254,13 +269,11 @@ export default {
 			this.$router.push({ name: 'catalogoItem'});
 		}
 	},
-    async mounted() {
+    mounted() {
         
 	},
 	updated() {
-		
 	},
-
 	errorCaptured(err, vm, info) {
         ErrorDB._criarLog({ err, vm, info });
         return true;
