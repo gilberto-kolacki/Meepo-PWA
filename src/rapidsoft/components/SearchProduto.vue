@@ -88,7 +88,6 @@
 </template>    
 <script>
 
-import _ from 'lodash'
 import vSelect from 'vue-select';
 import ProdutoDB from '../../rapidsoft/db/produtoDB'
 import SegmentoDB from '../../rapidsoft/db/segmentoDB'
@@ -151,7 +150,7 @@ export default {
         searchCategorias() {
             this.categoriasSelecionadas = [];
             CategoriaDB.getAllBySegmento(this.segmentoSelecionado.id).then((categorias) => {
-                this.categoriasFiltro = _.cloneDeep(categorias);
+                this.categoriasFiltro = this.lodash.cloneDeep(categorias);
                 this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
             });
         },
@@ -175,8 +174,8 @@ export default {
     },
     created() {
         SegmentoDB._getAll().then((segmentos) => {
-            this.segmentosFiltro = _.cloneDeep(segmentos);
-            this.segmentoSelecionado = _.find(segmentos, (segmento) => { return segmento.id === Storage.getCatalogo().idSegmento });
+            this.segmentosFiltro = this.lodash.cloneDeep(segmentos);
+            this.segmentoSelecionado = segmentos.find((segmento) => { return segmento.id === Storage.getCatalogo().idSegmento });
         });
     },
     mounted() {

@@ -98,8 +98,6 @@
 
 <script>
 
-// import _ from 'lodash'
-// import SearchCliente  from '../../rapidsoft/components/SearchCliente'
 import CatalogoDB from '../../rapidsoft/db/catalogoDB'
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB'

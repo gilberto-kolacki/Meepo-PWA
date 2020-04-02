@@ -51,6 +51,7 @@
 				<span class="font-bold card-header-categorias">Total: {{this.getTotalValor | moneyy}}</span>
 			</b-card-header>
 		</b-card>
+		
 		<!-- Modal seleção de segmento para carregar na tela de pedido -->
 		<vs-popup title="Selecione o segmento" :active.sync="popupSegmentos" :button-close-hidden="false" v-if="this.segmentos.length > 1">
             <table style="width:100%" class="border-collapse">
@@ -76,7 +77,7 @@
 	</div>
 </template>
 <script>
-// import _ from "lodash";
+
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import SegmentoDB from "../../rapidsoft/db/segmentoDB";
 import CategoriaDB from "../../rapidsoft/db/categoriaDB";
@@ -87,7 +88,6 @@ import ErrorDB from "../../rapidsoft/db/errorDB";
 import CarrinhoItem from "../../rapidsoft/components/CarrinhoItem";
 import ProdutoUtils from "../../rapidsoft/utils/produtoUtils";
 import CarrinhoUtils from "../../rapidsoft/utils/carrinhoUtils";
-import SearchCliente  from '../../rapidsoft/components/SearchCliente';
 
 export default {
 	data: () => ({
@@ -109,7 +109,11 @@ export default {
     },
 	components: {
 		CarrinhoItem,
-		SearchCliente,
+		SearchCliente: () => ({
+			component: import('../../rapidsoft/components/SearchCliente'),
+            delay: 200,
+            timeout: 3000
+        }),
 	},
 	computed: {
 		getTotalValor() {
@@ -249,8 +253,20 @@ export default {
 				});
 			});
 		},
-		selectSearchCliente(cliente) {
-			this.cliente = cliente;
+		selectSearchCliente(clienteSelecionado) {
+			this.$vs.loading();
+			if (this.cliente.grupoCliente.id != clienteSelecionado.grupoCliente.id) {
+				this.carregaItensTela().then(() => {
+					this.cliente = clienteSelecionado;
+					this.$forceUpdate()
+					this.$vs.loading.close();
+				});
+			} else {
+				setTimeout(() => {
+					this.cliente = clienteSelecionado;
+					this.$vs.loading.close();
+				}, 300);
+			}
         },
 	},
 	async created() {

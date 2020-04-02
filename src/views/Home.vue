@@ -139,9 +139,9 @@ export default {
                     type: 'confirm',
                     color: 'warning',
                     title: 'Atenção!',
-                    text: 'Faz 5 dias ou mais desde a sua última sincronização Completa, Deseja sincronizar ?',
+                    text: 'Já Fazem 5 dias ou mais desde a sua última sincronização completa, Deseja sincronizar ?',
                     acceptText: 'Sim',
-                    cancelText: 'Cancelar',
+                    cancelText: 'Não',
                     accept: () => this.$router.push({ name: 'sincronizacao'})
                 });
             }

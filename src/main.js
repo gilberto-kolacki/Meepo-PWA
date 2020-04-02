@@ -65,6 +65,10 @@ Vue.use(VueHammer);
 import { BootstrapVue  } from 'bootstrap-vue';
 Vue.use(BootstrapVue);
 
+import lodash from 'lodash';
+import VueLodash from 'vue-lodash';
+Vue.use(VueLodash, { name: 'custom' , lodash: lodash });
+
 //CSS
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';

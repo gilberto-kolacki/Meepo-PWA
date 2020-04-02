@@ -457,7 +457,6 @@ import validatePtBR from '../../rapidsoft/validate/validate_ptBR';
 import Datepicker from 'vuejs-datepicker';
 import * as lang from "vuejs-datepicker/src/locale";
 import vSelect from 'vue-select';
-import _ from 'lodash';
 import ClienteDB from '../../rapidsoft/db/clienteDB';
 import CidadeDB from '../../rapidsoft/db/cidadeDB';
 import CidadeService from '../../rapidsoft/service/cidadeService';
@@ -536,7 +535,7 @@ export default {
         },
         segmentosCliente(val) {
             this.clienteEdit.segmentos = val.map((segmento) => {
-                return _.toString(segmento.value);
+                return String(segmento.value);
             });
         },
     },
@@ -571,7 +570,7 @@ export default {
         cnpjnulo(cpfCnpj, key = null, uf = null) {
             const cliente = {cep: null,telefone: null, estado:null,bairro:null,complemento:null,numero:null,endereco:null};
             if (cpfCnpj || cpfCnpj.length == 0) {
-                this.clienteEdit[key] = _.isObject(this.clienteEdit[key]) ? cliente : null;
+                this.clienteEdit[key] = this.lodash.isObject(this.clienteEdit[key]) ? cliente : null;
                 this.proximoCampo('cpfCnpj');
             } else {
                 if (uf.length > 1) {
@@ -759,7 +758,7 @@ export default {
                     endereco.principal = false;
                 });
             }
-            this.clienteEdit.enderecos.push(_.clone(resultEndereco));
+            this.clienteEdit.enderecos.push(this.lodash.clone(resultEndereco));
             this.isEditEndereco = false;
         },
         gravaEnderecoClienteErp() {
@@ -779,7 +778,7 @@ export default {
         },
         setNewEnderecoCliente() {
             this.setCidadeSelecionadaEndEntrega();
-            ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
+            ClienteDB.validarEndereco(this.lodash.cloneDeep(this.enderecoEdit)).then((result) => {
                 this.validaNovoEnderecoPrincipal(result);
                 if (this.clienteEdit.clienteErp) {
                     this.gravaEnderecoClienteErp();
@@ -915,7 +914,7 @@ export default {
         },
         adicionaContatoCliente() {
             this.clienteEdit.contatos = ClienteDB.removeContatoAntigo(this.clienteEdit.contatos,this.contatoEdit,this.indexEditContato);
-            this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
+            this.clienteEdit.contatos.push(this.lodash.clone(this.contatoEdit));
         },
         salvarContato() {          
             ClienteDB.validarContato(this.contatoEdit).then(() => {
@@ -948,24 +947,24 @@ export default {
                 return referencia['nome'];
             });
             // referenciaComercial
-            return _.join(listReferencias,', ');
+            return this.lodash.join(listReferencias,', ');
             
         },
         salvarCliente() {
             this.$vs.loading();
-            const cliente = _.cloneDeep(this.clienteEdit);
+            const cliente = this.lodash.cloneDeep(this.clienteEdit);
             if (cliente.dataFundacao !== undefined) {
-                const dataFormat = _.split(cliente.dataFundacao, '/');
+                const dataFormat = this.lodash.split(cliente.dataFundacao, '/');
                 cliente.dataFundacao = new Date(dataFormat[2], dataFormat[1]-1, dataFormat[0]);
                 cliente.dataFundacao = cliente.dataFundacao.getTime();
             }
             if (cliente.dataAniversario !== undefined) {
-                const dataFormat = _.split(cliente.dataAniversario, '/');
+                const dataFormat = this.lodash.split(cliente.dataAniversario, '/');
                 cliente.dataAniversario = new Date(dataFormat[2], dataFormat[1]-1, dataFormat[0]);
                 cliente.dataAniversario = cliente.dataAniversario.getTime();
             }
             cliente.endereco.cidade = cliente.endereco.cidade ? cliente.endereco.cidade.label : null;
-            if (_.findIndex(this.segmentosCliente, {'value':3333}) >= 0) {
+            if (this.lodash.findIndex(this.segmentosCliente, {'value':3333}) >= 0) {
                 cliente.segmentos = ['3','5'];
             }
             cliente.referenciaComercial = cliente.referenciaComercial 

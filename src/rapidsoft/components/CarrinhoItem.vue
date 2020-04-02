@@ -124,7 +124,7 @@
                                     <span style="font-weight:bold">Qntd: {{produtoCor.quantidade}}</span>
                                 </div>
                                 <div class="vx-row text-center justify-center">
-                                    <span style="font-weight:bold">{{getAmountValueBuy(produtoCor.precoCusto, produtoCor.quantidade) | moneyy}}</span>
+                                    <span style="font-weight:bold">{{getValorTotalCor(produtoCor) | moneyy}}</span>
                                 </div>
                             </div>
                             <div class="vx-col mx-1 w-1/6 float-right" style="justify-content:center; margin:auto;">
@@ -138,7 +138,7 @@
     </div>
 </template>
 <script>
-import _ from "lodash";
+// import _ from "lodash";
 import Storage from "../../rapidsoft/utils/storage";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
 import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
@@ -200,15 +200,17 @@ export default {
 	},
     methods: {
 		getTamanhosProduto(idProduto) {
-            return _.orderBy(this.produtosCarrinho.find((produto) => produto.idProduto === idProduto).tamanhos, ['seq'], ['asc']);
+            return this.lodash.orderBy(this.produtosCarrinho.find((produto) => produto.idProduto === idProduto).tamanhos, ['seq'], ['asc']);
         },
 		setPopupAddProduto(produto){
 			ProdutoDB.getProdutoEdicaoCarrinho(produto).then((result) => {
                 this.$emit('edicao-item-carrinho', result);
             });
 		},
-		getAmountValueBuy(valorCompra,totalQuantidade) {
-            return valorCompra * totalQuantidade;
+		getValorTotalCor(produto) {
+            const percentual = Storage.getGrupoCarrinho().porcentagem;
+            const preco = produto.precoCusto * produto.quantidade;
+            return preco + ((percentual/100) * preco);
         },
         notification(titulo, mensagem, cor) {
             this.$vs.notify({
@@ -276,7 +278,7 @@ export default {
             });
         },
         recalculaTotais() {
-            const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
+            const percentual = Storage.getGrupoCarrinho().porcentagem;
             for (const id in this.embarques) {
                 if (this.embarques.hasOwnProperty(id)) {
                     this.embarques[id].quantidade = this.produtosCarrinho.reduce((total, produto) => {

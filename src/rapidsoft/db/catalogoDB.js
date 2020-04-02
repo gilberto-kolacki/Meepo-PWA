@@ -5,7 +5,8 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import After from 'lodash/after';
+import Uniq from 'lodash/uniq';
 import BasicDB from './basicDB';
 
 class catalogoDB extends BasicDB {
@@ -18,7 +19,7 @@ class catalogoDB extends BasicDB {
         return new Promise((resolve) => {
             this._limparBase().then(() => {
                 if(catalogos.length > 0) {
-                    const done = _.after(catalogos.length, () => resolve());
+                    const done = After(catalogos.length, () => resolve());
                     catalogos.forEach(catalogo => {
                         catalogo.id = String(catalogo.idCatalogo);
                         const categorias = catalogo.paginas.reduce((categPag, pagina) => {
@@ -26,7 +27,7 @@ class catalogoDB extends BasicDB {
                                 return categProd.concat(produto.cat);
                             }, []));
                         }, []);
-                        catalogo.categorias = _.uniq(categorias);
+                        catalogo.categorias = Uniq(categorias);
                         catalogo.paginas = catalogo.paginas.sort((a, b) => {
                             if (a.pag > b.pag) return 1;
                             if (a.pag < b.pag) return -1;

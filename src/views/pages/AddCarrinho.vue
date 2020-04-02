@@ -47,7 +47,6 @@
 <script>
 
 import ErrorDB from "../../rapidsoft/db/errorDB";
-import _ from 'lodash';
 import AddCarrinhoItem  from '../../rapidsoft/components/AddCarrinhoItem';
 import ProdutoUtils  from '../../rapidsoft/utils/produtoUtils';
 import ProdutoDB from '../../rapidsoft/db/produtoDB';
@@ -88,9 +87,8 @@ export default {
         },
         atualizarGrade(indexCor, indexTamanho,key) {
             const tamanho = this.criaTamanho(indexCor, indexTamanho,key);
-            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 
-                0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade);
-            this.atualizaQuantidadeItens(_.clone(tamanho))
+            tamanho.quantidade = this.lodash.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade);
+            this.atualizaQuantidadeItens(this.lodash.clone(tamanho))
         },
         criaTamanho(indexCor, indexTamanho, key) {
             const tamanho = this.produtoAdd[key].cores[indexCor].tamanhos[indexTamanho];
@@ -123,7 +121,7 @@ export default {
             this.voltarCatalogo();
         },
         addReferenciaCarrinho() {
-            this.carrinho.valorTotal = _.round(this.carrinho.itens.reduce((total, item) => {
+            this.carrinho.valorTotal = this.lodash.round(this.carrinho.itens.reduce((total, item) => {
                 return total = total + (item.quantidade * ProdutoUtils.calcularPreco(item));
             }, 0), 2);
         },
@@ -133,7 +131,7 @@ export default {
             });
         },
         atualizaQuantidadeItens(tamanho) {
-            const itens = _.remove(this.carrinho.itens, (item) => item.id != tamanho.id );
+            const itens = this.lodash.remove(this.carrinho.itens, (item) => item.id != tamanho.id );
             if (tamanho.quantidade) {
                 if (tamanho.ativo && tamanho.quantidade > 0) {
                     delete tamanho['ativo'];

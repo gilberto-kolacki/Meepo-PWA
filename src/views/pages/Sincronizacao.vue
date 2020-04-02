@@ -42,7 +42,6 @@
 
 <script>
 
-import _ from 'lodash';
 import SincUtils from '../../rapidsoft/utils/sincUtils';
 import ProdutoService from '../../rapidsoft/service/produtoService';
 import ClienteService from '../../rapidsoft/service/clienteService';
@@ -116,13 +115,13 @@ export default {
                 sinc.parcial = 0;
                 sinc.percent = 0;
                 if (!(sinc.type == "imagem")) {
-                    _.defer(() => this.sincronizar(sinc, true));
+                    this.lodash.defer(() => this.sincronizar(sinc, true));
                 }
             });
         },
         sincronizar(sinc, all = false) {
             if (this.sincAtivo) {
-                setTimeout(()=> _.defer(() => this.sincronizar(sinc, true)), 2000);                
+                setTimeout(()=> this.lodash.defer(() => this.sincronizar(sinc, true)), 2000);                
             } else {
                 if(!sinc.ativo) {                    
                     sinc.ativo = true;
@@ -132,7 +131,7 @@ export default {
                     SincUtils.openLoading(this, sinc);
                     if (sinc.methodo && sinc.methodo != "") {
                         this.sincAtivo = true;
-                        _.defer(() => this[sinc.methodo](sinc, all));
+                        this.lodash.defer(() => this[sinc.methodo](sinc, all));
                     } else {
                         SincUtils.closeLoading(this, sinc);
                     }
@@ -159,7 +158,7 @@ export default {
                     iconPack: 'feather',
                     icon: 'icon-alert-circle'
                 })
-                _.defer(() => SincUtils.closeLoading(this, sinc));
+                this.lodash.defer(() => SincUtils.closeLoading(this, sinc));
             });
         },
         sincProduto(sinc, all) {
@@ -168,7 +167,7 @@ export default {
                 sinc.total = produtos.length;
                 ProdutoDB._limparBase().then(() => {
                     if (produtos.length > 0) {
-                        const done = _.after(produtos.length, () => {
+                        const done = this.lodash.after(produtos.length, () => {
                             SincUtils.closeLoading(this, sinc, all);
                             this.sincronizar(this.sincImagemObject, all);
                         });
@@ -212,7 +211,7 @@ export default {
                 ClienteService.sincCliente(clientesSinc).then((clientes) => {
                     sinc.total = clientes.length;
                     ClienteDB._limparBase(clientesSinc).then(() => {
-                        const done = _.after(clientes.length, () => SincUtils.closeLoading(this, sinc, all));
+                        const done = this.lodash.after(clientes.length, () => SincUtils.closeLoading(this, sinc, all));
                         clientes.forEach(cliente => {
                             ClienteDB.salvarSinc(cliente).then(() => {
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
@@ -272,7 +271,7 @@ export default {
                     if (pedidos.length > 0) {
                         sinc.parcial = 0;
                         sinc.total = pedidos.length;
-                        const done = _.after(pedidos.length, () => SincUtils.closeLoading(this, sinc, all));
+                        const done = this.lodash.after(pedidos.length, () => SincUtils.closeLoading(this, sinc, all));
                         pedidos.forEach(pedido => {
                             PedidoDB.salvarSinc(pedido).then(() => {
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
@@ -292,7 +291,7 @@ export default {
                     if (orcamentos.length > 0) {
                         sinc.parcial = 0;
                         sinc.total = orcamentos.length;
-                        const done = _.after(orcamentos.length, () => SincUtils.closeLoading(this, sinc, all));
+                        const done = this.lodash.after(orcamentos.length, () => SincUtils.closeLoading(this, sinc, all));
                         orcamentos.forEach(orcamento => {
                             OrcamentoDB.salvarSinc(orcamento).then(() => {
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
@@ -310,7 +309,7 @@ export default {
                 ClienteDB.createBases();
                 PedidoDB.createBases();
                 SincDataDB.getAll().then((sinData) => {
-                    this.tabelasSincronizacao = _.orderBy(sinData, ['order']);
+                    this.tabelasSincronizacao = this.lodash.orderBy(sinData, ['order']);
                     this.sincImagemObject = this.tabelasSincronizacao.find((sincTab) => sincTab.type === "imagem" );
                     SincUtils.verificaProdutosSemImagens().then((result) => {
                         this.downloadImagem = result;

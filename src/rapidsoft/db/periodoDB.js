@@ -5,7 +5,9 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import After from 'lodash/after';
+import Uniq from 'lodash/uniq';
+import FlattenDeep from 'lodash/flattenDeep';
 import BasicDB from './basicDB';
 
 class periodoDB extends BasicDB {
@@ -18,7 +20,7 @@ class periodoDB extends BasicDB {
         return new Promise((resolve) => {
             this._limparBase().then(() => {
                 if(periodos.length > 0) {
-                    const done = _.after(periodos.length, () => resolve());
+                    const done = After(periodos.length, () => resolve());
                     periodos.forEach(periodo => {
                         this._salvar(periodo).then(() => done()).catch(() => done());
                     });
@@ -31,13 +33,13 @@ class periodoDB extends BasicDB {
 
     getPeriodosToEmbarque(embarques) {
         return new Promise((resolve) => {
-            const idsPeriodos = _.uniq(_.flattenDeep(embarques.map((embarque) =>  embarque.periodos)));
+            const idsPeriodos = Uniq(FlattenDeep(embarques.map((embarque) =>  embarque.periodos)));
             const dataAtual = new Date().getTime();
             this._getFindCondition({id : {$in : idsPeriodos}}).then((periodos) => {
-                const done = _.after(embarques.length, () => resolve(embarques));
+                const done = After(embarques.length, () => resolve(embarques));
                 embarques.forEach(embarque => {
                     embarque.periodos = periodos.filter((periodo) => this._exists(embarque.periodos, periodo.id));
-                    const periodoInicio = _.find(embarque.periodos, (periodo) => periodo.dataPedidoInicio <= dataAtual && periodo.dataPedidoFim >= dataAtual);
+                    const periodoInicio = embarque.periodos.find((periodo) => periodo.dataPedidoInicio <= dataAtual && periodo.dataPedidoFim >= dataAtual);
                     if (periodoInicio) {
                         embarque.periodos = embarque.periodos.filter((periodo) => periodo.dataPedidoInicio >= periodoInicio.dataPedidoInicio && periodo.dataPedidoFim >= periodoInicio.dataPedidoFim);
                         embarque.dataEmbarque = embarque.periodos[0].dataEmbarqueInicio;

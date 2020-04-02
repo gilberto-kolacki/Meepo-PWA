@@ -5,7 +5,7 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import After from 'lodash/after';
 import BasicDB from './basicDB';
 
 class segmentoDB extends BasicDB {
@@ -16,9 +16,9 @@ class segmentoDB extends BasicDB {
 
     salva(segmentos) {
         return new Promise((resolve) => {
-            const done = _.after(segmentos.length, () => resolve());
+            const done = After(segmentos.length, () => resolve());
             segmentos.forEach(segmento => {
-                segmento._id = _.toString(segmento.id);
+                segmento._id = String(segmento.id);
                 this._localDB.put(segmento).then(() => done()).catch(() => done());
             });
         });
