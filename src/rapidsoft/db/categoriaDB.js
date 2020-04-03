@@ -49,7 +49,7 @@ class categoriaDB extends BasicDB {
         });
     }
 
-    getNomesAgrupadores(categorias) {
+    getArrayAgrupadoresCategorias(categorias) {
         return new Promise((resolve) => {
             if(categorias.length > 0) {
                 const done = After(categorias.length, () => resolve(categorias));

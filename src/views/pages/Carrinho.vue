@@ -18,7 +18,7 @@
 		</b-tabs>
 
 		<!-- Agrupador de de categorias -->
-		<b-card no-body class="mb-1" v-for="(categoria, indexCat) in totalizadorCategorias" :key="indexCat">
+		<!-- <b-card no-body class="mb-1" v-for="(categoria, indexCat) in totalizadorCategorias" :key="indexCat">
 			<b-card-header header-tag="header" class="p-1" role="tab"  v-b-toggle="'categoria-'+categoria.id">
 				<span class="font-bold card-header-categorias">+ {{categoria.nome}}: {{getQuantidadeCat(categoria)}} </span>
 			</b-card-header>
@@ -32,9 +32,9 @@
 						</thead>
 						<tbody>
 							<tr>
-								<td class="grade-tam-prod-qtde"
-									v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
-								{{tamanho.quantidade}}</td>
+								<td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
+									{{tamanho.quantidade}}
+								</td>
 							</tr>
 						</tbody>
 					</table>
@@ -48,9 +48,9 @@
 		</b-card>
 		<b-card no-body class="mb-1">
 			<b-card-header header-tag="header" class="p-1" role="tab">
-				<span class="font-bold card-header-categorias">Total: {{this.getTotalValor | moneyy}}</span>
+				<span class="font-bold card-header-categorias">Total: {{this.getTotalValor() | moneyyGrupo}}</span>
 			</b-card-header>
-		</b-card>
+		</b-card> -->
 		
 		<!-- Modal seleção de segmento para carregar na tela de pedido -->
 		<vs-popup title="Selecione o segmento" :active.sync="popupSegmentos" :button-close-hidden="false" v-if="this.segmentos.length > 1">
@@ -80,7 +80,7 @@
 
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import SegmentoDB from "../../rapidsoft/db/segmentoDB";
-import CategoriaDB from "../../rapidsoft/db/categoriaDB";
+// import CategoriaDB from "../../rapidsoft/db/categoriaDB";
 import PeriodoDB from "../../rapidsoft/db/periodoDB";
 import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
@@ -102,10 +102,8 @@ export default {
 		isEdit: false,
 		segmentoSelecionado: null,
 		popupSegmentos: false,
-		totalizadorCategorias: [],
 	}),
 	watch: {
-
     },
 	components: {
 		CarrinhoItem,
@@ -116,30 +114,9 @@ export default {
         }),
 	},
 	computed: {
-		getTotalValor() {
-			return this.totalizadorCategorias.reduce((vlrTotal, cat) => vlrTotal + this.getValorCat(cat), 0);
-		},
-		getTotalPecas() {
-			return this.totalizadorCategorias.reduce((qtdeTotal, cat) => qtdeTotal + this.getQuantidadeCat(cat), 0);
-		},
+
 	},
     methods: {		
-		getTamanhosItens(categoria) {
-			return categoria.itens.reduce((tamanhosCategoria, item) => {
-				return tamanhosCategoria.concat(item.tamanhos.reduce((tamanhos, tamanho) => {
-					const indexTam = tamanhosCategoria.findIndex((tam) => tam.codigo == tamanho.codigo);
-					if (indexTam >= 0 ) tamanhosCategoria[indexTam].quantidade = tamanhosCategoria[indexTam].quantidade + tamanho.quantidade;
-					else tamanhos.push({codigo: tamanho.codigo, quantidade: tamanho.quantidade});
-					return tamanhos;
-				}, []));
-			}, []);
-		},
-		getValorCat(categoria) {
-			return categoria.itens.reduce((vlrTotal, item) => vlrTotal + (item.preco * item.tamanhos.reduce((qtde, tamanho) => qtde + tamanho.quantidade, 0)), 0);
-		},
-		getQuantidadeCat(categoria) {
-			return categoria.itens.reduce((qtdeTotal, item) => qtdeTotal + item.tamanhos.reduce((qtde, tamanho) => qtde + tamanho.quantidade, 0), 0);
-		},
 		getPecasSegmento(segmento) {
 			const embarquesSegmento = Object.values(this.getEmbarquesSegmento(segmento));
 			return embarquesSegmento.reduce((total, segmento) => total + segmento.quantidade, 0);
@@ -198,34 +175,6 @@ export default {
 		voltarCarrinho() {
 			this.gerenciaVisualizacao(1);
 		},
-		buscaAgrupadorCategorias(carrinho) {
-			return new Promise((resolve) => {
-				const totCategorias = carrinho.reduce((categoriasCarrinho, item) => {
-					return categoriasCarrinho.concat(item.categorias.reduce((categorias, categoria) => {
-						if (!categoriasCarrinho.some((cat) => cat === categoria)) categorias.push(categoria)
-						return categorias;
-					}, []));
-				}, []).reduce((totCategorias, cat) => {
-					const categ = {id: cat};
-					categ.itens = carrinho.reduce((totaisCategoria, item) => {
-						if (item.categorias.some((categ) => categ === cat)) {
-							totaisCategoria.push({
-								idProduto: item.idProduto,
-								preco: item.precoCusto,
-								tamanhos: item.tamanhos.map((tamanho) => ({codigo: tamanho.codigo, quantidade: tamanho.quantidade}))
-							});
-						}
-						return totaisCategoria;
-					}, []);
-					totCategorias.push(categ)
-					return totCategorias;
-				}, []);
-				CategoriaDB.getNomesAgrupadores(totCategorias).then((totalizadorCategorias) => {
-					this.totalizadorCategorias = totalizadorCategorias;
-					resolve();
-				});
-			});
-		},
 		carregaItensTela() {
 			return new Promise((resolve, reject) => {
 				this.segmentoSelecionado = this.$route.params.segmento;
@@ -234,17 +183,15 @@ export default {
 					this.cliente = carrinho.cliente;
 					ProdutoDB.getProdutosFromCarrinho(carrinho).then((carrinhoTela) => {
 						if (carrinhoTela.length > 0) {
-							this.buscaAgrupadorCategorias(carrinhoTela).then(() => {
-								this.itensCarrinho = carrinhoTela;
-								EmbarqueDB.getInfosEmbarques(carrinhoTela).then((embarques) => {
-									this.embarquesOption = embarques;
-									PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
-										this.embarques = embarques;
-										SegmentoDB.getSegmentosCarrinho(carrinhoTela).then((segmentos) => {
-											this.segmentos = segmentos;
-											this.produtosSegmento = ProdutoUtils.getProdutosSegmentos(segmentos, carrinhoTela);										
-											resolve();
-										});
+							this.itensCarrinho = carrinhoTela;
+							EmbarqueDB.getInfosEmbarques(carrinhoTela).then((embarques) => {
+								this.embarquesOption = embarques;
+								PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
+									this.embarques = embarques;
+									SegmentoDB.getSegmentosCarrinho(carrinhoTela).then((segmentos) => {
+										this.segmentos = segmentos;
+										this.produtosSegmento = ProdutoUtils.getProdutosSegmentos(segmentos, carrinhoTela);										
+										resolve();
 									});
 								});
 							});
@@ -255,17 +202,17 @@ export default {
 		},
 		selectSearchCliente(clienteSelecionado) {
 			this.$vs.loading();
-			if (this.cliente.grupoCliente.id != clienteSelecionado.grupoCliente.id) {
-				this.carregaItensTela().then(() => {
-					this.cliente = clienteSelecionado;
-					this.$forceUpdate()
-					this.$vs.loading.close();
-				});
-			} else {
+			const close = () => {
 				setTimeout(() => {
 					this.cliente = clienteSelecionado;
+					this.$forceUpdate();
 					this.$vs.loading.close();
 				}, 300);
+			}
+			if (this.cliente.grupoCliente.id != clienteSelecionado.grupoCliente.id) {
+				this.carregaItensTela().then(() => close());
+			} else {
+				close();
 			}
         },
 	},

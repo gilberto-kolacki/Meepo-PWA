@@ -60,19 +60,19 @@
                         <div slot="no-body">
                             <div class='vx-row flex pr-6 pl-6'>
                                 <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
-                                    <vs-avatar class="mr-23" @click="somaPreviaValores()" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-package" size="30px" />
+                                    <vs-avatar class="mr-23" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-package" size="30px" />
                                     <div class="truncate">
                                         <h5 class="mt-3 font-bold">Peças: {{embarque.quantidade}}</h5>
                                     </div>
                                 </div>
                                 <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
-                                    <vs-avatar class="mr-3" @click="somaPreviaValores()" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" size="30px" />
+                                    <vs-avatar class="mr-3" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" size="30px" />
                                     <div class="truncate">
                                         <h5 class="mt-3 font-bold">Valor: {{embarque.totalBruto | money}}</h5>
                                     </div>
                                 </div>
                                 <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
-                                    <vs-avatar class="mr-3" @click="somaPreviaValores()" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-calendar" size="30px" />
+                                    <vs-avatar class="mr-3" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-calendar" size="30px" />
                                     <div class="truncate">
                                         <h5 class="mt-3 font-bold">{{embarque.dataEmbarque | formatDate}}</h5>
                                     </div>
@@ -134,15 +134,50 @@
                     </b-card-body>
                 </b-collapse>
             </b-card>
-        </div>                
+        </div>
+        <!-- Agrupador de de categorias -->
+		<b-card no-body class="mb-1" v-for="(categoria, indexCat) in totalizadorCategorias" :key="indexCat">
+			<b-card-header header-tag="header" class="p-1" role="tab"  v-b-toggle="'categoria-'+categoria.id">
+				<span class="font-bold card-header-categorias">+ {{categoria.nome}}: {{getQuantidadeCat(categoria)}} </span>
+			</b-card-header>
+			<b-collapse :id="'categoria-'+categoria.id" :ref="'embarque-'+categoria.id">
+				<b-card-body style="padding: 5px;">
+					<table class="table-categorias">
+						<thead class="border-solid">
+							<th class="grade-tam-prod-title" v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
+								{{tamanho.codigo}}
+							</th>
+						</thead>
+						<tbody>
+							<tr>
+								<td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
+									{{tamanho.quantidade}}
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</b-card-body>
+			</b-collapse>
+		</b-card>
+		<b-card no-body class="mb-1">
+			<b-card-header header-tag="header" class="p-1" role="tab">
+				<span class="font-bold card-header-categorias">Total peças: {{this.getTotalPecas}}</span>
+			</b-card-header>
+		</b-card>
+		<b-card no-body class="mb-1">
+			<b-card-header header-tag="header" class="p-1" role="tab">
+				<span class="font-bold card-header-categorias">Total: {{this.getTotalValor() | moneyyGrupo}}</span>
+			</b-card-header>
+		</b-card>                
     </div>
 </template>
 <script>
-// import _ from "lodash";
+
 import Storage from "../../rapidsoft/utils/storage";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
 import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
+import CategoriaDB from "../../rapidsoft/db/categoriaDB";
 
 export default {
     name: 'carrinho-item',
@@ -171,8 +206,12 @@ export default {
         dataAtual: new Date().getTime(),
         itensSelecionados: [],
         produtosCarrinho: [],
+        totalizadorCategorias: [],
     }),
     watch: {
+        cliente() {
+            this.recalculaTotais();
+        }
     },
 	components: {
 	},
@@ -196,9 +235,31 @@ export default {
             return Object.values(this.embarques).filter((embarque) => {
                 return this.produtosCarrinho.some((produto) => produto.embarqueSelecionado === embarque.id);
             });
-        }
+        },
+        getTotalPecas() {
+			return this.produtosCarrinho.reduce((qtdeTotal, item) => qtdeTotal + item.quantidade, 0);
+		},
 	},
     methods: {
+        getTotalValor() {
+			return this.produtosCarrinho.reduce((qtdeTotal, item) => qtdeTotal + (item.quantidade * item.precoCusto), 0);
+		},
+		getTamanhosItens(categoria) {
+			return categoria.itens.reduce((tamanhosCategoria, item) => {
+				return tamanhosCategoria.concat(item.tamanhos.reduce((tamanhos, tamanho) => {
+					const indexTam = tamanhosCategoria.findIndex((tam) => tam.codigo == tamanho.codigo);
+					if (indexTam >= 0 ) tamanhosCategoria[indexTam].quantidade = tamanhosCategoria[indexTam].quantidade + tamanho.quantidade;
+					else tamanhos.push({codigo: tamanho.codigo, quantidade: tamanho.quantidade});
+					return tamanhos;
+				}, []));
+			}, []);
+		},
+		getQuantidadeCat(categoria) {
+			return categoria.itens.reduce((qtdeTotal, item) => qtdeTotal + this.getQtdeTamItem(item), 0);
+		},
+		getQtdeTamItem(item) {
+			return item.tamanhos.reduce((qtde, tamanho) => qtde + tamanho.quantidade, 0);
+		},
 		getTamanhosProduto(idProduto) {
             return this.lodash.orderBy(this.produtosCarrinho.find((produto) => produto.idProduto === idProduto).tamanhos, ['seq'], ['asc']);
         },
@@ -245,6 +306,7 @@ export default {
                 CarrinhoDB.setCarrinho(carrinho).then(() => {
                     if (carrinho.itens.length > 0) {
                         this.produtosCarrinho = this.getProdutosListNew(this.produtosCarrinho);
+                        this.recalculaTotais();
                         this.notification('Removido!', this.montaMensagem(this.itensSelecionados.length), 'primary');
                         this.itensSelecionados = [];
                         this.$forceUpdate();
@@ -285,7 +347,6 @@ export default {
                         if (produto.embarqueSelecionado == id) total = total + produto.quantidade;
                         return total;
                     }, 0);
-
                     this.embarques[id].totalBruto = this.produtosCarrinho.reduce((total, produto) => {
                         if (produto.embarqueSelecionado == id) total = total + ((produto.precoCusto + ((percentual/100) * produto.precoCusto)) * produto.quantidade);
                         return total;
@@ -305,13 +366,43 @@ export default {
         abrirPesquisaCliente() {
 			this.$bvModal.show("popup-cliente-search");
         },
+        buscaAgrupadorCategorias(carrinho) {
+			return new Promise((resolve) => {
+				const totCategorias = carrinho.reduce((categoriasCarrinho, item) => {
+					return categoriasCarrinho.concat(item.categorias.reduce((categorias, categoria) => {
+						if (!categoriasCarrinho.some((cat) => cat === categoria)) categorias.push(categoria)
+						return categorias;
+					}, []));
+				}, []).reduce((totCategorias, cat) => {
+					const categ = {id: cat};
+					categ.itens = carrinho.reduce((totaisCategoria, item) => {
+						if (item.categorias.some((categItem) => categItem === categ.id)) {
+							totaisCategoria.push({
+								idProduto: item.idProduto,
+								preco: item.precoCusto,
+								tamanhos: item.tamanhos.map((tamanho) => ({codigo: tamanho.codigo, quantidade: tamanho.quantidade}))
+							});
+						}
+						return totaisCategoria;
+					}, []);
+					totCategorias.push(categ)
+					return totCategorias;
+				}, []);
+				CategoriaDB.getArrayAgrupadoresCategorias(totCategorias).then((totalizadorCategorias) => {
+					this.totalizadorCategorias = totalizadorCategorias;
+					resolve();
+				});
+			});
+		},
 	},
 	beforeCreate() {		                
     },
 	created() {
         try {
-            this.produtosCarrinho = this.produtos;
-            this.recalculaTotais();
+            this.buscaAgrupadorCategorias(this.produtos).then(() => {
+                this.produtosCarrinho = this.produtos;
+                this.recalculaTotais();
+            });
         } catch (error) {
             console.log(error);
             alert(error);

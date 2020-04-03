@@ -35,7 +35,6 @@ class embarqueDB extends BasicDB {
         });
     }
 
-
     getEmbarqueProduto(produto) {
         return new Promise((resolve) => {
             const grupo = Storage.getGrupoCarrinho();
@@ -55,19 +54,11 @@ class embarqueDB extends BasicDB {
             const done = After(carrinho.length, () => resolve([...embarques.values()]));
             carrinho.forEach(produto => {
                 this._getById(produto.embarque).then((embarque) => {
-                    const calculaEmbarque = (idEmbarque) => {
-                        const embarque = embarques.get(idEmbarque);
-                        embarque.quantidade = (embarque.quantidade || 0 ) + produto.quantidade;
-                        embarque.valor = this.calcularPrecoCarrinho(produto);
-                        embarque.totalBruto = (embarque.totalBruto || 0 ) + Round((produto.quantidade * embarque.valor), 2);
-                        embarque.dataEmbarque = embarque.dataInicio;
-                        done();
-                    };
-                    if (embarques.has(produto.embarque)) calculaEmbarque(produto.embarque);
-                    else {
+                    if (!embarques.has(produto.embarque)) {
+                        embarque.value.dataEmbarque = embarque.value.dataInicio;
                         embarques.set(produto.embarque, embarque.value);
-                        calculaEmbarque(produto.embarque);
                     }
+                    done();
                 });
             });
         });
