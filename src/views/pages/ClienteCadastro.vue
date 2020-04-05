@@ -770,7 +770,7 @@ export default {
         deletarEndereco(index) {
             this.clienteEdit.enderecos.splice(index, 1);
             
-            this.atualizarEnderecoPrincipal(false);
+            this.desmarcarOutrosEnderecoPrincipal(false);
             
             if (this.$route.params.clienteId) {
                 const cliente = this.prepareSalvarCliente();
