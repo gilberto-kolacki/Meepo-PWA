@@ -16,38 +16,39 @@
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="isJuridico ? proximoCampo('razaoSocial') : proximoCampo('nomeCliente')">
                                 <label for="" class="vs-input--label">CPF/CNPJ*</label>
                                 <div class="vs-con-input">
-                                    <the-mask v-validate="'required|min:14'" @input="verificaCnpjClienteNovo(cpfCnpj)" id="cpfCnpj" name="cpfCnpj" v-model="cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
+                                    <the-mask v-validate="'required|min:14'" :disabled="this.$route.params.clienteId" @input="verificaCnpjClienteNovo(cpfCnpj)" id="cpfCnpj" name="cpfCnpj" v-model="cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
                                 </div>
                                 <span class="text-danger text-sm">{{ errors.first('cpfCnpj') }}</span>
                                 <span v-if="idExistente" class="text-danger text-sm">{{ isJuridico ? 'O CNPJ já existe na base de dados!' : 'O CPF já existe na base de dados!' }}</span>
                             </div>
                         </div>
                         <div v-if="isJuridico" class="vx-col sm:w-3/4 w-full mb-2" v-on:keyup.enter="proximoCampo('fantasia')">
-                            <vs-input v-validate="'required'" label="Razão Social*" @input="cnpjnulo(cpfCnpj,'razaoSocial')" id="razaoSocial" name="razaoSocial" v-model="clienteEdit.razaoSocial" class="w-full" />
+                            <vs-input v-validate="'required'" :disabled="this.clienteEdit.clienteErp" label="Razão Social*" @input="cnpjnulo(cpfCnpj,'razaoSocial')" id="razaoSocial" name="razaoSocial" v-model="clienteEdit.razaoSocial" class="w-full" />
                             <span class="text-danger text-sm">{{ errors.first('razaoSocial') }}</span>
                         </div>
                         <div v-else class="vx-col sm:w-3/4">
                             <div v-on:keyup.enter="proximoCampo('dataAniversario')">
-                                <vs-input v-validate="'required'" @input="cnpjnulo(cpfCnpj,'nome')" label="Nome*" id="nomeCliente" name="nomeCliente" v-model="clienteEdit.nome" class="w-full" />
+                                <vs-input v-validate="'required'" :disabled="this.clienteEdit.clienteErp" @input="cnpjnulo(cpfCnpj,'nome')" label="Nome*" id="nomeCliente" name="nomeCliente" v-model="clienteEdit.nome" class="w-full" />
                                 <span class="text-danger text-sm" v-if="errors.has('nomeCliente')">{{ errors.first('nomeCliente') }}</span>
                             </div>
                         </div>
                     </div>
                     <div class="vx-row" v-if="isJuridico">
                         <div class="vx-col w-full mb-2" v-on:keyup.enter="proximoCampo('dataFundacao')">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'nomeFantasia')" v-validate=" isJuridico ? 'required' : ''" label="Fantasia*" id="fantasia" name="fantasia" v-model="clienteEdit.nomeFantasia" class="w-full" />
+                            <vs-input @input="cnpjnulo(cpfCnpj,'nomeFantasia')" v-validate=" isJuridico ? 'required' : ''" :disabled="this.clienteEdit.clienteErp" label="Fantasia*" id="fantasia" name="fantasia" v-model="clienteEdit.nomeFantasia" class="w-full" />
                             <span class="text-danger text-sm">{{ errors.first('fantasia') }}</span>
                         </div>
                     </div>
                     <!-- ---- -->
                     <div class="vx-row">
-                        <div class="vx-col sm:w-1/4 w-full mb-2" v-on:keyup.enter="proximoCampo('enderecoTelefone')">
-                            <div v-if="isJuridico" class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="isJuridico ? proximoCampo('emailNfe') : proximoCampo('nomeCliente')">
+                        <div class="vx-col sm:w-1/4 w-full mb-2" v-on:keyup.enter="proximoCampo('emailNfe')">
+                            <div v-if="isJuridico" class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="" class="vs-input--label">Data Fundação*</label>
                                 <div class="vs-con-input">
-                                    <the-mask 
+                                    <the-mask
                                         @input="cnpjnulo(cpfCnpj,'dataFundacao')"
                                         v-validate="'required|min:8'" 
+                                        :disabled="this.clienteEdit.clienteErp"
                                         class="vs-inputx vs-input--input normal hasValue" 
                                         :mask="['##/##/####']" 
                                         :masked="true"
@@ -60,12 +61,13 @@
                                 </div>
                                 <span class="text-danger text-sm">{{ errors.first('cpfCnpj') }}</span>
                             </div>
-                            <div v-else class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="isJuridico ? proximoCampo('emailNfe') : proximoCampo('nomeCliente')">
+                            <div v-else class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="" class="vs-input--label">Data Aniversário*</label>
                                 <div class="vs-con-input">
                                     <the-mask
                                         @input="cnpjnulo(cpfCnpj,'dataAniversario')" 
-                                        v-validate="'required|min:8'" 
+                                        v-validate="'required|min:8'"
+                                        :disabled="this.clienteEdit.clienteErp"
                                         class="vs-inputx vs-input--input normal hasValue" 
                                         :mask="['##/##/####']" 
                                         :masked="true"
@@ -81,32 +83,36 @@
                         </div>
                         <div class="vx-col sm:w-1/4 w-full mb-2" v-if="isJuridico">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('emailNfe')">
-                                <vs-input @input="cnpjnulo(cpfCnpj)" v-validate="clienteEdit.clienteErp ? 'required':''" label="Inscrição Estadual*" id="inscricaoEstadual" name="inscricaoEstadual" v-model="clienteEdit.inscricaoEstadual" class="w-full" />
+                                <vs-input @input="cnpjnulo(cpfCnpj)" v-validate="clienteEdit.clienteErp ? 'required':''" :disabled="this.clienteEdit.clienteErp" label="Inscrição Estadual*" id="inscricaoEstadual" name="inscricaoEstadual" v-model="clienteEdit.inscricaoEstadual" class="w-full" />
                                 <span class="text-danger text-sm">{{ errors.first('inscricaoEstadual') }}</span>
                             </div>
                         </div>
-                        <div v-if="isJuridico" class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('cepEndereco')">
+                        <div v-if="isJuridico" class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('emailNfe')">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="" class="vs-input--label">Segmentos*</label>
                                 <v-select 
-                                    @input="cnpjnulo(cpfCnpj)"
+                                    id="segmento"
+                                    name="segmento"
+                                    :disabled="(this.clienteEdit.clienteErp) ? true : false"
+                                    :options="this.getSegmentosCheckBox"
                                     multiple
-                                    id="segmento" name="segmento" 
                                     v-model="segmentosCliente" 
-                                    :options="this.getSegmentosCheckBox">
+                                    @input="cnpjnulo(cpfCnpj)">
                                 </v-select>
                                 <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
                             </div>
                         </div>
-                        <div v-else class="vx-col sm:w-3/4 w-full mb-2" v-on:keyup.enter="proximoCampo('cepEndereco')">
+                        <div v-else class="vx-col sm:w-3/4 w-full mb-2" v-on:keyup.enter="proximoCampo('emailNfe')">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="" class="vs-input--label">Segmentos*</label>
                                 <v-select 
-                                    @input="cnpjnulo(cpfCnpj)"
+                                    id="segmento"
+                                    name="segmento"
+                                    :disabled="(this.clienteEdit.clienteErp) ? true : false"
+                                    :options="this.getSegmentosCheckBox"
                                     multiple
-                                    id="segmento" name="segmento" 
                                     v-model="segmentosCliente" 
-                                    :options="this.getSegmentosCheckBox">
+                                    @input="cnpjnulo(cpfCnpj)">
                                 </v-select>
                                 <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
                             </div>
@@ -115,14 +121,14 @@
                     <!-- ---- -->
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('enderecoTelefone')">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'emailNfe')" v-validate="'required|email'" label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="clienteEdit.emailNfe" class="w-full" type="email" />
+                            <vs-input @input="cnpjnulo(cpfCnpj,'emailNfe')" v-validate="'required|email'" :disabled="this.clienteEdit.clienteErp" label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="clienteEdit.emailNfe" class="w-full" type="email" />
                             <span class="text-danger text-sm">{{ errors.first('emailNfe') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('cepEndereco')">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="" class="vs-input--label">Telefone*</label>
                                 <div class="vs-con-input">
-                                    <the-mask @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required'" type="tel" id="enderecoTelefone" name="enderecoTelefone" v-model="clienteEdit.endereco.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
+                                    <the-mask @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required'" :disabled="this.clienteEdit.clienteErp" type="tel" id="enderecoTelefone" name="enderecoTelefone" v-model="clienteEdit.endereco.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
                                 </div>
                                 <span class="text-danger text-sm">{{ errors.first('enderecoTelefone') }}</span>
                             </div>
@@ -136,7 +142,8 @@
                                 <div class="vs-con-input">
                                     <the-mask
                                         @input="cnpjnulo(cpfCnpj)"
-                                        v-validate="'required'" 
+                                        v-validate="'required'"
+                                        :disabled="this.clienteEdit.clienteErp"
                                         id="cepEndereco" 
                                         name="cepEndereco" 
                                         v-model="clienteEdit.endereco.cep" 
@@ -149,35 +156,41 @@
                             </div>
                         </div>
                         <div class="vx-col sm:w-3/4 w-full mb-2" v-on:keyup.enter="proximoCampo('numeroEndereco')">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required'" label="Endereço*" id="endereco" name="endereco" v-model="clienteEdit.endereco.endereco" class="w-full"/>
+                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required'" :disabled="this.clienteEdit.clienteErp" label="Endereço*" id="endereco" name="endereco" v-model="clienteEdit.endereco.endereco" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('endereco') }}</span>
                         </div>
                     </div>
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/6 w-full mb-2" v-on:keyup.enter="proximoCampo('complemento')">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required|numeric'" label="Numero*" id="numeroEndereco" name="numeroEndereco" v-model="clienteEdit.endereco.numero" class="w-full"/>
+                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required|numeric'" :disabled="this.clienteEdit.clienteErp" label="Numero*" id="numeroEndereco" name="numeroEndereco" v-model="clienteEdit.endereco.numero" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('numeroEndereco') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('bairro')">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'regex:.'" label="Complemento" id="complemento" name="complemento" v-model="clienteEdit.endereco.complemento" class="w-full"/>
+                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'regex:.'" :disabled="this.clienteEdit.clienteErp" label="Complemento" id="complemento" name="complemento" v-model="clienteEdit.endereco.complemento" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('complemento') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2" v-on:keyup.enter="proximoCampo('cidade')">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required|alpha_spaces'" label="Bairro*" id="bairro" name="bairro" v-model="clienteEdit.endereco.bairro" class="w-full" />
+                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required|alpha_spaces'" :disabled="this.clienteEdit.clienteErp" label="Bairro*" id="bairro" name="bairro" v-model="clienteEdit.endereco.bairro" class="w-full" />
                             <span class="text-danger text-sm">{{ errors.first('bairro') }}</span>
                         </div>
                     </div>
                     <div class="vx-row">
                         <div class="vx-col sm:w-5/6 w-full mb-2" v-on:keyup.enter="proximoCampo('estado')">
                             <label for="" class="vs-input--label">Cidade*</label>
-                            <v-select @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required'" id="cidade" :clearable=false name="cidade" 
-                                v-model="clienteEdit.endereco.cidade" 
+                            <v-select
+                                id="cidade"
+                                name="cidade" 
+                                :disabled="(this.clienteEdit.clienteErp) ? true : false"
+                                :clearable=false
                                 :options="getCitySelect"
+                                v-model="clienteEdit.endereco.cidade" 
+                                v-validate="'required'"
+                                @input="cnpjnulo(cpfCnpj,'endereco'),consultaUf(clienteEdit.endereco.cidade.value)"
                             ></v-select>
                             <span class="text-danger text-sm">{{ errors.first('cidade') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/6 w-full mb-2">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco',clienteEdit.endereco.estado)" v-validate="'required|alpha_spaces'" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" class="w-full"/>
+                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco',clienteEdit.endereco.estado)" v-validate="'required|alpha_spaces'" :disabled="this.clienteEdit.clienteErp" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" class="w-full"/>
                             <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
                         </div>
                     </div>
@@ -193,13 +206,13 @@
                     <div class="vx-row">
                         <div class="vx-col w-full mb-2">
                             <label for="" class="vs-input--label">Referências Comerciais</label>
-                            <vs-textarea @input="cnpjnulo(cpfCnpj,'referenciaComercial')" id="referenciaComercial" name="referenciaComercial" v-model="clienteEdit.referenciaComercial"/>
+                            <vs-textarea @input="cnpjnulo(cpfCnpj,'referenciaComercial')" id="referenciaComercial" name="referenciaComercial" :disabled="this.clienteEdit.clienteErp" v-model="clienteEdit.referenciaComercial"/>
                         </div>
                     </div>
                     <div class="vx-row">
                         <div class="vx-col w-full mb-2">
                             <label for="" class="vs-input--label">Observações</label>
-                            <vs-textarea @input="cnpjnulo(cpfCnpj,'observacao')" v-model="clienteEdit.observacao"/>
+                            <vs-textarea @input="cnpjnulo(cpfCnpj,'observacao')" :disabled="this.clienteEdit.clienteErp" v-model="clienteEdit.observacao"/>
                         </div>
                     </div>
                     <div class="vx-row" v-if="!clienteEdit.clienteErp">
@@ -284,8 +297,7 @@
                     <vs-table max-items="5" :data="clienteEdit.contatos">
                         <template slot="header">
                             <div class="mb-base-button">
-                                <!-- <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarContato(null)" v-if="!clienteEdit.clienteErp">Novo</vs-button> -->
-                                <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarContato(null)">Novo</vs-button>
+                                <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="novoContato()">Novo</vs-button>
                             </div>
                         </template>
                         <template slot="thead">
@@ -319,7 +331,7 @@
                                             <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarContato(data[indextr], indextr)" />
                                         </div>
                                         <div class="p-1 mr-1">
-                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" v-if="!clienteEdit.clienteErp" @click="deletarMessage(data[indextr], indextr, 'contato')"/>
+                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" v-if="!data[indextr].contatoErp" @click="deletarMessage(data[indextr], indextr, 'contato')"/>
                                         </div>
                                     </div>
                                 </vs-td>
@@ -338,50 +350,55 @@
                                 <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('cadEndereco'), consultaCepEnd(enderecoEdit.cep)">
                                     <label for="cadCepEndereco" class="vs-input--label">CEP*</label>
                                     <div class="vs-con-input">
-                                        <the-mask v-validate="'required'" :disabled="!newEndereco && clienteEdit.clienteErp" id="cadCepEndereco" name="cadCepEndereco" v-model="enderecoEdit.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true"/>
+                                        <the-mask v-validate="'required'" :disabled="enderecoEdit.enderecoErp" id="cadCepEndereco" name="cadCepEndereco" v-model="enderecoEdit.cep" class="vs-inputx vs-input--input normal hasValue" :mask="['#####-###']" :masked="true"/>
                                     </div>
                                     <span class="text-danger text-sm">{{ errors.first('cadCepEndereco') }}</span>
                                 </div>
                             </div>
                             <div class="vx-col sm:w-3/4 w-full mb-2">
-                                <vs-input v-validate="'required'" :disabled="!newEndereco && clienteEdit.clienteErp" label="Endereço*" id="cadEndereco" name="cadEndereco" v-model="enderecoEdit.endereco" class="w-full" v-on:keyup.enter="proximoCampo('cadNumeroEndereco')"/>
+                                <vs-input v-validate="'required'" :disabled="enderecoEdit.enderecoErp" label="Endereço*" id="cadEndereco" name="cadEndereco" v-model="enderecoEdit.endereco" class="w-full" v-on:keyup.enter="proximoCampo('cadNumeroEndereco')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadEndereco') }}</span>
                             </div>
                         </div>
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/6 w-full mb-2">
-                                <vs-input v-validate="'required|numeric'" :disabled="!newEndereco && clienteEdit.clienteErp" label="Numero*" id="cadNumeroEndereco" name="cadNumeroEndereco" v-model="enderecoEdit.numero" class="w-full" v-on:keyup.enter="proximoCampo('cadComplemento')"/>
+                                <vs-input v-validate="'required|numeric'" :disabled="enderecoEdit.enderecoErp" label="Numero*" id="cadNumeroEndereco" name="cadNumeroEndereco" v-model="enderecoEdit.numero" class="w-full" v-on:keyup.enter="proximoCampo('cadComplemento')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadNumeroEndereco') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/2 w-full mb-2">
-                                <vs-input v-validate="'regex:.'" :disabled="!newEndereco && clienteEdit.clienteErp" label="Complemento" id="cadComplemento" name="cadComplemento" v-model="enderecoEdit.complemento" class="w-full" v-on:keyup.enter="proximoCampo('cadBairro')"/>
+                                <vs-input v-validate="'regex:.'" :disabled="enderecoEdit.enderecoErp" label="Complemento" id="cadComplemento" name="cadComplemento" v-model="enderecoEdit.complemento" class="w-full" v-on:keyup.enter="proximoCampo('cadBairro')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadComplemento') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/3 w-full mb-2">
-                                <vs-input :disabled="!newEndereco && clienteEdit.clienteErp" v-validate="'required|alpha_spaces'" label="Bairro*" id="cadBairro" name="cadBairro" v-model="enderecoEdit.bairro" class="w-full" v-on:keyup.enter="proximoCampo('cadEstado')"/>
+                                <vs-input :disabled="enderecoEdit.enderecoErp" v-validate="'required|alpha_spaces'" label="Bairro*" id="cadBairro" name="cadBairro" v-model="enderecoEdit.bairro" class="w-full" v-on:keyup.enter="proximoCampo('cadEstado')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadBairro') }}</span>
                             </div>
                         </div>
                         <div class="vx-row">
-                            <div class="vx-col sm:w-1/2 w-full mb-2">
+                            <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('cadEstado')">
                                 <label for="" class="vs-input--label">Cidade*</label>
-                                <v-select v-validate="'required'" id="cidade" name="cidade" 
-                                    :disabled="!newEndereco && clienteEdit.clienteErp"
-                                    v-model="cidadeEnderecoClienteSelecionado" 
-                                    v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')"
+                                <v-select
+                                    id="cidade"
+                                    name="cidade" 
+                                    :disabled="enderecoEdit.enderecoErp"
+                                    :clearable=false
                                     :options="getCitySelect"
-                                ></v-select>
+                                    :taggable=true
+                                    :push-tags=true
+                                    v-model="cidadeEnderecoCliente"
+                                    v-validate="'required'">
+                                </v-select>
                                 <span class="text-danger text-sm">{{ errors.first('cadCidade') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/6 w-full mb-2">
-                                <vs-input :disabled="!newEndereco && clienteEdit.clienteErp" v-validate="'required|alpha_spaces'" label="Estado*" id="cadEstado" name="cadEstado" v-model="enderecoEdit.estado" class="w-full" v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')"/>
+                                <vs-input :disabled="enderecoEdit.enderecoErp" v-validate="'required|alpha_spaces'" label="Estado*" id="cadEstado" name="cadEstado" v-model="enderecoEdit.estado" class="w-full" v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')"/>
                                 <span class="text-danger text-sm">{{ errors.first('cadEstado') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/3 w-full mb-2">
                                 <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                     <label for="cadEnderecoTelefone" class="vs-input--label">Telefone*</label>
                                     <div class="vs-con-input">
-                                        <the-mask :disabled="!newEndereco && clienteEdit.clienteErp" v-validate="'required'" type="tel" id="cadEnderecoTelefone" name="cadEnderecoTelefone" v-model="enderecoEdit.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
+                                        <the-mask :disabled="enderecoEdit.enderecoErp" v-validate="'required'" type="tel" id="cadEnderecoTelefone" name="cadEnderecoTelefone" v-model="enderecoEdit.telefone" class="vs-inputx vs-input--input normal hasValue" :mask="['(##) ####-####', '(##) #####-####']" :masked="true"/>
                                     </div>
                                     <span class="text-danger text-sm">{{ errors.first('cadEnderecoTelefone') }}</span>
                                 </div>
@@ -392,8 +409,8 @@
                         </div>
                         <div class="vx-row">
                             <div class="vx-col my-5-top w-full">
-                                <vs-button color="success" class="mr-3 mb-2 pull-right" @click="salvarEndereco(enderecoEdit.principal, newEndereco)">Salvar</vs-button>
-                                <vs-button color="danger" type="border" class="mr-2 mb-2 pull-right" @click="cancelarEndereco(enderecoEdit)">Voltar</vs-button>
+                                <vs-button color="success" class="mr-3 mb-2 pull-right" @click="salvarEndereco">Salvar</vs-button>
+                                <vs-button color="danger" type="border" class="mr-2 mb-2 pull-right" @click="cancelarEndereco">Voltar</vs-button>
                             </div>
                         </div>
                     </div>
@@ -402,8 +419,7 @@
                     <vs-table max-items="5" :data="clienteEdit.enderecos">
                         <template slot="header">
                             <div class="mb-base-button">
-                                <!-- <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarEndereco(null)" v-if="!clienteEdit.clienteErp">Novo</vs-button> -->
-                                <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="editarEndereco(null,null,true)">Novo</vs-button>
+                                <vs-button type="filled" icon-pack="feather" icon="icon-plus" @click="novoEndereco()">Novo</vs-button>
                             </div>
                         </template>
                         <template slot="thead">
@@ -434,10 +450,10 @@
                                 <vs-td>
                                     <div class="flex">
                                         <div class="p-1">
-                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarEndereco(data[indextr], indextr, false)" />
+                                            <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarEndereco(data[indextr], indextr)" />
                                         </div>
                                         <div class="p-1">
-                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" v-if="!clienteEdit.clienteErp" @click="deletarMessage(data[indextr], indextr, 'endereco')"/>
+                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" v-if="!data[indextr].enderecoErp" @click="deletarMessage(data[indextr], indextr, 'endereco')"/>
                                         </div>
                                     </div>
                                 </vs-td>
@@ -465,6 +481,7 @@ import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
 import ErrorDB from '../../rapidsoft/db/errorDB';
 import SegmentoDB from '../../rapidsoft/db/segmentoDB';
 import ReferenciaComercialDB from "../../rapidsoft/db/referenciaComercialDB";
+import moment from 'moment';
 
 Validator.localize('pt', validatePtBR);
 
@@ -499,8 +516,7 @@ export default {
             cidadeCliente:null,
             indexEditEndereco: null,
             indexEditContato: null,
-            newEndereco: false,
-            cidadeEnderecoClienteSelecionado: null,
+            cidadeEnderecoCliente: null,
             idExistente: false,
             referenciasSelecionadas: []
         }
@@ -529,7 +545,7 @@ export default {
             this.clienteEdit.grupoCliente = val.value;
         },
         cidadeEnderecoCliente(val) {
-            this.enderecoEdit.cidade = val.value;
+            this.enderecoEdit.cidade = val.label;
         },
         cepCobranca(val) {
             this.clienteEdit.endereco.cep = val;
@@ -570,36 +586,21 @@ export default {
     methods: {
         cnpjnulo(cpfCnpj, key = null, uf = null) {
             const cliente = {cep: null,telefone: null, estado:null,bairro:null,complemento:null,numero:null,endereco:null};
-            if (cpfCnpj || cpfCnpj.length == 0) {
+            if (cpfCnpj && cpfCnpj.length == 0) {
                 this.clienteEdit[key] = _.isObject(this.clienteEdit[key]) ? cliente : null;
                 this.proximoCampo('cpfCnpj');
             } else {
-                if (uf.length > 1) {
+                if (uf && uf.length > 1) {
                     this.getGroupClient(uf);
                 }
             }
         },
-        getDateFromStringDate(inputFormat) {
-            function pad(valueDate) {
-                return valueDate < 10 ? "0" + valueDate : valueDate;
-            }
-            var date = inputFormat;
-            return [
-                pad(date.getDate()),
-                pad(date.getMonth() + 1),
-                date.getFullYear()
-            ].join("/");
-        },
         verificaCnpjClienteNovo(id) {
-            if (id) {
+            if (id && !this.$route.params.clienteId) {
                 id = id.replace(/[^a-z0-9]/gi, "");
+                
                 ClienteDB._getById(id).then((cliente) => {
                     this.idExistente = cliente.existe;
-                    // !this.idExistente ? 
-                    //     this.isJuridico ? 
-                    //         this.proximoCampo('razaoSocial') 
-                    //     : this.proximoCampo('nomeCliente') 
-                    // : this.proximoCampo('cpfCnpj')
                 });
             } else {
                 this.proximoCampo('cpfCnpj');
@@ -614,7 +615,7 @@ export default {
                 accept:itemExcluir === 'contato' ? this.deletarContato : this.deletarEndereco,
                 acceptText: 'Continuar',
                 cancelText: 'Cancelar',
-                parameters: data,index
+                parameters: index
             })
         },
         getGroupClient(uf){
@@ -630,13 +631,14 @@ export default {
                 }
             });
         },
-        notificacaoEndereco(titulo,mensagem,cor) {
+        notificacao(titulo,mensagem,cor) {
             this.$vs.notify({
                 title: titulo,
                 text: mensagem,
                 color: cor,
                 iconPack: 'feather',
-                icon: 'icon-alert-circle'
+                icon: 'icon-alert-circle',
+                position:'top-right'
             });
         },
         scrollMeTo(refName) {
@@ -645,7 +647,7 @@ export default {
             window.scrollTo(0, top);
         },
         proximoCampo(refName) {                  
-            document.getElementById(refName).focus();      
+            document.getElementById(refName).focus();
         },
         toBase64(file, callback) {
             const reader = new FileReader();
@@ -679,255 +681,54 @@ export default {
                 }
             }
         },
-        editarContato(contato, index) {
+        novoContato() {
             this.isEditContato = true;
-            if (contato === null) {
-                this.contatoEdit = {};
-            } else {
-                this.contatoEdit = contato;
-                this.indexEditContato = index;
-            }
+            
+            this.contatoEdit = {};
+            
             setTimeout(() => {
                 this.proximoCampo('nomeContato');
             }, 100);
         },
-        editarEndereco(endereco, index, newEndereco) {
-            if (endereco) {
-                const idCidade = endereco.idCidade > 0 ? endereco.idCidade : endereco.id;
-                this.cidadeEnderecoClienteSelecionado = this.getCitySelect.find((cidade) => cidade.value == idCidade); 
-            }
-
-            this.newEndereco = newEndereco;
-            this.enderecoTemporaria = {ObjEnd: this.clienteEdit.enderecos, index};
-            this.isEditEndereco = true;
-            if (endereco === null) {
-                this.enderecoEdit = {};
-            } else {
-                this.enderecoEdit = endereco;
-                this.indexEditEndereco = index;
-            }
+        editarContato(contato, index) {
+            this.isEditContato = true;
+            
+            this.contatoEdit = contato;
+            this.indexEditContato = index;
+            
             setTimeout(() => {
-                this.proximoCampo('cadCepEndereco');
+                this.proximoCampo('nomeContato');
             }, 100);
         },
-        desabilitaEnderecoEntrega(){
-            if (this.clienteEdit.clienteErp) {
-                ClienteDB.atualizaEnderecoEntrega(this.clienteEdit).then(() => {
-                    this.notificacaoEndereco(
-                        'Removido',
-                        'Endereço de Entrega Desabilitado com Sucesso',
-                        'danger'
-                    );
-                    this.indexEditEndereco = null;
-                    this.isEditEndereco = false;
-                });
-            }
-        },
-        habilitaEnderecoEntrega(principal) {
-            this.clienteEdit.enderecos.map((endereco,index) => {
-                if (index !== this.indexEditEndereco) {
-                    endereco.principal = false;
-                } else if (index === this.indexEditEndereco) {
-                    endereco.principal = principal
-                }
-            });
-            if (this.clienteEdit.clienteErp) {
-                ClienteDB.atualizaEnderecoEntrega(this.clienteEdit).then(() => {
-                    this.notificacaoEndereco(
-                        'Cadastrado',
-                        'Endereço de Entrega Cadastrado com Sucesso!',
-                        'danger'
-                    );
-                    this.indexEditEndereco = null;
-                    this.isEditEndereco = false;
-                });
-            }
-        },
-        updateEnderecoEntrega(principal) {
-            if (principal) {
-                this.habilitaEnderecoEntrega(principal);
-            } else {
-                this.desabilitaEnderecoEntrega();
-            }
-        },
-        validaNovoEnderecoPrincipal(resultEndereco) {
-            if (this.indexEditEndereco !== null) {
-                this.clienteEdit.enderecos.splice(this.indexEditEndereco, 1);
-            }
-            if (resultEndereco.principal) {
-                this.clienteEdit.enderecos.map((endereco) => {
-                    endereco.principal = false;
-                });
-            }
-            this.clienteEdit.enderecos.push(_.clone(resultEndereco));
-            this.isEditEndereco = false;
-        },
-        gravaEnderecoClienteErp() {
-            ClienteDB.adicionarEnderecoSincronizado(this.enderecoEdit,this.clienteEdit._id).then(() => {
-                this.indexEditEndereco = null;
-                this.isEditEndereco = false;
-                this.notificacaoEndereco(
-                    'Cadastrado!',
-                    'Endereço Cadastrado com Sucesso!',
-                    'success'
-                );
-            });
-        },
-        setCidadeSelecionadaEndEntrega() {
-            this.enderecoEdit.idCidade = this.cidadeEnderecoClienteSelecionado.value;
-            this.enderecoEdit.cidade = this.cidadeEnderecoClienteSelecionado.label;
-        },
-        setNewEnderecoCliente() {
-            this.setCidadeSelecionadaEndEntrega();
-            ClienteDB.validarEndereco(_.cloneDeep(this.enderecoEdit)).then((result) => {
-                this.validaNovoEnderecoPrincipal(result);
-                if (this.clienteEdit.clienteErp) {
-                    this.gravaEnderecoClienteErp();
-                }
-            }).catch((erro) => {
-                this.$validator.validate();
-                if (erro.campo) {
-                    this.notificacaoEndereco('Erro!',erro.mensagem,'danger');
-                }
-            });
-        },
-        salvarEndereco(principal = null, newEndereco = null) {
-            if (this.clienteEdit.clienteErp && !newEndereco) {
-                this.updateEnderecoEntrega(principal);
-            } else {
-                this.setNewEnderecoCliente();
-            }
-        },
-        cancelarEndereco() {
-            this.indexEditEndereco = null;
-            this.isEditEndereco = false;
-        },
-        deletarContato(data, index) {
+        deletarContato(index) {
             this.clienteEdit.contatos.splice(index, 1);
-            this.notificacaoEndereco(
-                'Removido',
-                'O contato foi removido',
-                'success'
-            );
-        },
-        deletarEndereco(data, index) {
-            this.clienteEdit.enderecos.splice(index, 1);
-            this.notificacaoEndereco(
-                'Removido',
-                'O endereço foi removido',
-                'success'
-            );
-        },
-        cancelarContato() {
-            this.indexEditContato = null;
-            this.isEditContato = false;
-        },
-        erroPermissaoCidade() {
-            this.$vs.notify({
-                title: 'Erro!',
-                text: 'Cidade não liberada para cadastrar clientes',
-                color: 'danger',
-                iconPack: 'feather',
-                icon: 'icon-alert-circle',
-                position:'top-right'
-            })
-        },
-        consultaCepEnd(cep) {
-            const endereco = {}
-            endereco.cep = cep;
-            endereco.endereco = null;
-            endereco.bairro = null;
-            endereco.cidade = null;
-            endereco.estado = null;
-            if (navigator.onLine && cep.length === 9) {
-                this.$vs.loading();
-                CidadeService.buscaEndereco(this.enderecoEdit.cep).then((endereco) =>{
-                    if (endereco) {
-                        CidadeDB.buscaCidade(endereco.id).then((cidade) => {
-                            if (cidade.existe) {
-                                endereco.cep = cep;
-                                endereco.endereco = endereco.e;
-                                endereco.bairro = endereco.b;
-                                this.cidadeEnderecoClienteSelecionado = {label: cidade.result.nome, value: cidade.result.idCidade};
-                                endereco.cidade = cidade.result.nome;
-                                endereco.idCidade = cidade.result.idCidade;
-                                endereco.estado = cidade.result.uf;
-                            } else {
-                                this.erroPermissaoCidade()
-                            }
-                                this.$set(this.enderecoEdit, 'endereco', endereco.endereco)
-                                this.$set(this.enderecoEdit, 'bairro', endereco.bairro)
-                                this.$set(this.enderecoEdit, 'cidade', endereco.cidade)
-                                this.$set(this.enderecoEdit, 'estado', endereco.estado)
-                        })
-                    } else {
-                        this.notificacaoEndereco(
-                            'Atenção!',
-                            'Nenhum endereço foi localizado para esse cep!',
-                            'warning'
-                        );
-                        this.$vs.loading.close();
-                    }
-                    this.$vs.loading.close();
+            
+            if (this.$route.params.clienteId) {
+                const cliente = this.prepareSalvarCliente();
+                ClienteDB.salvar(cliente).then((result) => {
+                    this.prepareClienteEdit(result);
+                    this.notificacao('Removido','O contato foi removido','success');
                 });
-            } else {
-                this.$set(this.enderecoEdit, 'endereco', endereco.endereco);
             }
-        },
-        consultaCep(cep) {
-            const telefone = this.clienteEdit.endereco.telefone
-            const endereco = {}
-            endereco.cep = cep;
-            endereco.endereco = null;
-            endereco.bairro = null;
-            endereco.cidade = null;
-            endereco.estado = null;
-            if (navigator.onLine && cep.length === 9) {
-                this.$vs.loading();
-                CidadeService.buscaEndereco(this.clienteEdit.endereco.cep).then((endereco) =>{
-                    if (endereco) {
-                        CidadeDB.buscaCidade(endereco.id).then((cidade) => {
-                            if (cidade.existe && cidade.result.rel === 1) {
-                                endereco.telefone = telefone
-                                endereco.cep = cep;
-                                endereco.endereco = endereco.e;
-                                endereco.bairro = endereco.b;
-                                endereco.cidade = {label: cidade.result.nome, value: cidade.result.idCidade };
-                                endereco.estado = cidade.result.uf;
-                                this.getGroupClient(endereco.estado);
-                            } else {
-                                this.erroPermissaoCidade()
-                            }
-                                this.$set(this.clienteEdit, 'endereco', endereco);
-                        })
-                    } else {
-                        this.notificacaoEndereco(
-                            'Atenção!',
-                            'Nenhum endereço foi localizado para esse cep!',
-                            'warning'
-                        );
-                    }
-                    this.$vs.loading.close();
-                })
-            } else {
-                this.$set(this.clienteEdit, 'endereco', endereco);
-            }
-        },
-        adicionaContatoCliente() {
-            this.clienteEdit.contatos = ClienteDB.removeContatoAntigo(this.clienteEdit.contatos,this.contatoEdit,this.indexEditContato);
-            this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
         },
         salvarContato() {          
             ClienteDB.validarContato(this.contatoEdit).then(() => {
-                this.contatoEdit.id = this.contatoEdit.id ? this.contatoEdit.id : 0;
-                if (this.clienteEdit.clienteErp) {
-                    ClienteDB.adicionarContatoSincronizado(this.contatoEdit,this.clienteEdit._id,this.indexEditContato).then((contatos) => {
-                        this.clienteEdit.contatos = contatos;
-                    });
-                } else {
-                    this.adicionaContatoCliente();
+                if (this.indexEditContato !== null) {
+                    this.clienteEdit.contatos.splice(this.indexEditContato, 1);
                 }
+                this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
+                
+                if (this.$route.params.clienteId) {
+                    const cliente = this.prepareSalvarCliente();
+                    ClienteDB.salvar(cliente).then((result) => {
+                        this.prepareClienteEdit(result);
+                        this.notificacao('Salvo','O contato foi salvo','success');
+                    })
+                }
+                
+                this.indexEditContato = null;
                 this.isEditContato = false;
+
             }).catch((erro) => {
                 this.$validator.validate();       
                 if (erro.campo) {
@@ -942,38 +743,185 @@ export default {
                 });
             });
         },
+        cancelarContato() {
+            this.indexEditContato = null;
+            this.isEditContato = false;
+        },
+        novoEndereco() {
+            this.isEditEndereco = true;
+            
+            this.enderecoEdit = {};
+            
+            setTimeout(() => {
+                this.proximoCampo('cadCepEndereco');
+            }, 100);
+        },
+        editarEndereco(endereco, index) {
+            this.isEditEndereco = true;
+            
+            this.enderecoEdit = endereco;
+            this.indexEditEndereco = index;
+            this.cidadeEnderecoCliente = {label: this.enderecoEdit.cidade, value: this.enderecoEdit.idCidade};
+
+            setTimeout(() => {
+                this.proximoCampo('cadCepEndereco');
+            }, 100);
+        },
+        deletarEndereco(index) {
+            this.clienteEdit.enderecos.splice(index, 1);
+            
+            this.atualizarEnderecoPrincipal(false);
+            
+            if (this.$route.params.clienteId) {
+                const cliente = this.prepareSalvarCliente();
+                
+                ClienteDB.salvar(cliente).then((result) => {
+                    this.prepareClienteEdit(result);
+                    this.notificacao('Removido','O endereço foi removido','success');
+                });
+            }
+        },
+        salvarEndereco() {
+            if (this.enderecoEdit.principal) this.desmarcarOutrosEnderecoPrincipal();
+            
+            if (this.indexEditEndereco !== null) {
+                this.clienteEdit.enderecos.splice(this.indexEditEndereco, 1);
+            }
+            this.clienteEdit.enderecos.push(_.clone(this.enderecoEdit));
+            
+            if (this.$route.params.clienteId) {
+                const cliente = this.prepareSalvarCliente();
+                ClienteDB.salvar(cliente).then((result) => {
+                    this.prepareClienteEdit(result);
+                    this.notificacao('Salvo','O endereço foi salvo','success');
+                });
+            }
+            
+            this.indexEditEndereco = null;
+            this.isEditEndereco = false;
+        },
+        desmarcarOutrosEnderecoPrincipal() {
+            this.clienteEdit.enderecos.map((endereco,index) => {
+                if (index !== this.indexEditEndereco) {
+                    endereco.principal = false;
+                    return endereco;
+                }
+            });
+        },
+        cancelarEndereco() {
+            this.indexEditEndereco = null;
+            this.isEditEndereco = false;
+        },
+        erroPermissaoCidade() {
+            this.$vs.notify({
+                title: 'Erro!',
+                text: 'Cidade não liberada para cadastrar clientes',
+                color: 'danger',
+                iconPack: 'feather',
+                icon: 'icon-alert-circle',
+                position:'top-right'
+            })
+        },
+        consultaCepEnd(cep) {
+            const endereco = {};
+            endereco.cep = cep;
+            if (navigator.onLine && cep.length === 9) {
+                this.$vs.loading();
+                CidadeService.buscaEndereco(this.enderecoEdit.cep).then((enderecoCep) =>{
+                    if (enderecoCep) {
+                        CidadeDB.buscaCidade(enderecoCep.id).then((cidade) => {
+                            endereco.cep = cep;
+                            endereco.endereco = enderecoCep.e;
+                            endereco.bairro = enderecoCep.b;
+                            this.cidadeEnderecoCliente = {label: cidade.result.nome, value: cidade.result.idCidade};
+                            endereco.cidade = cidade.result.nome;
+                            endereco.idCidade = cidade.result.idCidade;
+                            endereco.estado = cidade.result.uf;
+                            this.proximoCampo('cadNumeroEndereco');
+                            
+                            this.$set(this.enderecoEdit, 'endereco', endereco.endereco)
+                            this.$set(this.enderecoEdit, 'bairro', endereco.bairro)
+                            this.$set(this.enderecoEdit, 'cidade', endereco.cidade)
+                            this.$set(this.enderecoEdit, 'estado', endereco.estado)
+                        })
+                    } else {
+                        this.$vs.loading.close();
+                        this.notificacao('Atenção!','Nenhum endereço foi localizado para esse cep!','warning');
+                        this.proximoCampo('cadEndereco');
+                    }
+                    this.$vs.loading.close();
+                });
+            } else {
+                this.$set(this.enderecoEdit, 'endereco', endereco.endereco);
+            }
+        },
+        consultaCep(cep) {
+            const endereco = {};
+            endereco.cep = cep;
+            endereco.endereco = null;
+            endereco.bairro = null;
+            endereco.cidade = null;
+            endereco.estado = null;
+            endereco.telefone = this.clienteEdit.endereco.telefone;
+            if (navigator.onLine && cep && cep.length === 9) {
+                this.$vs.loading();
+                CidadeService.buscaEndereco(this.clienteEdit.endereco.cep).then((enderecoCep) =>{
+                    if (enderecoCep) {
+                        CidadeDB.buscaCidade(enderecoCep.id).then((cidade) => {
+                            if (cidade.existe && cidade.result.rel === 1) {
+                                endereco.cep = cep;
+                                endereco.endereco = enderecoCep.e;
+                                endereco.bairro = enderecoCep.b;
+                                endereco.cidade = {label: cidade.result.nome, value: cidade.result.idCidade };
+                                endereco.estado = cidade.result.uf;
+                                this.getGroupClient(endereco.estado);
+                                this.proximoCampo('numeroEndereco');
+                            } else {
+                                this.erroPermissaoCidade()
+                                this.proximoCampo('cepEndereco');
+                            }
+
+                            this.$set(this.clienteEdit, 'endereco', endereco);
+                        })
+                    } else {
+                        this.$vs.loading.close();
+                        this.notificacao('Atenção!','Nenhum endereço foi localizado para esse cep!','warning');
+                        this.proximoCampo('cepEndereco');
+                    }
+                    this.$vs.loading.close();
+                })
+            } else {
+                this.$set(this.clienteEdit, 'endereco', endereco);
+            }
+        },
+        consultaUf(idCidade) {
+            if (idCidade) {
+                CidadeDB.buscaCidade(idCidade).then((cidade) => {
+                    if (cidade.existe && cidade.result.rel === 1) {
+                        this.clienteEdit.endereco.estado = cidade.result.uf;
+                        this.getGroupClient(this.clienteEdit.endereco.estado);
+                    }
+                    this.$forceUpdate();
+                })
+            }
+        },
         getReferencias() {
             const ref = this.listReferenciasComerciais.filter((refComercial) => refComercial.refSelecionada == true);
             const listReferencias = ref.map((referencia) => {
                 return referencia['nome'];
             });
-            // referenciaComercial
             return _.join(listReferencias,', ');
             
         },
         salvarCliente() {
             this.$vs.loading();
-            const cliente = _.cloneDeep(this.clienteEdit);
-            if (cliente.dataFundacao !== undefined) {
-                const dataFormat = _.split(cliente.dataFundacao, '/');
-                cliente.dataFundacao = new Date(dataFormat[2], dataFormat[1]-1, dataFormat[0]);
-                cliente.dataFundacao = cliente.dataFundacao.getTime();
-            }
-            if (cliente.dataAniversario !== undefined) {
-                const dataFormat = _.split(cliente.dataAniversario, '/');
-                cliente.dataAniversario = new Date(dataFormat[2], dataFormat[1]-1, dataFormat[0]);
-                cliente.dataAniversario = cliente.dataAniversario.getTime();
-            }
-            cliente.endereco.cidade = cliente.endereco.cidade ? cliente.endereco.cidade.label : null;
-            if (_.findIndex(this.segmentosCliente, {'value':3333}) >= 0) {
-                cliente.segmentos = ['3','5'];
-            }
-            cliente.referenciaComercial = cliente.referenciaComercial 
-                ? cliente.referenciaComercial  + ' - ' + this.getReferencias() 
-                    : this.getReferencias();
+            
+            const cliente = this.prepareSalvarCliente();
             
             setTimeout(() => {
                 ClienteDB.salvar(cliente).then((clienteSalvo) => {
+                    this.prepareClienteEdit(clienteSalvo);
+
                     this.$vs.notify({
                         title: 'Sucesso',
                         text: 'Cliente Salvo!',
@@ -1006,6 +954,24 @@ export default {
             }, 300);
             this.$vs.loading.close();
         },
+        prepareSalvarCliente() {
+            const cliente = _.cloneDeep(this.clienteEdit);
+            cliente.id = cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
+            cliente.endereco.cep = cliente.endereco.cep.replace(/[^a-z0-9]/gi, "");
+            cliente.nome = (cliente.nome == null) ? cliente.nomeFantasia : cliente.nome;
+            cliente.dataFundacao = (cliente.dataFundacao) ? moment(cliente.dataFundacao, ["DD/MM/YYYY"]).toDate().getTime() : undefined;
+            cliente.dataAniversario = (cliente.dataAniversario) ? moment(cliente.dataAniversario, ["DD/MM/YYYY"]).toDate().getTime() : undefined;
+            cliente.endereco.cidade = cliente.endereco.cidade ? cliente.endereco.cidade.label : null;
+            
+            if (_.findIndex(this.segmentosCliente, {'value':3333}) >= 0) {
+                cliente.segmentos = ['3','5'];
+            }
+            cliente.referenciaComercial = cliente.referenciaComercial 
+                ? cliente.referenciaComercial  + ' - ' + this.getReferencias() 
+                    : this.getReferencias();
+            
+            return cliente;
+        },
         cancelarCliente() {
             if (this.$route.params.carrinhoCliente) {
                 this.$router.push({ name: 'carrinhoPedido',
@@ -1019,27 +985,28 @@ export default {
         findById(idCliente) {
             return new Promise((resolve) => {
                 ClienteDB.findById(idCliente).then((cliente) => {
-                    cliente.grupoCliente = cliente.grupoCliente ? cliente.grupoCliente : 33;
-                    this.grupoCliente = this.getGrupoClientesSelect.find((grupo) => grupo.value === cliente.grupoCliente );
-                    this.grupoCliente = this.grupoCliente ? this.grupoCliente : {value:33,label:'PADRÃO',padrao:true}; 
-                    if (cliente.segmentos && cliente.segmentos.length > 0) {
-                        this.segmentosCliente = cliente.segmentos.map((segmentoCliente) => {
-                            return this.getSegmentosCheckBox.find((segmento) => segmentoCliente.toString() == segmento.value.toString());
-                        });
-                    }
-                    cliente.dataFundacao = this.getDateFromStringDate(cliente.dataFundacao);
-                    cliente.dataAniversario = this.getDateFromStringDate(cliente.dataAniversario);
-                    cliente.endereco.cidade = {value:cliente.endereco.idCidade, label:cliente.endereco.cidade};
-                    this.clienteEdit = cliente;
-                    this.cpfCnpj = cliente.cpfCnpj;
+                    this.prepareClienteEdit(cliente);
+
                     resolve();
                 });
             });
         },
+        prepareClienteEdit(cliente) {
+            cliente.grupoCliente = cliente.grupoCliente ? cliente.grupoCliente : 33;
+            this.grupoCliente = this.getGrupoClientesSelect.find((grupo) => grupo.value === cliente.grupoCliente );
+            this.grupoCliente = this.grupoCliente ? this.grupoCliente : {value:33,label:'PADRÃO',padrao:true};
+            this.cpfCnpj = cliente.cpfCnpj;
+            if (cliente.segmentos && cliente.segmentos.length > 0) {
+                this.segmentosCliente = cliente.segmentos.map((segmentoCliente) => {
+                    return this.getSegmentosCheckBox.find((segmento) => segmentoCliente.toString() == segmento.value.toString());
+                });
+            }
+            cliente.dataFundacao = (cliente.dataFundacao) ? moment(new Date(Number(cliente.dataFundacao))).format('DD/MM/YYYY') : undefined;
+            cliente.dataAniversario = (cliente.dataAniversario) ? moment(new Date(Number(cliente.dataAniversario))).format('DD/MM/YYYY') : undefined;
+            cliente.endereco.cidade = {value:cliente.endereco.idCidade, label:cliente.endereco.cidade};
+            this.clienteEdit = cliente;
+        },
         listaCidades(callback) {
-            setTimeout(() => {
-                this.$vs.loading();
-            }, 100);
             CidadeDB.getCidadesRelacionadas().then((cidades) => {
                 this.listCidades = cidades;
                 callback();
@@ -1070,7 +1037,6 @@ export default {
                 this.buscaGrupos(() => {
                     this.buscaSegmentos(() => {
                         this.listaCidades(() => {
-                            this.$vs.loading.close();
                             this.listaReferenciasComerciais(() => {
                                 if (this.$route.params.clienteId) {
                                     this.findById(this.$route.params.clienteId).then(() => {
@@ -1099,7 +1065,7 @@ export default {
         },        
     },
     async mounted() {
-        await this.carregaItensTela()
+        await this.carregaItensTela();
     },
     errorCaptured(err, vm, info) {
         ErrorDB._criarLog({err, vm, info});
