@@ -908,31 +908,6 @@ export default {
             this.clienteEdit.contatos = ClienteDB.removeContatoAntigo(this.clienteEdit.contatos,this.contatoEdit,this.indexEditContato);
             this.clienteEdit.contatos.push(this.lodash.clone(this.contatoEdit));
         },
-        salvarContato() {          
-            ClienteDB.validarContato(this.contatoEdit).then(() => {
-                this.contatoEdit.id = this.contatoEdit.id ? this.contatoEdit.id : 0;
-                if (this.clienteEdit.clienteErp) {
-                    ClienteDB.adicionarContatoSincronizado(this.contatoEdit,this.clienteEdit._id,this.indexEditContato).then((contatos) => {
-                        this.clienteEdit.contatos = contatos;
-                    });
-                } else {
-                    this.adicionaContatoCliente();
-                }
-                this.isEditContato = false;
-            }).catch((erro) => {
-                this.$validator.validate();       
-                if (erro.campo) {
-                    this.proximoCampo(erro.campo);
-                }
-                this.$vs.notify({
-                    title: 'Erro!',
-                    text: erro.mensagem,
-                    color: 'danger',
-                    iconPack: 'feather',
-                    icon: 'icon-alert-circle'
-                });
-            });
-        },
         getReferencias() {
             const ref = this.listReferenciasComerciais.filter((refComercial) => refComercial.refSelecionada == true);
             const listReferencias = ref.map((referencia) => {
