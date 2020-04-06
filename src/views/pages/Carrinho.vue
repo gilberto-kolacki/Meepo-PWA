@@ -16,41 +16,6 @@
 					:produtos="getProdutosSegmento(segmento)"/>
 			</b-tab>
 		</b-tabs>
-
-		<!-- Agrupador de de categorias -->
-		<!-- <b-card no-body class="mb-1" v-for="(categoria, indexCat) in totalizadorCategorias" :key="indexCat">
-			<b-card-header header-tag="header" class="p-1" role="tab"  v-b-toggle="'categoria-'+categoria.id">
-				<span class="font-bold card-header-categorias">+ {{categoria.nome}}: {{getQuantidadeCat(categoria)}} </span>
-			</b-card-header>
-			<b-collapse :id="'categoria-'+categoria.id" :ref="'embarque-'+categoria.id">
-				<b-card-body style="padding: 5px;">
-					<table class="table-categorias">
-						<thead class="border-solid">
-							<th class="grade-tam-prod-title" v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
-								{{tamanho.codigo}}
-							</th>
-						</thead>
-						<tbody>
-							<tr>
-								<td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
-									{{tamanho.quantidade}}
-								</td>
-							</tr>
-						</tbody>
-					</table>
-				</b-card-body>
-			</b-collapse>
-		</b-card>
-		<b-card no-body class="mb-1">
-			<b-card-header header-tag="header" class="p-1" role="tab">
-				<span class="font-bold card-header-categorias">Total peças: {{this.getTotalPecas}}</span>
-			</b-card-header>
-		</b-card>
-		<b-card no-body class="mb-1">
-			<b-card-header header-tag="header" class="p-1" role="tab">
-				<span class="font-bold card-header-categorias">Total: {{this.getTotalValor() | moneyyGrupo}}</span>
-			</b-card-header>
-		</b-card> -->
 		
 		<!-- Modal seleção de segmento para carregar na tela de pedido -->
 		<vs-popup title="Selecione o segmento" :active.sync="popupSegmentos" :button-close-hidden="false" v-if="this.segmentos.length > 1">
@@ -80,7 +45,6 @@
 
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import SegmentoDB from "../../rapidsoft/db/segmentoDB";
-// import CategoriaDB from "../../rapidsoft/db/categoriaDB";
 import PeriodoDB from "../../rapidsoft/db/periodoDB";
 import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";

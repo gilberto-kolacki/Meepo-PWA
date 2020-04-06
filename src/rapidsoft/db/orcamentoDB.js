@@ -96,7 +96,9 @@ class orcamentoDB extends BasicDB {
 
     getCouchDB() {
         return new Promise((resolve) => {
-            resolve();
+            this._sincFromNuvem().then(() => {
+                resolve();
+            });
         });
     }
 

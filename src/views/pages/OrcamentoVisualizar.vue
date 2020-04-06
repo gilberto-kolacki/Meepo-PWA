@@ -145,9 +145,11 @@ export default {
             delete orcamento.id;
             delete orcamento._id;
             delete orcamento._rev;
-            OrcamentoDB.salvar(orcamento).then((id) => {
-                this.carregaItensTela(id).then(() => {
-                    this.$vs.loading.close();
+            OrcamentoDB.salvar(orcamento).then((result) => {
+                this.carregaItensTela(result.id).then(() => {
+                    setTimeout(() => {
+                        this.$vs.loading.close();
+                    }, 300);
                 });
             });
         },

@@ -3,13 +3,22 @@
         <div class="flex flex-wrap" style="margin-bottom:20px;">
             <div class="w-1/5">
                 <div clas="vx-col flex items-center justify-start" style="margin-top:1rem;">
-                    <b-dropdown text="Ações" split size="sm" variant="danger" class="m-1">
+                    <b-dropdown text="Ações" size="sm" variant="danger" class="m-1">
                         <b-dropdown-item>
                             <span class="flex items-center">
                                 <feather-icon icon="TrashIcon" svgClasses="h-4 w-4" class="mr-2" />
                                 <span @click="confirmacaoDeletarItem()">Deletar Itens Selecionados</span>
                             </span>
                         </b-dropdown-item>
+                        <div v-if="itensSelecionados.length">
+                            <b-dropdown-divider></b-dropdown-divider>
+                            <b-dropdown-item>
+                                <span class="flex items-center">
+                                    <feather-icon icon="PackageIcon" svgClasses="h-4 w-4" class="mr-2" />
+                                    <span @click="confirmacaoDeletarItem()">Mover para novo Embarque</span>
+                                </span>
+                            </b-dropdown-item>
+                        </div>
                         <div v-if="getArrayEmbarques.length > 0">
                             <b-dropdown-divider></b-dropdown-divider>
                             <b-dropdown-text>
@@ -62,13 +71,13 @@
                                 <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
                                     <vs-avatar class="mr-23" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-package" size="30px" />
                                     <div class="truncate">
-                                        <h5 class="mt-3 font-bold">Peças: {{embarque.quantidade}}</h5>
+                                        <h5 class="mt-3 font-bold">{{embarque.quantidade}}</h5>
                                     </div>
                                 </div>
                                 <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
                                     <vs-avatar class="mr-3" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" size="30px" />
                                     <div class="truncate">
-                                        <h5 class="mt-3 font-bold">Valor: {{embarque.totalBruto | money}}</h5>
+                                        <h5 class="mt-3 font-bold">{{embarque.totalBruto | moneyy}}</h5>
                                     </div>
                                 </div>
                                 <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
@@ -218,13 +227,16 @@ export default {
 	computed: {
         getArrayEmbarques() {
             const embarqueCarrinho = Object.values(this.embarques);
+            const embarqueSelComMaiorData = this.itensSelecionados.reduce((embarque, item) => {
+                const embSel = embarqueCarrinho.find((embarque) => embarque.id === item.embarque);
+                return (embarque == null || embSel.dataInicio > embarque.dataInicio) ? embSel : embarque;
+            }, null);
             const embarques = this.itensSelecionados.reduce((embarques, item) => {
-                const embarque = embarqueCarrinho.find((embarque) => embarque.id === item.embarque);
-                return embarques.concat(embarqueCarrinho.reduce((embarquesArray, emb) => {
-                    if ((emb.dataInicio <= this.dataAtual || emb.dataFim >= this.dataAtual)
-                            && (emb.dataInicio >= embarque.dataInicio || emb.dataFim <= embarque.dataFim)
-                                    && emb.id != item.embarqueSelecionado) {
-                                        embarquesArray.push(emb.id);
+                return embarques.concat(embarqueCarrinho.reduce((embarquesArray, embSel) => {
+                    if ((embSel.dataInicio <= this.dataAtual || embSel.dataFim >= this.dataAtual)
+                            && (embarqueSelComMaiorData.dataInicio <= embSel.dataInicio && embarqueSelComMaiorData.dataFim >= embSel.dataFim)
+                                && embSel.id != item.embarqueSelecionado) {
+                                    embarquesArray.push(embSel.id);
                     }
                     return embarquesArray;
                 }, []))

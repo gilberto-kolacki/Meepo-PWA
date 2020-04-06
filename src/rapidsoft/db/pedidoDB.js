@@ -176,7 +176,12 @@ class pedidoDB extends BasicDB {
     salvarSinc(pedido) {
         return new Promise((resolve) => {
             if (pedido.id) {
+                if (pedido.id == "15861912133870") console.log(pedido);
+                
                 this.getPedido(pedido.id).then((object) => {
+
+                    console.log("encontrou", object);
+                    
                     pedido._rev = object._rev;
                     pedido.cliente.id = String(pedido.cliente.id);
                     this._salvar(pedido).then(() => {
@@ -216,7 +221,9 @@ class pedidoDB extends BasicDB {
 
     getCouchDB() {
         return new Promise((resolve) => {
-            resolve();
+            this._sincFromNuvem().then(() => {
+                resolve();
+            });
         });
     }
 
