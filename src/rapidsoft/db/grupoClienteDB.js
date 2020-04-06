@@ -5,8 +5,8 @@
   Author: Giba
 ==========================================================================================*/
 
+import After from 'lodash/after'; 
 import BasicDB from './basicDB';
-import _ from 'lodash';
 
 class grupoClienteDB extends BasicDB {
 
@@ -19,10 +19,9 @@ class grupoClienteDB extends BasicDB {
         return new Promise((resolve) => {
             this._limparBase().then(() => {
                 if(gruposCliente.length > 0) {
-                    const done = _.after(gruposCliente.length, () => resolve());
+                    const done = After(gruposCliente.length, () => resolve());
                     gruposCliente.forEach(grupo => {
                         grupo.porcentagem = Number(grupo.porcentagem);
-                        if (grupo.id == 23) grupo.porcentagem = 10;
                         this._salvar(grupo).then(() => done()).catch(() => done());
                     });
                 } else {

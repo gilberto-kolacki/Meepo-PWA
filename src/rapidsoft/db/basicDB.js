@@ -5,13 +5,13 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import After from 'lodash/after';
+import CloneDeep from 'lodash/cloneDeep';
+import FindIndex from 'lodash/findIndex';
 import PouchDB from 'pouchdb';
 import PouchDBFind from 'pouchdb-find';
-import PouchDBUPSert from 'pouchdb-upsert';
 
 PouchDB.plugin(PouchDBFind);
-PouchDB.plugin(PouchDBUPSert);
 
 import Config from '../../../public/config.json';
 
@@ -161,7 +161,7 @@ const newLog = (tipo, compnente, caminho, erro, messagem) => {
     logger.caminho = caminho;
     logger.erro = erro;
     logger.messagem = messagem;
-    return _.cloneDeep(logger); 
+    return CloneDeep(logger); 
 };
 
 class basicDB {
@@ -222,13 +222,13 @@ class basicDB {
 
     _exists(array, value) {
         // return array.indexOf(value) >= 0 ? true : false;
-        return _.findIndex(array, (object) => {
+        return FindIndex(array, (object) => {
             return object == value;
         }) >= 0 ? true : false;
     }
 
     _existsId(array, value) {
-        return _.findIndex(array, (object) => {
+        return FindIndex(array, (object) => {
             return object.id === value.id;
         }) >= 0 ? true : false;
     }
@@ -252,12 +252,9 @@ class basicDB {
     }
 
     _delete(dados) {
-        console.log(dados);
-        
-
         return new Promise((resolve) => {
             if (dados && dados.length > 0) {
-                const done = _.after(dados.length, () => resolve());    
+                const done = After(dados.length, () => resolve());    
                 dados.forEach(object => {
                     this._localDB.remove(object).then(() => {
                         done();
@@ -455,7 +452,7 @@ class basicDB {
         return new Promise((resolve, reject) => {
             if (this._localErroDB) {
                 this._localErroDB.put(value).then((result) => {
-                    resolve(_.toNumber(result.id));
+                    resolve(Number(result.id));
                 }).catch((erro) => {
                     this._criarLogDB({url:'db/basicDB',method:'_salvar',message: erro, error:'Failed Request'});
                     reject(erro);
@@ -480,7 +477,7 @@ class basicDB {
 
     _criarLogErroSinc(sinc, erro, mensagem) {
         return new Promise((resolve) => {
-            erro = _.cloneDeep(erro.config);
+            erro = CloneDeep(erro.config);
             delete erro['transformRequest'];
             delete erro['transformResponse'];
             delete erro['validateStatus'];
@@ -517,7 +514,7 @@ class basicDB {
                 this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                     const objectsLocal = resultDocs.rows.map((row) => row.doc).filter((doc) => doc.alterado);
                     if (objectsLocal.length > 0) {
-                        const done = _.after(objectsLocal.length, () => resolve());      
+                        const done = After(objectsLocal.length, () => resolve());      
                         objectsLocal.forEach(object => {
                             delete object._rev;
                             this._remoteDB.put(object).then((teste) => {
@@ -558,7 +555,7 @@ class basicDB {
                 this._remoteDB.allDocs({include_docs: true}).then((resultDocs) => {
                     const objectsNuvem = resultDocs.rows.map((row) => row.doc);
                     if (objectsNuvem.length > 0) {
-                        const done = _.after(objectsNuvem.length, () => resolve());      
+                        const done = After(objectsNuvem.length, () => resolve());      
                         objectsNuvem.forEach(objectNuvem => {
                             this._localDB.put(objectNuvem).then(() => {
                                 done();

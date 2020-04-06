@@ -5,7 +5,7 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import After from 'lodash/after';
 import BasicDB from './basicDB';
 
 class imagemCorDB extends BasicDB {
@@ -17,7 +17,7 @@ class imagemCorDB extends BasicDB {
     salvarCores(cores) {
         return new Promise((resolve) => {
             if (cores.length <= 0) resolve(0);
-            const done = _.after(cores.length, () => resolve(cores.length));
+            const done = After(cores.length, () => resolve(cores.length));
             cores.forEach(imagem => {
                 this._salvar(imagem).then(() => done()).catch(() => done());
             });

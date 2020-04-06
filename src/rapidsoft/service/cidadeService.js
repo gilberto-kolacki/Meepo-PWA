@@ -1,5 +1,4 @@
 import { http } from './serviceConfig'
-import _ from 'lodash';
 
 class cidadeService {
 
@@ -16,7 +15,7 @@ class cidadeService {
 
     buscaEndereco(cep) {
         return new Promise((resolve, reject) => {
-            cep = _.toString(cep.replace(/[^a-z0-9]/gi, ""))
+            cep = String(cep.replace(/[^a-z0-9]/gi, ""))
             let token = JSON.parse(localStorage.getItem('token'));
             http.post('/cep', {token: token, cepIni: cep, cepFim: cep}).then((result) => {
                 resolve(result.data[0]);

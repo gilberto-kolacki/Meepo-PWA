@@ -4,7 +4,7 @@
   ----------------------------------------------------------------------------------------
   Author: Giba
 ==========================================================================================*/
-import _ from 'lodash';
+import After from 'lodash/after';
 import BasicDB from './basicDB';
 
 class pedidoDB extends BasicDB {
@@ -139,7 +139,7 @@ class pedidoDB extends BasicDB {
     
     atualizaStatusPedidos(pedidos) {
         return new Promise((resolve) => {
-            const done = _.after(pedidos.length, () => resolve());
+            const done = After(pedidos.length, () => resolve());
             pedidos.forEach(pedido => {
                 this._getById(pedido.id, true).then((pedido) => {
                     pedido.status = 45;
@@ -175,23 +175,27 @@ class pedidoDB extends BasicDB {
 
     salvarSinc(pedido) {
         return new Promise((resolve) => {
-            this.getPedido(pedido.id).then((object) => {
-                pedido._rev = object._rev;
-                pedido.cliente.id = String(pedido.cliente.id);
-                this._salvar(pedido).then(() => {
-                    if (object.status < 50) {
-                        this._remoteDB.get(pedido.id).then((objectRemote) => {
-                            this._remoteDB.remove(objectRemote).then(() => {
-                                resolve();
+            if (pedido.id) {
+                this.getPedido(pedido.id).then((object) => {
+                    pedido._rev = object._rev;
+                    pedido.cliente.id = String(pedido.cliente.id);
+                    this._salvar(pedido).then(() => {
+                        if (object.status < 50) {
+                            this._remoteDB.get(pedido.id).then((objectRemote) => {
+                                this._remoteDB.remove(objectRemote).then(() => {
+                                    resolve();
+                                });
                             });
-                        });
-                    } else {
-                        resolve();
-                    }
+                        } else {
+                            resolve();
+                        }
+                    });
+                }).catch(() => {
+                    resolve();
                 });
-            }).catch(() => {
+            } else {
                 resolve();
-            });
+            }
         });
     }    
 
@@ -207,6 +211,12 @@ class pedidoDB extends BasicDB {
                 this._criarLogDB({url:'db/pedidoDB',method:'deletar',message: err,error:'Failed Request'});
                 reject(err);
             });
+        });
+    }
+
+    getCouchDB() {
+        return new Promise((resolve) => {
+            resolve();
         });
     }
 

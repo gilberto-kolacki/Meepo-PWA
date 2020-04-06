@@ -5,7 +5,7 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import Round from 'lodash/round';
 import BasicDB from './basicDB';
 
 const sincDados =  [
@@ -150,7 +150,7 @@ class sincDataDB extends BasicDB {
 
     finalizaSinc(sinc) {
         return new Promise((resolve) => {
-            sinc.tempoSincronizacao = _.round((Date.now() - sinc.inicio) / 1000, 1);
+            sinc.tempoSincronizacao = Round((Date.now() - sinc.inicio) / 1000, 1);
             sinc.dataSincronizacao = Date.now();
             this._getById(sinc._id, true).then((resultSinc) => {
                 if (resultSinc.existe) {

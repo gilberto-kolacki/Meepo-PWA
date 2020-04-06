@@ -5,8 +5,9 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
-import BasicDB from './basicDB'
+import After from 'lodash/after';
+import IsArray from 'lodash/isArray';
+import BasicDB from './basicDB';
 class nameSeloDB extends BasicDB {
 
     constructor() {
@@ -15,8 +16,8 @@ class nameSeloDB extends BasicDB {
 
     salvarSelos(selos) {
         return new Promise((resolve) => {
-            if (_.isArray(selos) && selos.length > 0) {
-                const done = _.after(selos.length, () => resolve(selos.length));
+            if (IsArray(selos) && selos.length > 0) {
+                const done = After(selos.length, () => resolve(selos.length));
                 selos.forEach(imagem => {
                     this._salvar(imagem).then(() => done()).catch(() => done());
                 });

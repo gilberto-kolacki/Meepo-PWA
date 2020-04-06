@@ -7,7 +7,12 @@
 
 // import PouchDB from 'pouchdb';
 import BasicDB from './basicDB';
-import _ from 'lodash';
+import After from 'lodash/after';
+import UniqBy from 'lodash/uniqBy';
+import IsArray from 'lodash/isArray';
+import IsNil from 'lodash/isNil';
+import IsObject from 'lodash/isObject';
+import Clone from 'lodash/clone';
 
 const validarContatoDB = (contato) => {
     return new Promise((resolve, reject) => {
@@ -153,23 +158,17 @@ const validarObjetoDB = (cliente) => {
             retorno.campo = "grupoCliente";
             reject(retorno);
         }
-        // else if (!_.isEmpty(validarEndereco)){
-        //     reject(validarEndereco);
-        // }
-        else if (!cliente.clienteErp && !(_.isArray(cliente.imagens) && cliente.imagens.length >= 1)){
+        else if (!cliente.clienteErp && !(IsArray(cliente.imagens) && cliente.imagens.length >= 1)){
             reject({mensagem: "É necessário adicicionar ao menos uma imagem!"});
         }
         else if (cliente.imagens && cliente.imagens.length > 5){
             reject({mensagem: "É necessário remover uma ou mais imagens(Máximo 5 imagens)"});
         }
-        else if (!(_.isArray(cliente.contatos) && cliente.contatos.length >= 1)) {
+        else if (!(IsArray(cliente.contatos) && cliente.contatos.length >= 1)) {
             reject ({mensagem: "É necessário adicionar ao menos um contato!"});
         } else {
             resolve(cliente);
         }
-        // else if (!(_.isArray(cliente.enderecos) && cliente.enderecos.length >= 1)) {
-        //     reject ({mensagem: "É necessário adicionar ao menos um endereço!"});
-        // }
     });
 };
 
@@ -267,12 +266,12 @@ class clienteDB extends BasicDB {
         return new Promise((resolve) => {
             this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
                 resolve(resultDocs.rows.map((cliente) => {
-                    if (_.isUndefined(cliente.doc.endereco) || (_.isObject(cliente.doc.endereco) && _.isUndefined(cliente.doc.endereco.cep))) {
+                    if (IsNil(cliente.doc.endereco) || (IsObject(cliente.doc.endereco) && IsNil(cliente.doc.endereco.cep))) {
                         cliente.doc.endereco = {};
                         cliente.doc.endereco.cidade = "";
                         cliente.doc.endereco.estado = "";
                     }
-                    return _.clone(cliente.doc);
+                    return Clone(cliente.doc);
                 }));
             }).catch((err) => {
                 this._criarLogDB({url:'db/clienteDB',method:'listar',message: err,error:'Failed Request'});
@@ -388,7 +387,7 @@ class clienteDB extends BasicDB {
         return new Promise((resolve) => {
             const newPedidos = [];
             if (pedidos && pedidos.length > 0) {
-                const done = _.after(pedidos.length, () => resolve(newPedidos));
+                const done = After(pedidos.length, () => resolve(newPedidos));
                 pedidos.forEach(pedido => {
                     this._getById(pedido.cliente.id).then((cliente) => {
                         if (cliente.existe) {
@@ -411,8 +410,14 @@ class clienteDB extends BasicDB {
                 fields: ['endereco'],
             }).then((result) => {
                 const cidades = result.docs.map((cliente) => {return {idCidade: cliente.endereco.idCidade, nome: cliente.endereco.cidade.toUpperCase()};});
-                resolve(_.uniqBy(cidades,'idCidade'));
+                resolve(UniqBy(cidades,'idCidade'));
             });
+        });
+    }
+
+    getCouchDB() {
+        return new Promise((resolve) => {
+            resolve();
         });
     }
 

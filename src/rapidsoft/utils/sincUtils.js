@@ -1,4 +1,7 @@
-import _ from 'lodash';
+import Round from 'lodash/round';
+import Take from 'lodash/take';
+import PullAll from 'lodash/pullAll';
+import IsNil from 'lodash/isNil';
 import ImagemService from '../service/imagemService';
 import CidadeService from '../service/cidadeService';
 import ImagemDB from '../db/imagemDB';
@@ -10,7 +13,7 @@ class sincUtils {
 
     atuaizaParcialSinc(sinc, imagensSalvas) {
         sinc.parcial = (sinc.parcial + imagensSalvas);
-        sinc.percent = _.round((sinc.parcial)/sinc.total * 100, 1);
+        sinc.percent = Round((sinc.parcial)/sinc.total * 100, 1);
     }
 
     openLoading(tela, sinc) {
@@ -45,29 +48,29 @@ class sincUtils {
     downloadImagensFromData(sinc, data) {
         return new Promise((resolve) => {
             const quantidadeSinc = 10;
-            const idsFotos = _.take(data.fotos, quantidadeSinc);
+            const idsFotos = Take(data.fotos, quantidadeSinc);
             
             ImagemService.sincImagemFoto(idsFotos).then((resultFotos) => {
                 ImagemDB.salvarFotos(resultFotos).then((fotosSalvas) => {
-                    data.fotos = _.pullAll(data.fotos, idsFotos);
+                    data.fotos = PullAll(data.fotos, idsFotos);
                     this.atuaizaParcialSinc(sinc, fotosSalvas);
 
-                    const idsCores = _.take(data.cores, quantidadeSinc);
+                    const idsCores = Take(data.cores, quantidadeSinc);
                     ImagemService.sincImagemCor(idsCores).then((resultCores) => {
                         ImagemDB.salvarCores(resultCores).then((coresSalvas) => {
-                            data.cores = _.pullAll(data.cores, idsCores);
+                            data.cores = PullAll(data.cores, idsCores);
                             this.atuaizaParcialSinc(sinc, coresSalvas);
 
-                            const idsSelos = _.take(data.selos, quantidadeSinc);
+                            const idsSelos = Take(data.selos, quantidadeSinc);
                             ImagemService.sincImagemSelo(idsSelos).then((resultSelos) => {
                                 ImagemDB.salvarSelos(resultSelos).then((selosSalvos) => {
-                                    data.selos = _.pullAll(data.selos, idsSelos);
+                                    data.selos = PullAll(data.selos, idsSelos);
                                     this.atuaizaParcialSinc(sinc, selosSalvos);
 
-                                    const idsSimbolos = _.take(data.simbolos, quantidadeSinc);
+                                    const idsSimbolos = Take(data.simbolos, quantidadeSinc);
                                     ImagemService.sincImagemSimbolo(idsSimbolos).then((resultSimbolos) => {
                                         ImagemDB.salvarSimbolos(resultSimbolos).then((simbolosSalvos) => {
-                                            data.simbolos = _.pullAll(data.simbolos, idsSimbolos);
+                                            data.simbolos = PullAll(data.simbolos, idsSimbolos);
                                             this.atuaizaParcialSinc(sinc, simbolosSalvos);
 
                                             if (fotosSalvas > 0 || coresSalvas > 0 || selosSalvos > 0 || simbolosSalvos > 0) {
@@ -91,7 +94,7 @@ class sincUtils {
             const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
             sinc.total = siglasEstados.length;
             const siglaEstado = siglasEstados[sinc.parcial];
-            if(_.isNil(siglaEstado)) {
+            if(IsNil(siglaEstado)) {
                 resolve();
             } else {
                 CidadeService.sincCidade(siglaEstado).then((estado) => {

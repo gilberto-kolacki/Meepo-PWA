@@ -94,6 +94,12 @@ class orcamentoDB extends BasicDB {
         });
     }
 
+    getCouchDB() {
+        return new Promise((resolve) => {
+            resolve();
+        });
+    }
+
 }
 
 export default new orcamentoDB();

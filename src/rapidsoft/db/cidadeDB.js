@@ -5,7 +5,9 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import IsNil from 'lodash/isNil';
+import FlattenDeep from 'lodash/flattenDeep';
+import Clone from 'lodash/clone';
 import BasicDB from './basicDB';
 
 class cidadeDB extends BasicDB {
@@ -19,9 +21,9 @@ class cidadeDB extends BasicDB {
 
     criaCidades(estado) {
         return new Promise((resolve) => {
-            const cidades = estado.cidades.filter((cidade) => !_.isNil(cidade)).map(cidade => {
+            const cidades = estado.cidades.filter((cidade) => !IsNil(cidade)).map(cidade => {
                 const cidadeNew = cidade;
-                cidadeNew._id = _.toString(cidadeNew.id);
+                cidadeNew._id = String(cidadeNew.id);
                 cidadeNew.uf = estado.uf;
                 cidadeNew.estado = estado.nome;
                 cidadeNew.idCidade = cidade.id;
@@ -36,13 +38,13 @@ class cidadeDB extends BasicDB {
 
     criaCeps(estado) {
         return new Promise((resolve) => {
-            let cidades = _.flattenDeep(estado.cidades.map(cidade => {
+            let cidades = FlattenDeep(estado.cidades.map(cidade => {
                 console.log(cidade);
                 
                 if (cidade.ceps.length > 0) {
                     return cidade.ceps.map(cep => {
-                        let cidadeNew = _.clone(cidade);
-                        if (!_.isNil(cidadeNew)) {
+                        let cidadeNew = Clone(cidade);
+                        if (!IsNil(cidadeNew)) {
                             cidadeNew._id = cep.c;
                             cidadeNew.cep = cep.c;
                             cidadeNew.bairro = cep.b;
@@ -82,7 +84,7 @@ class cidadeDB extends BasicDB {
 
     buscaCidade(idCidade) {
         return new Promise((resolve) => {
-            idCidade = _.toString(idCidade);
+            idCidade = String(idCidade);
             this._localDB.get(idCidade).then((result) => {
                 delete result._rev;
                 resolve({existe: true, result: result});  

@@ -5,7 +5,13 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import ToUpper from 'lodash/toUpper';
+import After from 'lodash/after';
+import OrderBy from 'lodash/orderBy';
+import Uniq from 'lodash/uniq';
+import FlattenDeep from 'lodash/flattenDeep';
+import IsObject from 'lodash/isObject';
+
 import arrayMove from 'array-move';
 import BasicDB from './basicDB';
 import ImagemDB from './imagemDB';
@@ -17,9 +23,9 @@ import Storage from '../utils/storage';
 
 const getProdutoToDBFilterCategoria = (produtos, idsCategorias, textoSearch) => {
     
-    textoSearch = _.toUpper(textoSearch);
+    textoSearch = ToUpper(textoSearch);
     return produtos.filter((produto) => {
-        return textoSearch === null || textoSearch === "" || _.toUpper(produto.referencia).includes(textoSearch) || produto.nome.includes(textoSearch);
+        return textoSearch === null || textoSearch === "" || ToUpper(produto.referencia).includes(textoSearch) || produto.nome.includes(textoSearch);
     }).filter((produto) => {
         return idsCategorias.length === 0 || produto.cores.some((cor) => {
             return cor.categorias.some((categoria) => {
@@ -139,7 +145,7 @@ class produtoDB extends BasicDB {
             this._getFindCondition({referencia : {$in : refsCarrinho}}).then((produtos) => {
                 produtos = this.getProdutoCorCarrinho(produtos, carrinho);
                 if (produtos.length > 0) {
-                    const done = _.after(produtos.length, () => resolve(produtosCarrinho));
+                    const done = After(produtos.length, () => resolve(produtosCarrinho));
                     produtos.forEach(produto => {
                         produto.quantidade = this.getTotalCor(produto.tamanhos, carrinho);
                         produto.tamanhos = this.getTamanhosProdutoCarrinho(produto.tamanhos, carrinho);
@@ -193,7 +199,7 @@ class produtoDB extends BasicDB {
 
     getProdutosFromPaginas(paginas) {
         return paginas.map((pagina) => {
-            const prodOrderSeq = _.orderBy(pagina.produtos, ['seq']);
+            const prodOrderSeq = OrderBy(pagina.produtos, ['seq']);
             pagina.produtoA = prodOrderSeq[0];
             // if (prodOrderSeq[1]) {
             //     pagina.produtoB = prodOrderSeq[1];
@@ -213,7 +219,7 @@ class produtoDB extends BasicDB {
             this._getFindCondition({referencia : {$in : produtosLook}}).then((produtos) => {
                 const produtosLook = [];
                 if (produtos.length > 0) {
-                    const done = _.after(produtos.length, () => resolve(produtosLook));
+                    const done = After(produtos.length, () => resolve(produtosLook));
                     produtos.forEach(produto => {
                         ImagemDB.getFotoPrincipal(produto).then((imagemProdutoPrincipal) => {
                             produtosLook.push({
@@ -273,7 +279,7 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             this.getAllProdutosByIdCategorias(idsCategorias, textoSearch).then((produtos) => {
                 if(produtos.length > 0) {
-                    const done = _.after(produtos.length, () => resolve(produtos));
+                    const done = After(produtos.length, () => resolve(produtos));
                     produtos.forEach(produto => {
                         if(produto.cores.length > 0) {
                             ImagemDB.getFotoPrincipal(produto).then((result) => {
@@ -290,13 +296,13 @@ class produtoDB extends BasicDB {
     }
 
     possuiCores(produto) {
-        return produto && produto.cores && produto.cores.length > 0 && _.isObject(produto.cores[0]);
+        return produto && produto.cores && produto.cores.length > 0 && IsObject(produto.cores[0]);
     }
 
     getImagensCorProduto(produto) {
         return new Promise((resolve) => {
             if(this.possuiCores(produto)) {
-                const done = _.after(produto.cores.length, () => resolve(produto));
+                const done = After(produto.cores.length, () => resolve(produto));
                 produto.cores.forEach(cor => {
                     ImagemDB.getCorById(cor).then((resultImagemCor) => {
                         cor.imagemCor = resultImagemCor;
@@ -318,7 +324,7 @@ class produtoDB extends BasicDB {
     getImagensProduto(produto) {
         return new Promise((resolve) => {
             if(this.possuiCores(produto)) {
-                const done = _.after(produto.cores.length, () => resolve(produto));
+                const done = After(produto.cores.length, () => resolve(produto));
                 produto.cores.forEach(cor => {
                     ImagemDB.getCorById(cor).then((resultImagemCor) => {
                         cor.imagemCor = resultImagemCor;
@@ -459,19 +465,19 @@ class produtoDB extends BasicDB {
             const dataResult = {fotos:[], selos:[], simbolos:[], cores:[]};
             this.getAllProdutos().then((produtos) => {
                 if (produtos.length > 0) {
-                    const done = _.after(produtos.length, () => {
+                    const done = After(produtos.length, () => {
                         const qtdeImagens = dataResult.fotos.length + dataResult.cores.length + dataResult.selos.length + dataResult.simbolos.length;
                         resolve({quantidade: qtdeImagens, data: dataResult});
                     });
                     produtos.forEach(produto => {
                         this.getIdsFotos(produto).then((idsImagens) => {
-                            dataResult.fotos = _.uniq(dataResult.fotos.concat(idsImagens));
+                            dataResult.fotos = Uniq(dataResult.fotos.concat(idsImagens));
                             this.getIdsCores(produto).then((idsCores) => {
-                                dataResult.cores = _.uniq(dataResult.cores.concat(idsCores));
+                                dataResult.cores = Uniq(dataResult.cores.concat(idsCores));
                                 this.getIdsSelos(produto).then((idsSelos) => {
-                                    dataResult.selos = _.uniq(dataResult.selos.concat(idsSelos));
+                                    dataResult.selos = Uniq(dataResult.selos.concat(idsSelos));
                                     this.getIdsSimbolos(produto).then((idsSimbolos) => {
-                                        dataResult.simbolos = _.uniq(dataResult.simbolos.concat(idsSimbolos));
+                                        dataResult.simbolos = Uniq(dataResult.simbolos.concat(idsSimbolos));
                                         done();
                                     });
                                 });
@@ -488,7 +494,7 @@ class produtoDB extends BasicDB {
     getIdsCategoria() {
         return new Promise((resolve) => {
             this.getAllProdutos().then((produtos) => {
-                resolve(_.uniq(_.flattenDeep(produtos.map((produto) => {
+                resolve(Uniq(FlattenDeep(produtos.map((produto) => {
                     return produto.cores.map((cor) => {
                         return cor.categorias;
                     });
@@ -545,7 +551,7 @@ class produtoDB extends BasicDB {
     getProdutosAtivosFromEmbarques(embarques) {
         return new Promise((resolve) => {
             const arrayRemove = [];
-            const done = _.after(embarques.length, () => {
+            const done = After(embarques.length, () => {
                 embarques = embarques.reduce((embarquesNew, embarque) => {
                     embarque.itens = embarque.itens.reduce((itens, item) => {
                         if (!arrayRemove.some((idProduto) => idProduto === item.idProduto)) itens.push(item);
@@ -557,7 +563,7 @@ class produtoDB extends BasicDB {
                 resolve({embarques, menssagem: `Foram removidos ${arrayRemove.length} produtos, pois não estão mais disponiveis para venda!`});
             });
             embarques.forEach(embarque => {
-                const done2 = _.after(embarque.itens.length, () => done());
+                const done2 = After(embarque.itens.length, () => done());
                 embarque.itens.forEach(item => {
                     this.getById(item.referencia).then((produto) => {
                         if (produto.existe) {

@@ -5,8 +5,8 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
-import BasicDB from './basicDB'
+import After from 'lodash/after';
+import BasicDB from './basicDB';
 
 class prontaEntregaDB extends BasicDB {
 
@@ -18,7 +18,7 @@ class prontaEntregaDB extends BasicDB {
         return new Promise((resolve) => {
             this._limparBase().then(() => {
                 if(prontasEntregas.length > 0) {
-                    const done = _.after(prontasEntregas.length, () => resolve());
+                    const done = After(prontasEntregas.length, () => resolve());
                     prontasEntregas.forEach(prontaEntrega => {
                         this._salvar(prontaEntrega).then(() => done()).catch(() => done());
                     });

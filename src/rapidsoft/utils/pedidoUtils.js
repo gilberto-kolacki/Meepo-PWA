@@ -1,15 +1,18 @@
-import _ from "lodash";
+import After from 'lodash/after';
+import IsNil from 'lodash/isNil';
+import OrderBy from 'lodash/orderBy';
+import Round from 'lodash/round';
 import Storage from '../utils/storage';
 import UtilMask from '../../rapidsoft/utils/utilMask';
 
 const validarPedido = (pedidos) => {
     return new Promise((resolve, reject) => {
         try {
-            const done = _.after(pedidos.length, () => resolve());
+            const done = After(pedidos.length, () => resolve());
             pedidos.forEach(pedido => {
                 const idsCategorias = pedido.itens.reduce((idsCategorias, item) => idsCategorias.concat(item.categorias), []);
 
-                let valorMinimo = _.orderBy(pedido.grupoCliente.valorMinimo, ['val'], ['desc']).find((valor) => {
+                let valorMinimo = OrderBy(pedido.grupoCliente.valorMinimo, ['val'], ['desc']).find((valor) => {
                     return idsCategorias.some((categoria) => {
                         return categoria == valor.id;
                     });
@@ -17,31 +20,31 @@ const validarPedido = (pedidos) => {
 
                 valorMinimo = valorMinimo ? valorMinimo.val : 0;
                 
-                if (_.isNil(pedido.cliente) || _.isNil(pedido.cliente.cpfCnpj)){
+                if (IsNil(pedido.cliente) || IsNil(pedido.cliente.cpfCnpj)){
                     throw { campo: "nomeCliente", label: "Cliente" };
                 }
-                else if (_.isNil(pedido.condicaoPagamento)) {
+                else if (IsNil(pedido.condicaoPagamento)) {
                     throw { campo: "condicaoPgto", label: "Condição de Pagamento" };
                 }                
-                else if (_.isNil(pedido.emailNfe) || pedido.emailNfe === ""){
+                else if (IsNil(pedido.emailNfe) || pedido.emailNfe === ""){
                     throw { campo: "emailNfe", label: "E-mail Nfe" };
                 }
-                else if (_.isNil(pedido.grupoCliente) || pedido.grupoCliente === ""){
+                else if (IsNil(pedido.grupoCliente) || pedido.grupoCliente === ""){
                     throw { campo: "grupoCliente", label: "Grupo de Cliente" };
                 } 
-                else if (_.isNil(pedido.endEntrega) || pedido.endEntrega === ""){
+                else if (IsNil(pedido.endEntrega) || pedido.endEntrega === ""){
                     throw { campo: "endEntrega", label: "Endereço de entrega" };
                 } 
-                else if (_.isNil(pedido.formaPagamento) || pedido.formaPagamento === ""){
+                else if (IsNil(pedido.formaPagamento) || pedido.formaPagamento === ""){
                     throw { campo: "formaPgto", label: "Forma de pagamento" };
                 }
-                else if (pedido.formaPagamento != 5 && (_.isNil(pedido.condicaoPagamento) || pedido.condicaoPagamento === "")){
+                else if (pedido.formaPagamento != 5 && (IsNil(pedido.condicaoPagamento) || pedido.condicaoPagamento === "")){
                     throw { campo: "formaPgto", label: "Condição de pagamento" };
                 }
-                else if (_.isNil(pedido.dataEmbarque) || pedido.dataEmbarque === ""){
+                else if (IsNil(pedido.dataEmbarque) || pedido.dataEmbarque === ""){
                     throw { campo: "dataEmbarque", warning: "Selecione a Data do Embarque" };
                 }
-                else if (_.isNil(pedido.totalLiquido) || valorMinimo > pedido.totalLiquido){
+                else if (IsNil(pedido.totalLiquido) || valorMinimo > pedido.totalLiquido){
                     throw { campo: "totalLiquido", warning: "O pedido "+pedido.nome+" não ultrapassou o valor minimo de "+ UtilMask.getMoney(valorMinimo, true)+"!"};
                 }
 
@@ -74,7 +77,7 @@ class pedidoUtils {
     }
 
     calcularDesconto(desconto, valor) {
-        return _.round(valor - ((Number(desconto)/100) * valor), 2);
+        return Round(valor - ((Number(desconto)/100) * valor), 2);
     }
 
     getItemTamanho(itensPedido) {
@@ -137,7 +140,7 @@ class pedidoUtils {
     }
 
     getValorOrcamento(embarques) {
-        return _.round(embarques.reduce((total, embarque) => {
+        return Round(embarques.reduce((total, embarque) => {
             return total + embarque.totalBruto;
         }, 0), 2);
     }

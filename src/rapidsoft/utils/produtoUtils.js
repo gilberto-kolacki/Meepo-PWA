@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import OrderBy from 'lodash/orderBy';
+import Round from 'lodash/round';
 import Storage from '../utils/storage';
 
 class produtoUtils{
@@ -28,7 +29,7 @@ class produtoUtils{
     }
 
     getCoresProduto(produto) {
-        return _.orderBy(produto.cores.map((cor) => {
+        return OrderBy(produto.cores.map((cor) => {
             return {codigo: cor.codigo, ativo: true, idCor: cor.idCor, idProduto: cor.idProduto, tamanhos: cor.tamanhos};
         }), ['seq'], ['asc']);
     }
@@ -83,13 +84,13 @@ class produtoUtils{
     calcularPreco(itemCor, tipo = 1) {
         const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
         const precoProduto = tipo === 1 ? itemCor.precoCusto : itemCor.precoVenda;
-        return _.round(precoProduto + ((percentual/100) * precoProduto), 2);
+        return Round(precoProduto + ((percentual/100) * precoProduto), 2);
     }
 
     calcularPrecoCarrinho(itemCor) {
         const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
         const precoProduto = itemCor.precoCusto;
-        return _.round(precoProduto + ((percentual/100) * precoProduto), 2);
+        return Round(precoProduto + ((percentual/100) * precoProduto), 2);
     }
 
     calcularCarrinho(carrinho) {

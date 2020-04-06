@@ -5,7 +5,7 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import After from 'lodash/after';
 import BasicDB from './basicDB';
 
 class formaPagtoDB extends BasicDB {
@@ -36,7 +36,7 @@ class formaPagtoDB extends BasicDB {
 
     getCondicaoPagamento(idCondicaoPagamento, formaPagamentoSelecionada) {
         return new Promise((resolve) => {
-            const condicaoSelecionada = _.find(formaPagamentoSelecionada.condicoes, ['id',idCondicaoPagamento]);
+            const condicaoSelecionada = formaPagamentoSelecionada.condicoes.find(['id' ,idCondicaoPagamento]);
             resolve({value: condicaoSelecionada.id, label: condicaoSelecionada.nome});
         });
     }
@@ -45,7 +45,7 @@ class formaPagtoDB extends BasicDB {
         return new Promise((resolve) => {
             this._limparBase().then(() => {
                 if(formasPagto.length > 0) {
-                    const done = _.after(formasPagto.length, () => resolve());
+                    const done = After(formasPagto.length, () => resolve());
                     formasPagto.forEach(formPagto => {
                         this._salvar(formPagto).then(() => done()).catch(() => done());
                     });

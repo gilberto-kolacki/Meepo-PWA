@@ -24,7 +24,7 @@
                 </vs-chip>
             </vs-col>
         </div>
-        <vs-table pagination max-items="10" search :data="pedidos">           
+        <vs-table pagination max-items="10" search :data="pedidosFiltro">           
             <template slot="header">
                 <h3>Pedidos</h3>
             </template>
@@ -75,6 +75,7 @@ export default {
     data() {
         return { 
             pedidos: [],
+            pedidosFiltro: [],
             showScreen: false,
         }
     },
@@ -99,12 +100,12 @@ export default {
             PedidoDB._getAll().then((result) => {
                 ClienteDB.getClientesPedidos(result).then((pedidos) => {
                     if (status) {
-                        this.pedidos = pedidos.reduce((pedidos, pedido) => {
+                        this.pedidosFiltro = pedidos.reduce((pedidos, pedido) => {
                             if (pedido.status == status) pedidos.push(pedido);
                             return pedidos;
                         }, []);
                     } else {
-                        this.pedidos = pedidos;
+                        this.pedidosFiltro = pedidos;
                     }
                     setTimeout(() => {
                         this.$vs.loading.close();
@@ -116,7 +117,10 @@ export default {
             return new Promise((resolve) => {
                 PedidoDB._getAll().then((result) => {
                     ClienteDB.getClientesPedidos(result).then((pedidos) => {
+                        console.log(pedidos);
+                        
                         this.pedidos = pedidos;
+                        this.pedidosFiltro = pedidos;
                         document.getElementById('loading-bg').style.display = 'none';
                         resolve();
                     });

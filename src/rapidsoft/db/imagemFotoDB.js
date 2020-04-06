@@ -5,7 +5,8 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import After from 'lodash/after';
+import IsArray from 'lodash/isArray';
 import BasicDB from './basicDB';
 
 class imagemFotoDB extends BasicDB {
@@ -16,13 +17,14 @@ class imagemFotoDB extends BasicDB {
 
     salvarFotos(fotos) {
         return new Promise((resolve) => {
-            if (fotos.length <= 0) resolve(0);
-            // const done = _.after(fotos.length, () => resolve(fotos.length));
-            
-            const done = _.after(1, () => resolve(fotos.length));
-            fotos.forEach(imagem => {
-                this._salvar(imagem).then(() => done()).catch(() => done());
-            });
+            if (IsArray(fotos) && fotos.length > 0) {
+                const done = After(fotos.length, () => resolve(fotos.length));
+                fotos.forEach(imagem => {
+                    this._salvar(imagem).then(() => done()).catch(() => done());
+                });
+            } else {
+                resolve(0);
+            }
         });
     }
 

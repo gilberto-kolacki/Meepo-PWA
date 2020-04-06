@@ -5,8 +5,8 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
-import BasicDB from './basicDB'
+import After from 'lodash/after';
+import BasicDB from './basicDB';
 
 class refComercialDB extends BasicDB {
 
@@ -18,7 +18,7 @@ class refComercialDB extends BasicDB {
         return new Promise((resolve) => {
             this._limparBase().then(() => {
                 if(referenciasComerciais.length > 0) {
-                    const done = _.after(referenciasComerciais.length, () => resolve());
+                    const done = After(referenciasComerciais.length, () => resolve());
                     referenciasComerciais.forEach(refComer => {
                         this._salvar(refComer).then(() => done()).catch(() => done());
                     });

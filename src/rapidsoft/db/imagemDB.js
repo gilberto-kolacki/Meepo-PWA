@@ -5,7 +5,9 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import After from 'lodash/after';
+import Difference from 'lodash/difference';
+import IsArray from 'lodash/isArray';
 import ImagemFotoDB from './imagemFotoDB';
 import ImagemCorDB from './imagemCorDB';
 import ImagemSeloDB from './imagemSeloDB';
@@ -31,10 +33,10 @@ class imagemDB {
     compress(imagens, width=null, height=null, quality=null, size=null) {
         return new Promise((resolve) => {
             const coresSave = imagens.filter((imagem) => imagem.base64.split(',')[1].length > 0);
-            if (_.isArray(coresSave) && coresSave.length > 0) {
+            if (IsArray(coresSave) && coresSave.length > 0) {
                 const compress = new Compress();
 
-                const done = _.after(coresSave.length, () => resolve(coresSave));
+                const done = After(coresSave.length, () => resolve(coresSave));
                 coresSave.forEach(imagem => {
                     const base64 = imagem.base64.split(',');
                     const type = base64[0].split(';')[0].split(':')[1];
@@ -139,7 +141,7 @@ class imagemDB {
         return new Promise((resolve) => {
             ImagemFotoDB._getIds().then((idsFotoDB) => {
                 const idsFotoNew = [];
-                const done = _.after(idsFoto.length, () => resolve(idsFotoNew));
+                const done = After(idsFoto.length, () => resolve(idsFotoNew));
                 idsFoto.forEach(idFoto => {
                     if (!ImagemFotoDB._exists(idsFotoDB, idFoto)) idsFotoNew.push(idFoto);
                     done();
@@ -164,7 +166,7 @@ class imagemDB {
     getFotosProduto(cor) {
         return new Promise((resolve) => {
             if (cor.imagens && cor.imagens.length > 0) {
-                const done = _.after(cor.imagens.length, () => resolve(cor.imagens));
+                const done = After(cor.imagens.length, () => resolve(cor.imagens));
                 cor.imagens.forEach(imagem => {
                     ImagemFotoDB._getById(imagem.id).then((fotoProduto) => {
                         if(fotoProduto.existe) {
@@ -181,7 +183,7 @@ class imagemDB {
 
     getFotoPrincipal(produto) {
         return new Promise((resolve) => {
-            if (produto.cores[0].imagens.length > 0 && _.isArray(produto.cores[0].imagens)) {
+            if (produto.cores[0].imagens.length > 0 && IsArray(produto.cores[0].imagens)) {
                 ImagemFotoDB._getById(produto.cores[0].imagens[0].id).then((fotoProduto) => {
                     if(fotoProduto.existe) {
                         resolve(fotoProduto.value.base64);
@@ -199,7 +201,7 @@ class imagemDB {
         return new Promise((resolve) => {
             ImagemFotoDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
                 const idsBanco = resultDocs.rows.map((row) => row.id);
-                const idsNovasFotos = _.difference(Ids, idsBanco);
+                const idsNovasFotos = Difference(Ids, idsBanco);
                 resolve(idsNovasFotos);
             });
         });
@@ -209,7 +211,7 @@ class imagemDB {
         return new Promise((resolve) => {
             ImagemCorDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
                 const idsBanco = resultDocs.rows.map((row) => row.id);
-                const idsNovos = _.difference(Ids, idsBanco);
+                const idsNovos = Difference(Ids, idsBanco);
                 resolve(idsNovos);
             });
         });
@@ -219,7 +221,7 @@ class imagemDB {
         return new Promise((resolve) => {
             ImagemSeloDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
                 const idsBanco = resultDocs.rows.map((row) => row.id);
-                const idsNovos = _.difference(Ids, idsBanco);
+                const idsNovos = Difference(Ids, idsBanco);
                 resolve(idsNovos);
             });
         });
@@ -229,7 +231,7 @@ class imagemDB {
         return new Promise((resolve) => {
             ImagemSimboloDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
                 const idsBanco = resultDocs.rows.map((row) => row.id);
-                const idsNovos = _.difference(Ids, idsBanco);
+                const idsNovos = Difference(Ids, idsBanco);
                 resolve(idsNovos);
             });
         });
@@ -238,7 +240,7 @@ class imagemDB {
     deletarImagens(dataBase, idsOld) {
         return new Promise((resolve) => {
             if (idsOld.length > 0) {
-                const done = _.after(idsOld.length, () => resolve());
+                const done = After(idsOld.length, () => resolve());
                 idsOld.forEach(idRemove => {
                     dataBase._deletar(idRemove).then(() => done());
                 });
@@ -252,7 +254,7 @@ class imagemDB {
         return new Promise((resolve) => {
             ImagemFotoDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
                 const idsBanco = resultDocs.rows.filter((row) => !row.id.includes("_design")).map((row) => row.id);
-                const idsOld = _.difference(idsBanco, Ids);
+                const idsOld = Difference(idsBanco, Ids);
                 this.deletarImagens(ImagemFotoDB, idsOld).then(() => {
                     resolve();
                 });
@@ -264,7 +266,7 @@ class imagemDB {
         return new Promise((resolve) => {
             ImagemCorDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
                 const idsBanco = resultDocs.rows.filter((row) => !row.id.includes("_design")).map((row) => row.id);
-                const idsOld = _.difference(idsBanco, Ids);
+                const idsOld = Difference(idsBanco, Ids);
                 this.deletarImagens(ImagemCorDB, idsOld).then(() => {
                     resolve();
                 });
@@ -276,7 +278,7 @@ class imagemDB {
         return new Promise((resolve) => {
             ImagemSeloDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
                 const idsBanco = resultDocs.rows.filter((row) => !row.id.includes("_design")).map((row) => row.id);
-                const idsOld = _.difference(idsBanco, Ids);
+                const idsOld = Difference(idsBanco, Ids);
                 this.deletarImagens(ImagemCorDB, idsOld).then(() => {
                     resolve();
                 });
@@ -288,7 +290,7 @@ class imagemDB {
         return new Promise((resolve) => {
             ImagemSimboloDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
                 const idsBanco = resultDocs.rows.filter((row) => !row.id.includes("_design")).map((row) => row.id);
-                const idsOld = _.difference(idsBanco, Ids);
+                const idsOld = Difference(idsBanco, Ids);
                 this.deletarImagens(ImagemCorDB, idsOld).then(() => {
                     resolve();
                 });

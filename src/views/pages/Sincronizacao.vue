@@ -348,20 +348,20 @@ export default {
         buscaDadosCouchDB() {
             return new Promise((resolve) => {
                 CarrinhoDB.getCouchDB().then(() => {
-                    resolve();
+                    ClienteDB.getCouchDB().then(() => {
+                        OrcamentoDB.getCouchDB().then(() => {
+                            PedidoDB.getCouchDB().then(() => {
+                                resolve();
+                            });
+                        });
+                    });
                 });
             });
         }
 
     },
-    beforeCreate() {
-        
-    },
-    created() {
-        
-    },
-    beforeMount() {
-        
+    async created() {
+        await this.buscaDadosCouchDB();
     },
     async mounted() {
         await this.carregaItensTela();
