@@ -274,14 +274,18 @@ class basicDB {
     _salvar(value) {
         return new Promise((resolve, reject) => {
             try {
-                value._id = (value.id ? value.id : value._id).toString();                           
+                value._id = (value.id ? value.id : value._id).toString();
+                
                 this._localDB.put(value).then((result) => {
-                    resolve(result.id);
+                    resolve({id: result.id, _rev: result.rev});
                 }).catch((erro) => {
                     if (erro.status == 409) {
+                        console.log('Salvar recursivo, ver controle _rev');
+                        
                         this._getById(value.id, true).then((objectDB) => {
-                            this._salvar(objectDB.value).then(() => {
-                                resolve();
+                            value._rev = objectDB.value._rev;
+                            this._salvar(value).then((result) => {
+                                resolve(result);
                             });
                         });
                     } else if (erro.name == "QuotaExceededError") {
@@ -351,8 +355,6 @@ class basicDB {
             });
         });
     }
-
-    
 
     _getIds() {
         return new Promise((resolve) => {

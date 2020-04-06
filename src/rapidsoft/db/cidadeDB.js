@@ -14,6 +14,7 @@ class cidadeDB extends BasicDB {
         super("cidade");
         this.indexes = ['uf', 'rel'];
         this._createIndexes(this.indexes, 'estado_relacionado');
+        this._createIndex('rel');
     }
 
     criaCidades(estado) {
@@ -65,7 +66,7 @@ class cidadeDB extends BasicDB {
             this._localDB.bulkDocs(cidades).then(() => {
                 resolve();
             }).catch((error) => {
-                this._criarLogDB({url:'db/cidadeDB',method:'salvarSinc',message: error,error:'Failed Request'})
+                this._criarLogDB({url:'db/cidadeDB',method:'salvarSinc',message: error,error:'Failed Request'});
                 resolve();
             });
         });
@@ -86,7 +87,7 @@ class cidadeDB extends BasicDB {
                 delete result._rev;
                 resolve({existe: true, result: result});  
             }).catch((error) => {
-                this._criarLogDB({url:'db/cidadeDB',method:'buscaCidade',message: error,error:'Failed Request'})
+                this._criarLogDB({url:'db/cidadeDB',method:'buscaCidade',message: error,error:'Failed Request'});
                 resolve({existe: false, result: error});
             });
         });
@@ -136,7 +137,7 @@ class cidadeDB extends BasicDB {
 
     getCidadesRelacionadas() {
         return new Promise((resolve) => {
-            this._getFindCondition({rel : {$gte : 1}}).then((cidades) => {
+            this._getFindCondition({rel : {$eq : 1}}).then((cidades) => {
                 resolve(cidades);
             });
         });
@@ -172,7 +173,7 @@ class cidadeDB extends BasicDB {
                 {id: 25, nome: "São Paulo", sigla: "SP"},
                 {id: 26, nome: "Sergipe", sigla: "SE"},
                 {id: 27, nome: "Tocantins", sigla: "TO"}
-            ]
+            ];
             resolve(estados);
         });            
     }

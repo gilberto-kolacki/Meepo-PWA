@@ -113,7 +113,7 @@ const validarObjetoDB = (cliente) => {
                 cliente.razaoSocial = cliente.nome;
             }
         }
-        if (cliente.segmentos[0] === undefined && cliente.segmentos[1] === undefined) {
+        if (!cliente.clienteErp && cliente.segmentos[0] === undefined && cliente.segmentos[1] === undefined) {
             reject({campo: "segmento", mensagem: "Campo obrigatório, informe ao menos 1 Segmento!"});
         }
         else if (cliente.emailNfe === undefined || (!(cliente.emailNfe.includes("@") && cliente.emailNfe.includes(".com"))) ) {
@@ -156,10 +156,10 @@ const validarObjetoDB = (cliente) => {
         // else if (!_.isEmpty(validarEndereco)){
         //     reject(validarEndereco);
         // }
-        else if (!(_.isArray(cliente.imagens) && cliente.imagens.length >= 1)){
+        else if (!cliente.clienteErp && !(_.isArray(cliente.imagens) && cliente.imagens.length >= 1)){
             reject({mensagem: "É necessário adicicionar ao menos uma imagem!"});
         }
-        else if (cliente.imagens.length > 5){
+        else if (cliente.imagens && cliente.imagens.length > 5){
             reject({mensagem: "É necessário remover uma ou mais imagens(Máximo 5 imagens)"});
         }
         else if (!(_.isArray(cliente.contatos) && cliente.contatos.length >= 1)) {
@@ -186,14 +186,11 @@ class clienteDB extends BasicDB {
     salvar(cliente) {
         return new Promise((resolve, reject) => {
             validarObjetoDB(cliente).then((resultCliente) => {
-                resultCliente.id = resultCliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
                 resultCliente.alterado = true;
-                resultCliente.endereco.cep = resultCliente.endereco.cep.replace(/[^a-z0-9]/gi, "");
-                if (resultCliente.nome == null) {
-                    resultCliente.nome = resultCliente.nomeFantasia;
-                }
                 this._salvar(resultCliente).then((result) => {
-                    resolve(result);
+                    resultCliente.id=result.id;
+                    resultCliente._rev=result._rev;
+                    resolve(resultCliente);
                 }).catch((erro) => {
                     this._criarLogDB({url:'db/clienteDB',method:'salvar().validarObjetoDB',message: erro,error:'Failed Request'});
                     reject(erro);
@@ -205,93 +202,34 @@ class clienteDB extends BasicDB {
         });
     }
 
-    adicionarEnderecoSincronizado(endereco,idCliente) {
-        return new Promise((resolve) => {
-            this._getById(idCliente,true).then((clienteById) => {
-                if (clienteById.existe) {
-                    clienteById.value.enderecos.push(endereco);
-                    clienteById.value.alterado = true;
-                    this._salvar(clienteById.value).then(() => {
-                        resolve();
-                    });
-                }
-            });
-        });
-    }
-
-    getExistClienteNome(contatosList, contatoSave) { 
-        return _.find(contatosList, (contato) => contato.nome == contatoSave.nome);
-    }
-
-    removeContatoAntigo(contatosList, contatoSave, indexEdit) {
-        if (this.getExistClienteNome(contatosList, contatoSave)){
-            contatosList.splice(indexEdit, 1);
-        }
-        return contatosList;
-    }
-
-    setContatosList(contatosList, contatoSave, indexEdit) {
-        return new Promise((resolve) => {
-            contatosList = this.removeContatoAntigo(contatosList, contatoSave, indexEdit);
-            contatosList.push({
-                nome: contatoSave.nome,
-                cargo: contatoSave.cargo,
-                celular: contatoSave.celular,
-                email: contatoSave.email,
-                telefone: contatoSave.telefone,
-            });
-            resolve(contatosList);
-        });
-    }
-
-    adicionarContatoSincronizado(contato,idCliente,indexEdit = null) {
-        return new Promise((resolve) => {
-            this._getById(idCliente,true).then((clienteById) => {
-                if (clienteById.existe) {
-                    clienteById.value.alterado = true;
-                    this.setContatosList(clienteById.value.contatos, contato, indexEdit).then((contatos) => {
-                        clienteById.value.contatos = contatos;
-                    });
-                    this._salvar(clienteById.value).then(() => {
-                        resolve(clienteById.value.contatos);
-                    });
-                }
-            });
-        });
-    }
-
-    atualizaEnderecoEntrega(cliente) {
-        return new Promise((resolve) => {
-            this._getById(cliente._id,true).then((clienteById) => {
-                if (clienteById.existe) {
-                    clienteById.value.enderecos.map((endereco,index) => {
-                        endereco.principal = cliente.enderecos[index].principal;
-                    });
-                    clienteById.value.alterado = true; 
-                    this._salvar(clienteById.value).then(() => {
-                        resolve();
-                    });
-                }
-            })
-            
-        });
-
-    }
-
     salvarSinc(cliente) {
         return new Promise((resolve) => {
             try {
                 cliente.id = cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
+                
                 if (cliente.enderecos.length == 0 && cliente.endereco) {
                     const enderecoEntrega = Object.assign({}, cliente.endereco);
                     enderecoEntrega.endEntrega = true;
                     cliente.enderecos.push(enderecoEntrega);
                 }
+
                 if (cliente.nome == null) {
                     cliente.nome = (cliente.nomeFantasia ? cliente.nomeFantasia : cliente.razaoSocial).toUpperCase();
                 }
+                
                 cliente.clienteErp = true;
                 cliente.alterado = false;
+
+                cliente.enderecos.map((endereco) => {
+                    endereco.enderecoErp = true;
+                    return endereco;
+                });
+
+                cliente.contatos.map((contato) => {
+                    contato.contatoErp = true;
+                    return contato;
+                });
+
                 this._salvar(cliente).then(() => {
                     resolve();
                 }).catch((erro) => {
@@ -304,9 +242,10 @@ class clienteDB extends BasicDB {
             
         });
     }
+    
     listarConsulta() {
         return new Promise((resolve) => {
-            this._getFindCondition({cpfCnpj : {$gte : null}}).then((clientes) => {
+            this._getFindCondition({cpfCnpj : {$ne : null}}).then((clientes) => {
                 clientes = clientes.map((cliente) => {
                     return {
                         id: cliente._id, 
@@ -344,11 +283,14 @@ class clienteDB extends BasicDB {
 
     findById(idCliente) {
         return new Promise((resolve) => {
-            this._localDB.get(idCliente).then((result) => {
-                result.dataAniversario = new Date(Number(result.dataAniversario));
-                result.dataFundacao = new Date(Number(result.dataFundacao));
-                result.inscricaoEstadual = result.inscricaoEstadual == "" ? "ISENTO" : result.inscricaoEstadual;
-                resolve(result);
+            this._getById(idCliente,true).then((result) => {
+                if (result.existe) {
+                    const cliente = result.value;
+                    cliente.inscricaoEstadual = cliente.inscricaoEstadual == "" ? "ISENTO" : cliente.inscricaoEstadual;
+                    resolve(cliente);
+                } else {
+                    resolve(null);
+                }
             });
         });
     }
