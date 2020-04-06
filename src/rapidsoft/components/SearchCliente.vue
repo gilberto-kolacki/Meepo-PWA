@@ -34,7 +34,7 @@
                 <vs-input v-validate="'required'" label="Nome" v-model="nomeSearch" class="w-full" />
             </div>
         </div>
-        <vs-table ref="table" v-model="clienteSearch" @selected="selectSearchProduto(clienteSearch)" :data="listaPesquisa">
+        <vs-table ref="table" v-model="clienteSearch" @selected="selectSearch(clienteSearch)" :data="listaPesquisa">
             <template slot="thead">
                 <vs-th sort-key="referencia">Cpf/Cnpj</vs-th>
                 <vs-th sort-key="nome">Nome</vs-th>
@@ -72,6 +72,7 @@ import vSelect from 'vue-select';
 import ClienteDB from '../db/clienteDB';
 import CidadeDB from '../db/cidadeDB';
 import GrupoClienteDB from '../db/grupoClienteDB';
+import CarrinhoDB from '../db/carrinhoDB';
 import Storage from '../utils/storage';
 
 export default {
@@ -137,13 +138,18 @@ export default {
                 this.searchCidades(() => this.searchFindCliente());
             }
         },
-        selectSearchProduto(cliente) {
+        selectSearch(cliente) {
             ClienteDB._getById(cliente.id).then((result) => {
                 cliente = result.value;
                 GrupoClienteDB.getById(cliente.grupoCliente).then((grupo) => {
                     cliente.grupoCliente = grupo;
-                    this.$bvModal.hide(this.id);
-                    this.$emit('search-selected', cliente);
+                    CarrinhoDB.getCarrinho().then((carrinho) => {
+                        carrinho.cliente = cliente;
+                        CarrinhoDB.setCarrinho(carrinho).then(() => {
+                            this.$bvModal.hide(this.id);
+                            this.$emit('search-selected', cliente);
+                        });
+                    });
                 });
             });
         },

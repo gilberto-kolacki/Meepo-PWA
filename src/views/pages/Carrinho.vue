@@ -5,57 +5,54 @@
 		<b-tabs content-class="mt-5" justified v-if="this.showScreen" lazy no-fade >
 			<b-tab v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento" :active="isEdit && segmento.id === segmentoSelecionado" :id="'tab-item-'+segmento.id">
 				<template v-slot:title>
-					<strong>
-						<feather-icon icon="BoxIcon" style="color:warning;" class="cursor-pointer"/>
-						<div class="itens-center"> Embarques {{segmento.nome}} </div>
-					</strong>
+					<div class="itens-center font-bold"> Embarques {{segmento.nome}} </div>
 				</template>
 				<carrinho-item
 					@show-add-carrinho="showAddCarrinho"
 					@edicao-item-carrinho="showEditCarrinho"
+					:cliente="cliente"
 					:segmento="segmento"
 					:embarques="getEmbarquesSegmento(segmento)"
 					:produtos="getProdutosSegmento(segmento)"/>
 			</b-tab>
 		</b-tabs>
 
-
-		<b-card no-body class="mb-1" v-for="(categoria, indexCat) in totalizadorCategorias" :key="indexCat">
+		<!-- Agrupador de de categorias -->
+		<!-- <b-card no-body class="mb-1" v-for="(categoria, indexCat) in totalizadorCategorias" :key="indexCat">
 			<b-card-header header-tag="header" class="p-1" role="tab"  v-b-toggle="'categoria-'+categoria.id">
-				<span class="font-bold card-header-categorias">+ {{categoria.nome}}: </span>
+				<span class="font-bold card-header-categorias">+ {{categoria.nome}}: {{getQuantidadeCat(categoria)}} </span>
 			</b-card-header>
 			<b-collapse :id="'categoria-'+categoria.id" :ref="'embarque-'+categoria.id">
-				<b-card-body style="background-color: rgba(0, 0, 0, 0.03); padding: 10px;">
-					<table>
-						<!-- <thead class="border-solid">
-							<th class="grade-tam-prod-title" 
-								v-for="(tamanho, indexTamanho) in getTamanhosProduto(produtoCor.idProduto)" :key="indexTamanho + ' - ' + tamanho.sku">
+				<b-card-body style="padding: 5px;">
+					<table class="table-categorias">
+						<thead class="border-solid">
+							<th class="grade-tam-prod-title" v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
 								{{tamanho.codigo}}
 							</th>
 						</thead>
 						<tbody>
 							<tr>
-								<td class="grade-tam-prod-qtde"
-									v-for="(tamanho, indexTamanho) in getTamanhosProduto(produtoCor.idProduto)" :key="indexTamanho + ' - ' + tamanho.sku">
-								{{tamanho.quantidade}}</td>
+								<td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
+									{{tamanho.quantidade}}
+								</td>
 							</tr>
-						</tbody> -->
+						</tbody>
 					</table>
 				</b-card-body>
 			</b-collapse>
 		</b-card>
 		<b-card no-body class="mb-1">
 			<b-card-header header-tag="header" class="p-1" role="tab">
-				<span class="font-bold card-header-categorias">Total peças:</span>
+				<span class="font-bold card-header-categorias">Total peças: {{this.getTotalPecas}}</span>
 			</b-card-header>
 		</b-card>
 		<b-card no-body class="mb-1">
 			<b-card-header header-tag="header" class="p-1" role="tab">
-				<span class="font-bold card-header-categorias">Total:</span>
+				<span class="font-bold card-header-categorias">Total: {{this.getTotalValor() | moneyyGrupo}}</span>
 			</b-card-header>
-		</b-card>
-
-
+		</b-card> -->
+		
+		<!-- Modal seleção de segmento para carregar na tela de pedido -->
 		<vs-popup title="Selecione o segmento" :active.sync="popupSegmentos" :button-close-hidden="false" v-if="this.segmentos.length > 1">
             <table style="width:100%" class="border-collapse">
                 <tr>
@@ -64,7 +61,7 @@
                     <th class="p-2 border border-solid d-theme-border-grey-light text-right">Total</th>
                     <th class="p-2 border border-solid d-theme-border-grey-light"></th>
                 </tr>
-                <tr v-for="(segmento, indexSegmento) in this.segmentos" :key="indexSegmento">
+                <tr v-for="(segmento, indexSegmento) in segmentos" :key="indexSegmento">
                     <td class="p-2 border border-solid d-theme-border-grey-light">{{segmento.nome}}</td>
                     <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{getPecasSegmento(segmento)}}</td>
                     <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{getTotalSegmento(segmento) | moneyy}}</td>
@@ -76,13 +73,14 @@
                 </tr>      
             </table>
         </vs-popup>
+		<search-cliente v-if="showScreen" @search-selected="selectSearchCliente" id="popup-cliente-search"></search-cliente>
 	</div>
 </template>
 <script>
-// import _ from "lodash";
+
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import SegmentoDB from "../../rapidsoft/db/segmentoDB";
-import CategoriaDB from "../../rapidsoft/db/categoriaDB";
+// import CategoriaDB from "../../rapidsoft/db/categoriaDB";
 import PeriodoDB from "../../rapidsoft/db/periodoDB";
 import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
@@ -96,6 +94,7 @@ export default {
 		selected: [],
 		segmentos: [],
 		embarques: [],
+		cliente: null,
 		embarquesOption: [],
 		itensCarrinho: [],		
 		produtosSegmento: null,
@@ -103,18 +102,21 @@ export default {
 		isEdit: false,
 		segmentoSelecionado: null,
 		popupSegmentos: false,
-		totalizadorCategorias: [],
 	}),
 	watch: {
-
     },
 	components: {
 		CarrinhoItem,
+		SearchCliente: () => ({
+			component: import('../../rapidsoft/components/SearchCliente'),
+            delay: 200,
+            timeout: 3000
+        }),
 	},
 	computed: {
 
 	},
-    methods: {
+    methods: {		
 		getPecasSegmento(segmento) {
 			const embarquesSegmento = Object.values(this.getEmbarquesSegmento(segmento));
 			return embarquesSegmento.reduce((total, segmento) => total + segmento.quantidade, 0);
@@ -146,10 +148,20 @@ export default {
 			});
 		},
 		showPedidos() {
-			if (this.segmentos.length > 1) {
-				this.popupSegmentos = true;
+			if (this.cliente.cpfCnpj) {
+				if (this.segmentos.length > 1) {
+					this.popupSegmentos = true;
+				} else {
+					this.proximaTela(this.segmentos[0].id)
+				}
 			} else {
-				this.proximaTela(this.segmentos[0].id)
+				const menssagem = `Selecione um cliente para continuar!`;
+				this.$vs.dialog({
+					color:'warning',
+					title:'Atenção!',
+					text: menssagem,
+					acceptText: 'Ok',
+				});
 			}
 		},
 		showEditCarrinho(produto) {
@@ -163,55 +175,23 @@ export default {
 		voltarCarrinho() {
 			this.gerenciaVisualizacao(1);
 		},
-		buscaAgrupadorCategorias(carrinho) {
-			return new Promise((resolve) => {
-				const totCategorias = carrinho.reduce((categoriasCarrinho, item) => {
-					return categoriasCarrinho.concat(item.categorias.reduce((categorias, categoria) => {
-						if (!categoriasCarrinho.some((cat) => cat === categoria)) categorias.push(categoria)
-						return categorias;
-					}, []));
-				}, []).reduce((totCategorias, cat) => {
-					const categ = {id: cat};
-					categ.itens = carrinho.reduce((totaisCategoria, item) => {
-						if (item.categorias.some((categ) => categ === cat)) {
-							totaisCategoria.push({
-								idProduto: item.idProduto,
-								preco: item.precoCusto,
-								tamanhos: item.tamanhos.map((tamanho) => ({codigo: tamanho.codigo, quantidade: tamanho.quantidade}))
-							});
-						}
-						return totaisCategoria;
-					}, []);
-					totCategorias.push(categ)
-					return totCategorias;
-				}, []);
-				CategoriaDB.getNomesAgrupadores(totCategorias).then((totalizadorCategorias) => {
-
-					console.log(totalizadorCategorias);
-					
-					this.totalizadorCategorias = totalizadorCategorias;
-					resolve();
-				});
-			});
-		},
 		carregaItensTela() {
 			return new Promise((resolve, reject) => {
 				this.segmentoSelecionado = this.$route.params.segmento;
 				this.isEdit = this.$route.params.edit;		
 				CarrinhoDB.getCarrinho().then(carrinho => {
+					this.cliente = carrinho.cliente;
 					ProdutoDB.getProdutosFromCarrinho(carrinho).then((carrinhoTela) => {
 						if (carrinhoTela.length > 0) {
-							this.buscaAgrupadorCategorias(carrinhoTela).then(() => {
-								this.itensCarrinho = carrinhoTela;
-								EmbarqueDB.getInfosEmbarques(carrinhoTela).then((embarques) => {
-									this.embarquesOption = embarques;
-									PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
-										this.embarques = embarques;
-										SegmentoDB.getSegmentosCarrinho(carrinhoTela).then((segmentos) => {
-											this.segmentos = segmentos;
-											this.produtosSegmento = ProdutoUtils.getProdutosSegmentos(segmentos, carrinhoTela);										
-											resolve();
-										});
+							this.itensCarrinho = carrinhoTela;
+							EmbarqueDB.getInfosEmbarques(carrinhoTela).then((embarques) => {
+								this.embarquesOption = embarques;
+								PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
+									this.embarques = embarques;
+									SegmentoDB.getSegmentosCarrinho(carrinhoTela).then((segmentos) => {
+										this.segmentos = segmentos;
+										this.produtosSegmento = ProdutoUtils.getProdutosSegmentos(segmentos, carrinhoTela);										
+										resolve();
 									});
 								});
 							});
@@ -220,6 +200,21 @@ export default {
 				});
 			});
 		},
+		selectSearchCliente(clienteSelecionado) {
+			this.$vs.loading();
+			const close = () => {
+				setTimeout(() => {
+					this.cliente = clienteSelecionado;
+					this.$forceUpdate();
+					this.$vs.loading.close();
+				}, 300);
+			}
+			if (this.cliente.grupoCliente.id != clienteSelecionado.grupoCliente.id) {
+				this.carregaItensTela().then(() => close());
+			} else {
+				close();
+			}
+        },
 	},
 	async created() {
 		const error = (erro) => {
@@ -237,13 +232,11 @@ export default {
 			this.$router.push({ name: 'catalogoItem'});
 		}
 	},
-    async mounted() {
+    mounted() {
         
 	},
 	updated() {
-		
 	},
-
 	errorCaptured(err, vm, info) {
         ErrorDB._criarLog({ err, vm, info });
         return true;
@@ -271,6 +264,11 @@ export default {
 	float: right;
     font-size: 0.9rem;
     margin: 0.2rem 0.75rem !important;
+}
+
+.table-categorias {
+	float: right;
+    margin: 0.5rem 0.75rem !important;
 }
 
 .page-carrinho {

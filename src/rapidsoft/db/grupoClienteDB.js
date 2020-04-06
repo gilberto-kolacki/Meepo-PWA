@@ -21,6 +21,8 @@ class grupoClienteDB extends BasicDB {
                 if(gruposCliente.length > 0) {
                     const done = _.after(gruposCliente.length, () => resolve());
                     gruposCliente.forEach(grupo => {
+                        grupo.porcentagem = Number(grupo.porcentagem);
+                        if (grupo.id == 23) grupo.porcentagem = 10;
                         this._salvar(grupo).then(() => done()).catch(() => done());
                     });
                 } else {

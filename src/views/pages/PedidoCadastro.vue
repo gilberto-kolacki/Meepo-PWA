@@ -180,7 +180,6 @@
 
 <script>
 
-import _ from 'lodash';
 import Datepicker from 'vuejs-datepicker';
 import vSelect from 'vue-select';
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
@@ -373,7 +372,7 @@ export default {
             });
         },
         deletarItemPedido(parametersItemPedido) {
-            this.pedido.itens = _.remove(this.pedido.itens, (itemPedido) => itemPedido.sku !== parametersItemPedido.sku);
+            this.pedido.itens = this.lodash.remove(this.pedido.itens, (itemPedido) => itemPedido.sku !== parametersItemPedido.sku);
             PedidoDB.deletarItemPedido(this.pedido).then(() => {
                 this.notification('Excluído!','Item excluído do pedido com sucesso!','primary');
                 setTimeout(() => {

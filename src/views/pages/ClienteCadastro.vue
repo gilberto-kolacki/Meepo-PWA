@@ -473,7 +473,6 @@ import validatePtBR from '../../rapidsoft/validate/validate_ptBR';
 import Datepicker from 'vuejs-datepicker';
 import * as lang from "vuejs-datepicker/src/locale";
 import vSelect from 'vue-select';
-import _ from 'lodash';
 import ClienteDB from '../../rapidsoft/db/clienteDB';
 import CidadeDB from '../../rapidsoft/db/cidadeDB';
 import CidadeService from '../../rapidsoft/service/cidadeService';
@@ -552,7 +551,7 @@ export default {
         },
         segmentosCliente(val) {
             this.clienteEdit.segmentos = val.map((segmento) => {
-                return _.toString(segmento.value);
+                return String(segmento.value);
             });
         },
     },
@@ -586,8 +585,8 @@ export default {
     methods: {
         cnpjnulo(cpfCnpj, key = null, uf = null) {
             const cliente = {cep: null,telefone: null, estado:null,bairro:null,complemento:null,numero:null,endereco:null};
-            if (cpfCnpj && cpfCnpj.length == 0) {
-                this.clienteEdit[key] = _.isObject(this.clienteEdit[key]) ? cliente : null;
+            if (cpfCnpj || cpfCnpj.length == 0) {
+                this.clienteEdit[key] = this.lodash.isObject(this.clienteEdit[key]) ? cliente : null;
                 this.proximoCampo('cpfCnpj');
             } else {
                 if (uf && uf.length > 1) {
@@ -902,22 +901,49 @@ export default {
                         this.getGroupClient(this.clienteEdit.endereco.estado);
                     }
                     this.$forceUpdate();
-                })
+                });
             }
+        },
+        adicionaContatoCliente() {
+            this.clienteEdit.contatos = ClienteDB.removeContatoAntigo(this.clienteEdit.contatos,this.contatoEdit,this.indexEditContato);
+            this.clienteEdit.contatos.push(this.lodash.clone(this.contatoEdit));
+        },
+        salvarContato() {          
+            ClienteDB.validarContato(this.contatoEdit).then(() => {
+                this.contatoEdit.id = this.contatoEdit.id ? this.contatoEdit.id : 0;
+                if (this.clienteEdit.clienteErp) {
+                    ClienteDB.adicionarContatoSincronizado(this.contatoEdit,this.clienteEdit._id,this.indexEditContato).then((contatos) => {
+                        this.clienteEdit.contatos = contatos;
+                    });
+                } else {
+                    this.adicionaContatoCliente();
+                }
+                this.isEditContato = false;
+            }).catch((erro) => {
+                this.$validator.validate();       
+                if (erro.campo) {
+                    this.proximoCampo(erro.campo);
+                }
+                this.$vs.notify({
+                    title: 'Erro!',
+                    text: erro.mensagem,
+                    color: 'danger',
+                    iconPack: 'feather',
+                    icon: 'icon-alert-circle'
+                });
+            });
         },
         getReferencias() {
             const ref = this.listReferenciasComerciais.filter((refComercial) => refComercial.refSelecionada == true);
             const listReferencias = ref.map((referencia) => {
                 return referencia['nome'];
             });
-            return _.join(listReferencias,', ');
+            return this.lodash.join(listReferencias,', ');
             
         },
         salvarCliente() {
             this.$vs.loading();
-            
             const cliente = this.prepareSalvarCliente();
-            
             setTimeout(() => {
                 ClienteDB.salvar(cliente).then((clienteSalvo) => {
                     this.prepareClienteEdit(clienteSalvo);
@@ -963,7 +989,7 @@ export default {
             cliente.dataAniversario = (cliente.dataAniversario) ? moment(cliente.dataAniversario, ["DD/MM/YYYY"]).toDate().getTime() : undefined;
             cliente.endereco.cidade = cliente.endereco.cidade ? cliente.endereco.cidade.label : null;
             
-            if (_.findIndex(this.segmentosCliente, {'value':3333}) >= 0) {
+            if (this.lodash.findIndex(this.segmentosCliente, {'value':3333}) >= 0) {
                 cliente.segmentos = ['3','5'];
             }
             cliente.referenciaComercial = cliente.referenciaComercial 

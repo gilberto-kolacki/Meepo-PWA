@@ -5,7 +5,10 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import After from 'lodash/after';
+import Round from 'lodash/round';
+import OrderBy from 'lodash/orderBy';
+import Intersection from 'lodash/intersection';
 import BasicDB from './basicDB';
 import Storage from '../utils/storage';
 
@@ -21,7 +24,7 @@ class embarqueDB extends BasicDB {
         return new Promise((resolve) => {
             this._limparBase().then(() => {
                 if(embarques.length > 0) {
-                    const done = _.after(embarques.length, () => resolve());
+                    const done = After(embarques.length, () => resolve());
                     embarques.forEach(embarque => {
                         this._salvar(embarque).then(() => done()).catch(() => done());
                     });
@@ -32,39 +35,30 @@ class embarqueDB extends BasicDB {
         });
     }
 
-
     getEmbarqueProduto(produto) {
         return new Promise((resolve) => {
             const grupo = Storage.getGrupoCarrinho();
-            const embarques = _.intersection(grupo.embarques, produto.embarques);
+            const embarques = Intersection(grupo.embarques, produto.embarques);
             this._getFindCondition({$and : [{id : {$in : embarques}}, {idSegmento : {$in : produto.segmento}}]}).then((embarques) => resolve(embarques[0]));
         });
     }
 
     calcularPrecoCarrinho(precoProduto) {
         const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
-        return _.round(precoProduto.precoCusto + ((percentual/100) * precoProduto.precoCusto), 2);
+        return Round(precoProduto.precoCusto + ((percentual/100) * precoProduto.precoCusto), 2);
     }
 
     getInfosEmbarques(carrinho) {
         return new Promise((resolve) => {
             const embarques = new Map();
-            const done = _.after(carrinho.length, () => resolve([...embarques.values()]));
+            const done = After(carrinho.length, () => resolve([...embarques.values()]));
             carrinho.forEach(produto => {
                 this._getById(produto.embarque).then((embarque) => {
-                    const calculaEmbarque = (idEmbarque) => {
-                        const embarque = embarques.get(idEmbarque);
-                        embarque.quantidade = (embarque.quantidade || 0 ) + produto.quantidade;
-                        embarque.valor = this.calcularPrecoCarrinho(produto);
-                        embarque.totalBruto = (embarque.totalBruto || 0 ) + _.round((produto.quantidade * embarque.valor), 2);
-                        embarque.dataEmbarque = embarque.dataInicio;
-                        done();
-                    };
-                    if (embarques.has(produto.embarque)) calculaEmbarque(produto.embarque);
-                    else {
+                    if (!embarques.has(produto.embarque)) {
+                        embarque.value.dataEmbarque = embarque.value.dataInicio;
                         embarques.set(produto.embarque, embarque.value);
-                        calculaEmbarque(produto.embarque);
                     }
+                    done();
                 });
             });
         });
@@ -85,7 +79,7 @@ class embarqueDB extends BasicDB {
     getEmbarquesPedido(pedido) {
         return new Promise((resolve) => {
             const grupo = pedido.grupoCliente;
-            pedido.listEmbarques = _.orderBy(pedido.listEmbarques, ['dataEmbarque', 'nome'], ['asc', 'asc']);
+            pedido.listEmbarques = OrderBy(pedido.listEmbarques, ['dataEmbarque', 'nome'], ['asc', 'asc']);
             pedido.listEmbarques = pedido.listEmbarques.reduce((listEmbarques, embarque) => {
                 embarque.brinde = false;
                 embarque.pedidoParcial = true;
@@ -95,7 +89,7 @@ class embarqueDB extends BasicDB {
                 embarque.condicaoPagamento = null;
                 embarque.quantidade = this.getQuantidadeEmbarque(embarque.itensPedido);
                 embarque.valor = this.getValorEmbarque(embarque.itensPedido);
-                embarque.totalBruto = _.round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
+                embarque.totalBruto = Round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
                 listEmbarques.push(embarque);
                 return listEmbarques;
             }, []);

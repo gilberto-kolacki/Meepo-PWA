@@ -159,7 +159,7 @@
 </template>    
 <script>
 
-import _ from 'lodash';
+// import _ from 'lodash';
 import ProdutoUtils from '../utils/produtoUtils';
 import UtilMask from '../utils/utilMask';
 
@@ -236,7 +236,7 @@ export default {
         },
         atualizarGrade(indexCor, indexTamanho) {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
-            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (Number(tamanho.quantidade) === 0 ? 0 :Number(tamanho.quantidade));
+            tamanho.quantidade = this.lodash.isNil(tamanho.quantidade) ? 0 : (Number(tamanho.quantidade) === 0 ? 0 :Number(tamanho.quantidade));
             if (tamanho.quantidade > 10) {
                 const corTamanho = String(indexCor) + String(indexTamanho);
                 if (!this.limitesExcedidos.find((corTamanhoByList) => corTamanho == corTamanhoByList)) {
@@ -244,7 +244,7 @@ export default {
                     this.alertaLimiteItens();
                 }
             }
-            this.$emit('atualiza-qtde-itens', _.clone(tamanho));
+            this.$emit('atualiza-qtde-itens', this.lodash.clone(tamanho));
             this.$forceUpdate();
         },
         disabledCorTamanho(produto, corTamanho, tipo) {
@@ -280,21 +280,21 @@ export default {
         },
         menosTamanho(indexCor, indexTamanho) {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
-            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade-1);
-            this.$emit('atualiza-qtde-itens', _.clone(tamanho));
+            tamanho.quantidade = this.lodash.isNil(tamanho.quantidade) ? 0 : (tamanho.quantidade === 0 ? 0 :tamanho.quantidade-1);
+            this.$emit('atualiza-qtde-itens', this.lodash.clone(tamanho));
             this.$forceUpdate();
         },
         maisTamanho(indexCor, indexTamanho) {
             const tamanho = this.criaTamanho(indexCor, indexTamanho);
-            tamanho.quantidade = _.isNil(tamanho.quantidade) ? 1 : parseInt(tamanho.quantidade)+1;
+            tamanho.quantidade = this.lodash.isNil(tamanho.quantidade) ? 1 : parseInt(tamanho.quantidade)+1;
             if (tamanho.quantidade > 10) {
-                const corTamanho = _.toString(indexCor) + _.toString(indexTamanho);
-                if (!_.find(this.limitesExcedidos, (corTamanhoByList) => { return corTamanho == corTamanhoByList})) {
+                const corTamanho = String(indexCor) + String(indexTamanho);
+                if (!this.limitesExcedidos.find((corTamanhoByList) => corTamanho == corTamanhoByList)) {
                     this.limitesExcedidos.push(corTamanho);
                     this.alertaLimiteItens(); 
                 }
             }
-            this.$emit('atualiza-qtde-itens', _.clone(tamanho));
+            this.$emit('atualiza-qtde-itens', this.lodash.clone(tamanho));
             this.$forceUpdate();
         },
         alertaLimiteItens() {
@@ -367,8 +367,7 @@ export default {
     },
     created() {
     },
-    mounted() {
-        
+    mounted() {        
     }
 }
 </script>    

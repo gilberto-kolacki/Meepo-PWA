@@ -5,7 +5,7 @@
   Author: Giba
 ==========================================================================================*/
 
-import _ from 'lodash';
+import After from 'lodash/after';
 import BasicDB from './basicDB';
 import ProdutoDB from './produtoDB';
 
@@ -20,7 +20,7 @@ class categoriaDB extends BasicDB {
         return new Promise((resolve) => {
             this._limparBase().then(() => {
                 if(categorias.length > 0) {
-                    const done = _.after(categorias.length, () => resolve());
+                    const done = After(categorias.length, () => resolve());
                     categorias.forEach(categoria => {
                         this._salvar(categoria).then(() => done()).catch(() => done());
                     });
@@ -49,13 +49,14 @@ class categoriaDB extends BasicDB {
         });
     }
 
-    getNomesAgrupadores(categorias) {
+    getArrayAgrupadoresCategorias(categorias) {
         return new Promise((resolve) => {
             if(categorias.length > 0) {
-                const done = _.after(categorias.length, () => resolve(categorias));
+                const done = After(categorias.length, () => resolve(categorias));
                 categorias.forEach(categoria => {
                     this._getById(categoria.id).then((cat) => {
-                        categoria.nome = cat.value.nome;
+                        if (cat.existe) categoria.nome = cat.value.nome;
+                        else categoria.nome = `'${categoria.id}' NÂO CADASTRADA`;
                         done();
                     });
                 });

@@ -63,4 +63,16 @@ Vue.filter('moneyy', (value, grupoCliente = null) => {
     } 
 });
 
+Vue.filter('moneyGrupo', (value, grupoCliente = null) => {
+    if (value) {
+        return UtilMask.getMoneyGrupo(value, false, grupoCliente);
+    } 
+});
+
+Vue.filter('moneyyGrupo', (value, grupoCliente = null) => {
+    if (value) {
+        return UtilMask.getMoneyGrupo(value, true, grupoCliente);
+    } 
+});
+
 

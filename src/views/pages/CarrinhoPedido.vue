@@ -8,31 +8,14 @@
                 <div class="vx-row">
                     <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="2" vs-sm="3" vs-xs="12" >
                         <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
-                            <label for="cpfCnpj" class="vs-input--label">CPF/CNPJ</label>
+                            <label for="cpfCnpj" class="vs-input--label">Cliente</label>
                             <div class="vs-con-input">
                                 <the-mask v-validate="'required|min:14'" id="cpfCnpj" disabled name="cpfCnpj" v-model="pedidoCapa.cliente.cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
                             </div>
                         </div>
                     </vs-col>
                     <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="10" vs-sm="9" vs-xs="12">
-                        <vs-input v-validate="'required'" label="Nome" id="nomeCliente" name="nomeCliente" disabled v-model="pedidoCapa.cliente.nome" class="w-full input-line-group-rapid" />
-                        <vs-button
-                            color="primary"
-                            type="filled"
-                            icon-pack="feather"
-                            class="w-full btn-line-group-rapid"
-                            icon="icon-search"                                    
-                            @click.stop="abrirPesquisaCliente()"
-                            style="border-radius:0px"
-                        ></vs-button>
-                        <vs-button 
-                            @click="abrirClienteNovo()" 
-                            class="w-full btn-line-group-rapid"
-                            color="success" 
-                            type="filled" 
-                            icon-pack="feather" 
-                            icon="icon-plus"
-                        ></vs-button>
+                        <vs-input v-validate="'required'" id="nomeCliente" name="nomeCliente" disabled v-model="pedidoCapa.cliente.nome" class="w-full input-group-rapid" />
                     </vs-col>
                 </div>
                 <div class="vx-row">
@@ -208,22 +191,18 @@
                 </div>
             </div>
         </div>
-        <search-cliente @search-selected="selectSearchCliente" :id="idPopUpSearch"></search-cliente>
     </div>
 </template>
 <script>
-import _ from "lodash";
+// import _ from "lodash";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
 import Storage from "../../rapidsoft/utils/storage";
-import SearchCliente  from '../../rapidsoft/components/SearchCliente';
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
 import OrcamentoDB from "../../rapidsoft/db/orcamentoDB";
 import vSelect from 'vue-select';
-import clienteDB from '../../rapidsoft/db/clienteDB';
-import grupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
 import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
 import moment from 'moment';
 
@@ -243,7 +222,6 @@ export default {
         
     },
 	components: {
-        SearchCliente,
         'v-select': vSelect,
 	},
 	computed: {
@@ -431,7 +409,7 @@ export default {
             });
         },
 		gerarPedidos(pedidos) {
-            const done = _.after(pedidos.length, () => {
+            const done = this.lodash.after(pedidos.length, () => {
                 const itens = pedidos.reduce((itens, embarque) => {
                     return itens.concat(embarque.itens.reduce((produtos, item) => {
                         produtos.push(item.sku);
@@ -466,25 +444,12 @@ export default {
         voltarCarrinho() {
             this.$router.push({name:'carrinho'});
         },
-        abrirClienteNovo() {
-            let params = {carrinhoCliente:true, pedidoEmbarques: this.pedidoCapa};
-            this.$router.push({ name: 'clienteEditar', params: params });
-        },
-        abrirPesquisaCliente() {
-			this.$bvModal.show(this.idPopUpSearch);
-        },
-        selectSearchCliente(cliente) {
-            this.pedidoCapa.cliente = cliente;
-            this.pedidoCapa.emailNfe = cliente.emailNfe;
-            this.pedidoCapa.endEntrega = this.getEnderecosEntrega.find((end) => end.endereco.endEntrega ); 
-            this.selecionarEndereco();
-        },
         carregaItensTela() {
 			return new Promise((resolve) => {
                 FormaPagtoDB._getAll().then((formaPagto) => {
                     this.formasPagto = formaPagto;
                     EmbarqueDB.getEmbarquesPedido(this.pedidoCapa).then((pedido) => {
-                        const done = _.after(pedido.listEmbarques.length,() => {
+                        const done = this.lodash.after(pedido.listEmbarques.length,() => {
                             this.pedidoCapa = pedido;
                             this.showScreen = true;
                             resolve();
@@ -504,32 +469,15 @@ export default {
             });
         },
 
-        selecionaClienteNovo() {
-            this.pedidoCapa = this.$route.params.pedidoEmbarques;
-            if (this.$route.params.clienteSalvo) {
-                clienteDB.findById(this.$route.params.clienteSalvo).then((cliente) => {
-                    grupoClienteDB._getById(cliente.grupoCliente).then((grupoCliente) => {
-                        cliente.grupoCliente = grupoCliente.value;
-                        cliente.dataFundacao = cliente.dataFundacao.getTime();
-                        cliente.dataAniversario = cliente.dataAniversario.getTime();
-                        Storage.setClienteCarrinho(cliente);
-                        this.selectSearchCliente(cliente);
-                        this.selecionarEndereco();
-                    });
-                });
-            }
-        }
     },
 	beforeCreate() {
-    
     },
 	created() {
-        this.selecionaClienteNovo();
     },
     beforeMount() {
-    
     },
     async mounted() {
+        this.pedidoCapa = this.$route.params.pedidoEmbarques;
         if (this.pedidoCapa.cliente && this.pedidoCapa.cliente.cpfCnpj) {
             this.pedidoCapa.emailNfe = this.pedidoCapa.cliente.emailNfe;
             this.pedidoCapa.grupoCliente = this.pedidoCapa.cliente.grupoCliente;
