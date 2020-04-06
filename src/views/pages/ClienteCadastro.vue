@@ -715,7 +715,7 @@ export default {
                 if (this.indexEditContato !== null) {
                     this.clienteEdit.contatos.splice(this.indexEditContato, 1);
                 }
-                this.clienteEdit.contatos.push(_.clone(this.contatoEdit));
+                this.clienteEdit.contatos.push(this.lodash.clone(this.contatoEdit));
                 
                 if (this.$route.params.clienteId) {
                     const cliente = this.prepareSalvarCliente();
@@ -786,7 +786,7 @@ export default {
             if (this.indexEditEndereco !== null) {
                 this.clienteEdit.enderecos.splice(this.indexEditEndereco, 1);
             }
-            this.clienteEdit.enderecos.push(_.clone(this.enderecoEdit));
+            this.clienteEdit.enderecos.push(this.lodash.clone(this.enderecoEdit));
             
             if (this.$route.params.clienteId) {
                 const cliente = this.prepareSalvarCliente();
@@ -981,7 +981,7 @@ export default {
             this.$vs.loading.close();
         },
         prepareSalvarCliente() {
-            const cliente = _.cloneDeep(this.clienteEdit);
+            const cliente = this.lodash.cloneDeep(this.clienteEdit);
             cliente.id = cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
             cliente.endereco.cep = cliente.endereco.cep.replace(/[^a-z0-9]/gi, "");
             cliente.nome = (cliente.nome == null) ? cliente.nomeFantasia : cliente.nome;
