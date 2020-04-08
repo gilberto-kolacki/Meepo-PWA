@@ -298,11 +298,13 @@ class clienteDB extends BasicDB {
     deletar(idCliente) {
         return new Promise((resolve, reject) => {
             this._deletar(idCliente).then((result) => {
-                this._remoteDB.get(idCliente).then((objectRemote) => {
+                resolve(result);
+                // TODO (Luiz): Removido para testar a aplicação sem sincronizar base local com a nuvem
+                /* this._remoteDB.get(idCliente).then((objectRemote) => {
                     this._remoteDB.remove(objectRemote).then(() => {
                         resolve(result);
                     });
-                });
+                }); */
             }).catch((err) => {
                 this._criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
                 reject(err);

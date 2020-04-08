@@ -64,7 +64,7 @@ class produtoDB extends BasicDB {
 
     getAllProdutos() {
         return new Promise((resolve) => {
-            this._getFindCondition({referencia : {$gte : null}}).then((produtos) => {
+            this._getFindCondition({referencia : {$ne : null}}).then((produtos) => {
                 resolve(produtos);
             });
         });
