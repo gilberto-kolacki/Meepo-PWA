@@ -20,7 +20,7 @@
             </div>
             <div class="vx-col sm:w-1/2 w-full mb-2">
                 <label for="cidadesFiltro" class="vs-input--label">Cidade</label>
-                <v-select id="cidadesFiltro" name="cidade" v-model="cidadeSelecionada" :clearable=false :options="getCidadesSearch"/>
+                <v-select id="cidadesFiltro" name="cidade" v-model="cidadeSelecionada" :clearable=true :options="getCidadesSearch"/>
             </div>
         </div>
         <div class="vx-row">
@@ -36,29 +36,25 @@
         </div>
         <vs-table ref="table" v-model="clienteSearch" @selected="selectSearch(clienteSearch)" :data="listaPesquisa">
             <template slot="thead">
-                <vs-th sort-key="referencia">Cpf/Cnpj</vs-th>
-                <vs-th sort-key="nome">Nome</vs-th>
-                <vs-th sort-key="nome">Endereço</vs-th>
-                <vs-th sort-key="nome">Cidade</vs-th>
-                <vs-th sort-key="nome">Estado</vs-th>
+                <vs-th sort-key="cpfCnpj" style="width: 25%">CPF/CNPJ</vs-th>
+                <vs-th sort-key="nome" style="width: 35%">Nome</vs-th>
+                <vs-th sort-key="cidade" style="width: 20%">Cidade</vs-th>
+                <vs-th sort-key="estado" style="width: 10%">UF</vs-th>
             </template>
             <template slot-scope="{data}">
                 <tbody id="div-with-loading-search" class="vs-con-loading__container vs-con-loading-search">
-                    <vs-tr :state="data[indextr].ativo === 0 ? 'danger':data[indextr].inadimplente !== 0 ? 'warning':null" :data="tr" :key="indextr" v-for="(tr, indextr) in data">
+                    <vs-tr :state="data[indextr].ativo === 0 ? 'dark' : (data[indextr].inadimplente !== 0) ? 'warning' : null" :data="tr" :key="indextr" v-for="(tr, indextr) in data">
                         <vs-td :data="data[indextr].cpfCnpj">
-                            <p class="product-name font-medium">{{ tr.cpfCnpj | cpfCnpj }}</p>
+                            {{ tr.cpfCnpj | cpfCnpj }}
                         </vs-td>
                         <vs-td :data="data[indextr].nome">
-                            <p class="product-name font-medium">{{ tr.nome | capitalize }}</p>
+                            {{ tr.nome | capitalize }}
                         </vs-td>
-                        <vs-td :data="data[indextr].endereco">
-                            <p class="product-name font-medium">{{ tr.endereco.endereco +', '+tr.endereco.numero+', '+tr.endereco.bairro }}</p>
+                        <vs-td :data="data[indextr].cidade">
+                            {{ tr.cidade | capitalize }}
                         </vs-td>
-                        <vs-td :data="data[indextr].endereco">
-                            <p class="product-name font-medium">{{ tr.endereco.cidade | capitalize }}</p>
-                        </vs-td>
-                        <vs-td :data="data[indextr].endereco">
-                            <p class="product-name font-medium">{{ tr.endereco.estado }}</p>
+                        <vs-td :data="data[indextr].estado">
+                            {{ tr.estado }}
                         </vs-td>
                     </vs-tr>
                 </tbody>
@@ -92,6 +88,7 @@ export default {
         cnpjCpfSearch: "",
         nomeSearch: "",
         clienteSearch: null,
+        estadosComCliente: [],
     }),
     watch: {
         estadoSelecionado(newValue, oldValue) {
@@ -155,9 +152,9 @@ export default {
         },
         searchCidades(callback) {
             this.cidadeSelecionada = null;
+            
             ClienteDB.getCidadesComClientes(this.estadoSelecionado.uf).then((cidades) => {
                 this.cidadesFiltro = cidades;
-                this.cidadeSelecionada = this.getCidadesSearch[0];
                 callback();
             });
         },
@@ -193,10 +190,20 @@ export default {
         },
         buscaEstados() {
             return new Promise((resolve) => {
-                CidadeDB.getEstados().then((estados) => {
-                    this.estadosFiltro = estados;
-                    this.estadoSelecionado = this.createEstadoSelect(estados.find((estado) => estado.sigla === Storage.getUsuario().estado));
-                    resolve();
+                this.estadosComCliente = [];
+                CidadeDB.getEstados().then((estadosAll) => {
+                    ClienteDB.getEstadosComClientes().then((result) => {
+                        estadosAll.map((estado) => {
+                            const possuiCliente = result.find((estadoComCliente) => estadoComCliente.endereco.estado === estado.sigla);
+                            
+                            if (possuiCliente) {
+                                this.estadosComCliente.push(this.lodash.clone(estado));
+                            }
+                        });
+                        this.estadosFiltro = this.estadosComCliente;
+                        this.estadoSelecionado = this.createEstadoSelect(this.estadosComCliente.find((estado) => estado.sigla === Storage.getUsuario().estado));
+                        resolve();
+                    });
                 });
             });
         },
