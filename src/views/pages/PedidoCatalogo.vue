@@ -119,7 +119,7 @@ export default {
 	components: {
         SearchCliente: () => ({
             component: import('../../rapidsoft/components/SearchCliente'),
-            delay: 200,
+            delay: 1000,
             timeout: 3000
         }),
 	},

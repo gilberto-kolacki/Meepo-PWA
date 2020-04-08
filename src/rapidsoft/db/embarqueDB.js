@@ -16,8 +16,11 @@ class embarqueDB extends BasicDB {
 
     constructor() {
         super("embarque");
+        this._createIndex('id');
         this.indexes = ['id', 'idSegmento'];
         this._createIndexes(this.indexes, 'embarque_segmento');
+        this.indexesData = ['dataInicio', 'idSegmento'];
+        this._createIndexes(this.indexesData, 'embarque_data_segmento');
     }
 
     salvarSinc(embarques) {
@@ -48,18 +51,28 @@ class embarqueDB extends BasicDB {
         return Round(precoProduto.precoCusto + ((percentual/100) * precoProduto.precoCusto), 2);
     }
 
-    getInfosEmbarques(carrinho) {
+    getEmbarquesCarrinhoSegmento(segmento, carrinho) {
         return new Promise((resolve) => {
-            const embarques = new Map();
-            const done = After(carrinho.length, () => resolve([...embarques.values()]));
-            carrinho.forEach(produto => {
-                this._getById(produto.embarque).then((embarque) => {
-                    if (!embarques.has(produto.embarque)) {
-                        embarque.value.dataEmbarque = embarque.value.dataInicio;
-                        embarques.set(produto.embarque, embarque.value);
-                    }
-                    done();
-                });
+            const idsEmbarques = carrinho.reduce((idsEmbarques, produto) => {
+                idsEmbarques.push(produto.embarque);
+                idsEmbarques.push(produto.embarqueSelecionado.id);
+                return idsEmbarques;
+            }, []);
+            this._getFindCondition({$and : [{id : {$in : idsEmbarques}}, {idSegmento : {$eq : segmento.id}}]}).then((embarques) => {
+                resolve(embarques.map((embarque) => ({...embarque, dataEmbarque: embarque.dataInicio})));
+            });
+        });
+    }
+
+    getEmbarquesCarrinho(carrinho) {
+        return new Promise((resolve) => {
+            const idsEmbarques = carrinho.reduce((idsEmbarques, produto) => {
+                idsEmbarques.push(produto.embarque);
+                idsEmbarques.push(produto.embarqueSelecionado.id);
+                return idsEmbarques;
+            }, []);
+            this._getFindCondition({id : {$in : idsEmbarques}}).then((embarques) => {
+                resolve(embarques.map((embarque) => ({...embarque, dataEmbarque: embarque.dataInicio})));
             });
         });
     }
@@ -94,6 +107,14 @@ class embarqueDB extends BasicDB {
                 return listEmbarques;
             }, []);
             resolve(pedido);
+        });
+    }
+
+    getFromEmbarque(embarque) {
+        return new Promise((resolve) => {
+            this._getFindCondition({$and : [{dataInicio : {$gte : embarque.dataInicio}}, {idSegmento : {$eq : embarque.idSegmento}}]}).then((embarques) => {
+                resolve(embarques);
+            });
         });
     }
 

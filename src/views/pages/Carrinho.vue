@@ -12,7 +12,6 @@
 					@edicao-item-carrinho="showEditCarrinho"
 					:cliente="cliente"
 					:segmento="segmento"
-					:embarques="getEmbarquesSegmento(segmento)"
 					:produtos="getProdutosSegmento(segmento)"/>
 			</b-tab>
 		</b-tabs>
@@ -82,18 +81,10 @@ export default {
 	},
     methods: {		
 		getPecasSegmento(segmento) {
-			const embarquesSegmento = Object.values(this.getEmbarquesSegmento(segmento));
-			return embarquesSegmento.reduce((total, segmento) => total + segmento.quantidade, 0);
+			return this.embarques.reduce((total, embarque) => total + (embarque.idSegmento === segmento ? embarque.quantidade : 0), 0);
 		},
 		getTotalSegmento(segmento) {
-			const embarquesSegmento = Object.values(this.getEmbarquesSegmento(segmento));
-			return embarquesSegmento.reduce((total, segmento) => total + segmento.totalBruto, 0);
-		},
-		getEmbarquesSegmento(segmento) {
-			return this.embarquesOption.reduce((object, embarque) => {
-				if (embarque.idSegmento == segmento.id) object[embarque.id] = embarque;
-				return object;
-			}, {});
+			return this.embarques.reduce((total, embarque) => total + (embarque.idSegmento === segmento ? embarque.totalBruto : 0), 0);
 		},
 		getProdutosSegmento(segmento) {
 			return this.produtosSegmento[segmento.id];
@@ -130,7 +121,7 @@ export default {
 		},
 		showEditCarrinho(produto) {
 			this.$router.push({ name: 'carrinhoAdd', 
-				params: {tela: 'carrinho', produtos: [produto], pag: 0, edit:true}
+				params: {tela: 'carrinho', produtos: [produto], pag: 0, edit: true}
 			});
 		},
 		voltar() {
@@ -143,13 +134,12 @@ export default {
 			return new Promise((resolve, reject) => {
 				this.segmentoSelecionado = this.$route.params.segmento;
 				this.isEdit = this.$route.params.edit;		
-				CarrinhoDB.getCarrinho().then(carrinho => {
+				CarrinhoDB.getCarrinho().then((carrinho) => {
 					this.cliente = carrinho.cliente;
 					ProdutoDB.getProdutosFromCarrinho(carrinho).then((carrinhoTela) => {
 						if (carrinhoTela.length > 0) {
 							this.itensCarrinho = carrinhoTela;
-							EmbarqueDB.getInfosEmbarques(carrinhoTela).then((embarques) => {
-								this.embarquesOption = embarques;
+							EmbarqueDB.getEmbarquesCarrinho(carrinhoTela).then((embarques) => {
 								PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
 									this.embarques = embarques;
 									SegmentoDB.getSegmentosCarrinho(carrinhoTela).then((segmentos) => {

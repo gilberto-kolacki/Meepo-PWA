@@ -155,7 +155,7 @@ class produtoDB extends BasicDB {
                             EmbarqueDB.getEmbarqueProduto(produto).then((embarque) => {
                                 if (embarque) {
                                     produto.embarque = embarque.id;
-                                    produto.embarqueSelecionado = produto.embarqueSelecionado ? produto.embarqueSelecionado : embarque.id;
+                                    produto.embarqueSelecionado = produto.embarqueSelecionado ? produto.embarqueSelecionado : {id: embarque.id, seq: 1};
                                     produto.segmento = produto.segmento;
                                     produtosCarrinho.push(produto);
                                 }

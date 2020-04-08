@@ -6,8 +6,6 @@
 ==========================================================================================*/
 
 import After from 'lodash/after';
-import Uniq from 'lodash/uniq';
-import FlattenDeep from 'lodash/flattenDeep';
 import BasicDB from './basicDB';
 
 class periodoDB extends BasicDB {
@@ -33,12 +31,12 @@ class periodoDB extends BasicDB {
 
     getPeriodosToEmbarque(embarques) {
         return new Promise((resolve) => {
-            const idsPeriodos = Uniq(FlattenDeep(embarques.map((embarque) =>  embarque.periodos)));
+            const idsPeriodos = embarques.reduce((idsPeriodos, embarque) =>  idsPeriodos.concat(embarque.periodos), []);
             const dataAtual = new Date().getTime();
             this._getFindCondition({id : {$in : idsPeriodos}}).then((periodos) => {
                 const done = After(embarques.length, () => resolve(embarques));
                 embarques.forEach(embarque => {
-                    embarque.periodos = periodos.filter((periodo) => this._exists(embarque.periodos, periodo.id));
+                    embarque.periodos = periodos.filter((periodo) => embarque.periodos.some((embPer) => embPer === periodo.id));
                     const periodoInicio = embarque.periodos.find((periodo) => periodo.dataPedidoInicio <= dataAtual && periodo.dataPedidoFim >= dataAtual);
                     if (periodoInicio) {
                         embarque.periodos = embarque.periodos.filter((periodo) => periodo.dataPedidoInicio >= periodoInicio.dataPedidoInicio && periodo.dataPedidoFim >= periodoInicio.dataPedidoFim);
