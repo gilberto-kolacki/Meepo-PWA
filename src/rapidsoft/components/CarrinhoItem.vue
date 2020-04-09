@@ -285,7 +285,7 @@ export default {
                 return embarques.concat(this.getArrayEmbarquesProdutos.reduce((embarquesArray, embSel) => {
                     if ((embSel.dataInicio <= this.dataAtual || embSel.dataFim >= this.dataAtual)
                             && (this.maiorEmbarqueItensSelecionados.dataInicio <= embSel.dataInicio && this.maiorEmbarqueItensSelecionados.dataFim >= embSel.dataFim)
-                                && embSel.id !== item.embarqueSelecionado.id) {
+                                && !this.isEqualsEmbarque(embSel, item)) {
                                     embarquesArray.push({id: embSel.id, seq: embSel.seq});
                     }
                     return embarquesArray;
