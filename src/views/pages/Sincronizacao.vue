@@ -311,6 +311,7 @@ export default {
                 SincDataDB.getAll().then((sinData) => {
                     this.tabelasSincronizacao = this.lodash.orderBy(sinData, ['order']);
                     this.sincImagemObject = this.tabelasSincronizacao.find((sincTab) => sincTab.type === "imagem" );
+                    // TODO (Luiz): Verificar a necessidade de fazer esta validação aqui, no tablet fica lento para carregar.
                     SincUtils.verificaProdutosSemImagens().then((result) => {
                         this.downloadImagem = result;
                         document.getElementById('loading-bg').style.display = "none";
@@ -333,9 +334,11 @@ export default {
                 if (sincsTotal.some((sinc) => sinc == false)) {
                     resolve(this.$router.push({ name: 'sincronizacao'}));
                 } else {
-                    this.buscaDadosCouchDB().then(() => {
+                    resolve();
+                    // TODO (Luiz): Removido para testar a aplicação sem sincronizar base local com a nuvem
+                    /* this.buscaDadosCouchDB().then(() => {
                         resolve();
-                    });
+                    }); */
                 }
             });
         },
@@ -361,7 +364,8 @@ export default {
 
     },
     async created() {
-        await this.buscaDadosCouchDB();
+        // TODO (Luiz): Removido para testar a aplicação sem sincronizar base local com a nuvem
+        //await this.buscaDadosCouchDB();
     },
     async mounted() {
         await this.carregaItensTela();

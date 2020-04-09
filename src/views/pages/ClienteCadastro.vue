@@ -585,7 +585,7 @@ export default {
     methods: {
         cnpjnulo(cpfCnpj, key = null, uf = null) {
             const cliente = {cep: null,telefone: null, estado:null,bairro:null,complemento:null,numero:null,endereco:null};
-            if (cpfCnpj || cpfCnpj.length == 0) {
+            if (cpfCnpj && cpfCnpj.length == 0) {
                 this.clienteEdit[key] = this.lodash.isObject(this.clienteEdit[key]) ? cliente : null;
                 this.proximoCampo('cpfCnpj');
             } else {
