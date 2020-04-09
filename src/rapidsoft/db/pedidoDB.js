@@ -185,15 +185,17 @@ class pedidoDB extends BasicDB {
                     pedido._rev = object._rev;
                     pedido.cliente.id = String(pedido.cliente.id);
                     this._salvar(pedido).then(() => {
-                        if (object.status < 50) {
-                            this._remoteDB.get(pedido.id).then((objectRemote) => {
+                        resolve();
+                        // TODO (Luiz): Removido para testar a aplicação sem sincronizar base local com a nuvem
+                        /* if (object.status < 50) {
+                            this._remoteDB.get(pedido.id).then(() => {
                                 this._remoteDB.remove(objectRemote).then(() => {
                                     resolve();
                                 });
                             });
                         } else {
                             resolve();
-                        }
+                        } */
                     });
                 }).catch(() => {
                     resolve();

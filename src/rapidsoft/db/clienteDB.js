@@ -180,6 +180,7 @@ class clienteDB extends BasicDB {
         this._createIndexes(this.indexes, 'search');
         this._createIndex('clienteErp');
         this._createIndex('alterado');
+        this._createIndex('endereco.estado');
     }
 
     salvar(cliente) {
@@ -297,11 +298,13 @@ class clienteDB extends BasicDB {
     deletar(idCliente) {
         return new Promise((resolve, reject) => {
             this._deletar(idCliente).then((result) => {
-                this._remoteDB.get(idCliente).then((objectRemote) => {
+                resolve(result);
+                // TODO (Luiz): Removido para testar a aplicação sem sincronizar base local com a nuvem
+                /* this._remoteDB.get(idCliente).then((objectRemote) => {
                     this._remoteDB.remove(objectRemote).then(() => {
                         resolve(result);
                     });
-                });
+                }); */
             }).catch((err) => {
                 this._criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
                 reject(err);
@@ -378,7 +381,19 @@ class clienteDB extends BasicDB {
                 selector: selectorFilter,
                 fields: ['id', 'cpfCnpj', 'nome', 'endereco', 'inadimplente', 'ativo'],
             }).then((result) => {
-                resolve(result.docs);
+                const clientes = result.docs.map((cliente) => {
+                    return {
+                        id: cliente._id, 
+                        cpfCnpj: cliente.cpfCnpj, 
+                        nome: cliente.nome, 
+                        cidade: cliente.endereco.cidade, 
+                        estado: cliente.endereco.estado,
+                        inadimplente: cliente.inadimplente,
+                        ativo: cliente.ativo,
+                        clienteErp: cliente.clienteErp
+                    };
+                });
+                resolve(clientes);
             });
         });
     }
@@ -403,6 +418,17 @@ class clienteDB extends BasicDB {
         });
     }
    
+    getEstadosComClientes() {
+        return new Promise((resolve) => {
+            this._localDB.find({
+                selector: {'endereco.estado': {$gt: 0}},
+                fields: ['endereco.estado'],
+            }).then((result) => {
+                resolve(UniqBy(result.docs,'endereco.estado'));
+            });
+        });
+    }
+
     getCidadesComClientes(estado) {
         return new Promise((resolve) => {
             this._localDB.find({
@@ -411,7 +437,7 @@ class clienteDB extends BasicDB {
             }).then((result) => {
                 const cidades = result.docs.map((cliente) => {return {idCidade: cliente.endereco.idCidade, nome: cliente.endereco.cidade.toUpperCase()};});
                 resolve(UniqBy(cidades,'idCidade'));
-            });
+            });  
         });
     }
 
