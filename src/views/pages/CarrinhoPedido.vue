@@ -94,10 +94,10 @@
                 </div>
             </div>
             <vs-divider><h4>Embarques</h4></vs-divider>
-            <div class="embarque-item" style="padding:20px" v-for="(pedido, indexItem) in this.pedidoCapa.listEmbarques" :key="indexItem">
+            <div class="embarque-item" style="padding:20px" v-for="(pedido, indexItem) in this.getListEmbarques" :key="indexItem">
                 <div class="vx-row flex justify-between">
                     <vs-col vs-type="flex" vs-lg="12" vs-sm="12" vs-xs="12">
-                        <h4><strong>Pedido:</strong> {{pedido.nome}}</h4>
+                        <h4><strong>Pedido:</strong> {{pedido.nome}} <strong>Seq:</strong> {{pedido.seq}}</h4>
                     </vs-col>
                 </div>
                 <div class="vx-row flex justify-between" style="margin-top:20px;padding-left:15px">
@@ -108,13 +108,7 @@
                         <div class="vx-row" style="justify-content: flex-start;">
                             <label>Subtotal: {{ pedido.totalBruto | moneyy }} </label>
                         </div>
-                        <div 
-                            class="vx-row" 
-                            style="justify-content: flex-start;" 
-                            v-if="pedidoCapa.desconto1 && pedidoCapa.desconto1 > 0 
-                                || pedidoCapa.desconto2 && pedidoCapa.desconto2 > 0 
-                                || pedidoCapa.desconto3 && pedidoCapa.desconto3 > 0"
-                        >
+                        <div class="vx-row" style="justify-content: flex-start;" v-if="mostraDescontos">
                             <label>
                                 Descontos: 
                                 {{pedidoCapa.desconto1 && pedidoCapa.desconto1 > 0 ? `(${pedidoCapa.desconto1}%)` : ''}} 
@@ -211,7 +205,6 @@ export default {
         pedidoCapa: null,
         isOrcamento: false,
         showScreen: false,
-        idPopUpSearch: 'popup-cliente-search',
         formasPagto: [],
         condicoesPagto: {},
         embarques:[],
@@ -224,7 +217,20 @@ export default {
 	components: {
         'v-select': vSelect,
 	},
-	computed: {
+	computed: {    
+        mostraDescontos() {
+            if (this.pedidoCapa !== null
+                && (this.pedidoCapa.desconto1 && this.pedidoCapa.desconto1 > 0
+                    || this.pedidoCapa.desconto2 && this.pedidoCapa.desconto2 > 0
+                        || this.pedidoCapa.desconto3 && this.pedidoCapa.desconto3 > 0)) {
+                return true;
+            } else {
+                return false;
+            }
+        },    
+        getListEmbarques() {
+            return this.lodash.orderBy(this.pedidoCapa.listEmbarques, ['id', 'seq']);
+        },
         getEnderecosEntrega() {
             if (this.pedidoCapa.cliente.enderecos && this.pedidoCapa.cliente.enderecos.length > 0) {
                 return this.pedidoCapa.cliente.enderecos.map((endereco) => {
@@ -251,10 +257,7 @@ export default {
             }, 0);
         }     
 	},
-    methods: {
-        showSidebar() {
-            return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
-        },
+    methods: {        
         datasEmbarque(embarque) {
             const datasDisponiveis = [];        
             if (embarque.periodos) {
@@ -353,8 +356,6 @@ export default {
         },
         getLabelEndereco(endereco) {
             return endereco ? endereco.endereco +', Nº'+ endereco.numero +' - CEP: '+ endereco.cep : null;
-        },
-        setDescontos(){
         },
         getTotalPedido(pedido) {
             return PedidoUtils.calcularDesconto(this.pedidoCapa.desconto3, PedidoUtils.calcularDesconto(this.pedidoCapa.desconto2, PedidoUtils.calcularDesconto(this.pedidoCapa.desconto1, pedido.totalBruto)));
@@ -478,6 +479,9 @@ export default {
     },
     async mounted() {
         this.pedidoCapa = this.$route.params.pedidoEmbarques;
+
+        console.log(this.pedidoCapa);
+        
         if (this.pedidoCapa.cliente && this.pedidoCapa.cliente.cpfCnpj) {
             this.pedidoCapa.emailNfe = this.pedidoCapa.cliente.emailNfe;
             this.pedidoCapa.grupoCliente = this.pedidoCapa.cliente.grupoCliente;

@@ -187,6 +187,7 @@ export default {
         }
 	},
 	beforeCreate() {
+        localStorage.removeItem("filtro_categoria");
 	},
 	async created() {
         await this.carregaItensTela();

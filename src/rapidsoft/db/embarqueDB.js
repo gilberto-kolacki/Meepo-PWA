@@ -64,15 +64,36 @@ class embarqueDB extends BasicDB {
         });
     }
 
+    isEqualsEmbarque(embarque, produto) {
+        return embarque.id === produto.embarqueSelecionado.id && embarque.seq === produto.embarqueSelecionado.seq ? true : false;
+    }
+
     getEmbarquesCarrinho(carrinho) {
         return new Promise((resolve) => {
             const idsEmbarques = carrinho.reduce((idsEmbarques, produto) => {
-                idsEmbarques.push(produto.embarque);
                 idsEmbarques.push(produto.embarqueSelecionado.id);
                 return idsEmbarques;
             }, []);
             this._getFindCondition({id : {$in : idsEmbarques}}).then((embarques) => {
-                resolve(embarques.map((embarque) => ({...embarque, dataEmbarque: embarque.dataInicio})));
+                const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
+                const embarquesCarrinho = carrinho.reduce((embarquesCarrinho, produto) => {
+                    const index = embarquesCarrinho.findIndex((embarque) => this.isEqualsEmbarque(embarque, produto));
+                    if (index >= 0) {
+                        const embarque = {...embarquesCarrinho[index]};
+                        embarque.quantidade = embarque.quantidade + produto.quantidade;
+                        embarque.totalBruto = embarque.totalBruto + ((produto.precoCusto + ((percentual/100) * produto.precoCusto)) * produto.quantidade);
+                        embarquesCarrinho[index] = embarque;
+                    } else {
+                        const embarque = {...embarques.find((embarque) => embarque.id === produto.embarqueSelecionado.id)};
+                        embarque.seq = produto.embarqueSelecionado.seq;
+                        embarque.dataEmbarque = embarque.dataInicio;
+                        embarque.quantidade = produto.quantidade;
+                        embarque.totalBruto = ((produto.precoCusto + ((percentual/100) * produto.precoCusto)) * produto.quantidade);
+                        embarquesCarrinho.push(embarque);
+                    }
+                    return embarquesCarrinho;
+                }, []);
+                resolve(embarquesCarrinho);
             });
         });
     }

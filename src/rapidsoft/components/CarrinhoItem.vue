@@ -43,7 +43,7 @@
                             </b-dropdown-text>
                             <b-dropdown-item v-for="(embarque, indexEmbarque) in getArrayEmbarquesMover" :key="indexEmbarque">
                                 <span class="flex items-center mt-2">
-                                    <span @click="moverItemEmbarque(embarque)">{{embarque.nome}}</span>
+                                    <span @click="moverItemEmbarque(embarque)">{{embarque.nome +' - '+ embarque.seq}}</span>
                                 </span>
                             </b-dropdown-item>
                         </div>
@@ -282,7 +282,7 @@ export default {
         },
         getArrayEmbarquesMover() {
             const embarques = this.itensSelecionados.reduce((embarques, item) => {
-                return embarques.concat(this.getValueEmbarques.reduce((embarquesArray, embSel) => {
+                return embarques.concat(this.getArrayEmbarquesProdutos.reduce((embarquesArray, embSel) => {
                     if ((embSel.dataInicio <= this.dataAtual || embSel.dataFim >= this.dataAtual)
                             && (this.maiorEmbarqueItensSelecionados.dataInicio <= embSel.dataInicio && this.maiorEmbarqueItensSelecionados.dataFim >= embSel.dataFim)
                                 && embSel.id !== item.embarqueSelecionado.id) {
@@ -291,7 +291,7 @@ export default {
                     return embarquesArray;
                 }, []))
             }, []);
-            return this.getValueEmbarques.filter((embarque) => embarques.some((emb) => emb.id === embarque.id && emb.seq === embarque.seq));
+            return this.getArrayEmbarquesProdutos.filter((embarque) => embarques.some((emb) => emb.id === embarque.id && emb.seq === embarque.seq));
         },
         maiorEmbarqueItensSelecionados() {
             return this.itensSelecionados.reduce((embarque, item) => {
@@ -396,7 +396,7 @@ export default {
         gerarNovoEmbarque(embarque) {
             embarque = {...embarque};
             if (this.getArrayEmbarquesProdutos.some((emb) => emb.id === embarque.id)) {
-                embarque.seq = this.getArrayEmbarquesProdutos.reduce((seq, emb) => seq + (emb.id === embarque.id ? emb.seq : 0), 0)+1;
+                embarque.seq = this.getArrayEmbarquesProdutos.reduce((seq, emb) => (emb.id === embarque.id && emb.seq > seq ? emb.seq : 0), 0)+1;
             } else {
                 this.embarques.push(embarque);
                 embarque.seq = 1;
