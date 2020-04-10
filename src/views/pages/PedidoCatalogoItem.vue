@@ -10,12 +10,11 @@
             <div class="vx-row">
                 
                 <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 50;" v-if="this.produtoA">
-                    <div class="vx-row">
+                    <div class="vx-row xl:hidden">
                         <div class="flex w-full items-center justify-center">
                             <vs-button color="dark" type="filled" icon-pack="feather" class="w-full" icon="icon-menu" @click.stop="showSidebar"></vs-button>
                         </div>
                     </div>
-    
                     <div class="vx-row mt-4">
                         <vx-card>
                             <div class="vx-row items-center justify-center">

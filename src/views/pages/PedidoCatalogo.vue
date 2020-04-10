@@ -1,72 +1,49 @@
 <template>
     <div id="page-catalogo" class="page-catalogo">
         <div v-if="this.isShowing">
-            <vs-button
-                @click.stop="next"
-                color="primary"
-                type="filled"
-                class="btn-left"
-                icon-pack="feather"
-                icon="icon-chevron-left"
-            ></vs-button>
-            <vs-button
-                @click.stop="prev"
-                color="primary"
-                type="filled"
-                class="btn-right"
-                icon-pack="feather"
-                icon="icon-chevron-right"
-            ></vs-button>
+            <vs-button @click.stop="next" color="primary" type="filled" class="btn-left" icon-pack="feather" icon="icon-chevron-left"></vs-button>
+            <vs-button @click.stop="prev" color="primary" type="filled" class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
         </div>
-        <vs-col
-            vs-type="block"
-            vs-justify="center"
-            vs-align="center"
-            vs-w="12"
-            style="margin-bottom: 2rem;"
-        >
-            <div class="vx-row">
-                <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 50;">
-                    <vs-button
-                        color="dark"
-                        type="filled"
-                        icon-pack="feather"
-                        class="w-full"
-                        icon="icon-menu"
-                        @click.stop="showSidebar"
-                    ></vs-button>
-                </div>
-                <div class="vx-col w-full lg:w-3/5 sm:w-3/5 h-12">
-                    <div
-                        class="vx-row items-center justify-center"
-                        style="margin-bottom: 2rem;"
-                        v-if="this.isShowing"
-                    >
-                        <h1>{{this.catalogos[this.slide].nome}}</h1>
-                    </div>
-                </div>
-                <div class="vx-col w-full sm:w-1/5 h-12">
-                    <vs-button
-                        color="primary"
-                        type="filled"
-                        icon-pack="feather"
-                        class="w-full"
-                        icon="icon-search"
-                        @click.stop="abrirPesquisaCliente()"
-                    ></vs-button>
+        <div class="flex flex-wrap items-center justify-center" style="margin-bottom:20px; margin-top: -10px;">
+            <div class="w-1/5 xl:hidden">
+                <div clas="vx-col justify-start m-1" style="margin-top: 1.8rem; margin-left: -8px; margin-right: 8px;">
+                    <vs-button color="dark" type="filled" class="w-full" icon="menu" @click.stop="showSidebar"></vs-button>
                 </div>
             </div>
-        </vs-col>
+            <div class="xl:w-3/5 sm:w-4/5">
+                <div class="flex flex-wrap">
+                    <div class="w-1/4">
+                        <div class="mr-2">
+                            <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary mr-2">
+                                <label for="cpfCnpj" class="vs-input--label">Cliente</label>
+                                <div class="vs-con-input">
+                                    <the-mask v-validate="'required|min:14'" id="cpfCnpj" disabled name="cpfCnpj" v-model="cliente.cpfCnpj" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex w-3/4">
+                        <vs-input v-validate="'required'" id="nomeCliente" name="nomeCliente" v-model="cliente.nome" disabled class="w-full input-line-group-rapid input-group-rapid" />
+                        <vs-button
+                            color="primary"
+                            type="filled"
+                            icon-pack="feather"
+                            class="w-full btn-line-group-rapid"
+                            icon="icon-search"                                    
+                            @click.stop="abrirPesquisaCliente()"
+                        ></vs-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="vx-row justify-center" v-if="this.isShowing">
+            <h1>{{this.catalogos[this.slide].nome}}</h1>
+        </div>
         <div class="vx-col w-full h-12">
             <div class="vx-row justify-center">
-                <div class="flex w-full items-center justify-center lg:w-1/2 md:w-full">
+                <div class="flex w-full items-center justify-center xl:w-1/2 md:w-full">
                     <div class="carousel-inner">
-                        <div
-                            id="carouselExampleIndicators"
-                            class="carousel slide"
-                            data-ride="carousel"
-                            v-if="this.isShowing"
-                        >
+                        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" v-if="this.isShowing">
                             <b-carousel
                                 no-animation
                                 v-model="slide"
@@ -75,11 +52,7 @@
                                 ref="carrossel_catalogo"
                                 style="width:100%; border-radius: 0.5rem !important;"
                             >
-                                <b-carousel-slide 
-                                    v-for="(catalogo, index) in getCatalogos" :key="`slide-to-${index}`" 
-                                    style="width:100%" 
-                                    class="img-catalogo responsive img-ref"
-                                >
+                                <b-carousel-slide v-for="(catalogo, index) in getCatalogos" :key="`slide-to-${index}`" style="width:100%" class="img-catalogo responsive img-ref">
                                     <b-img slot="img" 
                                         class="d-block img-fluid w-100" 
                                         :src="catalogo.base64" 
@@ -114,6 +87,7 @@ export default {
             grupoClientePadrao: null,
             slide: 0,
             carrinho: null,
+            cliente: {cpfCnpj: null, nome: null},
 		}
 	},
 	components: {
@@ -158,7 +132,7 @@ export default {
             this.$bvModal.show(this.idPopUpSearch);
 		},
 		selectSearchCliente(cliente) {
-            
+            this.cliente = cliente;
             this.carrinho.cliente = cliente;
         },
         buscaGrupoPadrao() {
@@ -175,7 +149,9 @@ export default {
                     this.catalogos = catalogos;
                     CarrinhoDB.getCarrinho().then((carrinho) => {
                         this.carrinho = carrinho;
-                        if (!Storage.existeClienteCarrinho(carrinho)) {
+                        if (Storage.existeClienteCarrinho(carrinho)) {
+                            this.cliente = carrinho.cliente;
+                        } else {
                             this.abrirPesquisaCliente();
                         }
                         this.isShowing = true;
