@@ -3,6 +3,8 @@ import ProdutoDB from '../db/produtoDB';
 import ClienteDB from '../db/clienteDB';
 import GrupoClienteDB from '../db/grupoClienteDB';
 import CarrinhoDB from '../db/carrinhoDB';
+import EmbarqueDB from '../db/embarqueDB';
+import PeriodoDB from '../db/periodoDB';
 
 class carrinhoUtils {
 
@@ -26,18 +28,30 @@ class carrinhoUtils {
         });
     }
 
-    setItensToPedidoEmbarques(embarques, itensCarrinho) {
+    setItensToPedidoEmbarques(idSegmento) {
         return new Promise((resolve) => {
-            this.newPedido().then((pedido) => {
-                pedido.listEmbarques = embarques.reduce((listEmbarques, embarque) => {
-                     const itens = itensCarrinho.filter((itemCarrinho) => itemCarrinho.embarqueSelecionado === embarque.id);
-                     if (itens.length > 0) {
-                        embarque.itensPedido = itens;
-                        listEmbarques.push(embarque);
-                     }
-                     return listEmbarques;
-                }, []);
-                resolve(pedido);
+            CarrinhoDB.getCarrinho().then((carrinho) => {                
+                ProdutoDB.getProdutosFromCarrinho(carrinho).then((carrinhoTela) => {
+                    EmbarqueDB.getEmbarquesCarrinho(carrinhoTela).then((embarques) => {
+                        PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
+                            this.newPedido().then((pedido) => {
+                                pedido.listEmbarques = embarques.reduce((listEmbarques, embarque) => {
+                                    const itens = carrinhoTela.filter((itemCarrinho) => {
+                                        return itemCarrinho.embarqueSelecionado.id === embarque.id 
+                                            && itemCarrinho.embarqueSelecionado.seq === embarque.seq 
+                                                && itemCarrinho.segmento.some((segmento) => segmento === idSegmento);
+                                    });
+                                    if (itens.length > 0) {
+                                        embarque.itensPedido = itens;
+                                        listEmbarques.push(embarque);
+                                    }
+                                    return listEmbarques;
+                                }, []);
+                                resolve(pedido);
+                            });
+                        });
+                    });
+                });
             });
         });
     }

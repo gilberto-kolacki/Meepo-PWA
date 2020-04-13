@@ -13,6 +13,11 @@
                 </template>
                 <div class="my-6" v-if="this.pedido">
                     <div class="vx-row">
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
+                            <vs-input label="Código" id="id" name="emailNfe" v-model="pedido.id" class="w-full" disabled />
+                        </vs-col>
+                    </div>
+                    <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="2" vs-sm="3" vs-xs="12" >
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="" class="vs-input--label">CPF/CNPJ</label>
@@ -185,7 +190,7 @@ import vSelect from 'vue-select';
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
-// import ClienteDB from "../../rapidsoft/db/clienteDB";
+import ClienteDB from "../../rapidsoft/db/clienteDB";
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
 
 export default {
@@ -327,25 +332,22 @@ export default {
         async carregaItensTela() {
 			return new Promise((resolve) => {
                 PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
-                    // ClienteDB.findById(pedido.cliente.id).then((cliente) => {
+                    ClienteDB.findById(pedido.cliente.id).then((cliente) => {
+                        pedido.cliente = cliente;
                         GrupoClienteDB.findById(pedido.grupoCliente.id).then((grupoCliente) => {
-                            this.grupoCliente = grupoCliente;
-                            // pedido.cliente = cliente;
+                            pedido.grupoCliente = grupoCliente;
                             this.pedido = pedido;
                             this.itensPedido = this.pedido.itens;
                             FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
                                 this.formasPagto = dadosPagamento.formasDePagamento;
-                                this.enderecoEntregaSelecionado = {
-                                    label: this.getLabelEndereco(this.pedido.endEntrega),
-                                };
+                                this.enderecoEntregaSelecionado = {label: this.getLabelEndereco(this.pedido.endEntrega)};
                                 this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
                                 this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
                                 this.isShow = true;
                                 resolve();
                             });
                         });
-                        
-                    // });
+                    });
                 });
             });
         },

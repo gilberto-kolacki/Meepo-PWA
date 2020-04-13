@@ -45,13 +45,9 @@ class grupoClienteDB extends BasicDB {
 
     getGrupoPadrao() {
         return new Promise((resolve) => {
-            this._localDB.find({
-                selector: {
-                    padrao: {$eq: true}
-                },
-            }).then((result) => {
-                if (result.docs.length == 1) {
-                    resolve(result.docs[0]);
+            this._getFindCondition({padrao: {$eq: true}}).then((result) => {
+                if (result.length >= 1) {
+                    resolve(result[0]);
                 } else {
                     resolve(null);
                 }

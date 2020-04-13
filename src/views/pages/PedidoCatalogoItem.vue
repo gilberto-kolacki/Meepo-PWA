@@ -10,12 +10,11 @@
             <div class="vx-row">
                 
                 <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 50;" v-if="this.produtoA">
-                    <div class="vx-row">
+                    <div class="vx-row xl:hidden">
                         <div class="flex w-full items-center justify-center">
                             <vs-button color="dark" type="filled" icon-pack="feather" class="w-full" icon="icon-menu" @click.stop="showSidebar"></vs-button>
                         </div>
                     </div>
-    
                     <div class="vx-row mt-4">
                         <vx-card>
                             <div class="vx-row items-center justify-center">
@@ -59,19 +58,21 @@
                     <div class="vx-row items-center justify-center" style="z-index: 15; margin-bottom: 2rem;">
                         <h6 class="title-ref">{{produtoA.referencia}} - {{produtoA.nome}}</h6>
                     </div>
-                    <Vue2InteractDraggable
-                        class="vx-row items-center justify-center"
-                        @draggedLeft="nextRef"
-                        @draggedRight="prevRef"
-                        interact-lock-y-axis
-                        :interact-max-rotation="8"
-                        :interact-out-of-sight-x-coordinate="1000"
-                        :interact-x-threshold="120"                         
-                        v-if="isShowingImagemPrincipal">
-                        <div>
-                            <b-img-lazy center :src="imagemProdutoPrincipal ? imagemProdutoPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" id="produto-swipe-area" v-if="imagemProdutoPrincipal"/>
-                        </div>
-                    </Vue2InteractDraggable>
+                    <transition name="fade" mode="out-in">
+                        <Vue2InteractDraggable
+                            class="vx-row items-center justify-center"
+                            @draggedLeft="nextRef"
+                            @draggedRight="prevRef"
+                            interact-lock-y-axis
+                            :interact-max-rotation="8"
+                            :interact-out-of-sight-x-coordinate="1000"
+                            :interact-x-threshold="120"                         
+                            v-if="isShowingImagemPrincipal">
+                            <div>
+                                <b-img-lazy center :src="imagemProdutoPrincipal ? imagemProdutoPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" id="produto-swipe-area" v-if="imagemProdutoPrincipal"/>
+                            </div>
+                        </Vue2InteractDraggable>
+                    </transition>
                     <div class="vx-row items-center justify-center" style="z-index: 15; margin-top: 2rem;" v-if="this.produtoB">
                         <h6 class="title-ref">{{produtoB.referencia}} - {{produtoB.nome}}</h6>
                         <h6 class="title-ref" v-if="this.produtoC">{{produtoC.referencia}} - {{produtoC.nome}}</h6>
@@ -106,14 +107,14 @@
                                     <div id="categoria-filter" class="categoria-filter on-scroll">
                                         <div class="categoria-filter-item">
                                             <div class="mt-2 flex justify-center" style="width:77%">
-                                                <button class="w-full" :class="filtro.categoria.id ? 'notHaveFilter' : 'input_filter'" @click.stop="categoriasSelecionadas(null)">
+                                                <button class="w-full" :class="filtro.categoria ? 'notHaveFilter' : 'input_filter'" @click.stop="categoriasSelecionadas(null)">
                                                     <p class="flex justify-center" style="margin:auto">Todos</p>
                                                 </button>
                                             </div>
                                         </div>
                                         <div class="categoria-filter-item" v-for="(categoria, index) in getCategoriasCatalogo" :key="index">
                                             <div class="mt-2 flex justify-center" style="width:77%">
-                                                <button class="w-full" :class="filtro.categoria.id === categoria.id ? 'input_filter' : 'notHaveFilter'" @click.stop="categoriasSelecionadas(categoria.id)">
+                                                <button class="w-full" :class="categoria.id === filtro.categoria ? 'input_filter' : 'notHaveFilter'" @click.stop="categoriasSelecionadas(categoria.id)">
                                                     <p class="flex justify-center" style="margin:auto">{{categoria.nome}}</p>
                                                 </button>
                                             </div>
@@ -168,8 +169,6 @@ import ProdutoDB from '../../rapidsoft/db/produtoDB';
 import ImagemDB from '../../rapidsoft/db/imagemDB';
 import ProdutoUtils from '../../rapidsoft/utils/produtoUtils';
 import Storage from '../../rapidsoft/utils/storage';
-import SearchProduto  from '../../rapidsoft/components/SearchProduto';
-import ZoomProduto  from '../../rapidsoft/components/ZoomProduto';
 import ErrorDB from '../../rapidsoft/db/errorDB';
 import vSelect from 'vue-select';
 
@@ -185,8 +184,8 @@ export default {
             produtoD: null,
             produtoSearch: null,
             produtoAddOpen: false,
-            filtro:{
-                categoria: {id: null}
+            filtro: {
+                categoria: null,
             },
             corSelecionada: 0,
             imagens: [],
@@ -207,12 +206,21 @@ export default {
         }
     },
     components: {
-        Vue2InteractDraggable,
-        SearchProduto,
-        ZoomProduto,
         'v-select': vSelect,
+        Vue2InteractDraggable,
+        SearchProduto: () => ({
+            component: import('../../rapidsoft/components/SearchProduto'),
+            delay: 1000,
+            timeout: 3000
+        }),
+        ZoomProduto: () => ({
+            component: import('../../rapidsoft/components/ZoomProduto'),
+            delay: 500,
+            timeout: 3000
+        }),
     },
     watch: {
+        
     },
     computed: {
         getSegmentosSearch() {
@@ -242,11 +250,12 @@ export default {
          existeCarrinho() {
             return !Storage.existeCarrinho();
         },
+
     },
     methods: {
         // tela
         async categoriasSelecionadas(idCategoria) {
-            this.filtro.categoria = {id: idCategoria};
+            this.setFiltroCategoria(idCategoria);
             await this.carregaItensTela();
         },
         getPrecoRef(produto, tipo) {
@@ -328,6 +337,7 @@ export default {
             this.$bvModal.show(this.idPopUpSearch);
         },
         addProduto() {
+            this.setFiltroCategoria(this.filtro.categoria);
             const produtos = [this.produtoA, this.produtoB, this.produtoC];
             this.$router.push({ name: 'carrinhoAdd', 
                 params: {produtos: produtos, tela: 'catalogoItem', pag: this.paginaAtual, paginas: this.paginas}
@@ -361,15 +371,21 @@ export default {
             });
         },
         abrirCarrinho() {
-            this.$router.push({ name: 'carrinho',
-                params: {tela: 'catalogoItem'}
-            });
+            this.$router.push({ name: 'carrinho', params: {tela: 'catalogoItem'}});
+        },
+        setFiltroCategoria(idCategoria) {
+            this.filtro.categoria = idCategoria ? idCategoria : null;
+            localStorage.setItem("filtro_categoria", JSON.stringify(this.filtro.categoria));
+        },
+        getFiltroCategoria() {
+            const filtroCategoria = JSON.parse(localStorage.getItem("filtro_categoria"));
+            this.filtro.categoria = filtroCategoria ? filtroCategoria : null;
+            return this.filtro.categoria;
         },
         carregaItensTela() {
             return new Promise((resolve) => {
                 this.paginaAtual = this.$route.params.pag ? this.$route.params.pag : null;
-                const idCategoria = this.filtro.categoria.id ? this.filtro.categoria.id : null;
-                ProdutoDB.getPaginasCatalogo(idCategoria).then(paginas => {
+                ProdutoDB.getPaginasCatalogo(this.getFiltroCategoria()).then((paginas) => {
                     this.cliente = Storage.getClienteCarrinho();
                     this.paginas = paginas;
                     this.paginaAtual = this.paginaAtual ? this.paginaAtual : paginas[0];
@@ -386,6 +402,7 @@ export default {
         
     },
     created() {
+        this.paginaAtual = this.$route.params.pag ? this.$route.params.pag : null;
         const catalogo = Storage.getCatalogo();
         if (catalogo == null || catalogo.idCatalogo == null) {
             this.$router.push('/catalogo');
@@ -403,9 +420,11 @@ export default {
             }
         }       
     },
-
-    errorCaptured(err, vm, info) {
-        ErrorDB._criarLog({err, vm, info});
+    beforeDestroy() {
+        
+    },    
+    async errorCaptured(err, vm, info) {
+        await ErrorDB._criarLog({err, vm, info});
         return true;
     }
 }

@@ -74,13 +74,6 @@ class produtoUtils{
         });
     }
 
-    getProdutosSegmentos(segmentos, produtos) {
-        return segmentos.reduce((produtosSegmentos, segmento) => {
-            produtosSegmentos[segmento.id] = produtos.filter((produto) => produto.segmento.indexOf(segmento.id) > -1 );
-            return produtosSegmentos;
-        }, {});
-    }
-
     calcularPreco(itemCor, tipo = 1) {
         const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
         const precoProduto = tipo === 1 ? itemCor.precoCusto : itemCor.precoVenda;

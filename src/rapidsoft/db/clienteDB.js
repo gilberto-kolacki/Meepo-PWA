@@ -420,8 +420,8 @@ class clienteDB extends BasicDB {
                 fields: ['_id', 'cpfCnpj', 'nome', 'endereco', 'inadimplente', 'ativo'],
             }).then((result) => {
                 const clientes = result.docs.map((cliente) => {
-                    return {
-                        id: cliente._id, 
+                    return { 
+                        id: cliente.id, 
                         cpfCnpj: cliente.cpfCnpj, 
                         nome: cliente.nome, 
                         cidade: cliente.endereco.cidade, 

@@ -36,7 +36,7 @@ class formaPagtoDB extends BasicDB {
 
     getCondicaoPagamento(idCondicaoPagamento, formaPagamentoSelecionada) {
         return new Promise((resolve) => {
-            const condicaoSelecionada = formaPagamentoSelecionada.condicoes.find(['id' ,idCondicaoPagamento]);
+            const condicaoSelecionada = formaPagamentoSelecionada.condicoes.find((condicao) => (condicao.id == idCondicaoPagamento));
             resolve({value: condicaoSelecionada.id, label: condicaoSelecionada.nome});
         });
     }

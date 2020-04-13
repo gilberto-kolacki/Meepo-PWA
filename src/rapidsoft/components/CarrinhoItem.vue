@@ -6,6 +6,22 @@
                     <b-dropdown text="Ações" size="sm" variant="danger" class="m-1">
                         <b-dropdown-item>
                             <span class="flex items-center">
+                                <feather-icon icon="CheckSquareIcon" svgClasses="h-4 w-4" class="mr-2" />
+                                <span @click="selecionarTodos()">Selecionar Todos</span>
+                            </span>
+                        </b-dropdown-item>
+                        <div v-if="itensSelecionados.length">
+                            <b-dropdown-divider></b-dropdown-divider>
+                            <b-dropdown-item>
+                                <span class="flex items-center">
+                                    <feather-icon icon="XSquareIcon" svgClasses="h-4 w-4" class="mr-2" />
+                                    <span @click="removerSelecao()">Desmarcar Seleção</span>
+                                </span>
+                            </b-dropdown-item>
+                        </div>
+                        <b-dropdown-divider></b-dropdown-divider>
+                        <b-dropdown-item>
+                            <span class="flex items-center">
                                 <feather-icon icon="TrashIcon" svgClasses="h-4 w-4" class="mr-2" />
                                 <span @click="confirmacaoDeletarItem()">Deletar Itens Selecionados</span>
                             </span>
@@ -15,19 +31,19 @@
                             <b-dropdown-item>
                                 <span class="flex items-center">
                                     <feather-icon icon="PackageIcon" svgClasses="h-4 w-4" class="mr-2" />
-                                    <span @click="confirmacaoDeletarItem()">Mover para novo Embarque</span>
+                                    <span @click="criarNovoEmbarque()">Criar Embarque</span>
                                 </span>
                             </b-dropdown-item>
                         </div>
-                        <div v-if="getArrayEmbarques.length > 0">
+                        <div v-if="getArrayEmbarquesMover.length > 0">
                             <b-dropdown-divider></b-dropdown-divider>
                             <b-dropdown-text>
                                 <feather-icon icon="RefreshCwIcon" svgClasses="h-4 w-4" class="mr-2" />
                                 Mover Itens Selecionados
                             </b-dropdown-text>
-                            <b-dropdown-item v-for="(embarque, indexEmbarque) in getArrayEmbarques" :key="indexEmbarque">
+                            <b-dropdown-item v-for="(embarque, indexEmbarque) in getArrayEmbarquesMover" :key="indexEmbarque">
                                 <span class="flex items-center mt-2">
-                                    <span @click="moverItemEmbarque(embarque.id)">{{embarque.nome}}</span>
+                                    <span @click="moverItemEmbarque(embarque)">{{embarque.nome +' - '+ embarque.seq}}</span>
                                 </span>
                             </b-dropdown-item>
                         </div>
@@ -63,24 +79,24 @@
         
         <div role="tablist" v-if="produtosCarrinho.length > 0">
             <b-card no-body class="mb-1" v-for="(embarque, indexEmbarque) in getArrayEmbarquesProdutos" :key="indexEmbarque">
-                <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="'embarque'+embarque.id">
-                    <h5 class="m-3 font-bold">{{embarque.nome}}</h5>
+                <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="'embarque-'+embarque.id+'-'+embarque.seq">
+                    <h5 class="m-3 font-bold">{{embarque.nome}} - Seq: {{embarque.seq}}</h5>
                     <vx-card class="w-full">
                         <div slot="no-body">
                             <div class='vx-row flex pr-6 pl-6'>
-                                <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
+                                <div class="vx-col w-full sm:w-1/5 flex" style="padding: 8px;">
                                     <vs-avatar class="mr-23" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-package" size="30px" />
                                     <div class="truncate">
                                         <h5 class="mt-3 font-bold">{{embarque.quantidade}}</h5>
                                     </div>
                                 </div>
-                                <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
+                                <div class="vx-col w-full sm:w-2/5 flex" style="padding: 8px;">
                                     <vs-avatar class="mr-3" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-dollar-sign" size="30px" />
                                     <div class="truncate">
                                         <h5 class="mt-3 font-bold">{{embarque.totalBruto | moneyy}}</h5>
                                     </div>
                                 </div>
-                                <div class="vx-col w-full sm:w-1/3 flex" style="padding: 8px;">
+                                <div class="vx-col w-full sm:w-2/5 flex" style="padding: 8px;">
                                     <vs-avatar class="mr-3" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-calendar" size="30px" />
                                     <div class="truncate">
                                         <h5 class="mt-3 font-bold">{{embarque.dataEmbarque | formatDate}}</h5>
@@ -90,28 +106,26 @@
                         </div>
                     </vx-card>
                 </b-card-header>
-                <b-collapse :id="'embarque'+embarque.id" visible accordion="my-accordion" role="tabpanel">
+                <b-collapse :id="'embarque-'+embarque.id+'-'+embarque.seq" visible accordion="my-accordion" role="tabpanel">
                     <b-card-body style="background-color: rgba(0, 0, 0, 0.03); padding: 10px;">
-                        <div class="flex carrinho-item" v-for="(produtoCor, indexItem) in getProdutosCarrinhoPorEmbarque(embarque.id)" :key="indexItem">
+                        <div class="flex carrinho-item" v-for="(produtoCor, indexItem) in getProdutosCarrinhoPorEmbarque(embarque)" :key="indexItem">
                             <div class="vx-col mx-3" style="justify-content:center;margin:auto">
                                 <div class="flex w-full items-center justify-center">
                                     <vs-checkbox :id="produtoCor.idProduto" v-model="itensSelecionados" :vs-value="produtoCor" />
                                 </div>
                             </div>
                             <div class="vx-col mx-1 w-1/6" style="justify-content:center; margin:auto">
-                                <img
+                                <img 
                                     :src="produtoCor.imagemPrincipal ? produtoCor.imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)"
-                                    class="rounded m-2 responsive"
-                                    style="max-width:70px;"
+                                    class="rounded m-2 responsive" style="max-width:70px;" 
                                 />
                             </div>
-                            <div class="vx-col mx-1 w-1/6" style="justify-content:center;margin:auto">
+                            <div class="vx-col mx-1 w-1/6" style="justify-content:center;margin:auto; max-width: 7rem;">
                                 <div class="vx-row">{{produtoCor.nome}}</div>
-                                <div class="vx-row">Linha Fitness</div>
                                 <div class="vx-row" style="font-weight:bold;">{{'Ref: ' + produtoCor.referencia}}</div>
                                 <div class="vx-row" style="font-weight:bold;">{{'Cor: ' + produtoCor.nomeCor}}</div>
                             </div>
-                            <div class="vx-col mx-6 w-3/6" style="justify-content:center; margin:auto">
+                            <div class="vx-col mx-6 w-3/6" style="justify-content:center; margin:auto; min-width: 6.5rem;">
                                 <table>
                                     <thead class="border-solid">
                                         <th class="grade-tam-prod-title" 
@@ -177,8 +191,28 @@
 			<b-card-header header-tag="header" class="p-1" role="tab">
 				<span class="font-bold card-header-categorias">Total: {{this.getTotalValor() | moneyyGrupo}}</span>
 			</b-card-header>
-		</b-card>                
-    </div>
+		</b-card>
+
+        <!-- Modal seleção de novo embarque -->
+		<vs-popup title="Selecione o embarque" :active.sync="popupNovoEmbarque" :button-close-hidden="false" v-if="this.embarquesNovos.length > 0">
+            <table style="width:100%" class="border-collapse">
+                <tr>
+                    <th class="p-2 border border-solid d-theme-border-grey-light">Embarque</th>
+                    <th class="p-2 border border-solid d-theme-border-grey-light text-center">A partir de</th>
+                    <th class="p-2 border border-solid d-theme-border-grey-light">Sel.</th>
+                </tr>
+                <tr v-for="(embarque, indexEmbarque) in this.embarquesNovos" :key="indexEmbarque">
+                    <td class="p-2 border border-solid d-theme-border-grey-light">{{embarque.nome}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light text-center">{{embarque.dataInicio | formatDate}}</td>
+                    <td class="p-2 border border-solid d-theme-border-grey-light">
+						<div class="flex w-full items-center justify-center">
+                            <vs-button color="success" type="filled" size="small" icon-pack="feather" class="w-full" icon="icon-check" @click.stop="gerarNovoEmbarque(embarque)"></vs-button>
+                        </div>
+					</td>
+                </tr>      
+            </table>
+        </vs-popup>
+    </div>    
 </template>
 <script>
 
@@ -187,6 +221,7 @@ import ProdutoDB from "../../rapidsoft/db/produtoDB";
 import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import CategoriaDB from "../../rapidsoft/db/categoriaDB";
+import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 
 export default {
     name: 'carrinho-item',
@@ -202,10 +237,6 @@ export default {
             type: Array,
             required: true,
         },
-        embarques: {
-            type: Object,
-            required: true,
-        },
         cliente: {
             type: Object,
             required: true,
@@ -216,43 +247,66 @@ export default {
         itensSelecionados: [],
         produtosCarrinho: [],
         totalizadorCategorias: [],
+        embarques: [],
+        embarquesNovos: [],
+        popupNovoEmbarque: false,
     }),
     watch: {
-        cliente() {
-            this.recalculaTotais();
-        }
+        cliente() {}
     },
 	components: {
 	},
 	computed: {
-        getArrayEmbarques() {
-            const embarqueCarrinho = Object.values(this.embarques);
-            const embarqueSelComMaiorData = this.itensSelecionados.reduce((embarque, item) => {
-                const embSel = embarqueCarrinho.find((embarque) => embarque.id === item.embarque);
-                return (embarque == null || embSel.dataInicio > embarque.dataInicio) ? embSel : embarque;
-            }, null);
+        getValueEmbarques() {
+            return [...this.embarques];
+        },
+        getArrayEmbarquesProdutos() {
+            const percentual = Storage.getGrupoCarrinho().porcentagem;
+            const arrayEmbarquesProdutos = this.lodash.orderBy(this.produtosCarrinho.reduce((arrayEmbarquesProdutos, produto) => {
+                const index = arrayEmbarquesProdutos.findIndex((embarque) => this.isEqualsEmbarque(embarque, produto));
+                if (index >= 0) {
+                    const embarque = {...arrayEmbarquesProdutos[index]};
+                    embarque.quantidade = embarque.quantidade + produto.quantidade;
+                    embarque.totalBruto = embarque.totalBruto + ((produto.precoCusto + ((percentual/100) * produto.precoCusto)) * produto.quantidade);
+                    arrayEmbarquesProdutos[index] = embarque;
+                } else {
+                    const embarque = {...this.getValueEmbarques.find((embarque) => embarque.id === produto.embarqueSelecionado.id)};
+                    embarque.seq = produto.embarqueSelecionado.seq;
+                    embarque.quantidade = produto.quantidade;
+                    embarque.totalBruto = ((produto.precoCusto + ((percentual/100) * produto.precoCusto)) * produto.quantidade);
+                    arrayEmbarquesProdutos.push(embarque);
+                }
+                return arrayEmbarquesProdutos;
+            }, []), ['id', 'seq']);
+            return arrayEmbarquesProdutos;
+        },
+        getArrayEmbarquesMover() {
             const embarques = this.itensSelecionados.reduce((embarques, item) => {
-                return embarques.concat(embarqueCarrinho.reduce((embarquesArray, embSel) => {
+                return embarques.concat(this.getArrayEmbarquesProdutos.reduce((embarquesArray, embSel) => {
                     if ((embSel.dataInicio <= this.dataAtual || embSel.dataFim >= this.dataAtual)
-                            && (embarqueSelComMaiorData.dataInicio <= embSel.dataInicio && embarqueSelComMaiorData.dataFim >= embSel.dataFim)
-                                && embSel.id != item.embarqueSelecionado) {
-                                    embarquesArray.push(embSel.id);
+                            && (this.maiorEmbarqueItensSelecionados.dataInicio <= embSel.dataInicio && this.maiorEmbarqueItensSelecionados.dataFim >= embSel.dataFim)
+                                && !this.isEqualsEmbarque(embSel, item)) {
+                                    embarquesArray.push({id: embSel.id, seq: embSel.seq});
                     }
                     return embarquesArray;
                 }, []))
             }, []);
-            return embarqueCarrinho.filter((embarque) => embarques.some((emb) => emb === embarque.id));
+            return this.getArrayEmbarquesProdutos.filter((embarque) => embarques.some((emb) => emb.id === embarque.id && emb.seq === embarque.seq));
         },
-        getArrayEmbarquesProdutos() {
-            return Object.values(this.embarques).filter((embarque) => {
-                return this.produtosCarrinho.some((produto) => produto.embarqueSelecionado === embarque.id);
-            });
-        },
+        maiorEmbarqueItensSelecionados() {
+            return this.itensSelecionados.reduce((embarque, item) => {
+                const embSel = this.getValueEmbarques.find((embarque) => embarque.id === item.embarque);
+                return (embarque == null || embSel.dataInicio > embarque.dataInicio) ? embSel : embarque;
+            }, null);
+        },        
         getTotalPecas() {
 			return this.produtosCarrinho.reduce((qtdeTotal, item) => qtdeTotal + item.quantidade, 0);
 		},
 	},
     methods: {
+        isEqualsEmbarque(embarque, produto) {
+            return embarque.id === produto.embarqueSelecionado.id && embarque.seq === produto.embarqueSelecionado.seq ? true : false;
+        },
         getTotalValor() {
 			return this.produtosCarrinho.reduce((qtdeTotal, item) => qtdeTotal + (item.quantidade * item.precoCusto), 0);
 		},
@@ -318,7 +372,6 @@ export default {
                 CarrinhoDB.setCarrinho(carrinho).then(() => {
                     if (carrinho.itens.length > 0) {
                         this.produtosCarrinho = this.getProdutosListNew(this.produtosCarrinho);
-                        this.recalculaTotais();
                         this.notification('Removido!', this.montaMensagem(this.itensSelecionados.length), 'primary');
                         this.itensSelecionados = [];
                         this.$forceUpdate();
@@ -328,6 +381,29 @@ export default {
                 });
             });
         },
+        selecionarTodos() {
+            this.itensSelecionados = this.produtosCarrinho;
+        },
+        removerSelecao() {
+            this.itensSelecionados = []
+        },
+        criarNovoEmbarque() {
+            EmbarqueDB.getFromEmbarque(this.maiorEmbarqueItensSelecionados).then((result) => {
+                this.embarquesNovos = result;
+                this.popupNovoEmbarque = true;
+            });
+        },
+        gerarNovoEmbarque(embarque) {
+            embarque = {...embarque};
+            if (this.getArrayEmbarquesProdutos.some((emb) => emb.id === embarque.id)) {
+                embarque.seq = this.getArrayEmbarquesProdutos.reduce((seq, emb) => (emb.id === embarque.id && emb.seq > seq ? emb.seq : 0), 0)+1;
+            } else {
+                this.embarques.push(embarque);
+                embarque.seq = 1;
+            }
+            this.moverItemEmbarque(embarque);
+            this.popupNovoEmbarque = false;
+        },
         getProdutosListNew(produtos){
             return produtos.filter(produto => {
                 return !this.itensSelecionados.some(item => {
@@ -335,48 +411,40 @@ export default {
                 });
             });
         },
-        getProdutosCarrinhoPorEmbarque(idEmbarque) {
-            return this.produtosCarrinho.filter((produto) => {
-                return produto.embarqueSelecionado === idEmbarque;
+        getProdutosCarrinhoPorEmbarque(embarque) {
+            return this.produtosCarrinho.filter((produto) => produto.embarqueSelecionado.id === embarque.id && produto.embarqueSelecionado.seq === embarque.seq);
+        },
+        atualizaEmbarqueSelecioando(produtos, embarqueSelecionado) {
+            return produtos.map((produto) => {
+                if (this.itensSelecionados.some((item) => item.idProduto === produto.idProduto)) produto.embarqueSelecionado = embarqueSelecionado;                
+                return produto;
             });
         },
-        setEmbarqueCarrinho(idEmbarque) {
+        setEmbarqueCarrinho(embarqueSelecionado) {
             CarrinhoDB.getCarrinho().then((carrinho) => {
-                carrinho.itens = carrinho.itens.map((produto) => {
-                    if (this.itensSelecionados.some((item) => item.idProduto === produto.idProduto)) produto.embarqueSelecionado = idEmbarque;                
-                    return produto;
-                });
+                carrinho.itens = this.atualizaEmbarqueSelecioando(carrinho.itens, embarqueSelecionado);
                 CarrinhoDB.setCarrinho(carrinho).then(() => {
                     this.itensSelecionados = [];
                 });
             });
         },
-        recalculaTotais() {
-            const percentual = Storage.getGrupoCarrinho().porcentagem;
-            for (const id in this.embarques) {
-                if (this.embarques.hasOwnProperty(id)) {
-                    this.embarques[id].quantidade = this.produtosCarrinho.reduce((total, produto) => {
-                        if (produto.embarqueSelecionado == id) total = total + produto.quantidade;
-                        return total;
-                    }, 0);
-                    this.embarques[id].totalBruto = this.produtosCarrinho.reduce((total, produto) => {
-                        if (produto.embarqueSelecionado == id) total = total + ((produto.precoCusto + ((percentual/100) * produto.precoCusto)) * produto.quantidade);
-                        return total;
-                    }, 0);
-                }
-            }
-        },
-        moverItemEmbarque(idEmbarque) {
-            this.produtosCarrinho = this.produtosCarrinho.map((produto) => {
-                if (this.itensSelecionados.some((item) => item.idProduto === produto.idProduto)) produto.embarqueSelecionado = idEmbarque;
-                return produto;
-            });
-            this.setEmbarqueCarrinho(idEmbarque);
-            this.recalculaTotais();
-            this.notification('Movidos!', 'Itens Selecionados foram movidos para o Embarque','success');
+        moverItemEmbarque(embarque) {
+            const embarqueSelecionado = {id: embarque.id, seq: embarque.seq ? embarque.seq : 1};
+            this.produtosCarrinho = this.atualizaEmbarqueSelecioando(this.produtosCarrinho, embarqueSelecionado);
+            this.setEmbarqueCarrinho(embarqueSelecionado);
+            this.notification('Movidos!', 'Itens Selecionados foram movidos para o Embarque', 'success');
+            this.$forceUpdate();
         },
         abrirPesquisaCliente() {
 			this.$bvModal.show("popup-cliente-search");
+        },
+        buscaEmbarques(produtos) {
+            return new Promise((resolve) => {
+                EmbarqueDB.getEmbarquesCarrinhoSegmento(this.segmento, produtos).then((embarques) => {
+                    this.embarques = embarques;
+                    resolve();
+                });
+            });
         },
         buscaAgrupadorCategorias(carrinho) {
 			return new Promise((resolve) => {
@@ -411,10 +479,11 @@ export default {
     },
 	created() {
         try {
-            this.buscaAgrupadorCategorias(this.produtos).then(() => {
-                this.produtosCarrinho = this.produtos;
-                this.recalculaTotais();
-            });
+            this.buscaEmbarques(this.produtos).then(() => {
+                this.buscaAgrupadorCategorias(this.produtos).then(() => {
+                    this.produtosCarrinho = this.produtos;
+                });
+            })
         } catch (error) {
             console.log(error);
             alert(error);
