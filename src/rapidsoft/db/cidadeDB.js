@@ -52,8 +52,8 @@ class cidadeDB extends BasicDB {
                             cidadeNew.uf = estado.uf;
                             cidadeNew.estado = estado.nome;
     
-                            delete cidadeNew["id"];
-                            delete cidadeNew["ceps"];
+                            delete cidadeNew.id;
+                            delete cidadeNew.ceps;
                             return cidadeNew;
                         } else return {};
                     });
@@ -64,12 +64,12 @@ class cidadeDB extends BasicDB {
     }
 
     salvarSinc(cidades) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             this._localDB.bulkDocs(cidades).then(() => {
                 resolve();
             }).catch((error) => {
                 this._criarLogDB({url:'db/cidadeDB',method:'salvarSinc',message: error,error:'Failed Request'});
-                resolve();
+                reject(error);
             });
         });
     }
@@ -101,6 +101,9 @@ class cidadeDB extends BasicDB {
                 if(cidades.length > 0) {
                     this._localDB.bulkDocs(cidades).then(() => {
                         resolve();
+                    }).catch((error) => {
+                        this._criarLogDB({url:'db/cidadeDB',method:'salvar.bulkDocs',message: error,error:'Failed Request'});
+                        resolve(error);
                     });
                 } else {
                     resolve();

@@ -16,13 +16,17 @@ class grupoClienteDB extends BasicDB {
     }
 
     salvarSinc(gruposCliente) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             this._limparBase().then(() => {
                 if(gruposCliente.length > 0) {
                     const done = After(gruposCliente.length, () => resolve());
                     gruposCliente.forEach(grupo => {
                         grupo.porcentagem = Number(grupo.porcentagem);
-                        this._salvar(grupo).then(() => done()).catch(() => done());
+                        this._salvar(grupo).then(() => {
+                            done();
+                        }).catch((error) => {
+                            reject(error);
+                        });
                     });
                 } else {
                     resolve();

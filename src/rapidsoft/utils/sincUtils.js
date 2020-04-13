@@ -90,7 +90,7 @@ class sincUtils {
     }
 
     downloadCidadesFromData(sinc) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const siglasEstados = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
             sinc.total = siglasEstados.length;
             const siglaEstado = siglasEstados[sinc.parcial];
@@ -103,7 +103,7 @@ class sincUtils {
                         this.downloadCidadesFromData(sinc).then(() => resolve());
                     });
                 }).catch((error) => {
-                    console.log(error);
+                    reject(error);
                 }); 
             }
         });

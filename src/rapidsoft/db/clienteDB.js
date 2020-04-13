@@ -185,31 +185,37 @@ class clienteDB extends BasicDB {
 
     salvar(cliente) {
         return new Promise((resolve, reject) => {
-            validarObjetoDB(cliente).then((resultCliente) => {
-                resultCliente.alterado = true;
-                this._salvar(resultCliente).then((result) => {
-                    resultCliente.id=result.id;
-                    resultCliente._rev=result._rev;
-                    resolve(resultCliente);
-                }).catch((erro) => {
-                    this._criarLogDB({url:'db/clienteDB',method:'salvar().validarObjetoDB',message: erro,error:'Failed Request'});
-                    reject(erro);
+            try {
+                validarObjetoDB(cliente).then((resultCliente) => {
+                    resultCliente.alterado = true;
+                    this._salvar(resultCliente).then((result) => {
+                        resultCliente.id=result.id;
+                        resultCliente._rev=result._rev;
+                        resolve(resultCliente);
+                    }).catch((error) => {
+                        this._criarLogDB({url:'db/clienteDB',method:'salvar',message: error,error:'Failed Request'});
+                        reject(error);
+                    });
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/clienteDB',method:'salvar',message: error,error:'Failed Request'});
+                    reject(error);
                 });
-            }).catch((erro) => {
-                this._criarLogDB({url:'db/clienteDB',method:'salvar',message: erro,error:'Failed Request'});
-                reject(erro);
-            });
+            } catch(error) {
+                this._criarLogDB({url:'db/clienteDB',method:'salvar',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
     salvarSinc(cliente) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             try {
                 cliente.id = cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
                 
-                if (cliente.enderecos.length == 0 && cliente.endereco) {
+                if ((!cliente.enderecos || cliente.enderecos === null) && cliente.endereco && cliente.endereco !== null) {
                     const enderecoEntrega = Object.assign({}, cliente.endereco);
                     enderecoEntrega.endEntrega = true;
+                    cliente.enderecos = [];
                     cliente.enderecos.push(enderecoEntrega);
                 }
 
@@ -232,83 +238,110 @@ class clienteDB extends BasicDB {
 
                 this._salvar(cliente).then(() => {
                     resolve();
-                }).catch((erro) => {
-                    throw erro;
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: error,error:'Failed Request'});
+                    reject(error);
                 });
             } catch (error) {
-                this._criarLogDB({url:'db/clienteDB', method:'salvarSinc', message: error, error:'Failed Request'});
-                resolve();
+                this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: error,error:'Failed Request'});
+                reject(error);
             }
             
         });
     }
     
     listarConsulta() {
-        return new Promise((resolve) => {
-            this._getFindCondition({cpfCnpj : {$ne : null}}).then((clientes) => {
-                clientes = clientes.map((cliente) => {
-                    return {
-                        id: cliente._id, 
-                        cpfCnpj: cliente.cpfCnpj, 
-                        nome: cliente.nome, 
-                        cidade: cliente.endereco.cidade, 
-                        estado: cliente.endereco.estado,
-                        inadimplente: cliente.inadimplente,
-                        ativo: cliente.ativo,
-                        clienteErp: cliente.clienteErp
-                    };
+        return new Promise((resolve, reject) => {
+            try {
+                this._getFindCondition({cpfCnpj : {$ne : null}}).then((clientes) => {
+                    clientes = clientes.map((cliente) => {
+                        return {
+                            id: cliente._id, 
+                            cpfCnpj: cliente.cpfCnpj, 
+                            nome: cliente.nome, 
+                            cidade: cliente.endereco.cidade, 
+                            estado: cliente.endereco.estado,
+                            inadimplente: cliente.inadimplente,
+                            ativo: cliente.ativo,
+                            clienteErp: cliente.clienteErp
+                        };
+                    });
+                    resolve(clientes);
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/clienteDB',method:'listarConsulta',message: error,error:'Failed Request'});
+                    reject(error);
                 });
-                resolve(clientes);
-            });
+            } catch (error) {
+                this._criarLogDB({url:'db/clienteDB',method:'listarConsulta',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
     listar() {
-        return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((cliente) => {
-                    if (IsNil(cliente.doc.endereco) || (IsObject(cliente.doc.endereco) && IsNil(cliente.doc.endereco.cep))) {
-                        cliente.doc.endereco = {};
-                        cliente.doc.endereco.cidade = "";
-                        cliente.doc.endereco.estado = "";
-                    }
-                    return Clone(cliente.doc);
-                }));
-            }).catch((err) => {
-                this._criarLogDB({url:'db/clienteDB',method:'listar',message: err,error:'Failed Request'});
-                resolve(err);
-            });
+        return new Promise((resolve, reject) => {
+            try {
+                this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                    resolve(resultDocs.rows.map((cliente) => {
+                        if (IsNil(cliente.doc.endereco) || (IsObject(cliente.doc.endereco) && IsNil(cliente.doc.endereco.cep))) {
+                            cliente.doc.endereco = {};
+                            cliente.doc.endereco.cidade = "";
+                            cliente.doc.endereco.estado = "";
+                        }
+                        return Clone(cliente.doc);
+                    }));
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/clienteDB',method:'listar',message: error,error:'Failed Request'});
+                    reject(error);
+                });
+            } catch (error) {
+                this._criarLogDB({url:'db/clienteDB',method:'listar',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
     findById(idCliente) {
-        return new Promise((resolve) => {
-            this._getById(idCliente,true).then((result) => {
-                if (result.existe) {
-                    const cliente = result.value;
-                    cliente.inscricaoEstadual = cliente.inscricaoEstadual == "" ? "ISENTO" : cliente.inscricaoEstadual;
-                    resolve(cliente);
-                } else {
-                    resolve(null);
-                }
-            });
+        return new Promise((resolve, reject) => {
+            try {
+                this._getById(idCliente,true).then((result) => {
+                    if (result.existe) {
+                        const cliente = result.value;
+                        cliente.inscricaoEstadual = cliente.inscricaoEstadual == "" ? "ISENTO" : cliente.inscricaoEstadual;
+                        resolve(cliente);
+                    } else {
+                        resolve(null);
+                    }
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/clienteDB',method:'findById',message: error,error:'Failed Request'});
+                    reject(error);
+                });
+            } catch (error) {
+                this._criarLogDB({url:'db/clienteDB',method:'findById',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
     deletar(idCliente) {
         return new Promise((resolve, reject) => {
-            this._deletar(idCliente).then((result) => {
-                resolve(result);
-                // TODO (Luiz): Removido para testar a aplicação sem sincronizar base local com a nuvem
-                /* this._remoteDB.get(idCliente).then((objectRemote) => {
-                    this._remoteDB.remove(objectRemote).then(() => {
-                        resolve(result);
-                    });
-                }); */
-            }).catch((err) => {
-                this._criarLogDB({url:'db/clienteDB',method:'deletar',message: err,error:'Failed Request'});
-                reject(err);
-            });
+            try {
+                this._deletar(idCliente).then((result) => {
+                    resolve(result);
+                    // TODO (Luiz): Removido para testar a aplicação sem sincronizar base local com a nuvem
+                    /* this._remoteDB.get(idCliente).then((objectRemote) => {
+                        this._remoteDB.remove(objectRemote).then(() => {
+                            resolve(result);
+                        });
+                    }); */
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/clienteDB',method:'deletar',message: error,error:'Failed Request'});
+                    reject(error);
+                });
+            } catch (error) {
+                this._criarLogDB({url:'db/clienteDB',method:'deletar',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
@@ -324,11 +357,16 @@ class clienteDB extends BasicDB {
 
     validarEndereco(endereco) {
         return new Promise((resolve, reject) => {
-            let validarEndereco = validarEnderecoDB(endereco);
-            if (validarEndereco.mensagem === undefined) {
-                resolve(validarEndereco);
-            } else {
-                reject(validarEndereco);
+            try {
+                let validarEndereco = validarEnderecoDB(endereco);
+                if (validarEndereco.mensagem === undefined) {
+                    resolve(validarEndereco);
+                } else {
+                    throw validarEndereco;
+                }
+            } catch (error) {
+                this._criarLogDB({url:'db/clienteDB',method:'validarEndereco',message: error,error:'Failed Request'});
+                reject(error);
             }
         });
     }
@@ -379,7 +417,7 @@ class clienteDB extends BasicDB {
 
             this._localDB.find({
                 selector: selectorFilter,
-                fields: ['id', 'cpfCnpj', 'nome', 'endereco', 'inadimplente', 'ativo'],
+                fields: ['_id', 'cpfCnpj', 'nome', 'endereco', 'inadimplente', 'ativo'],
             }).then((result) => {
                 const clientes = result.docs.map((cliente) => {
                     return { 
