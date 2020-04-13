@@ -102,7 +102,7 @@
                   </vs-td>
                   <vs-td :data="data[indextr].compnente">{{ data[indextr].compnente }}</vs-td>
                   <vs-td :data="data[indextr].caminho">
-                    {{diminuirCaminho(data[indextr].caminho)}}
+                    {{data[indextr].caminho}}
                   </vs-td>
                   <vs-td class="align-center" :data="data[indextr].caminho">
                     <span
@@ -149,7 +149,6 @@ export default {
   },
   methods: {
     diminuirCaminho(caminho){
-      console.log(caminho);
       const removeHttp = caminho.substring(caminho.indexOf("http://") + 7);
       const caminhoErro = removeHttp.substring(removeHttp.indexOf("/"));
       return caminhoErro;

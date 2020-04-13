@@ -17,49 +17,48 @@ class orcamentoDB extends BasicDB {
     }
 
     findLastId() {
-        return new Promise((resolve) => {
-            this._count().then((count) => {
-                this._lastId = new Date().getTime() +''+ count;
-                resolve(this._lastId);
-            });
-        });
-    }
-
-    salvar(orcamento) {
-        return new Promise((resolve) => {
-            const salva = (orcamento) => {
-                orcamento.alterado = true;
-                this._salvar(orcamento).then((result) => {
-                    resolve(result);
+        return new Promise((resolve, reject) => {
+            try {
+                this._count().then((count) => {
+                    this._lastId = new Date().getTime() +''+ count;
+                    resolve(this._lastId);
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/orcamentoDB',method:'findLastId',message: error,error:'Failed Request'});
+                    reject(error);
                 });
-            };
-            
-            if (orcamento.id) {
-                this.get(orcamento.id).then((orcamentoDB) => {
-                    orcamento._id = orcamentoDB._id;
-                    orcamento._rev = orcamentoDB._rev;
-                    salva(orcamento);
-                });
-            } else {
-                this.findLastId().then((idOrcamento) => {
-                    orcamento.id = idOrcamento;
-                    salva(orcamento);
-                });
+            } catch (error) {
+                this._criarLogDB({url:'db/orcamentoDB',method:'findLastId',message: error,error:'Failed Request'});
+                reject(error);
             }
         });
     }
 
-    salvarSinc(orcamento) {
-        return new Promise((resolve) => {
-            this.get(orcamento.id).then((object) => {
-                orcamento._rev = object._rev;
-                orcamento.cliente.id = String(orcamento.cliente.id);
-                this._salvar(orcamento).then(() => {
-                    resolve();
-                });
-            }).catch(() => {
-                resolve();
-            });
+    salvar(orcamento) {
+        return new Promise((resolve, reject) => {
+            try {
+                if (orcamento.id) {
+                    orcamento.alterado = true;
+                    this._salvar(orcamento).then((result) => {
+                        resolve(result);
+                    }).catch((error) => {
+                        this._criarLogDB({url:'db/orcamentoDB',method:'salvar',message: error,error:'Failed Request'});
+                        reject(error);
+                    });
+                } else {
+                    this.findLastId().then((idOrcamento) => {
+                        orcamento.id = idOrcamento;
+                        this._salvar(orcamento).then((result) => {
+                            resolve(result);
+                        }).catch((error) => {
+                            this._criarLogDB({url:'db/orcamentoDB',method:'salvar',message: error,error:'Failed Request'});
+                            reject(error);
+                        });
+                    });
+                }
+            } catch (error) {
+                this._criarLogDB({url:'db/orcamentoDB',method:'salvar',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
@@ -72,17 +71,23 @@ class orcamentoDB extends BasicDB {
     }
 
     deletar(orcamento) {
-        return new Promise((resolve) => {
-            this._localDB.remove(orcamento).then(() => {
-                // this._remoteDB.get(orcamento.id).then((orcamentoRemote) => {
-                    // this._remoteDB.remove(orcamentoRemote).then(() => {
-                        resolve();
-                    // });
-                // });
-            }).catch((err) => {
-                this._criarLogDB({url:'db/orcamentoDB',method:'deletar',message: err,error:'Failed Request'});
-                resolve();
-            });
+        return new Promise((resolve, reject) => {
+            try {
+                this._localDB.remove(orcamento).then(() => {
+                    resolve();
+                    /* this._remoteDB.get(orcamento.id).then((orcamentoRemote) => {
+                        this._remoteDB.remove(orcamentoRemote).then(() => {
+                            resolve();
+                        });
+                    }); */
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/orcamentoDB',method:'deletar',message: error,error:'Failed Request'});
+                    reject(error);
+                });
+            } catch (error) {
+                this._criarLogDB({url:'db/orcamentoDB',method:'deletar',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 

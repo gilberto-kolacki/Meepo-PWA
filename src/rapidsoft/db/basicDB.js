@@ -6,6 +6,7 @@
 ==========================================================================================*/
 
 import After from 'lodash/after';
+import IsEqual from 'lodash/isEqual';
 import CloneDeep from 'lodash/cloneDeep';
 import FindIndex from 'lodash/findIndex';
 import PouchDB from 'pouchdb';
@@ -193,30 +194,43 @@ class basicDB {
     }
 
     _findLastId() {
-        return new Promise((resolve) => {
-            this._localDB.find({
-                selector: {
-                    id: {$gte: null}
-                },
-                sort: [{'id':'desc'}],
-                limit: 1
-            }).then((result) => {
-                if (result.docs.length == 1) {
-                    this._lastId = result.docs[0].id;
-                } else {
-                    this._lastId = 0;
-                }
-                resolve(this._lastId);
-            });
+        return new Promise((resolve, reject) => {
+            try {
+                this._localDB.find({
+                    selector: {
+                        id: {$gte: null}
+                    },
+                    sort: [{'id':'desc'}],
+                    limit: 1
+                }).then((result) => {
+                    if (result.docs.length == 1) {
+                        this._lastId = result.docs[0].id;
+                    } else {
+                        this._lastId = 0;
+                    }
+                    resolve(this._lastId);
+                }).catch(() => {resolve(0);});
+            } catch(error) {
+                this._criarLogDB({url:'db/basicDB',method:'_findLastId',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
     _getNextId() {
-        return new Promise((resolve) => {
-            this._findLastId().then((ultimoId) => {
-                ultimoId = ultimoId >= 0 ? ultimoId : 0;
-                resolve(ultimoId+1);
-            });
+        return new Promise((resolve, reject) => {
+            try {
+                this._findLastId().then((ultimoId) => {
+                    ultimoId = ultimoId >= 0 ? ultimoId : 0;
+                    resolve(ultimoId+1);
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/basicDB',method:'_getNextId',message: error,error:'Failed Request'});
+                    reject(error);
+                });
+            } catch(error) {
+                this._criarLogDB({url:'db/basicDB',method:'_getNextId',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
@@ -234,36 +248,50 @@ class basicDB {
     }
 
     _limparBase(dados = null) {
-        return new Promise((resolve) => {
-            if (this._localDB) {
-                this._delete(dados).then(() => {
-                    this._localDB.destroy().then(() => {
-                        this.createBases();
-                        resolve();
-                    }).catch((err) => {
-                        this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: err,error:'Failed Request'});
-                        resolve(err);
+        return new Promise((resolve, reject) => {
+            try {
+                if (this._localDB) {
+                    this._delete(dados).then(() => {
+                        this._localDB.destroy().then(() => {
+                            this.createBases();
+                            resolve();
+                        }).catch((error) => {
+                            this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: error,error:'Failed Request'});
+                            reject(error);
+                        });
+                    }).catch((error) => {
+                        this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: error,error:'Failed Request'});
+                        reject(error);
                     });
-                });
-            } else {
-                resolve();
+                } else {
+                    resolve();
+                }
+            } catch(error) {
+                this._criarLogDB({url:'db/basicDB',method:'_limparBase',message: error,error:'Failed Request'});
+                reject(error);
             }
         });
     }
 
     _delete(dados) {
-        return new Promise((resolve) => {
-            if (dados && dados.length > 0) {
-                const done = After(dados.length, () => resolve());    
-                dados.forEach(object => {
-                    this._localDB.remove(object).then(() => {
-                        done();
-                    }).catch(() => {
-                        done();
+        return new Promise((resolve, reject) => {
+            try {
+                if (dados && dados.length > 0) {
+                    const done = After(dados.length, () => resolve());    
+                    dados.forEach(object => {
+                        this._localDB.remove(object).then(() => {
+                            done();
+                        }).catch((error) => {
+                            this._criarLogDB({url:'db/basicDB',method:'_delete',message: error,error:'Failed Request'});
+                            reject(error);
+                        });
                     });
-                });
-            } else {
-                resolve();
+                } else {
+                    resolve();
+                }
+            } catch(error) {
+                this._criarLogDB({url:'db/basicDB',method:'_delete',message: error,error:'Failed Request'});
+                reject(error);
             }
         });
     }
@@ -275,114 +303,157 @@ class basicDB {
                 
                 this._localDB.put(value).then((result) => {
                     resolve({id: result.id, _rev: result.rev});
-                }).catch((erro) => {
-                    if (erro.status == 409) {
+                }).catch((error) => {
+                    if (error.status == 409) {
                         console.log('Salvar recursivo, ver controle _rev');
-                        
                         this._getById(value.id, true).then((objectDB) => {
                             value._rev = objectDB.value._rev;
                             this._salvar(value).then((result) => {
                                 resolve(result);
+                            }).catch((error) => {
+                                this._criarLogDB({url:'db/basicDB',method:'_salvar',message: error,error:'Failed Request'});
+                                reject(error);
                             });
+                        }).catch((error) => {
+                            this._criarLogDB({url:'db/basicDB',method:'_salvar',message: error,error:'Failed Request'});
+                            reject(error);
                         });
-                    } else if (erro.name == "QuotaExceededError") {
+                    } else if (error.name == "QuotaExceededError") {
                         alert('QuotaExceededError');
-                        console.log(erro);
-                        reject(erro);
+                        this._criarLogDB({url:'db/basicDB',method:'_salvar',message: error,error:'Failed Request'});
+                        reject(error);
                     } else {
-                        this._criarLogDB({url:'db/basicDB',method:'_salvar',message: erro,error:'Failed Request'});
-                        reject(erro);
+                        this._criarLogDB({url:'db/basicDB',method:'_salvar',message: error,error:'Failed Request'});
+                        reject(error);
                     }
                 });
-            } catch (err) {
-                console.log(err);
-                reject(err);
+            } catch (error) {
+                this._criarLogDB({url:'db/basicDB',method:'_salvar',message: error,error:'Failed Request'});
+                reject(error);
             }
         });
     }
 
     _getById(id, rev = false) {
-        return new Promise((resolve) => {
-            this._localDB.get(String(id)).then((result) => {
-                if(!rev) delete result['_rev'];
-                resolve({existe: true, value: result});  
-            }).catch((error) => {
+        return new Promise((resolve, reject) => {
+            try {
+                this._localDB.get(String(id)).then((result) => {
+                    if(!rev) delete result._rev;
+                    resolve({existe: true, value: result});
+                }).catch((error) => {
+                    resolve({existe: false, result: error});
+                });
+            } catch (error) {
                 this._criarLogDB({url:'db/basicDB', method:'_getById', message: error, error:'Failed Request'});
-                resolve({existe: false, result: error});
-            });
+                reject(error);
+            }
         });
     }
 
     _getAll() {
-        return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                const rows = resultDocs.rows.filter((row) => row.doc.language !== "query" && row.doc.hasOwnProperty('id'));
-                resolve(rows.map((row) => row.doc));
-            }).catch((err) => {
-                this._criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
-                resolve(err);
-            });
+        return new Promise((resolve, reject) => {
+            try {
+                this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                    const rows = resultDocs.rows.filter((row) => row.doc.language !== "query" && row.doc.hasOwnProperty('id'));
+                    resolve(rows.map((row) => {
+                        return row.doc;
+                    }));
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/basicDB',method:'_getAll',message: error,error:'Failed Request'});
+                    reject(error);
+                });
+            } catch (error) {
+                this._criarLogDB({url:'db/basicDB',method:'_getAll',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
     _count() {
-        return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: false}).then((resultDocs) => {
-                const rows = resultDocs.rows.filter((row) => !row.id.includes("_design"));
-                resolve(rows.length);
-            }).catch((err) => {
-                this._criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
-                resolve(0);
-            });
+        return new Promise((resolve, reject) => {
+            try {
+                this._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                    const rows = resultDocs.rows.filter((row) => !row.id.includes("_design"));
+                    resolve(rows.length);
+                }).catch(() => {resolve(0);});
+            } catch (error) {
+                this._criarLogDB({url:'db/basicDB',method:'_count',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
     _getAllMap() {
-        return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
-                const rows = resultDocs.rows.filter((row) => row.doc.language !== "query");
-                const result = rows.reduce((map, row) => {
-                    map[row.doc.id] = row.doc;
-                    return map;
-                }, {});
-                resolve(result);
-            }).catch((err) => {
-                this._criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
-                resolve(err);
-            });
+        return new Promise((resolve, reject) => {
+            try {
+                this._localDB.allDocs({include_docs: true}).then((resultDocs) => {
+                    const rows = resultDocs.rows.filter((row) => row.doc.language !== "query");
+                    const result = rows.reduce((map, row) => {
+                        map[row.doc.id] = row.doc;
+                        return map;
+                    }, {});
+                    resolve(result);
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/basicDB',method:'_getAllMap',message: error,error:'Failed Request'});
+                    reject(error);
+                });
+            } catch (error) {
+                this._criarLogDB({url:'db/basicDB',method:'_getAllMap',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
     _getIds() {
-        return new Promise((resolve) => {
-            this._localDB.allDocs({include_docs: false}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((row) => row.id ));
-            }).catch((err) => {
-                this._criarLogDB({url:'db/basicDB',method:'_getAll',message: err,error:'Failed Request'});
-                resolve(err);
-            });
+        return new Promise((resolve, reject) => {
+            try {
+                this._localDB.allDocs({include_docs: false}).then((resultDocs) => {
+                    resolve(resultDocs.rows.map((row) => row.id ));
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/basicDB',method:'_getIds',message: error,error:'Failed Request'});
+                    reject(error);
+                });
+            } catch (error) {
+                this._criarLogDB({url:'db/basicDB',method:'_getIds',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
     _getFindCondition(condition) {
-        return new Promise((resolve) => {
-            this._localDB.find({
-                selector: condition,
-            }).then((result) => {
-                resolve(result.docs);
-            });
+        return new Promise((resolve, reject) => {
+            try {
+                this._localDB.find({selector: condition}).then((result) => {
+                    resolve(result.docs);
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/basicDB',method:'_getFindCondition',message: error,error:'Failed Request'});
+                    reject(error);
+                });
+            } catch (error) {
+                this._criarLogDB({url:'db/basicDB',method:'_getFindCondition',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
     
     _deletar(id) {
-        return new Promise((resolve) => {
-            this._getById(id, true).then((object) => {
-                this._localDB.remove(object.value).then((result) => {
-                    resolve(result);
-                }).catch(() => {
-                    resolve();
+        return new Promise((resolve, reject) => {
+            try {
+                this._getById(id, true).then((object) => {
+                    this._localDB.remove(object.value).then((result) => {
+                        resolve(result);
+                    }).catch((error) => {
+                        this._criarLogDB({url:'db/basicDB',method:'_deletar',message: error,error:'Failed Request'});
+                        reject(error);
+                    });
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/basicDB',method:'_deletar',message: error,error:'Failed Request'});
+                    reject(error);
                 });
-            });
+            } catch (error) {
+                this._criarLogDB({url:'db/basicDB',method:'_deletar',message: error,error:'Failed Request'});
+                reject(error);
+            }
         });
     }
 
@@ -421,6 +492,60 @@ class basicDB {
         }
     }
 
+    _getObjeto(objetoId) {
+        return new Promise((resolve, reject) => {
+            this._getById(objetoId, true).then((objeto) => {
+                if (objeto.existe) resolve(objeto.value);
+                else reject(objeto.existe);
+            }).catch((error) => {
+                this._criarLogDB({url:'db/basicDB',method:'_getObjeto',message: error,error:'Failed Request'});
+                reject(error);
+            });
+        });
+    }
+
+    _salvarSinc(objeto) {
+        return new Promise((resolve, reject) => {
+            try {
+                this._getObjeto(objeto._id).then((objetoDB) => {
+                    objeto._rev = objetoDB._rev;
+                    if (!IsEqual(objetoDB, objeto)) {
+                        if (objetoDB.idPedido && objeto.idPedido && objetoDB.idPedido !== objeto.idPedido) {
+                            const error = 'Existe um mesmo id '+objetoDB.id+' de pedido para idPedido do ERP diferentes ('+objetoDB.idPedido+'/'+objeto.idPedido+')!';
+                            this._criarLogDB({url:'db/basicDB',method:'_salvarSinc',message: error,error:'Failed Request'});
+                            reject(error);
+                        } else {
+                            objeto.cliente.id = String(objeto.cliente.id);
+                            this._salvar(objeto).then(() => {
+                                resolve();
+                            }).catch((error) => {
+                                this._criarLogDB({url:'db/basicDB',method:'_salvarSinc',message: error,error:'Failed Request'});
+                                reject(error);
+                            });
+                        }
+                    } else {
+                        resolve();
+                    }
+                }).catch((error) => {
+                    if (!error) {
+                        objeto.cliente.id = String(objeto.cliente.id);
+                        this._salvar(objeto).then(() => {
+                            resolve();
+                        }).catch((error) => {
+                            this._criarLogDB({url:'db/basicDB',method:'_salvarSinc',message: error,error:'Failed Request'});
+                            reject(error);
+                        });
+                    } else {
+                        this._criarLogDB({url:'db/basicDB',method:'_salvarSinc',message: error,error:'Failed Request'});
+                        reject(error);
+                    }
+                });
+            } catch (error) {
+                this._criarLogDB({url:'db/basicDB',method:'_salvarSinc',message: error,error:'Failed Request'});
+                reject(error);
+            }
+        });
+    }
     // _sincNuvem() {
     //     return new Promise((resolve) => {
     //         if (window.navigator.onLine) {
@@ -449,13 +574,12 @@ class basicDB {
 
     // logs
     __salvarErro(value) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             if (this._localErroDB) {
                 this._localErroDB.put(value).then((result) => {
                     resolve(Number(result.id));
-                }).catch((erro) => {
-                    this._criarLogDB({url:'db/basicDB',method:'_salvar',message: erro, error:'Failed Request'});
-                    reject(erro);
+                }).catch(() => {
+                    resolve();
                 });
             } else {
                 resolve();
@@ -478,12 +602,12 @@ class basicDB {
     _criarLogErroSinc(sinc, erro, mensagem) {
         return new Promise((resolve) => {
             erro = CloneDeep(erro.config);
-            delete erro['transformRequest'];
-            delete erro['transformResponse'];
-            delete erro['validateStatus'];
-            delete erro['xsrfCookieName'];
-            delete erro['xsrfHeaderName'];
-            delete erro['adapter'];
+            delete erro.transformRequest;
+            delete erro.transformResponse;
+            delete erro.validateStatus;
+            delete erro.xsrfCookieName;
+            delete erro.xsrfHeaderName;
+            delete erro.adapter;
             const logger = newLog('sincronizacao', sinc.methodo, erro.url, erro, mensagem);
             this.__salvarErro(logger).then((result) => {
                 resolve(result);

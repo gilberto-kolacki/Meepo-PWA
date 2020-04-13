@@ -175,12 +175,19 @@ export default {
                             ProdutoDB.salvar(produto).then(() => {
                                 SincUtils.atuaizaParcialSinc(sinc, 1);            
                                 done();
+                            }).catch((error) => {
+                                ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincProduto', message: error, error:'Failed Request'});
+                                SincUtils.atuaizaParcialSinc(sinc, 1);            
+                                done();
                             });
                         });
                     } else {
                         SincUtils.closeLoading(this, sinc, all);
                         this.sincronizar(this.sincImagemObject, all);
                     }
+                }).catch((error) => {
+                    ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincProduto', message: error, error:'Failed Request'});
+                    SincUtils.closeLoading(this, sinc, all);
                 });
             }).catch((error) => {
                 this.errorSinc(sinc, error);
@@ -216,8 +223,15 @@ export default {
                             ClienteDB.salvarSinc(cliente).then(() => {
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
                                 done();
+                            }).catch((error) => {
+                                ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincCliente', message: error, error:'Failed Request'});
+                                SincUtils.atuaizaParcialSinc(sinc, 1);
+                                done();
                             });
                         });
+                    }).catch((error) => {
+                        ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincCliente', message: error, error:'Failed Request'});
+                        SincUtils.closeLoading(this, sinc, all);
                     });
                 }).catch((error) => {
                     this.errorSinc(sinc, error);
@@ -262,6 +276,8 @@ export default {
             CidadeDB._limparBase().then(() => {
                 SincUtils.downloadCidadesFromData(sinc).then(() => {
                     SincUtils.closeLoading(this, sinc, all);
+                }).catch((error) => {
+                    this.errorSinc(sinc, error);
                 });
             });
         },
@@ -273,27 +289,11 @@ export default {
                         sinc.total = pedidos.length;
                         const done = this.lodash.after(pedidos.length, () => SincUtils.closeLoading(this, sinc, all));
                         pedidos.forEach(pedido => {
-                            PedidoDB.salvarSinc(pedido).then(() => {
+                            PedidoDB._salvarSinc(pedido).then(() => {
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
                                 done();
-                            });
-                        });
-                    } else {
-                        SincUtils.closeLoading(this, sinc, all)
-                    }
-                });
-            });
-        },
-        sincOrcamento(sinc, all) {
-            OrcamentoDB.buscaSinc().then((orcamentosSinc) => {
-                OrcamentoService.sincOrcamento(orcamentosSinc).then((orcamentos) => {
-                    console.log(orcamentos);
-                    if (orcamentos.length > 0) {
-                        sinc.parcial = 0;
-                        sinc.total = orcamentos.length;
-                        const done = this.lodash.after(orcamentos.length, () => SincUtils.closeLoading(this, sinc, all));
-                        orcamentos.forEach(orcamento => {
-                            OrcamentoDB.salvarSinc(orcamento).then(() => {
+                            }).catch((error) => {
+                                ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincPedido', message: error, error:'Failed Request'});
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
                                 done();
                             });
@@ -301,6 +301,33 @@ export default {
                     } else {
                         SincUtils.closeLoading(this, sinc, all);
                     }
+                }).catch((error) => {
+                    this.errorSinc(sinc, error);
+                });
+            });
+        },
+        sincOrcamento(sinc, all) {
+            OrcamentoDB.buscaSinc().then((orcamentosSinc) => {
+                OrcamentoService.sincOrcamento(orcamentosSinc).then((orcamentos) => {
+                    if (orcamentos.length > 0) {
+                        sinc.parcial = 0;
+                        sinc.total = orcamentos.length;
+                        const done = this.lodash.after(orcamentos.length, () => SincUtils.closeLoading(this, sinc, all));
+                        orcamentos.forEach(orcamento => {
+                            OrcamentoDB._salvarSinc(orcamento).then(() => {
+                                SincUtils.atuaizaParcialSinc(sinc, 1);
+                                done();
+                            }).catch((error) => {
+                                ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincOrcamento', message: error, error:'Failed Request'});
+                                SincUtils.atuaizaParcialSinc(sinc, 1);
+                                done();
+                            });
+                        });
+                    } else {
+                        SincUtils.closeLoading(this, sinc, all);
+                    }
+                }).catch((error) => {
+                    this.errorSinc(sinc, error);
                 });
             });
         },
@@ -344,7 +371,7 @@ export default {
         },
         setLastDateSinc() {
             this.$store.commit('UPDATE_LAST_SINC', this.tabelasSincronizacao.reduce((lastDate, sinc) => {
-                if (sinc.dataSincronizacao < lastDate) lastDate = sinc.dataSincronizacao;
+                if (sinc.dataSincronizacao && sinc.dataSincronizacao < lastDate) lastDate = sinc.dataSincronizacao;
                 return lastDate;
             }, new Date().getTime()));
         },
