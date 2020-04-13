@@ -218,17 +218,21 @@ export default {
                 ClienteService.sincCliente(clientesSinc).then((clientes) => {
                     sinc.total = clientes.length;
                     ClienteDB._limparBase(clientesSinc).then(() => {
-                        const done = this.lodash.after(clientes.length, () => SincUtils.closeLoading(this, sinc, all));
-                        clientes.forEach(cliente => {
-                            ClienteDB.salvarSinc(cliente).then(() => {
-                                SincUtils.atuaizaParcialSinc(sinc, 1);
-                                done();
-                            }).catch((error) => {
-                                ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincCliente', message: error, error:'Failed Request'});
-                                SincUtils.atuaizaParcialSinc(sinc, 1);
-                                done();
+                        if (clientes.length > 0) {
+                            const done = this.lodash.after(clientes.length, () => SincUtils.closeLoading(this, sinc, all));
+                            clientes.forEach(cliente => {
+                                ClienteDB.salvarSinc(cliente).then(() => {
+                                    SincUtils.atuaizaParcialSinc(sinc, 1);
+                                    done();
+                                }).catch((error) => {
+                                    ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincCliente', message: error, error:'Failed Request'});
+                                    SincUtils.atuaizaParcialSinc(sinc, 1);
+                                    done();
+                                });
                             });
-                        });
+                        } else {
+                            SincUtils.closeLoading(this, sinc, all);
+                        }
                     }).catch((error) => {
                         ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincCliente', message: error, error:'Failed Request'});
                         SincUtils.closeLoading(this, sinc, all);
