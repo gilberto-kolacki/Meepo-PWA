@@ -14,13 +14,17 @@ class errorDB extends BasicDB {
     }
 
     listar() {
-        return new Promise((resolve) => {
-            this._localErroDB.allDocs({include_docs: true}).then((resultDocs) => {
-                resolve(resultDocs.rows.map((error) => error.doc ));
-            }).catch((err) => {
-                console.log(err);
-                resolve(err);
-            });
+        return new Promise((resolve, reject) => {
+            if (this._localErroDB) {
+                this._localErroDB.allDocs({include_docs: true}).then((resultDocs) => {
+                    resolve(resultDocs.rows.map((error) => error.doc ));
+                }).catch((err) => {
+                    console.log(err);
+                    resolve(err);
+                });
+            } else {
+                reject();
+            }
         });
     }
 
