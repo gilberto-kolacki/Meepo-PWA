@@ -158,22 +158,22 @@
                 </b-collapse>
             </b-card>
         </div>
-        <!-- Agrupador de de categorias -->
-		<b-card no-body class="mb-1" v-for="(categoria, indexCat) in totalizadorCategorias" :key="indexCat">
-			<b-card-header header-tag="header" class="p-1" role="tab"  v-b-toggle="'categoria-'+categoria.id">
-				<span class="font-bold card-header-categorias">+ {{categoria.nome}}: {{getQuantidadeCat(categoria)}} </span>
+        <!-- Agrupador de Linhas -->
+		<b-card no-body class="mb-1" v-for="(linha, indexCat) in totalizadorLinhas" :key="indexCat">
+			<b-card-header header-tag="header" class="p-1" role="tab"  v-b-toggle="'linha-'+linha.id">
+				<span class="font-bold card-header-linhas">+ {{linha.nome}}: {{getQuantidadeCat(linha)}} </span>
 			</b-card-header>
-			<b-collapse :id="'categoria-'+categoria.id" :ref="'embarque-'+categoria.id">
+			<b-collapse :id="'linha-'+linha.id" :ref="'embarque-'+linha.id">
 				<b-card-body style="padding: 5px;">
-					<table class="table-categorias">
+					<table class="table-linhas">
 						<thead class="border-solid">
-							<th class="grade-tam-prod-title" v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
+							<th class="grade-tam-prod-title" v-for="(tamanho, indexTamanho) in getTamanhosItens(linha)" :key="indexTamanho + ' - ' + tamanho.codigo">
 								{{tamanho.codigo}}
 							</th>
 						</thead>
 						<tbody>
 							<tr>
-								<td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in getTamanhosItens(categoria)" :key="indexTamanho + ' - ' + tamanho.codigo">
+								<td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in getTamanhosItens(linha)" :key="indexTamanho + ' - ' + tamanho.codigo">
 									{{tamanho.quantidade}}
 								</td>
 							</tr>
@@ -184,12 +184,12 @@
 		</b-card>
 		<b-card no-body class="mb-1">
 			<b-card-header header-tag="header" class="p-1" role="tab">
-				<span class="font-bold card-header-categorias">Total peças: {{this.getTotalPecas}}</span>
+				<span class="font-bold card-header-linhas">Total peças: {{this.getTotalPecas}}</span>
 			</b-card-header>
 		</b-card>
 		<b-card no-body class="mb-1">
 			<b-card-header header-tag="header" class="p-1" role="tab">
-				<span class="font-bold card-header-categorias">Total: {{this.getTotalValor() | moneyyGrupo}}</span>
+				<span class="font-bold card-header-linhas">Total: {{this.getTotalValor() | moneyyGrupo}}</span>
 			</b-card-header>
 		</b-card>
 
@@ -220,7 +220,7 @@ import Storage from "../../rapidsoft/utils/storage";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
 import CarrinhoDB from "../../rapidsoft/db/carrinhoDB";
 import ErrorDB from "../../rapidsoft/db/errorDB";
-import CategoriaDB from "../../rapidsoft/db/categoriaDB";
+import LinhaDB from "../../rapidsoft/db/linhaDB";
 import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 
 export default {
@@ -246,7 +246,7 @@ export default {
         dataAtual: new Date().getTime(),
         itensSelecionados: [],
         produtosCarrinho: [],
-        totalizadorCategorias: [],
+        totalizadorLinhas: [],
         embarques: [],
         embarquesNovos: [],
         popupNovoEmbarque: false,
@@ -310,18 +310,18 @@ export default {
         getTotalValor() {
 			return this.produtosCarrinho.reduce((qtdeTotal, item) => qtdeTotal + (item.quantidade * item.precoCusto), 0);
 		},
-		getTamanhosItens(categoria) {
-			return categoria.itens.reduce((tamanhosCategoria, item) => {
-				return tamanhosCategoria.concat(item.tamanhos.reduce((tamanhos, tamanho) => {
-					const indexTam = tamanhosCategoria.findIndex((tam) => tam.codigo == tamanho.codigo);
-					if (indexTam >= 0 ) tamanhosCategoria[indexTam].quantidade = tamanhosCategoria[indexTam].quantidade + tamanho.quantidade;
+		getTamanhosItens(linha) {
+			return linha.itens.reduce((tamanhosLinha, item) => {
+				return tamanhosLinha.concat(item.tamanhos.reduce((tamanhos, tamanho) => {
+					const indexTam = tamanhosLinha.findIndex((tam) => tam.codigo == tamanho.codigo);
+					if (indexTam >= 0 ) tamanhosLinha[indexTam].quantidade = tamanhosLinha[indexTam].quantidade + tamanho.quantidade;
 					else tamanhos.push({codigo: tamanho.codigo, quantidade: tamanho.quantidade});
 					return tamanhos;
 				}, []));
 			}, []);
 		},
-		getQuantidadeCat(categoria) {
-			return categoria.itens.reduce((qtdeTotal, item) => qtdeTotal + this.getQtdeTamItem(item), 0);
+		getQuantidadeCat(linha) {
+			return linha.itens.reduce((qtdeTotal, item) => qtdeTotal + this.getQtdeTamItem(item), 0);
 		},
 		getQtdeTamItem(item) {
 			return item.tamanhos.reduce((qtde, tamanho) => qtde + tamanho.quantidade, 0);
@@ -446,30 +446,30 @@ export default {
                 });
             });
         },
-        buscaAgrupadorCategorias(carrinho) {
+        buscaAgrupadorLinhas(carrinho) {
 			return new Promise((resolve) => {
-				const totCategorias = carrinho.reduce((categoriasCarrinho, item) => {
-					return categoriasCarrinho.concat(item.categorias.reduce((categorias, categoria) => {
-						if (!categoriasCarrinho.some((cat) => cat === categoria)) categorias.push(categoria)
-						return categorias;
+				const totLinhas = carrinho.reduce((linhasCarrinho, item) => {
+					return linhasCarrinho.concat(item.linhas.reduce((linhas, linha) => {
+						if (!linhasCarrinho.some((lin) => lin === linha)) linhas.push(linha)
+						return linhas;
 					}, []));
-				}, []).reduce((totCategorias, cat) => {
-					const categ = {id: cat};
-					categ.itens = carrinho.reduce((totaisCategoria, item) => {
-						if (item.categorias.some((categItem) => categItem === categ.id)) {
-							totaisCategoria.push({
+				}, []).reduce((totLinhas, lin) => {
+					const linha = {id: lin};
+					linha.itens = carrinho.reduce((totaisLinha, item) => {
+						if (item.linhas.some((linhaItem) => linhaItem === linha.id)) {
+							totaisLinha.push({
 								idProduto: item.idProduto,
 								preco: item.precoCusto,
 								tamanhos: item.tamanhos.map((tamanho) => ({codigo: tamanho.codigo, quantidade: tamanho.quantidade}))
 							});
 						}
-						return totaisCategoria;
+						return totaisLinha;
 					}, []);
-					totCategorias.push(categ)
-					return totCategorias;
+					totLinhas.push(linha)
+					return totLinhas;
 				}, []);
-				CategoriaDB.getArrayAgrupadoresCategorias(totCategorias).then((totalizadorCategorias) => {
-					this.totalizadorCategorias = totalizadorCategorias;
+				LinhaDB.getArrayAgrupadoresLinhas(totLinhas).then((totalizadorLinhas) => {
+					this.totalizadorLinhas = totalizadorLinhas;
 					resolve();
 				});
 			});
@@ -480,7 +480,7 @@ export default {
 	created() {
         try {
             this.buscaEmbarques(this.produtos).then(() => {
-                this.buscaAgrupadorCategorias(this.produtos).then(() => {
+                this.buscaAgrupadorLinhas(this.produtos).then(() => {
                     this.produtosCarrinho = this.produtos;
                 });
             })
