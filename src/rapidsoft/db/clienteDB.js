@@ -392,47 +392,55 @@ class clienteDB extends BasicDB {
     }
 
     getClientesSearch(uf, idCidade, cnpjCpf, nome) {
-        return new Promise((resolve) => {
-            cnpjCpf = cnpjCpf ? cnpjCpf.replace(/[^a-z0-9]/gi, "") : null;
-            nome = nome ? nome.toUpperCase() : nome;
+        return new Promise((resolve, reject) => {
+            try {
+                cnpjCpf = cnpjCpf ? cnpjCpf.replace(/[^a-z0-9]/gi, "") : null;
+                nome = nome ? nome.toUpperCase() : nome;
 
-            let selectorFilter = null;
-            if (idCidade > 0 && cnpjCpf != null && nome != null) {
-                selectorFilter = {'endereco.idCidade': {$eq: idCidade}, 'endereco.estado': {$eq: uf}, 'nome': {$regex: nome}, 'cpfCnpj': {$regex: cnpjCpf}};
-            } else if (idCidade > 0 && cnpjCpf != null) {
-                selectorFilter = {'endereco.idCidade': {$eq: idCidade}, 'endereco.estado': {$eq: uf}, 'cpfCnpj': {$regex : cnpjCpf}, 'nome': {$gte: nome}};
-            } else if (idCidade > 0 && nome != null) {
-                selectorFilter = {'endereco.idCidade': {$eq: idCidade}, 'endereco.estado': {$eq: uf}, 'cpfCnpj': {$gte: cnpjCpf}, 'nome': {$regex: nome}};            
-            } else if (idCidade > 0) {
-                selectorFilter = {'endereco.idCidade': {$eq: idCidade}, 'endereco.estado': {$eq: uf}};
-            } else if (idCidade == 0 && cnpjCpf != null && nome != null) {
-                selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}, 'nome': {$regex: nome}, 'cpfCnpj': {$regex: cnpjCpf}};
-            } else if (idCidade == 0 && cnpjCpf != null) {
-                selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}, 'cpfCnpj': {$regex : cnpjCpf}, 'nome': {$gte: nome}};
-            } else if (idCidade == 0 && nome != null) {
-                selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}, 'cpfCnpj': {$gte: cnpjCpf}, 'nome': {$regex : nome}};
-            } else {
-                selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}};
-            }
+                let selectorFilter = null;
+                if (idCidade > 0 && cnpjCpf != null && nome != null) {
+                    selectorFilter = {'endereco.idCidade': {$eq: idCidade}, 'endereco.estado': {$eq: uf}, 'nome': {$regex: nome}, 'cpfCnpj': {$regex: cnpjCpf}};
+                } else if (idCidade > 0 && cnpjCpf != null) {
+                    selectorFilter = {'endereco.idCidade': {$eq: idCidade}, 'endereco.estado': {$eq: uf}, 'cpfCnpj': {$regex : cnpjCpf}, 'nome': {$gte: nome}};
+                } else if (idCidade > 0 && nome != null) {
+                    selectorFilter = {'endereco.idCidade': {$eq: idCidade}, 'endereco.estado': {$eq: uf}, 'cpfCnpj': {$gte: cnpjCpf}, 'nome': {$regex: nome}};            
+                } else if (idCidade > 0) {
+                    selectorFilter = {'endereco.idCidade': {$eq: idCidade}, 'endereco.estado': {$eq: uf}};
+                } else if (idCidade == 0 && cnpjCpf != null && nome != null) {
+                    selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}, 'nome': {$regex: nome}, 'cpfCnpj': {$regex: cnpjCpf}};
+                } else if (idCidade == 0 && cnpjCpf != null) {
+                    selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}, 'cpfCnpj': {$regex : cnpjCpf}, 'nome': {$gte: nome}};
+                } else if (idCidade == 0 && nome != null) {
+                    selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}, 'cpfCnpj': {$gte: cnpjCpf}, 'nome': {$regex : nome}};
+                } else {
+                    selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}};
+                }
 
-            this._localDB.find({
-                selector: selectorFilter,
-                fields: ['_id', 'cpfCnpj', 'nome', 'endereco', 'inadimplente', 'ativo'],
-            }).then((result) => {
-                const clientes = result.docs.map((cliente) => {
-                    return { 
-                        id: cliente.id, 
-                        cpfCnpj: cliente.cpfCnpj, 
-                        nome: cliente.nome, 
-                        cidade: cliente.endereco.cidade, 
-                        estado: cliente.endereco.estado,
-                        inadimplente: cliente.inadimplente,
-                        ativo: cliente.ativo,
-                        clienteErp: cliente.clienteErp
-                    };
+                this._localDB.find({
+                    selector: selectorFilter,
+                    fields: ['id', 'cpfCnpj', 'nome', 'endereco', 'inadimplente', 'ativo'],
+                }).then((result) => {
+                    const clientes = result.docs.map((cliente) => {
+                        return { 
+                            id: cliente.id, 
+                            cpfCnpj: cliente.cpfCnpj, 
+                            nome: cliente.nome, 
+                            cidade: cliente.endereco.cidade, 
+                            estado: cliente.endereco.estado,
+                            inadimplente: cliente.inadimplente,
+                            ativo: cliente.ativo,
+                            clienteErp: cliente.clienteErp
+                        };
+                    });
+                    resolve(clientes);
+                }).catch((error) => {
+                    console.log(error);
+                    reject(error);
                 });
-                resolve(clientes);
-            });
+            } catch (error) {
+                console.log(error);
+                reject(error);
+            }
         });
     }
 
