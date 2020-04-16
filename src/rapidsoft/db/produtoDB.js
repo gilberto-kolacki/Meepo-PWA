@@ -116,6 +116,7 @@ class produtoDB extends BasicDB {
                 produtoCor.referencia = produto.referencia;
                 produtoCor.nome = produto.nome;
                 produtoCor.segmento = produto.segmento;
+                produtoCor.linhas = [ produto.idLinha ];
                 produtoCor.prontaEntrega = cor.prontaEntrega;
                 produtoCor.idCor = cor.idCor;
                 produtoCor.idProduto = cor.idProduto;

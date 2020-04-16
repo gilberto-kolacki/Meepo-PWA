@@ -75,13 +75,13 @@
                                             <div class="produto-add-button">
                                                 <feather-icon 
                                                     icon="MinusIcon" 
-                                                    svgClasses='h-4 w-4' 
+                                                    svgClasses='h-8 w-4' 
                                                     class="produto-add-button-menos" 
                                                     @click="menosTamanho(indexCor, indexTamanho)"
                                                 />
                                                 <feather-icon 
                                                     icon="PlusIcon" 
-                                                    svgClasses='h-4 w-4' 
+                                                    svgClasses='h-8 w-4' 
                                                     class="produto-add-button-mais"  
                                                     @click="maisTamanho(indexCor, indexTamanho)"
                                                 />

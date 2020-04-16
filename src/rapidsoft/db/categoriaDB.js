@@ -49,23 +49,6 @@ class categoriaDB extends BasicDB {
         });
     }
 
-    getArrayAgrupadoresCategorias(categorias) {
-        return new Promise((resolve) => {
-            if(categorias.length > 0) {
-                const done = After(categorias.length, () => resolve(categorias));
-                categorias.forEach(categoria => {
-                    this._getById(categoria.id).then((cat) => {
-                        if (cat.existe) categoria.nome = cat.value.nome;
-                        else categoria.nome = `'${categoria.id}' NÂO CADASTRADA`;
-                        done();
-                    });
-                });
-            } else {
-                resolve();
-            }
-        });
-    }
-
 }
 
 export default new categoriaDB();
