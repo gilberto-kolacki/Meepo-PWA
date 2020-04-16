@@ -53,6 +53,7 @@ import ProdutoDB from '../../rapidsoft/db/produtoDB';
 import ClienteDB from '../../rapidsoft/db/clienteDB';
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
 import CategoriaDB from '../../rapidsoft/db/categoriaDB';
+import LinhaDB from '../../rapidsoft/db/linhaDB';
 import ProntaEntregaDB from '../../rapidsoft/db/prontaEntregaDB';
 import PeriodoDB from '../../rapidsoft/db/periodoDB';
 import EmbarqueDB from '../../rapidsoft/db/embarqueDB';
@@ -176,12 +177,19 @@ export default {
                             ProdutoDB.salvar(produto).then(() => {
                                 SincUtils.atuaizaParcialSinc(sinc, 1);            
                                 done();
+                            }).catch((error) => {
+                                ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincProduto', message: error, error:'Failed Request'});
+                                SincUtils.atuaizaParcialSinc(sinc, 1);            
+                                done();
                             });
                         });
                     } else {
                         SincUtils.closeLoading(this, sinc, all);
                         this.sincronizar(this.sincImagemObject, all);
                     }
+                }).catch((error) => {
+                    ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincProduto', message: error, error:'Failed Request'});
+                    SincUtils.closeLoading(this, sinc, all);
                 });
             }).catch((error) => {
                 this.errorSinc(sinc, error);
@@ -212,13 +220,24 @@ export default {
                 ClienteService.sincCliente(clientesSinc).then((clientes) => {
                     sinc.total = clientes.length;
                     ClienteDB._limparBase(clientesSinc).then(() => {
-                        const done = this.lodash.after(clientes.length, () => SincUtils.closeLoading(this, sinc, all));
-                        clientes.forEach(cliente => {
-                            ClienteDB.salvarSinc(cliente).then(() => {
-                                SincUtils.atuaizaParcialSinc(sinc, 1);
-                                done();
+                        if (clientes.length > 0) {
+                            const done = this.lodash.after(clientes.length, () => SincUtils.closeLoading(this, sinc, all));
+                            clientes.forEach(cliente => {
+                                ClienteDB.salvarSinc(cliente).then(() => {
+                                    SincUtils.atuaizaParcialSinc(sinc, 1);
+                                    done();
+                                }).catch((error) => {
+                                    ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincCliente', message: error, error:'Failed Request'});
+                                    SincUtils.atuaizaParcialSinc(sinc, 1);
+                                    done();
+                                });
                             });
-                        });
+                        } else {
+                            SincUtils.closeLoading(this, sinc, all);
+                        }
+                    }).catch((error) => {
+                        ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincCliente', message: error, error:'Failed Request'});
+                        SincUtils.closeLoading(this, sinc, all);
                     });
                 }).catch((error) => {
                     this.errorSinc(sinc, error);
@@ -233,19 +252,22 @@ export default {
                     SincUtils.atuaizaParcialSinc(sinc, 1);
                     CategoriaDB.salvarSinc(data.categoria).then(() => {
                         SincUtils.atuaizaParcialSinc(sinc, 1);
-                        ProntaEntregaDB.salvarSinc(data.prontaEntrega).then(() => {
+                        LinhaDB.salvarSinc(data.linha).then(() => {
                             SincUtils.atuaizaParcialSinc(sinc, 1);
-                            PeriodoDB.salvarSinc(data.periodo).then(() => {
+                            ProntaEntregaDB.salvarSinc(data.prontaEntrega).then(() => {
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
-                                EmbarqueDB.salvarSinc(data.embarque).then(() => {
+                                PeriodoDB.salvarSinc(data.periodo).then(() => {
                                     SincUtils.atuaizaParcialSinc(sinc, 1);
-                                    FormaPagtoDB.salvarSinc(data.formaPagamento).then(() => {
+                                    EmbarqueDB.salvarSinc(data.embarque).then(() => {
                                         SincUtils.atuaizaParcialSinc(sinc, 1);
-                                        CatalogoDB.salvarSinc(data.catalogo).then(() => {
+                                        FormaPagtoDB.salvarSinc(data.formaPagamento).then(() => {
                                             SincUtils.atuaizaParcialSinc(sinc, 1);
-                                            RefComercialDB.salvarSinc(data.referenciaComercial).then(() => {
+                                            CatalogoDB.salvarSinc(data.catalogo).then(() => {
                                                 SincUtils.atuaizaParcialSinc(sinc, 1);
-                                                SincUtils.closeLoading(this, sinc, all);
+                                                RefComercialDB.salvarSinc(data.referenciaComercial).then(() => {
+                                                    SincUtils.atuaizaParcialSinc(sinc, 1);
+                                                    SincUtils.closeLoading(this, sinc, all);
+                                                })
                                             })
                                         })
                                     })
@@ -276,13 +298,17 @@ export default {
                         sinc.total = pedidos.length;
                         const done = this.lodash.after(pedidos.length, () => SincUtils.closeLoading(this, sinc, all));
                         pedidos.forEach(pedido => {
-                            PedidoDB.salvarSinc(pedido).then(() => {
+                            PedidoDB._salvarSinc(pedido).then(() => {
+                                SincUtils.atuaizaParcialSinc(sinc, 1);
+                                done();
+                            }).catch((error) => {
+                                ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincPedido', message: error, error:'Failed Request'});
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
                                 done();
                             });
                         });
                     } else {
-                        SincUtils.closeLoading(this, sinc, all)
+                        SincUtils.closeLoading(this, sinc, all);
                     }
                 }).catch((error) => {
                     this.errorSinc(sinc, error);
@@ -292,13 +318,16 @@ export default {
         sincOrcamento(sinc, all) {
             OrcamentoDB.buscaSinc().then((orcamentosSinc) => {
                 OrcamentoService.sincOrcamento(orcamentosSinc).then((orcamentos) => {
-                    console.log(orcamentos);
                     if (orcamentos.length > 0) {
                         sinc.parcial = 0;
                         sinc.total = orcamentos.length;
                         const done = this.lodash.after(orcamentos.length, () => SincUtils.closeLoading(this, sinc, all));
                         orcamentos.forEach(orcamento => {
-                            OrcamentoDB.salvarSinc(orcamento).then(() => {
+                            OrcamentoDB._salvarSinc(orcamento).then(() => {
+                                SincUtils.atuaizaParcialSinc(sinc, 1);
+                                done();
+                            }).catch((error) => {
+                                ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincOrcamento', message: error, error:'Failed Request'});
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
                                 done();
                             });
@@ -351,7 +380,7 @@ export default {
         },
         setLastDateSinc() {
             this.$store.commit('UPDATE_LAST_SINC', this.tabelasSincronizacao.reduce((lastDate, sinc) => {
-                if (sinc.dataSincronizacao < lastDate) lastDate = sinc.dataSincronizacao;
+                if (sinc.dataSincronizacao && sinc.dataSincronizacao < lastDate) lastDate = sinc.dataSincronizacao;
                 return lastDate;
             }, new Date().getTime()));
         },

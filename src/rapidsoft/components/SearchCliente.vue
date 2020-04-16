@@ -25,13 +25,13 @@
         </div>
         <div class="vx-row">
             <div class="vx-col sm:w-1/3 w-full mb-2">
-                <label for="cpfCnpj" class="vs-input--label">CPF/CNPJ</label>
+                <label for="cnpjCpfSearch" class="vs-input--label">CPF/CNPJ</label>
                 <div class="vs-con-input">
-                    <the-mask id="cpfCnpj" v-model="cnpjCpfSearch" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
+                    <the-mask id="cnpjCpfSearch" name="cnpjCpfSearch" v-model="cnpjCpfSearch" class="vs-inputx vs-input--input normal hasValue" :mask="['###.###.###-##', '##.###.###/####-##']" :masked="true" />
                 </div>
             </div>
             <div class="vx-col sm:w-2/3 w-full mb-2">
-                <vs-input v-validate="'required'" label="Nome" v-model="nomeSearch" class="w-full" />
+                <vs-input v-validate="'required'" name="nomeSearch" label="Nome" v-model="nomeSearch" class="w-full" />
             </div>
         </div>
         <vs-table ref="table" v-model="clienteSearch" @selected="selectSearch(clienteSearch)" :data="listaPesquisa">
@@ -92,7 +92,7 @@ export default {
     }),
     watch: {
         estadoSelecionado(newValue, oldValue) {
-            if ((oldValue != null && newValue != null && newValue != oldValue)) {
+            if ((newValue && newValue != null && newValue != oldValue)) {
                 this.searchCidades(() => this.searchFindCliente());
             }
         },
@@ -131,7 +131,7 @@ export default {
         zoomSearch() {
             this.cnpjCpfSearch = "";
             this.nomeSearch = "";
-            if (this.cidadesFiltro.length == 0) {
+            if (this.estadoSelecionado && this.cidadesFiltro.length == 0) {
                 this.searchCidades(() => this.searchFindCliente());
             }
         },
@@ -169,7 +169,8 @@ export default {
                 this.executaPesquisa();
             } else {
                 if (this.estadoSelecionado) {
-                    this.$vs.loading({ container: '#div-with-loading-search', scale: 0.6 });
+                    // TODO (Luiz): Removido pois estava criando o loading mesmo sem abrir o SearchCliente
+                    //this.$vs.loading({ container: '#div-with-loading-search', scale: 0.6 });
                     this.executaPesquisa();
                 } else {
                     this.listaProdutosPesquisa = [];
@@ -219,7 +220,6 @@ export default {
         await this.buscaEstados();
     },
     beforeMount() {
-    
     },
     mounted() {
     },

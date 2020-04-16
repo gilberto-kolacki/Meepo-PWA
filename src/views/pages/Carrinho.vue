@@ -204,13 +204,13 @@ export default {
   }
 }
 
-.card-header-categorias {
+.card-header-linhas {
 	float: right;
     font-size: 0.9rem;
     margin: 0.2rem 0.75rem !important;
 }
 
-.table-categorias {
+.table-linhas {
 	float: right;
     margin: 0.5rem 0.75rem !important;
 }

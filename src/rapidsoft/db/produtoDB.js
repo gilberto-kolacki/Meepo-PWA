@@ -116,6 +116,7 @@ class produtoDB extends BasicDB {
                 produtoCor.referencia = produto.referencia;
                 produtoCor.nome = produto.nome;
                 produtoCor.segmento = produto.segmento;
+                produtoCor.linhas = [ produto.idLinha ];
                 produtoCor.prontaEntrega = cor.prontaEntrega;
                 produtoCor.idCor = cor.idCor;
                 produtoCor.idProduto = cor.idProduto;
@@ -404,7 +405,7 @@ class produtoDB extends BasicDB {
     }
 
     salvar(produto) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             produto._id = produto.referencia;
             produto.cores = produto.cores.map((cor) => {
                 cor.imagens = cor.imagens.sort((a, b) => {
@@ -416,6 +417,8 @@ class produtoDB extends BasicDB {
             });
             this._salvar(produto).then(() => {
                 resolve();
+            }).catch((error) => {
+                reject(error);
             });
         });
     }   
@@ -484,7 +487,7 @@ class produtoDB extends BasicDB {
                         });
                     });
                 } else {
-                    resolve({quantidade: 0, data: null})
+                    resolve({quantidade: 0, data: null});
                 }
             });
         });

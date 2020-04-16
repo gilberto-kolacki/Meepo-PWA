@@ -149,7 +149,6 @@ export default {
   },
   methods: {
     diminuirCaminho(caminho){
-      console.log(caminho);
       const removeHttp = caminho.substring(caminho.indexOf("http://") + 7);
       const caminhoErro = removeHttp.substring(removeHttp.indexOf("/"));
       return caminhoErro;
