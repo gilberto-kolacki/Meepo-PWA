@@ -28,7 +28,7 @@
                         </div>
                         <div v-else class="vx-col sm:w-3/4">
                             <div v-on:keyup.enter="proximoCampo('dataAniversario')">
-                                <vs-input v-validate="'required'" :disabled="this.clienteEdit.clienteErp" @input="cnpjnulo(cpfCnpj,'nome')" label="Nome*" id="nomeCliente" name="nomeCliente" v-model="clienteEdit.nome" class="w-full" :maxlength=40 />
+                                <vs-input v-validate="'required'" :disabled="this.clienteEdit.clienteErp" label="Nome*" @input="cnpjnulo(cpfCnpj,'nomeCliente')" id="nomeCliente" name="nomeCliente" v-model="clienteEdit.nomeCliente" class="w-full" :maxlength=40 />
                                 <span class="text-danger text-sm" v-if="errors.has('nomeCliente')">{{ errors.first('nomeCliente') }}</span>
                             </div>
                         </div>
@@ -394,7 +394,7 @@
                                 </div>
                             </div>
                             <div class="mt-5">
-                                <vs-checkbox id="endEntrega" name="endEntrega" v-model="enderecoEdit.principal" class="mt-5">Endereço de Entrega</vs-checkbox>
+                                <vs-checkbox id="endEntrega" name="endEntrega" v-model="enderecoEdit.principal" class="mt-5">Endereço principal</vs-checkbox>
                             </div>
                         </div>
                         <div class="vx-row">
@@ -942,7 +942,7 @@ export default {
             const cliente = this.lodash.cloneDeep(this.clienteEdit);
             cliente.id = (cliente.cpfCnpj) ? cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "") : undefined;
             cliente.endereco.cep = (cliente.endereco.cep) ? cliente.endereco.cep.replace(/[^a-z0-9]/gi, "") : undefined;
-            cliente.nome = (cliente.razaoSocial) ? cliente.razaoSocial : cliente.nomeCliente;
+            cliente.nome = (this.tipoPessoa === 1) ? cliente.razaoSocial : cliente.nomeCliente;
             cliente.dataFundacao = (cliente.dataFundacao) ? moment(cliente.dataFundacao, ["DD/MM/YYYY"]).toDate().getTime() : undefined;
             cliente.dataAniversario = (cliente.dataAniversario) ? moment(cliente.dataAniversario, ["DD/MM/YYYY"]).toDate().getTime() : undefined;
             cliente.endereco.cidade = cliente.endereco.cidade ? cliente.endereco.cidade.label : null;
