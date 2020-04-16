@@ -173,11 +173,10 @@ class pedidoDB extends BasicDB {
                         resolve();
                     }).catch((error) => {
                         this._criarLogDB({url:'db/pedidoDB',method:'salvarPedidoNovo',message: error,error:'Failed Request'});
-                        reject(error);
+                        throw error;
                     });
                 }).catch((error) => {
-                    this._criarLogDB({url:'db/pedidoDB',method:'salvarPedidoNovo',message: error,error:'Failed Request'});
-                    reject(error);
+                    throw error;
                 });
             } catch (error) {
                 this._criarLogDB({url:'db/pedidoDB',method:'salvarPedidoNovo',message: error,error:'Failed Request'});
@@ -189,15 +188,14 @@ class pedidoDB extends BasicDB {
     getPedido(idPedido) {
         return new Promise((resolve, reject) => {
                 try {
-                this._getById(pedidoId, true).then((pedido) => {
+                this._getById(idPedido, true).then((pedido) => {
                     if (pedido.existe) resolve(pedido.value);
                     else reject(pedido.existe);
                 }).catch((error) => {
-                    this._criarLogDB({url:'db/pedidoDB',method:'getPedido',message: error,error:'Failed Request'});
-                    reject(error);
+                    throw {url:'db/pedidoDB',method:'getPedido',message: error,error:'Failed Request'};
                 });
             } catch (error) {
-                this._criarLogDB({url:'db/pedidoDB',method:'getPedido',message: error,error:'Failed Request'});
+                this._criarLogDB(error);
                 reject(error);
             }
         });
@@ -283,10 +281,9 @@ class pedidoDB extends BasicDB {
                     });
                 }).catch(() => {
                     resolve();
-                });
-            } catch (error) {
-                this._criarLogDB({url:'db/pedidoDB',method:'buscaSinc',message: error,error:'Failed Request'});
-                reject(error);
+                });  
+            } else {
+                resolve();  
             }
         });
     }
