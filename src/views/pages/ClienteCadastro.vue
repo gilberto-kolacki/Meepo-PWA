@@ -23,19 +23,19 @@
                             </div>
                         </div>
                         <div v-if="isJuridico" class="vx-col sm:w-3/4 w-full mb-2" v-on:keyup.enter="proximoCampo('fantasia')">
-                            <vs-input v-validate="'required'" :disabled="this.clienteEdit.clienteErp" label="Razão Social*" @input="cnpjnulo(cpfCnpj,'razaoSocial')" id="razaoSocial" name="razaoSocial" v-model="clienteEdit.razaoSocial" class="w-full" />
+                            <vs-input v-validate="'required'" :disabled="this.clienteEdit.clienteErp" label="Razão Social*" @input="cnpjnulo(cpfCnpj,'razaoSocial')" id="razaoSocial" name="razaoSocial" v-model="clienteEdit.razaoSocial" class="w-full" :maxlength=40 />
                             <span class="text-danger text-sm">{{ errors.first('razaoSocial') }}</span>
                         </div>
                         <div v-else class="vx-col sm:w-3/4">
                             <div v-on:keyup.enter="proximoCampo('dataAniversario')">
-                                <vs-input v-validate="'required'" :disabled="this.clienteEdit.clienteErp" @input="cnpjnulo(cpfCnpj,'nome')" label="Nome*" id="nomeCliente" name="nomeCliente" v-model="clienteEdit.nome" class="w-full" />
+                                <vs-input v-validate="'required'" :disabled="this.clienteEdit.clienteErp" @input="cnpjnulo(cpfCnpj,'nome')" label="Nome*" id="nomeCliente" name="nomeCliente" v-model="clienteEdit.nome" class="w-full" :maxlength=40 />
                                 <span class="text-danger text-sm" v-if="errors.has('nomeCliente')">{{ errors.first('nomeCliente') }}</span>
                             </div>
                         </div>
                     </div>
                     <div class="vx-row" v-if="isJuridico">
                         <div class="vx-col w-full mb-2" v-on:keyup.enter="proximoCampo('dataFundacao')">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'nomeFantasia')" v-validate=" isJuridico ? 'required' : ''" :disabled="this.clienteEdit.clienteErp" label="Fantasia*" id="fantasia" name="fantasia" v-model="clienteEdit.nomeFantasia" class="w-full" />
+                            <vs-input @input="cnpjnulo(cpfCnpj,'nomeFantasia')" v-validate=" isJuridico ? 'required' : ''" :disabled="this.clienteEdit.clienteErp" label="Fantasia*" id="fantasia" name="fantasia" v-model="clienteEdit.nomeFantasia" class="w-full" :maxlength=40 />
                             <span class="text-danger text-sm">{{ errors.first('fantasia') }}</span>
                         </div>
                     </div>
@@ -83,7 +83,7 @@
                         </div>
                         <div class="vx-col sm:w-1/4 w-full mb-2" v-if="isJuridico">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('emailNfe')">
-                                <vs-input @input="cnpjnulo(cpfCnpj)" v-validate="clienteEdit.clienteErp ? 'required':''" :disabled="this.clienteEdit.clienteErp" label="Inscrição Estadual*" id="inscricaoEstadual" name="inscricaoEstadual" v-model="clienteEdit.inscricaoEstadual" class="w-full" />
+                                <vs-input @input="cnpjnulo(cpfCnpj)" v-validate="clienteEdit.clienteErp ? 'required':''" :disabled="this.clienteEdit.clienteErp" label="Inscrição Estadual*" id="inscricaoEstadual" name="inscricaoEstadual" v-model="clienteEdit.inscricaoEstadual" class="w-full" :maxlength=14 />
                                 <span class="text-danger text-sm">{{ errors.first('inscricaoEstadual') }}</span>
                             </div>
                         </div>
@@ -95,7 +95,6 @@
                                     name="segmento"
                                     :disabled="(this.clienteEdit.clienteErp) ? true : false"
                                     :options="this.getSegmentosCheckBox"
-                                    multiple
                                     v-model="segmentosCliente" 
                                     @input="cnpjnulo(cpfCnpj)">
                                 </v-select>
@@ -110,7 +109,6 @@
                                     name="segmento"
                                     :disabled="(this.clienteEdit.clienteErp) ? true : false"
                                     :options="this.getSegmentosCheckBox"
-                                    multiple
                                     v-model="segmentosCliente" 
                                     @input="cnpjnulo(cpfCnpj)">
                                 </v-select>
@@ -121,7 +119,7 @@
                     <!-- ---- -->
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('enderecoTelefone')">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'emailNfe')" v-validate="'required|email'" :disabled="this.clienteEdit.clienteErp" label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="clienteEdit.emailNfe" class="w-full" type="email" />
+                            <vs-input @input="cnpjnulo(cpfCnpj,'emailNfe')" v-validate="'required|email'" :disabled="this.clienteEdit.clienteErp" label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="clienteEdit.emailNfe" class="w-full" type="email" :maxlength=100 />
                             <span class="text-danger text-sm">{{ errors.first('emailNfe') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('cepEndereco')">
@@ -162,11 +160,11 @@
                     </div>
                     <div class="vx-row">
                         <div class="vx-col sm:w-1/6 w-full mb-2" v-on:keyup.enter="proximoCampo('complemento')">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required|numeric'" :disabled="this.clienteEdit.clienteErp" label="Numero*" id="numeroEndereco" name="numeroEndereco" v-model="clienteEdit.endereco.numero" class="w-full"/>
+                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'required|numeric'" :disabled="this.clienteEdit.clienteErp" label="Numero*" id="numeroEndereco" name="numeroEndereco" v-model="clienteEdit.endereco.numero" class="w-full" :maxlength=5 />
                             <span class="text-danger text-sm">{{ errors.first('numeroEndereco') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('bairro')">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'regex:.'" :disabled="this.clienteEdit.clienteErp" label="Complemento" id="complemento" name="complemento" v-model="clienteEdit.endereco.complemento" class="w-full"/>
+                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco')" v-validate="'regex:.'" :disabled="this.clienteEdit.clienteErp" label="Complemento" id="complemento" name="complemento" v-model="clienteEdit.endereco.complemento" class="w-full" :maxlength=20 />
                             <span class="text-danger text-sm">{{ errors.first('complemento') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/3 w-full mb-2" v-on:keyup.enter="proximoCampo('cidade')">
@@ -190,7 +188,7 @@
                             <span class="text-danger text-sm">{{ errors.first('cidade') }}</span>
                         </div>
                         <div class="vx-col sm:w-1/6 w-full mb-2">
-                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco',clienteEdit.endereco.estado)" v-validate="'required|alpha_spaces'" :disabled="this.clienteEdit.clienteErp" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" class="w-full"/>
+                            <vs-input @input="cnpjnulo(cpfCnpj,'endereco',clienteEdit.endereco.estado)" v-validate="'required|alpha_spaces'" :disabled="this.clienteEdit.clienteErp" label="Estado*" id="estado" name="estado" v-model="clienteEdit.endereco.estado" class="w-full" :maxlength=2 />
                             <span class="text-danger text-sm">{{ errors.first('estado') }}</span>
                         </div>
                     </div>
@@ -301,11 +299,9 @@
                             </div>
                         </template>
                         <template slot="thead">
-                            <vs-th sort-key="nome" style="width:25%" >Nome</vs-th>
-                            <vs-th sort-key="cargo" style="width:10%">Cargo</vs-th>
-                            <vs-th sort-key="telefone" style="width:20%">Telefone</vs-th>
-                            <vs-th sort-key="celular" style="width:20%">celular</vs-th>
-                            <vs-th sort-key="email" style="width:25%">E-mail</vs-th>
+                            <vs-th sort-key="nome" style="width:50%" >Nome</vs-th>
+                            <vs-th sort-key="cargo" style="width:20%">Cargo</vs-th>
+                            <vs-th sort-key="celular" style="width:30%">celular</vs-th>
                             <vs-th>Ações</vs-th>
                         </template>
                         <template slot-scope="{data}">
@@ -316,14 +312,8 @@
                                 <vs-td :data="data[indextr].funcao">
                                     {{ data[indextr].cargo }}
                                 </vs-td>
-                                <vs-td :data="data[indextr].telefone">
-                                    {{ data[indextr].telefone }}
-                                </vs-td>
                                 <vs-td :data="data[indextr].celular">
                                     {{ data[indextr].celular }}
-                                </vs-td>
-                                <vs-td :data="data[indextr].email">
-                                    {{ data[indextr].email }}
                                 </vs-td>
                                 <vs-td>
                                     <div class="flex">
@@ -331,7 +321,7 @@
                                             <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarContato(data[indextr], indextr)" />
                                         </div>
                                         <div class="p-1 mr-1">
-                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" v-if="!data[indextr].contatoErp" @click="deletarMessage(data[indextr], indextr, 'contato')"/>
+                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarMessage(data[indextr], indextr, 'contato')"/>
                                         </div>
                                     </div>
                                 </vs-td>
@@ -362,11 +352,11 @@
                         </div>
                         <div class="vx-row">
                             <div class="vx-col sm:w-1/6 w-full mb-2">
-                                <vs-input v-validate="'required|numeric'" :disabled="enderecoEdit.enderecoErp" label="Numero*" id="cadNumeroEndereco" name="cadNumeroEndereco" v-model="enderecoEdit.numero" class="w-full" v-on:keyup.enter="proximoCampo('cadComplemento')"/>
+                                <vs-input v-validate="'required|numeric'" :disabled="enderecoEdit.enderecoErp" label="Numero*" id="cadNumeroEndereco" name="cadNumeroEndereco" v-model="enderecoEdit.numero" class="w-full" v-on:keyup.enter="proximoCampo('cadComplemento')" :maxlength=5 />
                                 <span class="text-danger text-sm">{{ errors.first('cadNumeroEndereco') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/2 w-full mb-2">
-                                <vs-input v-validate="'regex:.'" :disabled="enderecoEdit.enderecoErp" label="Complemento" id="cadComplemento" name="cadComplemento" v-model="enderecoEdit.complemento" class="w-full" v-on:keyup.enter="proximoCampo('cadBairro')"/>
+                                <vs-input v-validate="'regex:.'" :disabled="enderecoEdit.enderecoErp" label="Complemento" id="cadComplemento" name="cadComplemento" v-model="enderecoEdit.complemento" class="w-full" v-on:keyup.enter="proximoCampo('cadBairro')" :maxlength=20 />
                                 <span class="text-danger text-sm">{{ errors.first('cadComplemento') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/3 w-full mb-2">
@@ -391,7 +381,7 @@
                                 <span class="text-danger text-sm">{{ errors.first('cadCidade') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/6 w-full mb-2">
-                                <vs-input :disabled="enderecoEdit.enderecoErp" v-validate="'required|alpha_spaces'" label="Estado*" id="cadEstado" name="cadEstado" v-model="enderecoEdit.estado" class="w-full" v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')"/>
+                                <vs-input :disabled="enderecoEdit.enderecoErp" v-validate="'required|alpha_spaces'" label="Estado*" id="cadEstado" name="cadEstado" v-model="enderecoEdit.estado" class="w-full" v-on:keyup.enter="proximoCampo('cadEnderecoTelefone')" :maxlength=2 />
                                 <span class="text-danger text-sm">{{ errors.first('cadEstado') }}</span>
                             </div>
                             <div class="vx-col sm:w-1/3 w-full mb-2">
@@ -423,29 +413,21 @@
                             </div>
                         </template>
                         <template slot="thead">
-                            <vs-th sort-key="endereco">Endereço</vs-th>
-                            <vs-th sort-key="cep">CEP</vs-th>
-                            <vs-th sort-key="cidade">Cidade</vs-th>
-                            <vs-th sort-key="estado">UF</vs-th>
-                            <vs-th sort-key="telefone">Telefone</vs-th>
+                            <vs-th sort-key="endereco" style="width:60%">Endereço</vs-th>
+                            <vs-th sort-key="cidade" style="width:35%">Cidade</vs-th>
+                            <vs-th sort-key="estado" style="width:5%">UF</vs-th>
                             <vs-th>Ações</vs-th>
                         </template>
                         <template slot-scope="{data}">
-                            <vs-tr :state="data[indextr].ativo === false ? 'danger' :null" :key="indextr" v-for="(tr, indextr) in data">
+                            <vs-tr :state="data[indextr].principal === true ? 'success' :null" :key="indextr" v-for="(tr, indextr) in data">
                                 <vs-td :data="data[indextr].endereco">
                                     {{ data[indextr].endereco }}
-                                </vs-td>
-                                <vs-td :data="data[indextr].cep">
-                                    {{ data[indextr].cep }}
                                 </vs-td>
                                 <vs-td :data="data[indextr].cidade">
                                     {{ data[indextr].cidade}}
                                 </vs-td>
                                 <vs-td :data="data[indextr].estado">
                                     {{ data[indextr].estado }}
-                                </vs-td>
-                                <vs-td :data="data[indextr].telefone">
-                                    {{ data[indextr].telefone }}
                                 </vs-td>
                                 <vs-td>
                                     <div class="flex">
@@ -550,9 +532,7 @@ export default {
             this.clienteEdit.endereco.cep = val;
         },
         segmentosCliente(val) {
-            this.clienteEdit.segmentos = val.map((segmento) => {
-                return String(segmento.value);
-            });
+            this.clienteEdit.segmentos = (val && val.value) ? [ val.value.toString() ] : [];
         },
     },
     computed:{
@@ -930,6 +910,7 @@ export default {
                         iconPack: 'feather',
                         icon: 'icon-check'
                     });
+
                     this.$vs.loading.close();
                     if (this.carrinhoCliente) {
                         this.$router.push({ name: 'carrinhoPedido',
@@ -941,9 +922,11 @@ export default {
                 }).catch((erro) => {
                     this.$vs.loading.close();
                     this.$validator.validate();
+                    
                     if (erro.campo) {
                         this.proximoCampo(erro.campo);
                     }
+
                     this.$vs.notify({
                         title: 'Erro!',
                         text: erro.mensagem + '-' + erro.campo,
@@ -957,9 +940,9 @@ export default {
         },
         prepareSalvarCliente() {
             const cliente = this.lodash.cloneDeep(this.clienteEdit);
-            cliente.id = cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "");
-            cliente.endereco.cep = cliente.endereco.cep.replace(/[^a-z0-9]/gi, "");
-            cliente.nome = (cliente.nome == null) ? cliente.nomeFantasia : cliente.nome;
+            cliente.id = (cliente.cpfCnpj) ? cliente.cpfCnpj.replace(/[^a-z0-9]/gi, "") : undefined;
+            cliente.endereco.cep = (cliente.endereco.cep) ? cliente.endereco.cep.replace(/[^a-z0-9]/gi, "") : undefined;
+            cliente.nome = (cliente.razaoSocial) ? cliente.razaoSocial : cliente.nomeCliente;
             cliente.dataFundacao = (cliente.dataFundacao) ? moment(cliente.dataFundacao, ["DD/MM/YYYY"]).toDate().getTime() : undefined;
             cliente.dataAniversario = (cliente.dataAniversario) ? moment(cliente.dataAniversario, ["DD/MM/YYYY"]).toDate().getTime() : undefined;
             cliente.endereco.cidade = cliente.endereco.cidade ? cliente.endereco.cidade.label : null;
@@ -967,6 +950,7 @@ export default {
             if (this.lodash.findIndex(this.segmentosCliente, {'value':3333}) >= 0) {
                 cliente.segmentos = ['3','5'];
             }
+            
             cliente.referenciaComercial = cliente.referenciaComercial 
                 ? cliente.referenciaComercial  + ' - ' + this.getReferencias() 
                     : this.getReferencias();

@@ -70,7 +70,7 @@
                                                 :class="'input-quantidade-tam-'+tamanho.codigo+ ' input-quantidade-cor-'+cor.codigo" 
                                                 v-model="produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho].quantidade" 
                                                 class="form-control"
-                                                style="margin-top: 0rem;min-width: 5rem;padding: 1px 4px;"
+                                                style="margin-top: 0rem;min-width: 5rem;padding: 1px 4px;text-align: center;"
                                             />
                                             <div class="produto-add-button">
                                                 <feather-icon 

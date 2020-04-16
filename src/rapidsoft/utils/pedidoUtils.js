@@ -45,7 +45,7 @@ const validarPedido = (pedidos) => {
                     throw { campo: "dataEmbarque", warning: "Selecione a Data do Embarque" };
                 }
                 else if (IsNil(pedido.totalLiquido) || valorMinimo > pedido.totalLiquido){
-                    throw { campo: "totalLiquido", warning: "O pedido "+pedido.nome+" não ultrapassou o valor minimo de "+ UtilMask.getMoney(valorMinimo, true)+"!"};
+                    throw { campo: "totalLiquido", warning: "O pedido "+pedido.nome+" não atingiu o valor minimo de "+ UtilMask.getMoney(valorMinimo, true)+"!"};
                 }
 
                 done();
