@@ -159,7 +159,6 @@
 </template>    
 <script>
 
-// import _ from 'lodash';
 import ProdutoUtils from '../utils/produtoUtils';
 import UtilMask from '../utils/utilMask';
 

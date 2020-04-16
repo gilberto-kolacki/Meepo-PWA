@@ -1,34 +1,59 @@
 <template>
     <div id="page-orders" v-if="this.showScreen">
-        <div class="vx-row">
-            <vs-col vs-type="flex">
-                <vs-chip class="product-order-status">
-                    <vs-avatar @click="filtrar()" icon="done_outline" />
-                    Todos
-                </vs-chip>
-                <vs-chip class="product-order-status" color="dark">
-                    <vs-avatar @click="filtrar(10)" icon="done_outline" />
-                    Digitação
-                </vs-chip>
-                <vs-chip class="product-order-status" color="warning">
-                    <vs-avatar @click="filtrar(20)" icon="done_outline" />
-                    Aguardando Sinc...
-                </vs-chip>
-                <vs-chip class="product-order-status" color="success">
-                    <vs-avatar @click="filtrar(50)" icon="done_outline" />
-                    Sincronizado
-                </vs-chip>
-                <vs-chip class="product-order-status" color="danger">
-                    <vs-avatar @click="filtrar(99)" icon="done_outline" />
-                    Cancelado
-                </vs-chip>
-            </vs-col>
-        </div>
         <vs-table pagination max-items="10" search :data="pedidosFiltro">           
             <template slot="header">
-                <h3>Pedidos</h3>
+                <div class="w-1/5">
+                    <div clas="vx-col flex items-center justify-start">
+                        <b-dropdown text="Ações" size="sm" variant="danger" class="m-1">
+                            <div v-if="!todosSelecionados">
+                                <b-dropdown-item>
+                                    <span class="flex items-center">
+                                        <feather-icon icon="CheckSquareIcon" svgClasses="h-4 w-4" class="mr-2" />
+                                        <span @click="selecionarTodos(true)">Selecionar Todos</span>
+                                    </span>
+                                </b-dropdown-item>
+                            </div>
+                            <div v-if="itensSel">
+                                <b-dropdown-divider v-if="!todosSelecionados" />
+                                <b-dropdown-item>
+                                    <span class="flex items-center">
+                                        <feather-icon icon="XSquareIcon" svgClasses="h-4 w-4" class="mr-2" />
+                                        <span @click="selecionarTodos(false)">Desmarcar Seleção</span>
+                                    </span>
+                                </b-dropdown-item>
+                            </div>
+                            <div v-if="itensSel && itensSelPendenteSinc">
+                                <b-dropdown-divider/>
+                                <b-dropdown-item>
+                                    <span class="flex items-center">
+                                        <feather-icon icon="ExternalLinkIcon" svgClasses="h-4 w-4" class="mr-2" />
+                                        <span @click="replicarMessage()">Replicar Seleção</span>
+                                    </span>
+                                </b-dropdown-item>
+                            </div>
+                            <b-dropdown-divider></b-dropdown-divider>
+                            <b-dropdown-text>
+                                <feather-icon icon="FilterIcon" svgClasses="h-4 w-4" class="mr-2" />
+                                Filtrar Status
+                            </b-dropdown-text>
+                            <b-dropdown-item v-for="(status, indexStatus) in filtersStatus" :key="indexStatus">
+                                <span class="flex items-center mt-2">
+                                    <span @click="filtrar(status)">{{status.id +' - '+ status.title}}</span>
+                                </span>
+                            </b-dropdown-item>
+                        </b-dropdown>
+                    </div>
+                </div>
+                <div class="w-4/5">
+                    <div class="flex flex-wrap mt-4">
+                        <h2>Pedidos - {{filterStatusSelecionado.title}}</h2>
+                    </div>
+                </div>
             </template>
             <template slot="thead">
+                <vs-th style="width: 5%">
+                    <vs-checkbox class="inline-flex" v-model="selecteds" @click="selecionarTodos(selecteds)"/>
+                </vs-th>
                 <vs-th class="th-acoes">Ações</vs-th>
                 <vs-th sort-key="cnpj" style="width: 30%">CNPJ</vs-th>
                 <vs-th sort-key="nome">Nome</vs-th>
@@ -37,6 +62,9 @@
             </template> 
             <template slot-scope="{data}">
                 <vs-tr :key="indextr" v-for="(tr, indextr) in data" :state="getStatusColor(data[indextr].status)">
+                    <vs-td>
+                        <vs-checkbox class="inline-flex" v-model="itensSelecionados" :vs-value="data[indextr]" @click="selecionarItem()"/>
+                    </vs-td>
                     <vs-td v-if="data[indextr].cliente">
                         <div class="flex">
                             <div class="p-1">
@@ -45,6 +73,9 @@
                             <div class="p-1">
                                 <vs-button type="filled" v-if="data[indextr].status == 10" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarMessage(data[indextr])"/>
                             </div>
+                            <!-- <div class="p-1">
+                                <vs-button type="filled" v-if="data[indextr].status >= 50" size="small" icon-pack="feather" color="danger" icon="icon-external-link" @click="replicarMessage(data[indextr])"/>
+                            </div> -->
                         </div>
                     </vs-td>
                     <vs-td :data="data[indextr].cliente.cpfCnpj">
@@ -69,6 +100,7 @@
 
 import PedidoDB from '../../rapidsoft/db/pedidoDB';
 import ClienteDB from '../../rapidsoft/db/clienteDB';
+import Storage from '../../rapidsoft/utils/storage';
 import ErrorDB from '../../rapidsoft/db/errorDB';
 
 export default {
@@ -76,7 +108,39 @@ export default {
         return { 
             pedidos: [],
             pedidosFiltro: [],
+            itensSelecionados: [],
             showScreen: false,
+            selecteds: false,            
+            filtersStatus: [
+                {id:0, title: 'Todos'},
+                {id:10, title: 'Digitação'},
+                {id:20, title: 'Ag. Sincronização'},
+                {id:50, title: 'Sincronizado'},
+                {id:99, title: 'Cancelado'}
+            ],
+            filterStatusSelecionado: {id:0, title: 'Todos'},
+        }
+    },
+    watch: {
+        selecteds(newValue, oldValue) {
+            if ((oldValue != null && newValue != null && newValue != oldValue)) {
+                this.itensSelecionados = [];
+                this.pedidosFiltro.forEach((element) => {
+                    if (newValue) this.itensSelecionados.push(element);
+                    element.selected = newValue;
+                });
+            }
+        },
+    },
+    computed: {
+        itensSel() {
+            return this.itensSelecionados.length > 0 ? true : false;
+        },
+        itensSelPendenteSinc() {
+            return this.itensSelecionados.find((item) => item.status < 50) ? false : true;
+        },
+        todosSelecionados() {
+            return this.itensSelecionados.length == this.pedidosFiltro.length;
         }
     },
     methods: {
@@ -95,13 +159,28 @@ export default {
         editar(pedido) {
             this.$router.push({ name: 'pedidoEditar', params: {pedidoId: pedido.id} });
         },
-        filtrar(status = null) {
+        selecionarTodos(select=null) {
+            this.selecteds = select;
+        }, 
+        selecionarItem() {
+            setTimeout(() => {
+                if (this.itensSelecionados.length === this.pedidosFiltro.length) {
+                    this.selecteds = true;
+                } else {
+                    this.selecteds = null;
+                }
+            }, 100);
+        },
+        filtrar(filterStatus) {
             this.$vs.loading();
+            this.selecteds = false;
+            this.itensSelecionados = [];
+            this.filterStatusSelecionado = filterStatus;
             PedidoDB._getAll().then((result) => {
                 ClienteDB.getClientesPedidos(result).then((pedidos) => {
-                    if (status) {
+                    if (filterStatus) {
                         this.pedidosFiltro = pedidos.reduce((pedidos, pedido) => {
-                            if (pedido.status == status) pedidos.push(pedido);
+                            if (pedido.status == filterStatus.id || filterStatus.id == 0) pedidos.push(pedido);
                             return pedidos;
                         }, []);
                     } else {
@@ -117,8 +196,6 @@ export default {
             return new Promise((resolve) => {
                 PedidoDB._getAll().then((result) => {
                     ClienteDB.getClientesPedidos(result).then((pedidos) => {
-                        console.log(pedidos);
-                        
                         this.pedidos = pedidos;
                         this.pedidosFiltro = pedidos;
                         document.getElementById('loading-bg').style.display = 'none';
@@ -155,7 +232,34 @@ export default {
                     this.listar();
                 }, 400);
             });
-        }
+        },
+        replicarMessage() {
+            Storage.validaCarrinho(this, () => {
+                this.$vs.dialog({
+                    type:'confirm',
+                    color:'danger',
+                    title:'Replicar o pedido ?',
+                    text:'Deseja mesmo replicar este(s) pedido(s) ?',
+                    accept:this.replicar,
+                    acceptText: 'Sim',
+                    cancelText: 'Não',
+                });
+            });
+        },
+        replicar() {
+            this.$vs.loading();
+            const idsPedidos = this.itensSelecionados.map((item) => item.id);
+            PedidoDB.replicar(idsPedidos).then((carrinhoResult) => {
+
+                console.log("carrinhoResult", carrinhoResult);
+                
+                this.notification('Sucesso!','Pedido replicado com sucesso!','success')
+                setTimeout(() => {
+                    // this.$router.push({ name: 'carrinho' });
+                    this.$vs.loading.close();
+                }, 400);
+            });
+        },
     },
     beforeCreate() {
         

@@ -243,7 +243,7 @@ class produtoDB extends BasicDB {
             this._localDB.get(String(id)).then((result) => {
                 delete result._rev;
                 delete result.video;
-                resolve({existe: true, result: result});  
+                resolve({existe: true, value: result});  
             }).catch((error) => {
                 this._criarLogDB({url:'db/produtoDB',method:'getById',message: error,error:'Failed Request'});
                 resolve({existe: false, result: error});
@@ -256,15 +256,14 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             if (pagina && (pagina.ref || pagina.referencia)) {
                 this.getById(pagina.ref || pagina.referencia).then((resultProduto) => {
-                    const produto = resultProduto.result;
+                    const produto = resultProduto.value;
                     if (resultProduto.existe && produto.cores && produto.cores.length > 0) {                        
                         produto.cores = produto.cores.filter((cor) => cor.prontaEntrega === false);
                         const indexCor = produto.cores.findIndex((cor) => cor.idProduto == pagina.id);
                         if (indexCor > 0) {
                             produto.cores = arrayMove(produto.cores, indexCor, 0);
                         }
-                        resultProduto.result.segmento = resultProduto.result.segmento;
-                        resolve(resultProduto.result);
+                        resolve(produto);
                     } else {
                         resolve(null);
                     }

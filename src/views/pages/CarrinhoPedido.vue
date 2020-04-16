@@ -188,7 +188,7 @@
     </div>
 </template>
 <script>
-// import _ from "lodash";
+
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
 import Storage from "../../rapidsoft/utils/storage";

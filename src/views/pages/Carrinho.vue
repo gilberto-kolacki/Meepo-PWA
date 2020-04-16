@@ -128,6 +128,21 @@ export default {
 				produtosSegmentos[segmento.id] = produtos.filter((produto) => produto.segmento.indexOf(segmento.id) > -1 );
 				return produtosSegmentos;
 			}, {});
+		},		
+		selectSearchCliente(clienteSelecionado) {
+			this.$vs.loading();
+			const close = () => {
+				setTimeout(() => {
+					this.cliente = clienteSelecionado;
+					this.$forceUpdate();
+					this.$vs.loading.close();
+				}, 300);
+			}
+			if (this.cliente.grupoCliente.id != clienteSelecionado.grupoCliente.id) {
+				this.carregaItensTela().then(() => close());
+			} else {
+				close();
+			}
 		},
 		carregaItensTela() {
 			return new Promise((resolve, reject) => {
@@ -146,21 +161,6 @@ export default {
 				});
 			});
 		},
-		selectSearchCliente(clienteSelecionado) {
-			this.$vs.loading();
-			const close = () => {
-				setTimeout(() => {
-					this.cliente = clienteSelecionado;
-					this.$forceUpdate();
-					this.$vs.loading.close();
-				}, 300);
-			}
-			if (this.cliente.grupoCliente.id != clienteSelecionado.grupoCliente.id) {
-				this.carregaItensTela().then(() => close());
-			} else {
-				close();
-			}
-        },
 	},
 	async created() {
 		const error = (erro) => {
@@ -172,10 +172,8 @@ export default {
 			this.carregaItensTela().then(() => {
 				this.showScreen = true;
 			}).catch((erro) => error(erro));
-		} catch (error) {
-			console.log(error);
-			alert(error);
-			this.$router.push({ name: 'catalogoItem'});
+		} catch (erro) {
+			error(erro);
 		}
 	},
     mounted() {

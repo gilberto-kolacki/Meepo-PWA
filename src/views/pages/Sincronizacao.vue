@@ -160,6 +160,7 @@ export default {
                 })
                 this.lodash.defer(() => SincUtils.closeLoading(this, sinc));
             });
+            this.$vs.loading.close();
         },
         sincProduto(sinc, all) {
             this.carregarSinc();
@@ -262,6 +263,8 @@ export default {
             CidadeDB._limparBase().then(() => {
                 SincUtils.downloadCidadesFromData(sinc).then(() => {
                     SincUtils.closeLoading(this, sinc, all);
+                }).catch((error) => {
+                    this.errorSinc(sinc, error);
                 });
             });
         },
@@ -281,6 +284,8 @@ export default {
                     } else {
                         SincUtils.closeLoading(this, sinc, all)
                     }
+                }).catch((error) => {
+                    this.errorSinc(sinc, error);
                 });
             });
         },
@@ -301,6 +306,8 @@ export default {
                     } else {
                         SincUtils.closeLoading(this, sinc, all);
                     }
+                }).catch((error) => {
+                    this.errorSinc(sinc, error);
                 });
             });
         },

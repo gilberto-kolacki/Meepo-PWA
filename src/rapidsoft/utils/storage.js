@@ -93,6 +93,19 @@ class Storage {
         delete catalogo._rev;
         localStorage.setItem('catalogoCarrinho', JSON.stringify(catalogo));
     }
+
+    validaCarrinho(view, acao) {
+        if (this.existeCarrinho()) {
+            view.$vs.dialog({
+                color:'warning',
+                title:'Atenção!',
+                text:'Para continuar um orçamento você deve limpar o carrinho ou finalizar a compra!',
+                acceptText: 'Ok',
+            });
+        } else {
+            acao();
+        }
+    }
 }
 
 export default new Storage();
