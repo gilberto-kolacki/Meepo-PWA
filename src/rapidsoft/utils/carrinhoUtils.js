@@ -8,23 +8,24 @@ import PeriodoDB from '../db/periodoDB';
 
 class carrinhoUtils {
 
-    newPedido() {
+    newPedido(clienteCarrinho, pedidoCarrinho) {
         return new Promise((resolve) => {
-            const pedido = {};
-            CarrinhoDB.getCarrinho().then((carrinho) => {
-                pedido.cliente = carrinho.cliente;
-                pedido.endEntrega = null;
-                pedido.observacao = null;
-                pedido.desconto1 = 0;
-                pedido.desconto2 = 0;
-                pedido.desconto3 = 0;
-                pedido.quantidade = 0;
-                pedido.totalLiquido = 0;
-                pedido.totalBruto = 0;
-                pedido.dataPedido = new Date().getTime();
-                pedido.dataEmbarque = null;
-                resolve(pedido);
-            });
+            let pedido = {};            
+            if (pedidoCarrinho && pedidoCarrinho.replica) pedido = {...pedidoCarrinho};
+            else {
+                pedido.endEntrega =  null;
+                pedido.observacao =  null;
+                pedido.desconto1 =  0;
+                pedido.desconto2 =  0;
+                pedido.desconto3 =  0;
+            }
+            pedido.cliente = clienteCarrinho;
+            pedido.quantidade = 0;
+            pedido.totalLiquido = 0;
+            pedido.totalBruto = 0;
+            pedido.dataPedido = new Date().getTime();
+            pedido.dataEmbarque = null;
+            resolve(pedido);
         });
     }
 
@@ -34,7 +35,7 @@ class carrinhoUtils {
                 ProdutoDB.getProdutosFromCarrinho(carrinho).then((carrinhoTela) => {
                     EmbarqueDB.getEmbarquesCarrinho(carrinhoTela).then((embarques) => {
                         PeriodoDB.getPeriodosToEmbarque(embarques).then((embarques) => {
-                            this.newPedido().then((pedido) => {
+                            this.newPedido(carrinho.cliente, carrinho.pedido).then((pedido) => {
                                 pedido.listEmbarques = embarques.reduce((listEmbarques, embarque) => {
                                     const itens = carrinhoTela.filter((itemCarrinho) => {
                                         return itemCarrinho.embarqueSelecionado.id === embarque.id 

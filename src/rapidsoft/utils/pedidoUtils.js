@@ -215,6 +215,48 @@ class pedidoUtils {
             return [];
         }
     }
+
+    getQuantidadeEmbarque(itensEmbarque) {
+        return itensEmbarque.reduce((total, item) => {
+            return total + item.quantidade;
+        }, 0);
+    }
+
+    getValorEmbarque(itensEmbarque) {
+        return itensEmbarque.reduce((total, item) => {
+            return total + item.precoCusto * item.quantidade;
+        }, 0);
+    }
+
+    getEmbarquesPedido(pedido) {
+        return new Promise((resolve) => {
+            const grupo = pedido.grupoCliente;
+            pedido.listEmbarques = OrderBy(pedido.listEmbarques, ['dataEmbarque', 'nome'], ['asc', 'asc']);
+            pedido.listEmbarques = pedido.listEmbarques.reduce((listEmbarques, embarque) => {
+                if (pedido.replica) {
+                    embarque.brinde = pedido.brinde;
+                    embarque.pedidoParcial = pedido.pedidoParcial;
+                    embarque.antecipacaoPedido = pedido.antecipacaoPedido;
+                    embarque.copiaEmail = pedido.copiaEmail;
+                    embarque.formaPagamento = pedido.formaPagamento;
+                    embarque.condicaoPagamento = pedido.condicaoPagamento;
+                } else {
+                    embarque.brinde = false;
+                    embarque.pedidoParcial = true;
+                    embarque.antecipacaoPedido = true;
+                    embarque.copiaEmail = true;
+                    embarque.formaPagamento = null;
+                    embarque.condicaoPagamento = null;
+                }
+                embarque.quantidade = this.getQuantidadeEmbarque(embarque.itensPedido);
+                embarque.valor = this.getValorEmbarque(embarque.itensPedido);
+                embarque.totalBruto = Round(embarque.valor + ((Number(grupo.porcentagem)/100) * embarque.valor), 2);
+                listEmbarques.push(embarque);
+                return listEmbarques;
+            }, []);
+            resolve(pedido);
+        });
+    }
         
 }
 

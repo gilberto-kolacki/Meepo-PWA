@@ -249,13 +249,13 @@ export default {
         replicar() {
             this.$vs.loading();
             const idsPedidos = this.itensSelecionados.map((item) => item.id);
-            PedidoDB.replicar(idsPedidos).then((carrinhoResult) => {
-
-                console.log("carrinhoResult", carrinhoResult);
-                
-                this.notification('Sucesso!','Pedido replicado com sucesso!','success')
+            PedidoDB.replicar(idsPedidos).then((alerta) => {
+                this.notification('Sucesso!','Pedido replicado com sucesso!','success');
+                const doneReplicar = () => this.$router.push({ name: 'carrinho' });
                 setTimeout(() => {
-                    // this.$router.push({ name: 'carrinho' });
+                    if (!alerta) {
+                        this.$vs.dialog({title:'Atenção!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReplicar, acceptText: 'Ok'});
+                    } else doneReplicar();
                     this.$vs.loading.close();
                 }, 400);
             });

@@ -110,7 +110,7 @@ class produtoDB extends BasicDB {
 
     getProdutoCorCarrinho(produtos, carrinho) {
         return produtos.reduce((produtosCor, produto) => {
-            produto.cores = produto.cores.filter((cor) => carrinho.itens.some((itemCarrinho) => cor.idProduto === itemCarrinho.idProduto ));
+            produto.cores = produto.cores.filter((cor) => carrinho.itens.some((itemCarrinho) => itemCarrinho.idProduto  === cor.idProduto ));
             const produtoCores = produto.cores.map((cor) => {
                 const produtoCor = {};
                 produtoCor.referencia = produto.referencia;
@@ -128,6 +128,7 @@ class produtoDB extends BasicDB {
                 produtoCor.tamanhos = cor.tamanhos;
                 produtoCor.categorias = cor.categorias;
                 produtoCor.embarques = cor.embarques;
+                produtoCor.embarqueSelecionado = produto.embarqueSelecionado;
                 return produtoCor;
             });
             return produtosCor.concat(produtoCores);
@@ -139,18 +140,33 @@ class produtoDB extends BasicDB {
         return item.embarqueSelecionado;
     }
 
+    getProdutoEmbarqueSelecionadoSeq(produtos, carrinho) {
+        const produtoEmbarqueSeq = carrinho.itens.reduce((produtoEmbarquesSeq, itemCarrinho) => {
+            const chave = itemCarrinho.embarqueSelecionado ? itemCarrinho.referencia +"-"+ itemCarrinho.embarqueSelecionado.id +"-"+ itemCarrinho.embarqueSelecionado.seq : itemCarrinho.referencia;
+            if (!produtoEmbarquesSeq.hasOwnProperty(chave)) {
+                const produto = {...produtos.find((produto) => produto.referencia === itemCarrinho.referencia)};
+                produto.embarqueSelecionado = itemCarrinho.embarqueSelecionado ? {...itemCarrinho.embarqueSelecionado} : null;
+                produtoEmbarquesSeq[chave] = produto;
+            }
+            return produtoEmbarquesSeq;
+            
+        }, {});
+        return Object.values(produtoEmbarqueSeq);
+    }
+
     getProdutosFromCarrinho(carrinho) {
         return new Promise((resolve) => {
             const produtosCarrinho = [];
             const refsCarrinho = getReferenciasCarrinho(carrinho);
             this._getFindCondition({referencia : {$in : refsCarrinho}}).then((produtos) => {
+                produtos = this.getProdutoEmbarqueSelecionadoSeq(produtos, carrinho);
                 produtos = this.getProdutoCorCarrinho(produtos, carrinho);
                 if (produtos.length > 0) {
                     const done = After(produtos.length, () => resolve(produtosCarrinho));
                     produtos.forEach(produto => {
                         produto.quantidade = this.getTotalCor(produto.tamanhos, carrinho);
                         produto.tamanhos = this.getTamanhosProdutoCarrinho(produto.tamanhos, carrinho);
-                        produto.embarqueSelecionado = this.getEmbarqueSelecionado(produto, carrinho);
+                        if (!produto.hasOwnProperty("embarqueSelecionado")) produto.embarqueSelecionado = this.getEmbarqueSelecionado(produto, carrinho);
                         ImagemDB.getFotoById(produto.imagem).then(imagem => {
                             produto.imagemPrincipal = imagem;
                             EmbarqueDB.getEmbarqueProduto(produto).then((embarque) => {

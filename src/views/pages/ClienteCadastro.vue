@@ -987,7 +987,6 @@ export default {
             return new Promise((resolve) => {
                 ClienteDB.findById(idCliente).then((cliente) => {
                     this.prepareClienteEdit(cliente);
-
                     resolve();
                 });
             });

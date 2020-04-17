@@ -257,37 +257,6 @@ class pedidoDB extends BasicDB {
         });
     }
 
-    
-
-    salvarSinc(pedido) {
-        return new Promise((resolve) => {
-            if (pedido.id) {
-                this.getPedido(pedido.id).then((object) => {
-                    pedido._rev = object._rev;
-                    pedido.embarque = object.embarque;
-                    pedido.cliente.id = String(pedido.cliente.id);
-                    this._salvar(pedido).then(() => {
-                        resolve();
-                        // TODO (Luiz): Removido para testar a aplicação sem sincronizar base local com a nuvem
-                        /* if (object.status < 50) {
-                            this._remoteDB.get(pedido.id).then(() => {
-                                this._remoteDB.remove(objectRemote).then(() => {
-                                    resolve();
-                                });
-                            });
-                        } else {
-                            resolve();
-                        } */
-                    });
-                }).catch(() => {
-                    resolve();
-                });  
-            } else {
-                resolve();  
-            }
-        });
-    }
-
     deletar(idPedido) {
         return new Promise((resolve, reject) => {
             try{
@@ -313,9 +282,11 @@ class pedidoDB extends BasicDB {
     createPedidoCarrinhoFromPedido(pedido) {
         return new Promise((resolve) => {
             pedido = {
+                replica: true,
                 pedidoParcial: pedido.pedidoParcial,
                 antecipacaoPedido: pedido.antecipacaoPedido, 
                 copiaEmail: pedido.copiaEmail,
+                brinde: pedido.brinde,
                 formaPagamento: pedido.formaPagamento,
                 condicaoPagamento: pedido.condicaoPagamento,
                 endEntrega: pedido.endEntrega,
@@ -330,13 +301,10 @@ class pedidoDB extends BasicDB {
 
     createItensCarrinhoFromPedido(pedido) {
         return new Promise((resolve) => {
+            let produtoNaoEncontrado = false;
             const itensCarrinho = [];
-            const done = After(pedido.itens.length, () => resolve(itensCarrinho));
+            const done = After(pedido.itens.length, () => resolve({itens: itensCarrinho, mensagem: produtoNaoEncontrado}));
             pedido.itens.forEach((item) => {
-
-                console.log("pedido", pedido);
-                console.log("item", item);
-                
                 ProdutoDB.getById(item.referencia).then((produto) => {
                     if (produto.existe) {
                         produto = produto.value;
@@ -354,10 +322,14 @@ class pedidoDB extends BasicDB {
                                 idProduto: produtoCor.idProduto,
                                 idSegmento: produto.segmento,
                                 quantidade: item.quantidade,
-                                embarqueSelecionado: {id: pedido.embarque, seq: 1}
+                                embarqueSelecionado: {id: pedido.embarque, seq: pedido.seqEmbarque}
                             };
                             itensCarrinho.push(produtoTamanhoCarrinho);
+                        } else {
+                            produtoNaoEncontrado = true;
                         }
+                    } else {
+                        produtoNaoEncontrado = true;
                     }
                     done();
                 });
@@ -365,33 +337,16 @@ class pedidoDB extends BasicDB {
         });
     }
 
-    createCarrinhoFromPedido(idPedido, carrinho, montarPedido) {
+    buscaClienteCarrinhoFromPedido(idCliente, carrinho) {
         return new Promise((resolve) => {
-            this._getById(idPedido, true).then((pedido) => {
-                if (pedido.existe) {
-                    pedido = pedido.value;
-                    if (montarPedido) {
-                        ClienteDB._getById(pedido.cliente.id).then((clientePedido) => {
-                            if (clientePedido.existe) {
-                                clientePedido = clientePedido.value;
-                                GrupoClienteDB.getById(clientePedido.grupoCliente).then((grupoClienteCarrinho) => {
-                                    clientePedido.grupoCliente = grupoClienteCarrinho;
-                                    carrinho.cliente = clientePedido;
-                                    this.createPedidoCarrinhoFromPedido(pedido).then((pedidoCarrinho) => {
-                                        carrinho.pedido = pedidoCarrinho;
-                                        this.createItensCarrinhoFromPedido(pedido).then((itensCarrinho) => {
-                                            carrinho.itens = [...carrinho.itens.concat(itensCarrinho)];
-                                            resolve(carrinho);
-                                        });
-                                    });
-                                });
-                            } else {
-                                resolve(carrinho);
-                            }
-                        });
-                    } else {
+            ClienteDB._getById(idCliente).then((clientePedido) => {
+                if (clientePedido.existe) {
+                    clientePedido = clientePedido.value;
+                    GrupoClienteDB.getById(clientePedido.grupoCliente).then((grupoClienteCarrinho) => {
+                        clientePedido.grupoCliente = grupoClienteCarrinho;
+                        carrinho.cliente = clientePedido;
                         resolve(carrinho);
-                    }
+                    });
                 } else {
                     resolve(carrinho);
                 }
@@ -399,24 +354,83 @@ class pedidoDB extends BasicDB {
         });
     }
 
+    createCarrinhoFromPedido(pedido, carrinho, montarPedido, montarCliente) {
+        return new Promise((resolve) => {
+            if (montarCliente) {
+                this.buscaClienteCarrinhoFromPedido(pedido.cliente.id, carrinho).then((carrinhoCliente) => {
+                    carrinho = carrinhoCliente;
+                    if (montarPedido) {
+                        this.createPedidoCarrinhoFromPedido(pedido).then((pedidoCarrinho) => {
+                            carrinho.pedido = pedidoCarrinho;
+                            this.createItensCarrinhoFromPedido(pedido).then((result) => {
+                                carrinho.itens = [...carrinho.itens.concat(result.itens)];
+                                resolve({carrinho: carrinho, alerta: result.mensagem});
+                            });
+                        });
+                    } else {
+                        this.createItensCarrinhoFromPedido(pedido).then((result) => {
+                            carrinho.itens = [...carrinho.itens.concat(result.itens)];
+                            resolve({carrinho: carrinho, alerta: result.mensagem});
+                        });
+                    }
+                });
+            } else {
+                this.createItensCarrinhoFromPedido(pedido).then((result) => {
+                    carrinho.itens = [...carrinho.itens.concat(result.itens)];
+                    resolve({carrinho: carrinho, alerta: result.mensagem});
+                });
+            }                
+        });
+    }
+
+    clientesIguais(pedidos) {
+        const idsCliente = Object.keys(pedidos.reduce((idsCliente, pedido) => {
+            idsCliente[pedido.cliente.id] = pedido.cliente;
+            return idsCliente;
+        }, {}));
+        return idsCliente.length === 1 ? true : false;
+    }
+
+    sequenciaEmbarques(pedidos) {
+        var embarquesMap = new Map();
+        return pedidos.reduce((pedidos, pedido) => {
+            let sequencia = 1;
+            if (embarquesMap.has(pedido.embarque)) {
+                sequencia = Number(embarquesMap.get(pedido.embarque)) +1;
+                pedido.seqEmbarque = sequencia;
+            } else {
+                pedido.seqEmbarque = sequencia;
+            }
+            embarquesMap.set(pedido.embarque, sequencia);
+            pedidos.push(pedido);
+            return pedidos;
+        }, []);
+    }
+
     replicar(idsPedidos) {
         return new Promise((resolve) => {
             CarrinhoDB.getCarrinho().then((carrinho) => {
-                if (idsPedidos.length > 1) {
-                    const done = After(idsPedidos.length, () => resolve());
-                    idsPedidos.forEach((idPedido) => {
-                        this.createCarrinhoFromPedido(idPedido, carrinho, false).then((carrinhoResult) => {
-                            carrinho = carrinhoResult;
-                            done();
+                this._getFindCondition({id : {$in : idsPedidos}}).then((pedidosDB) => {
+                    pedidosDB = this.sequenciaEmbarques(pedidosDB);
+                    if (pedidosDB.length > 1) {
+                        let alertaItemNaoEncontrado = false;
+                        const clientesIguais = this.clientesIguais(pedidosDB);
+                        const done = After(pedidosDB.length, () => CarrinhoDB.setCarrinho(carrinho).then(() => resolve(alertaItemNaoEncontrado)));
+                        pedidosDB.forEach((pedidoDB) => {
+                            this.createCarrinhoFromPedido(pedidoDB, carrinho, false, clientesIguais).then((result) => {
+                                carrinho = result.carrinho;
+                                alertaItemNaoEncontrado = result.alerta ? result.alerta : alertaItemNaoEncontrado;
+                                done();
+                            });
                         });
-                    });
-                } else {
-                    this.createCarrinhoFromPedido(idsPedidos[0], carrinho, true).then((carrinhoResult) => {
-                        CarrinhoDB.setCarrinho(carrinhoResult).then(() => {
-                            resolve(carrinhoResult);
+                    } else {
+                        this.createCarrinhoFromPedido(pedidosDB[0], carrinho, true, true).then((result) => {
+                            CarrinhoDB.setCarrinho(result.carrinho).then(() => {
+                                resolve(result.alerta);
+                            });
                         });
-                    });
-                }
+                    }
+                });
             });
         });
     }

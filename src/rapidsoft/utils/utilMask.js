@@ -14,9 +14,6 @@ class utilMask {
     } [moeda] || {locale: 'pt-BR', formato: {style: 'currency', currency: 'BRL'}});
 
     getMoney(value, sifrao = false, grupoCliente=null) { 
-
-        console.log(grupoCliente);
-        
         let mask = null;
         const grupo = grupoCliente ? grupoCliente.moeda : Storage.getGrupoCarrinho();
         if (sifrao) mask = this.getCurrencySifrao(grupo.moeda);

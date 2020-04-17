@@ -45,7 +45,7 @@ class Storage {
         if (carrinho && carrinho[this.CLIENTE_CARRINHO]) {
             return carrinho[this.CLIENTE_CARRINHO][this.GRUPO_CLIENTE_CARRINHO];
         } else {
-            return null;
+            return this.get("grupo_padrao");
         }
     }
     
