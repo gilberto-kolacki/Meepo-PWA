@@ -91,7 +91,7 @@
                         <h6 class="title-ref" v-if="this.produtoC">Ref: {{produtoC.referencia}}</h6>
                         <h6 class="title-ref" v-if="this.produtoD">Ref: {{produtoD.referencia}}</h6>
                         <div class="btn-group centex mt-2 w-full">
-                            <vs-button class="w-full" color="primary" icon="add_circle" @click.stop="addProduto()"></vs-button>
+                            <vs-button class="w-full" color="primary" icon="shopping_cart" @click.stop="addProduto()"></vs-button>
                             <vs-button class="w-full" color="rgb(123, 123, 123)" size="36px" icon="attach_money" @click="popupPrecoRef=true"></vs-button>
                         </div>
                     </div>
@@ -291,29 +291,37 @@ export default {
         hideCard() {
             setTimeout(() => {
                 this.isShowingImagemPrincipal = false;
+                ErrorDB._criarLogDB({url: 'pages/PedidoCatalogoItem', method:'hideCard', message: this.isShowingImagemPrincipal + ' ' +new Date().getTime(), error:'Failed Request'});
             }, 100);
             setTimeout(() => {
                 this.isShowingImagemPrincipal = true;
+                ErrorDB._criarLogDB({url: 'pages/PedidoCatalogoItem', method:'hideCard', message: this.isShowingImagemPrincipal + ' ' +new Date().getTime(), error:'Failed Request'});
             }, 110);
             this.$forceUpdate();
         },
         prevRef() {
             const anterior = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )-1;
             if (anterior >= 0) {
-                this.selectProduto(this.paginas[anterior]);
+                this.selectProduto(this.paginas[anterior]).then(() => {
+                    this.hideCard();
+                });
             } else {
-                this.selectProduto(this.paginas[this.paginas.length-1]);
+                this.selectProduto(this.paginas[this.paginas.length-1]).then(() => {
+                    this.hideCard();
+                });
             }
-            this.hideCard();
         },
         nextRef() {
             const proxima = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )+1;
             if (proxima < this.paginas.length) {
-                this.selectProduto(this.paginas[proxima]);
+                this.selectProduto(this.paginas[proxima]).then(() => {
+                    this.hideCard();
+                });
             } else {
-                this.selectProduto(this.paginas[0]);
+                this.selectProduto(this.paginas[0]).then(() => {
+                    this.hideCard();
+                });
             }
-            this.hideCard();
         },
         showSidebar() {
             return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);

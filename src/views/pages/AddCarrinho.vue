@@ -34,8 +34,8 @@
                         </b-card-text>
                         <div class="vx-row items-center justify-center mt-3">
                             <div class="btn-group centex w-full">
-                                <vs-button class="w-full" color="primary" icon="add_circle" @click.stop="openGradeLookSelecionado(produtoLook.produto)"></vs-button>
-                                <vs-button class="w-full" color="rgb(123, 123, 123)" icon="shopping_cart" @click.stop="openLook(produtoLook.produto)"></vs-button>
+                                <vs-button class="w-full" color="primary" icon="shopping_cart" @click.stop="openGradeLookSelecionado(produtoLook.produto)"></vs-button>
+                                <vs-button class="w-full" color="rgb(123, 123, 123)" icon="add_circle" @click.stop="openLook(produtoLook.produto)"></vs-button>
                             </div>
                         </div>
                     </vx-card>

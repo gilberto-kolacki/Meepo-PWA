@@ -55,30 +55,25 @@
                 <vs-table hoverFlat :data="this.itensOrcamento">
                     <!-- HEADER -->
                     <template slot="thead">
-                        <vs-th style="width:10%">ITEM</vs-th>
-                        <vs-th style="width:35%">EMBARQUE</vs-th>
-                        <vs-th style="width:5%">QNT</vs-th>
-                        <vs-th style="width:10%">VALOR</vs-th>
-                        <vs-th style="width:10%">DATA</vs-th>
+                        <vs-th style="width:50%">EMBARQUE</vs-th>
+                        <vs-th style="width:20%">DATA</vs-th>
+                        <vs-th style="text-align:right; width:10%" >QTDE.</vs-th>
+                        <vs-th style="text-align:center; width:20%">VALOR</vs-th>
                     </template>
-
                     <!-- DATA -->
                     <template slot-scope="{data}">
                         <vs-tr v-for="(tr, index) in data" :key="index">
-                            <vs-td :data="data[index].id">
-                                {{ data[index].id }}
-                            </vs-td>
                             <vs-td :data="data[index].nome">
                                 {{ data[index].nome }}
                             </vs-td>
-                            <vs-td :data="data[index].quantidade">
-                                {{ data[index].quantidade }}
-                            </vs-td>
-                            <vs-td :data="data[index].totalBruto">
-                                {{ data[index].totalBruto | money(orcamento.grupoCliente) }}
-                            </vs-td>
                             <vs-td :data="data[index].dataEmbarque">
                                 {{ data[index].dataEmbarque | formatDate}}
+                            </vs-td>
+                            <vs-td :data="data[index].quantidade" style="text-align:right">
+                                {{ data[index].quantidade }}
+                            </vs-td>
+                            <vs-td :data="data[index].totalBruto" style="text-align:right">
+                                {{ data[index].totalBruto | moneyy(orcamento.grupoCliente) }}
                             </vs-td>
                         </vs-tr>
                     </template>
@@ -88,15 +83,18 @@
                 <vs-table hoverFlat class="w-2/3 ml-auto mt-4">
                     <vs-tr>
                         <vs-th>SUBTOTAL:</vs-th>
-                        <vs-td>{{ orcamento.totalBruto | moneyy(orcamento.grupoCliente) }}</vs-td>
+                        <vs-td style="text-align:right">
+                            <vs-td >{{ orcamento.quantidade }}</vs-td>
+                            <vs-td style="padding-left:40px;padding-right:0px" >{{ orcamento.totalBruto | moneyy(orcamento.grupoCliente) }}</vs-td>
+                        </vs-td>
                     </vs-tr>
                     <vs-tr>
                         <vs-th>DESCONTO (%)</vs-th>
-                        <vs-td>{{orcamento.desconto1}} + {{orcamento.desconto2}} + {{orcamento.desconto3}} </vs-td>
+                        <vs-td style="text-align:right">{{orcamento.desconto1}} + {{orcamento.desconto2}} + {{orcamento.desconto3}} </vs-td>
                     </vs-tr>
                     <vs-tr>
-                        <th>TOTAL:</th>
-                        <td>{{ orcamento.totalLiquido | moneyy(orcamento.grupoCliente) }}</td>
+                        <vs-th>TOTAL:</vs-th>
+                        <td style="text-align:right">{{ orcamento.totalLiquido | moneyy(orcamento.grupoCliente) }}</td>
                     </vs-tr>
                 </vs-table>
             </div>
