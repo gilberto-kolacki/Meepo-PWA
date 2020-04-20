@@ -10,13 +10,19 @@ import UtilMask from '../utils/utilMask';
 
 Vue.filter('formatDateTime', (value) => {
     if (value) {
-        return moment(new Date(value)).format('DD/MM/YYYY hh:mm');
+        return moment(new Date(Number(value))).format('DD/MM/YYYY HH:mm');
     }
 });
 
 Vue.filter('formatDate', (value) => {
     if (value) {
         return moment(new Date(Number(value))).format('DD/MM/YYYY');
+    } 
+});
+
+Vue.filter('formatTime', (value) => {
+    if (value) {
+        return moment(new Date(Number(value))).format('hh:mm');
     } 
 });
 

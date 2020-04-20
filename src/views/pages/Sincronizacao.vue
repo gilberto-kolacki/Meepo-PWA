@@ -161,6 +161,7 @@ export default {
                 })
                 this.lodash.defer(() => SincUtils.closeLoading(this, sinc));
             });
+            this.$vs.loading.close();
         },
         sincProduto(sinc, all) {
             this.carregarSinc();

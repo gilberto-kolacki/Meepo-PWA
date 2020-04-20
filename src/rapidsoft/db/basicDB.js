@@ -515,6 +515,7 @@ class basicDB {
                             this._criarLogDB({url:'db/basicDB',method:'_salvarSinc',message: error,error:'Failed Request'});
                             reject(error);
                         } else {
+                            objeto.embarque = objetoDB.embarque;
                             objeto.cliente.id = String(objeto.cliente.id);
                             this._salvar(objeto).then(() => {
                                 resolve();

@@ -151,11 +151,17 @@ export default {
             });
         },
         searchCidades(callback) {
-            this.cidadeSelecionada = null;
-            ClienteDB.getCidadesComClientes(this.estadoSelecionado.uf).then((cidades) => {
-                this.cidadesFiltro = cidades;
-                callback();
-            });
+            if (this.estadoSelecionado) {
+                this.cidadeSelecionada = null;
+                ClienteDB.getCidadesComClientes(this.estadoSelecionado.uf).then((cidades) => {
+                    this.cidadesFiltro = cidades;
+                    callback();
+                });
+            } else {
+                setTimeout(() => {
+                    this.searchCidades(callback);
+                }, 500);
+            }
         },
         searchFindCliente() {
             if ((this.estadoSelecionado && this.cidadeSelecionada && this.cidadeSelecionada.value != null) || (this.cnpjCpfSearch && this.cnpjCpfSearch.length >= 3) || (this.nomeSearch && this.nomeSearch.length >= 3)) {
@@ -195,7 +201,6 @@ export default {
                     ClienteDB.getEstadosComClientes().then((result) => {
                         estadosAll.map((estado) => {
                             const possuiCliente = result.find((estadoComCliente) => estadoComCliente.endereco.estado === estado.sigla);
-                            
                             if (possuiCliente) {
                                 this.estadosComCliente.push(this.lodash.clone(estado));
                             }

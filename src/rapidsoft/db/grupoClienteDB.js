@@ -12,6 +12,7 @@ class grupoClienteDB extends BasicDB {
 
     constructor() {
         super("grupo_cliente");
+        this.grupo_chave = "grupo_padrao";
         this._createIndex('padrao');
     }
 
@@ -20,8 +21,11 @@ class grupoClienteDB extends BasicDB {
             this._limparBase().then(() => {
                 if(gruposCliente.length > 0) {
                     const done = After(gruposCliente.length, () => resolve());
-                    gruposCliente.forEach(grupo => {
+                    gruposCliente.forEach((grupo) => {
                         grupo.porcentagem = Number(grupo.porcentagem);
+                        if (grupo.padrao) {
+                            localStorage.setItem("grupo_padrao", JSON.stringify(grupo));
+                        }
                         this._salvar(grupo).then(() => {
                             done();
                         }).catch((error) => {
@@ -43,16 +47,12 @@ class grupoClienteDB extends BasicDB {
         });
     }
 
+    setGrupoPadrao(grupoCliente) {
+        localStorage.setItem(this.grupo_chave, JSON.stringify(grupoCliente));
+    }
+
     getGrupoPadrao() {
-        return new Promise((resolve) => {
-            this._getFindCondition({padrao: {$eq: true}}).then((result) => {
-                if (result.length >= 1) {
-                    resolve(result[0]);
-                } else {
-                    resolve(null);
-                }
-            });
-        });
+        return JSON.parse(localStorage.getItem(this.grupo_chave));
     }
 
     getById(idGrupoCliente) {
@@ -62,9 +62,7 @@ class grupoClienteDB extends BasicDB {
                     resolve(grupo.value);
                 } else {
                     this._criarLogDB({url:'db/grupoClienteDB',method:'getById',message: 'Grupo de cliente não encontrado: '+idGrupoCliente ,error:'Failed Request'});
-                    this.getGrupoPadrao().then((grupoPadrao) => {
-                        resolve(grupoPadrao);
-                    });
+                    resolve(this.getGrupoPadrao());
                 }
             });
         });

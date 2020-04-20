@@ -45,7 +45,7 @@ class Storage {
         if (carrinho && carrinho[this.CLIENTE_CARRINHO]) {
             return carrinho[this.CLIENTE_CARRINHO][this.GRUPO_CLIENTE_CARRINHO];
         } else {
-            return null;
+            return this.get("grupo_padrao");
         }
     }
     
@@ -92,6 +92,19 @@ class Storage {
         delete catalogo._id;
         delete catalogo._rev;
         localStorage.setItem('catalogoCarrinho', JSON.stringify(catalogo));
+    }
+
+    validaCarrinho(view, acao) {
+        if (this.existeCarrinho()) {
+            view.$vs.dialog({
+                color:'warning',
+                title:'Atenção!',
+                text:'Para continuar um orçamento você deve limpar o carrinho ou finalizar a compra!',
+                acceptText: 'Ok',
+            });
+        } else {
+            acao();
+        }
     }
 }
 

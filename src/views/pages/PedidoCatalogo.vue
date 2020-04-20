@@ -137,10 +137,8 @@ export default {
         },
         buscaGrupoPadrao() {
             return new Promise((resolve) => {
-                GrupoClienteDB.getGrupoPadrao().then((grupoClientePadrao) => {
-                    this.grupoClientePadrao = grupoClientePadrao;
-                    resolve();
-                });
+                this.grupoClientePadrao = GrupoClienteDB.getGrupoPadrao();
+                resolve();
             });
         },
         carregaItensTela() {

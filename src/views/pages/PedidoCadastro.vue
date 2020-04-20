@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isShow">
+    <div v-if="showScreen">
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-save" v-if="pedido.status == 10"  @click="finalizarPedido(pedido)" >Salvar</vs-button>
         <!-- <vs-button class="btn-confirm" color="rgb(36, 193, 160)" type="filled" icon-pack="feather" icon="icon-unlock" v-if="pedido.status != 10 && pedido.status < 45"  @click="mensagemMudarParaDigitacao(pedido)">Reabrir</vs-button> -->
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
@@ -208,7 +208,7 @@ export default {
             condicaoDePagamentoSelecionada: {},
             enderecoEntregaSelecionado: {},
             temCondicaoDePagamento: true,
-            isShow:false,
+            showScreen:false,
         }
     },
     components: {
@@ -328,30 +328,6 @@ export default {
             this.pedido.formaPagamento = this.pedido.brinde ? this.condigoBrinde : null;
             this.pedido.condicaoPagamento = null;
         },
-
-        async carregaItensTela() {
-			return new Promise((resolve) => {
-                PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
-                    ClienteDB.findById(pedido.cliente.id).then((cliente) => {
-                        pedido.cliente = cliente;
-                        GrupoClienteDB.findById(pedido.grupoCliente.id).then((grupoCliente) => {
-                            pedido.grupoCliente = grupoCliente;
-                            this.pedido = pedido;
-                            this.itensPedido = this.pedido.itens;
-                            FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
-                                this.formasPagto = dadosPagamento.formasDePagamento;
-                                this.enderecoEntregaSelecionado = {label: this.getLabelEndereco(this.pedido.endEntrega)};
-                                this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
-                                this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
-                                this.isShow = true;
-                                resolve();
-                            });
-                        });
-                    });
-                });
-            });
-        },
-
         deletarMessage(data) {
             this.$vs.dialog({
                 type:'confirm',
@@ -393,12 +369,41 @@ export default {
         voltarPedido() {
             this.$router.push('/pedido/consulta');
         },
-    },
-    created() {
-
+        async carregaItensTela() {
+			return new Promise((resolve) => {
+                PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
+                    ClienteDB.findById(pedido.cliente.id).then((cliente) => {
+                        pedido.cliente = cliente;
+                        GrupoClienteDB.findById(cliente.grupoCliente).then((grupoCliente) => {
+                            pedido.grupoCliente = grupoCliente;
+                            this.pedido = pedido;
+                            this.itensPedido = this.pedido.itens;
+                            FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
+                                this.formasPagto = dadosPagamento.formasDePagamento;
+                                this.enderecoEntregaSelecionado = {label: this.getLabelEndereco(this.pedido.endEntrega)};
+                                this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
+                                this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
+                                resolve();
+                            });
+                        });
+                    });
+                });
+            });
+        },
     },
     async mounted() {
-        await this.carregaItensTela();
+        const error = (erro) => {
+            console.log(erro);
+            alert(erro);
+            this.$router.go(-1);
+        }
+        try {
+            this.carregaItensTela().then(() => {
+				this.showScreen = true;
+			}).catch((erro) => error(erro));
+        } catch (erro) {
+            error(erro)
+        }
     },
     beforeCreate() {
     },

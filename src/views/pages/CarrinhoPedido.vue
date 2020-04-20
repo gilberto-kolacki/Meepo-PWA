@@ -123,7 +123,7 @@
                     <vs-col vs-lg="6" vs-sm="6" vs-xs="12">
                         <div class="vx-row" style="justify-content: flex-end;">
                             <label>Aceita Pedido Parcial</label>
-                            <vs-checkbox v-model="pedido.pedidoParcial"></vs-checkbox>
+                            <vs-checkbox v-model="pedido.pedidoParcial "></vs-checkbox>
                         </div>
                         <div class="vx-row" style="justify-content: flex-end;">
                             <label>Aceita Antecipação do Pedido </label>
@@ -188,11 +188,11 @@
     </div>
 </template>
 <script>
-// import _ from "lodash";
+
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import PedidoUtils from "../../rapidsoft/utils/pedidoUtils";
 import Storage from "../../rapidsoft/utils/storage";
-import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
+// import EmbarqueDB from "../../rapidsoft/db/embarqueDB";
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
 import OrcamentoDB from "../../rapidsoft/db/orcamentoDB";
@@ -342,16 +342,19 @@ export default {
         getCondicoesPagamento(idPedido) {
             return this.condicoesPagto[idPedido];
         },
+        setEndereco(endereco) {
+            this.pedidoCapa.endEntrega = {descricao: this.getLabelEndereco({...endereco}), endereco: {...endereco} };
+        },
         selecionarEndereco() {
             if(this.pedidoCapa.cliente.enderecos){
                 const enderecoPrincipal = this.pedidoCapa.cliente.enderecos.find((endereco) => endereco.principal);
                 if (enderecoPrincipal) {
-                    this.pedidoCapa.endEntrega = {descricao: this.getLabelEndereco(enderecoPrincipal), endereco: enderecoPrincipal };
+                    this.setEndereco(enderecoPrincipal);
                 } else {
-                    this.pedidoCapa.endEntrega = {descricao: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco };
+                    this.setEndereco(this.pedidoCapa.cliente.endereco);
                 }
             } else {
-                this.pedidoCapa.endEntrega = {descricao: this.getLabelEndereco(this.pedidoCapa.cliente.endereco), endereco: this.pedidoCapa.cliente.endereco};
+                this.setEndereco(this.pedidoCapa.cliente.endereco);
             }
         },
         getLabelEndereco(endereco) {
@@ -445,26 +448,44 @@ export default {
         voltarCarrinho() {
             this.$router.push({name:'carrinho'});
         },
+        setFormaPagtoEmbarques(pedido) {
+            return new Promise((resolve) => {
+                const done = this.lodash.after(pedido.listEmbarques.length,() => resolve(pedido));
+                pedido.listEmbarques.forEach(embarque => {
+                    if (this.pedidoCapa.replica) {
+                        embarque.formaPagamento = this.formasPagto.find((formaPagto) => formaPagto.id === embarque.formaPagamento);
+                        embarque.condicaoPagamento = embarque.formaPagamento.condicoes.find((condicao) => condicao.id === embarque.condicaoPagamento);
+                    } else {
+                        embarque.formaPagamento = this.formasPagto[0];
+                        embarque.condicaoPagamento = {nome:'Selecione a opção'};
+                    } 
+                    this.condicoesPagto[embarque.id] = PedidoUtils.getCondicoesPagamentoEmbarqueCatalogo(embarque.formaPagamento.condicoes, embarque.dataEmbarque);
+                    done();
+                });
+            });
+        },
         carregaItensTela() {
 			return new Promise((resolve) => {
                 FormaPagtoDB._getAll().then((formaPagto) => {
                     this.formasPagto = formaPagto;
-                    EmbarqueDB.getEmbarquesPedido(this.pedidoCapa).then((pedido) => {
-                        const done = this.lodash.after(pedido.listEmbarques.length,() => {
-                            this.pedidoCapa = pedido;
-                            this.showScreen = true;
-                            resolve();
-                        });
-                        this.selecionarEndereco();
-                        this.pedidoCapa.formaPagamento = this.formasPagto[0];
-                        this.pedidoCapa.condicaoPagamento = this.formasPagto[0].condicoes;
-                        pedido.listEmbarques.forEach(embarque => {
-                            embarque.formaPagamento = this.formasPagto[0];
-                            this.condicoesPagto[embarque.id] = PedidoUtils.getCondicoesPagamentoEmbarqueCatalogo(this.formasPagto[0].condicoes, embarque.dataEmbarque);
-                            // embarque.condicaoPagamento = this.condicoesPagto[embarque.id][0];
-                            embarque.condicaoPagamento = {nome:'Selecione a opção'};
-                            done();
-                        });
+                    PedidoUtils.getEmbarquesPedido(this.pedidoCapa).then((pedido) => {
+                        if (this.pedidoCapa.replica) {
+                            this.setEndereco(this.pedidoCapa.endEntrega);
+                            this.setFormaPagtoEmbarques(pedido).then((pedidoCapa) => {
+                                this.pedidoCapa = pedidoCapa;
+                                this.showScreen = true;
+                                resolve();
+                            });
+                        } else {
+                            this.selecionarEndereco();
+                            pedido.formaPagamento = this.formasPagto[0];
+                            pedido.condicaoPagamento = this.formasPagto[0].condicoes;
+                            this.setFormaPagtoEmbarques(pedido).then((pedidoCapa) => {
+                                this.pedidoCapa = pedidoCapa;
+                                this.showScreen = true;
+                                resolve();
+                            });
+                        }            
                     });                    
                 })
             });
@@ -480,12 +501,12 @@ export default {
     async mounted() {
         this.pedidoCapa = this.$route.params.pedidoEmbarques;
 
-        console.log(this.pedidoCapa);
+        console.log({...this.pedidoCapa});
         
         if (this.pedidoCapa.cliente && this.pedidoCapa.cliente.cpfCnpj) {
             this.pedidoCapa.emailNfe = this.pedidoCapa.cliente.emailNfe;
             this.pedidoCapa.grupoCliente = this.pedidoCapa.cliente.grupoCliente;
-            this.pedidoCapa.endEntrega = this.getEnderecosEntrega.find((end) => end.endereco.endEntrega );
+            // this.pedidoCapa.endEntrega = this.getEnderecosEntrega.find((end) => end.endereco.endEntrega );
         } else {
             this.pedidoCapa.grupoCliente = Storage.getGrupoCarrinho();
         }

@@ -6,7 +6,6 @@
                 <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="carrinhoPedido()">Contiuar</vs-button>
                 <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarConsulta()" icon="icon-x">Voltar</vs-button>
                 <vs-button @click.stop="printInvoice" color="primary" type="filled" class="btn-carrinho" icon-pack="feather" icon="icon-printer"></vs-button>
-
             </div>
         </div>
         
@@ -126,16 +125,9 @@ export default {
     },
     methods: {
         carrinhoPedido() {
-            if (Storage.existeCarrinho()) {
-                this.$vs.dialog({
-                    color:'warning',
-                    title:'Atenção!',
-                    text:'Para continuar um orçamento você deve limpar o carrinho ou finalizar a compra!',
-                    acceptText: 'Ok',
-                });
-            } else {
+            Storage.validaCarrinho(this, () => {
                 this.gerarCarrinho();
-            }
+            });
         },
         replicar() {
             this.$vs.loading();

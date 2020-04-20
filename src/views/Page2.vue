@@ -26,7 +26,6 @@
 <script>
 
 import ClienteDB from '../rapidsoft/db/clienteDB'
-import _ from 'lodash'
 
 export default {
 

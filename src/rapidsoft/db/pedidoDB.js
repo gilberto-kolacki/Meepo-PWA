@@ -6,6 +6,10 @@
 ==========================================================================================*/
 import After from 'lodash/after';
 import BasicDB from './basicDB';
+import CarrinhoDB from './carrinhoDB';
+import ClienteDB from './clienteDB';
+import ProdutoDB from './produtoDB';
+import GrupoClienteDB from './grupoClienteDB';
 
 class pedidoDB extends BasicDB {
 
@@ -90,8 +94,7 @@ class pedidoDB extends BasicDB {
                         });
                     }
                 }).catch((error) => {
-                    this._criarLogDB({url:'db/pedidoDB',method:'atualizarPedido',message: error,error:'Failed Request'});
-                    reject(error);
+                    throw error;
                 });
             } catch (error) {
                 this._criarLogDB({url:'db/pedidoDB',method:'atualizarPedido',message: error,error:'Failed Request'});
@@ -114,8 +117,7 @@ class pedidoDB extends BasicDB {
                         });
                     }
                 }).catch((error) => {
-                    this._criarLogDB({url:'db/pedidoDB',method:'atualizarStatusPedido',message: error,error:'Failed Request'});
-                    reject(error);
+                    throw error;
                 });
             } catch (error) {
                 this._criarLogDB({url:'db/pedidoDB',method:'atualizarStatusPedido',message: error,error:'Failed Request'});
@@ -131,8 +133,7 @@ class pedidoDB extends BasicDB {
                 this._salvar(pedido).then((result) => {
                     resolve(result);
                 }).catch((error) => {
-                    this._criarLogDB({url:'db/pedidoDB',method:'salvar',message: error,error:'Failed Request'});
-                    reject(error);
+                    throw error;
                 });
             } catch (error) {
                 this._criarLogDB({url:'db/pedidoDB',method:'salvar',message: error,error:'Failed Request'});
@@ -172,11 +173,10 @@ class pedidoDB extends BasicDB {
                         resolve();
                     }).catch((error) => {
                         this._criarLogDB({url:'db/pedidoDB',method:'salvarPedidoNovo',message: error,error:'Failed Request'});
-                        reject(error);
+                        throw error;
                     });
                 }).catch((error) => {
-                    this._criarLogDB({url:'db/pedidoDB',method:'salvarPedidoNovo',message: error,error:'Failed Request'});
-                    reject(error);
+                    throw error;
                 });
             } catch (error) {
                 this._criarLogDB({url:'db/pedidoDB',method:'salvarPedidoNovo',message: error,error:'Failed Request'});
@@ -185,18 +185,17 @@ class pedidoDB extends BasicDB {
         });
     }
 
-    getPedido(pedidoId) {
+    getPedido(idPedido) {
         return new Promise((resolve, reject) => {
                 try {
-                this._getById(pedidoId, true).then((pedido) => {
+                this._getById(idPedido, true).then((pedido) => {
                     if (pedido.existe) resolve(pedido.value);
                     else reject(pedido.existe);
                 }).catch((error) => {
-                    this._criarLogDB({url:'db/pedidoDB',method:'getPedido',message: error,error:'Failed Request'});
-                    reject(error);
+                    throw {url:'db/pedidoDB',method:'getPedido',message: error,error:'Failed Request'};
                 });
             } catch (error) {
-                this._criarLogDB({url:'db/pedidoDB',method:'getPedido',message: error,error:'Failed Request'});
+                this._criarLogDB(error);
                 reject(error);
             }
         });
@@ -277,6 +276,162 @@ class pedidoDB extends BasicDB {
                 this._criarLogDB({url:'db/pedidoDB',method:'deletar',message: error,error:'Failed Request'});
                 reject(error);
             }
+        });
+    }
+
+    createPedidoCarrinhoFromPedido(pedido) {
+        return new Promise((resolve) => {
+            pedido = {
+                replica: true,
+                pedidoParcial: pedido.pedidoParcial,
+                antecipacaoPedido: pedido.antecipacaoPedido, 
+                copiaEmail: pedido.copiaEmail,
+                brinde: pedido.brinde,
+                formaPagamento: pedido.formaPagamento,
+                condicaoPagamento: pedido.condicaoPagamento,
+                endEntrega: pedido.endEntrega,
+                desconto1: pedido.desconto1,
+                desconto2: pedido.desconto2,
+                desconto3: pedido.desconto3,
+                emailNfe: pedido.emailNfe
+            };
+            resolve(pedido);
+        });
+    }
+
+    createItensCarrinhoFromPedido(pedido) {
+        return new Promise((resolve) => {
+            let produtoNaoEncontrado = false;
+            const itensCarrinho = [];
+            const done = After(pedido.itens.length, () => resolve({itens: itensCarrinho, mensagem: produtoNaoEncontrado}));
+            pedido.itens.forEach((item) => {
+                ProdutoDB.getById(item.referencia).then((produto) => {
+                    if (produto.existe) {
+                        produto = produto.value;
+                        const produtoCor = produto.cores.find((cor) => cor.codigo === item.cor);
+                        const produtoTamanho = produtoCor.tamanhos.find((tamanho) => tamanho.sku === item.sku);
+                        if (produtoCor.ativo && produtoTamanho.ativo) {
+                            const produtoTamanhoCarrinho = {
+                                id: produtoTamanho.id,
+                                sku: produtoTamanho.sku,
+                                seq: produtoTamanho.seq,
+                                codigo: produtoTamanho.codigo,
+                                referencia: produto.referencia,
+                                cor: produtoCor.idCor,
+                                precoCusto: produtoCor.precoCusto,
+                                idProduto: produtoCor.idProduto,
+                                idSegmento: produto.segmento,
+                                quantidade: item.quantidade,
+                                embarqueSelecionado: {id: pedido.embarque, seq: pedido.seqEmbarque}
+                            };
+                            itensCarrinho.push(produtoTamanhoCarrinho);
+                        } else {
+                            produtoNaoEncontrado = true;
+                        }
+                    } else {
+                        produtoNaoEncontrado = true;
+                    }
+                    done();
+                });
+            });
+        });
+    }
+
+    buscaClienteCarrinhoFromPedido(idCliente, carrinho) {
+        return new Promise((resolve) => {
+            ClienteDB._getById(idCliente).then((clientePedido) => {
+                if (clientePedido.existe) {
+                    clientePedido = clientePedido.value;
+                    GrupoClienteDB.getById(clientePedido.grupoCliente).then((grupoClienteCarrinho) => {
+                        clientePedido.grupoCliente = grupoClienteCarrinho;
+                        carrinho.cliente = clientePedido;
+                        resolve(carrinho);
+                    });
+                } else {
+                    resolve(carrinho);
+                }
+            });
+        });
+    }
+
+    createCarrinhoFromPedido(pedido, carrinho, montarPedido, montarCliente) {
+        return new Promise((resolve) => {
+            if (montarCliente) {
+                this.buscaClienteCarrinhoFromPedido(pedido.cliente.id, carrinho).then((carrinhoCliente) => {
+                    carrinho = carrinhoCliente;
+                    if (montarPedido) {
+                        this.createPedidoCarrinhoFromPedido(pedido).then((pedidoCarrinho) => {
+                            carrinho.pedido = pedidoCarrinho;
+                            this.createItensCarrinhoFromPedido(pedido).then((result) => {
+                                carrinho.itens = [...carrinho.itens.concat(result.itens)];
+                                resolve({carrinho: carrinho, alerta: result.mensagem});
+                            });
+                        });
+                    } else {
+                        this.createItensCarrinhoFromPedido(pedido).then((result) => {
+                            carrinho.itens = [...carrinho.itens.concat(result.itens)];
+                            resolve({carrinho: carrinho, alerta: result.mensagem});
+                        });
+                    }
+                });
+            } else {
+                this.createItensCarrinhoFromPedido(pedido).then((result) => {
+                    carrinho.itens = [...carrinho.itens.concat(result.itens)];
+                    resolve({carrinho: carrinho, alerta: result.mensagem});
+                });
+            }                
+        });
+    }
+
+    clientesIguais(pedidos) {
+        const idsCliente = Object.keys(pedidos.reduce((idsCliente, pedido) => {
+            idsCliente[pedido.cliente.id] = pedido.cliente;
+            return idsCliente;
+        }, {}));
+        return idsCliente.length === 1 ? true : false;
+    }
+
+    sequenciaEmbarques(pedidos) {
+        var embarquesMap = new Map();
+        return pedidos.reduce((pedidos, pedido) => {
+            let sequencia = 1;
+            if (embarquesMap.has(pedido.embarque)) {
+                sequencia = Number(embarquesMap.get(pedido.embarque)) +1;
+                pedido.seqEmbarque = sequencia;
+            } else {
+                pedido.seqEmbarque = sequencia;
+            }
+            embarquesMap.set(pedido.embarque, sequencia);
+            pedidos.push(pedido);
+            return pedidos;
+        }, []);
+    }
+
+    replicar(idsPedidos) {
+        return new Promise((resolve) => {
+            CarrinhoDB.getCarrinho().then((carrinho) => {
+                this._getFindCondition({id : {$in : idsPedidos}}).then((pedidosDB) => {
+                    pedidosDB = this.sequenciaEmbarques(pedidosDB);
+                    if (pedidosDB.length > 1) {
+                        let alertaItemNaoEncontrado = false;
+                        const clientesIguais = this.clientesIguais(pedidosDB);
+                        const done = After(pedidosDB.length, () => CarrinhoDB.setCarrinho(carrinho).then(() => resolve(alertaItemNaoEncontrado)));
+                        pedidosDB.forEach((pedidoDB) => {
+                            this.createCarrinhoFromPedido(pedidoDB, carrinho, false, clientesIguais).then((result) => {
+                                carrinho = result.carrinho;
+                                alertaItemNaoEncontrado = result.alerta ? result.alerta : alertaItemNaoEncontrado;
+                                done();
+                            });
+                        });
+                    } else {
+                        this.createCarrinhoFromPedido(pedidosDB[0], carrinho, true, true).then((result) => {
+                            CarrinhoDB.setCarrinho(result.carrinho).then(() => {
+                                resolve(result.alerta);
+                            });
+                        });
+                    }
+                });
+            });
         });
     }
 

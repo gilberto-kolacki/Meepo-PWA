@@ -43,7 +43,6 @@
 </template>
 
 <script>
-import _ from "lodash";
 import ClienteDB from "../../../rapidsoft/db/clienteDB";
 import PedidoDB from "../../../rapidsoft/db/pedidoDB";
 import OrcamentoDB from "../../../rapidsoft/db/orcamentoDB";
@@ -142,7 +141,7 @@ export default {
       if ((ix = fullVersion.indexOf(" ")) != -1)
         fullVersion = fullVersion.substring(0, ix);
 
-      this.majorVersion = _.round(parseFloat(fullVersion), 1);
+      this.majorVersion = this.lodash.round(parseFloat(fullVersion), 1);
       if (isNaN(this.majorVersion)) {
         fullVersion = "" + parseFloat(navigator.appVersion);
         this.majorVersion = parseInt(navigator.appVersion, 10);
@@ -188,8 +187,8 @@ export default {
           let pounchDB = 0;
           produtos.forEach(produto => {
             pounchDB += 0;
-            if (_.last(produtos)._id == produto._id) {
-              let armazenamento = _.round(pounchDB / 1024 / 1024, 2);
+            if (this.lodash.last(produtos)._id == produto._id) {
+              let armazenamento = this.lodash.round(pounchDB / 1024 / 1024, 2);
               resolve(armazenamento);
             }
           });
@@ -216,8 +215,8 @@ export default {
               }
             }
             pounchDB += 0;
-            if (_.last(clientes)._id == cliente._id) {
-              let armazenamento = _.round(pounchDB / 1024 / 1024, 2);
+            if (this.lodash.last(clientes)._id == cliente._id) {
+              let armazenamento = this.lodash.round(pounchDB / 1024 / 1024, 2);
               resolve(armazenamento);
             }
           });
@@ -249,8 +248,8 @@ export default {
       navigator.storage
         .estimate()
         .then(({ usage, quota }) => {
-          this.usage = _.round(_.divide(_.divide(usage, 1024), 1024), 1);
-          this.quota = _.round(_.divide(_.divide(quota, 1024), 1024));
+          this.usage = this.lodash.round(this.lodash.divide(this.lodash.divide(usage, 1024), 1024), 1);
+          this.quota = this.lodash.round(this.lodash.divide(this.lodash.divide(quota, 1024), 1024));
         })
         .catch(error => {
           console.error("Loading storage estimate failed:");
