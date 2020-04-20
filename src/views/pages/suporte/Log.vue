@@ -88,8 +88,8 @@
                 <vs-th sort-key="_id">Data</vs-th>
                 <vs-th sort-key="_id">Hora</vs-th>
                 <vs-th sort-key="compnente">Componente</vs-th>
-                <vs-th width="40" sort-key="caminho">Caminho</vs-th>
-                <vs-th width="40" sort-key="erro">Erro</vs-th>
+                <vs-th sort-key="caminho">Caminho</vs-th>
+                <vs-th sort-key="erro">Erro</vs-th>
               </template>
               <template slot-scope="{data}">
                 <vs-tr :key="indextr" v-for="(tr, indextr) in data">
@@ -101,14 +101,8 @@
                     <span style="color:red;">{{ getHourError(data[indextr]._id) }}</span>
                   </vs-td>
                   <vs-td :data="data[indextr].compnente">{{ data[indextr].compnente }}</vs-td>
-                  <vs-td :data="data[indextr].caminho">
-                    {{data[indextr].caminho}}
-                  </vs-td>
-                  <vs-td class="align-center" :data="data[indextr].caminho">
-                    <span
-                      style="display: block;width: 60px;overflow: hidden;text-overflow: ellipsis;"
-                    >{{ data[indextr].erro }}</span>
-                  </vs-td>
+                  <vs-td :data="data[indextr].caminho">{{data[indextr].caminho}}</vs-td>
+                  <vs-td :data="data[indextr].erro">{{data[indextr].erro}}</vs-td>
                 </vs-tr>
               </template>
             </vs-table>
