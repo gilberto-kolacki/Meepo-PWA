@@ -164,7 +164,7 @@ const validarObjetoDB = (cliente) => {
         else if (cliente.imagens && cliente.imagens.length > 5){
             reject({mensagem: "É necessário remover uma ou mais imagens(Máximo 5 imagens)"});
         }
-        else if (!(IsArray(cliente.contatos) && cliente.contatos.length >= 1)) {
+        else if (!cliente.clienteErp && !(IsArray(cliente.contatos) && cliente.contatos.length >= 1)) {
             reject ({mensagem: "É necessário adicionar ao menos um contato!"});
         } else {
             resolve(cliente);
@@ -236,14 +236,19 @@ class clienteDB extends BasicDB {
                     return contato;
                 });
 
-                this._salvar(cliente).then(() => {
-                    resolve();
+                validarObjetoDB(cliente).then(() => {
+                    this._salvar(cliente).then(() => {
+                        resolve();
+                    }).catch((error) => {
+                        this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: 'Erro ao integrar o cliente '+cliente.cpfCnpj,error:error});
+                        resolve();
+                    });
                 }).catch((error) => {
-                    this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: error,error:'Failed Request'});
-                    reject(error);
+                    this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: 'Erro ao integrar o cliente '+cliente.cpfCnpj,error:error});
+                    resolve();
                 });
             } catch (error) {
-                this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: error,error:'Failed Request'});
+                this._criarLogDB({url:'db/clienteDB',method:'salvarSinc',message: 'Erro ao integrar o cliente '+cliente.cpfCnpj,error:error});
                 reject(error);
             }
             

@@ -35,7 +35,7 @@
                                 <vs-td :data="data[indextr].caminho">
                                     {{diminuirCaminho(data[indextr].caminho)}}
                                 </vs-td>
-                                <vs-td class="align-center" :data="data[indextr].caminho">
+                                <vs-td class="align-center" :data="data[indextr].erro">
                                     <span
                                     style="display: block;width: 60px;overflow: hidden;text-overflow: ellipsis;"
                                     >{{ data[indextr].erro }}</span>
@@ -68,7 +68,7 @@
                             <vs-td :data="data[indextr].caminho">
                                 {{diminuirCaminho(data[indextr].caminho)}}
                             </vs-td>
-                            <vs-td class="align-center" :data="data[indextr].caminho">
+                            <vs-td class="align-center" :data="data[indextr].erro">
                                 <span
                                 style="display: block;width: 60px;overflow: hidden;text-overflow: ellipsis;"
                                 >{{ data[indextr].erro }}</span>
@@ -97,10 +97,8 @@
                                 <span style="color:red;">{{ data[indextr]._id | formatTime }}</span>
                             </vs-td>
                             <vs-td :data="data[indextr].compnente">{{ data[indextr].compnente }}</vs-td>
-                            <vs-td :data="data[indextr].caminho">
-                                {{diminuirCaminho(data[indextr].caminho)}}
-                            </vs-td>
-                            <vs-td class="align-center" :data="data[indextr].caminho">
+                            <vs-td :data="data[indextr].caminho">{{diminuirCaminho(data[indextr].caminho)}}</vs-td>
+                            <vs-td class="align-center" :data="data[indextr].erro">
                                 <span
                                 style="display: block;width: 60px;overflow: hidden;text-overflow: ellipsis;"
                                 >{{ data[indextr].erro }}</span>
