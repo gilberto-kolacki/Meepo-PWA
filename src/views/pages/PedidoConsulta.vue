@@ -27,11 +27,20 @@
                                 <b-dropdown-item>
                                     <span class="flex items-center">
                                         <feather-icon icon="ExternalLinkIcon" svgClasses="h-4 w-4" class="mr-2" />
+                                        <span @click="reabrirMessage()">Reabrir Seleção</span>
+                                    </span>
+                                </b-dropdown-item>
+                            </div>
+                            <div v-if="itensSel && itensSelSinc">
+                                <b-dropdown-divider/>
+                                <b-dropdown-item>
+                                    <span class="flex items-center">
+                                        <feather-icon icon="ExternalLinkIcon" svgClasses="h-4 w-4" class="mr-2" />
                                         <span @click="replicarMessage()">Replicar Seleção</span>
                                     </span>
                                 </b-dropdown-item>
                             </div>
-                            <b-dropdown-divider></b-dropdown-divider>
+                            <b-dropdown-divider/>
                             <b-dropdown-text>
                                 <feather-icon icon="FilterIcon" svgClasses="h-4 w-4" class="mr-2" />
                                 Filtrar Status
@@ -137,6 +146,9 @@ export default {
             return this.itensSelecionados.length > 0 ? true : false;
         },
         itensSelPendenteSinc() {
+            return this.itensSelecionados.find((item) => item.status >= 50) ? false : true;
+        },
+        itensSelSinc() {
             return this.itensSelecionados.find((item) => item.status < 50) ? false : true;
         },
         todosSelecionados() {
@@ -233,11 +245,15 @@ export default {
                 }, 400);
             });
         },
+
+        getIdsPedidosSelecioandos() {
+            return this.itensSelecionados.map((item) => item.id);
+        },
         replicarMessage() {
             Storage.validaCarrinho(this, () => {
                 this.$vs.dialog({
                     type:'confirm',
-                    color:'danger',
+                    color:'warning',
                     title:'Replicar o pedido ?',
                     text:'Deseja mesmo replicar este(s) pedido(s) ?',
                     accept:this.replicar,
@@ -248,18 +264,41 @@ export default {
         },
         replicar() {
             this.$vs.loading();
-            const idsPedidos = this.itensSelecionados.map((item) => item.id);
-            PedidoDB.replicar(idsPedidos).then((alerta) => {
+            PedidoDB.replicar(this.getIdsPedidosSelecioandos()).then((alerta) => {
                 this.notification('Sucesso!','Pedido replicado com sucesso!','success');
                 const doneReplicar = () => this.$router.push({ name: 'carrinho' });
                 setTimeout(() => {
-                    if (!alerta) {
-                        this.$vs.dialog({title:'Atenção!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReplicar, acceptText: 'Ok'});
-                    } else doneReplicar();
+                    if (alerta) this.$vs.dialog({title:'Atenção!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReplicar, acceptText: 'Ok'});
+                    else doneReplicar();
                     this.$vs.loading.close();
                 }, 400);
             });
         },
+        reabrirMessage() {
+            Storage.validaCarrinho(this, () => {
+                this.$vs.dialog({
+                    type:'confirm',
+                    color:'danger',
+                    title:'Replicar o pedido ?',
+                    text:'Os pedido(s) selecionados serão apagados e enviados ao seu carrinho, Deseja mesmo reabrir este(s) pedido(s) ?',
+                    accept:this.reabrir,
+                    acceptText: 'Sim',
+                    cancelText: 'Não',
+                });
+            });
+        },
+        reabrir() {
+            this.$vs.loading();
+            PedidoDB.reabrir(this.getIdsPedidosSelecioandos()).then((alerta) => {
+                this.notification('Sucesso!','Pedido reaberto com sucesso!','success');
+                const doneReabrir = () => this.$router.push({ name: 'carrinho' });
+                setTimeout(() => {
+                    if (alerta) this.$vs.dialog({title:'Atenção!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReabrir, acceptText: 'Ok'});
+                    else doneReabrir();
+                    this.$vs.loading.close();
+                }, 400);
+            });
+        }
     },
     beforeCreate() {
         
