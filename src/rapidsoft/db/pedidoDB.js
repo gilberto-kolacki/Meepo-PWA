@@ -435,6 +435,39 @@ class pedidoDB extends BasicDB {
         });
     }
 
+    reabrir(idsPedidos) {
+        return new Promise((resolve) => {
+            CarrinhoDB.getCarrinho().then((carrinho) => {
+                this._getFindCondition({id : {$in : idsPedidos}}).then((pedidosDB) => {
+                    pedidosDB = this.sequenciaEmbarques(pedidosDB);
+                    if (pedidosDB.length > 1) {
+                        let alertaItemNaoEncontrado = false;
+                        const clientesIguais = this.clientesIguais(pedidosDB);
+                        const done = After(pedidosDB.length, () => CarrinhoDB.setCarrinho(carrinho).then(() => resolve(alertaItemNaoEncontrado)));
+                        pedidosDB.forEach((pedidoDB) => {
+                            this.createCarrinhoFromPedido(pedidoDB, carrinho, false, clientesIguais).then((result) => {
+                                carrinho = result.carrinho;
+                                alertaItemNaoEncontrado = result.alerta ? result.alerta : alertaItemNaoEncontrado;
+                                this.deletar(pedidoDB.id).then(() => {
+                                    done();
+                                });
+                            });
+                        });
+                    } else {
+                        const pedidoDB = pedidosDB[0];
+                        this.createCarrinhoFromPedido(pedidoDB, carrinho, true, true).then((result) => {
+                            CarrinhoDB.setCarrinho(result.carrinho).then(() => {
+                                this.deletar(pedidoDB.id).then(() => {
+                                    resolve(result.alerta);
+                                });
+                            });
+                        });
+                    }
+                });
+            });
+        });
+    }
+
     getCouchDB() {
         return new Promise((resolve) => {
             this._sincFromNuvem().then(() => {
