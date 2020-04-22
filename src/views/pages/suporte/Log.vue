@@ -177,12 +177,12 @@ export default {
     },
     alertLimparLogs() {
         this.$vs.dialog({
-            type: "confirm",
-            color: "warning",
-            title: `Atenção`,
-            text: "Deseja remover os logs de sistema ?",
-            acceptText: "Sim",
-            cancelText: "Não",
+            type: 'confirm',
+            color: 'warning',
+            title: 'Deseja remover os logs?',
+            text: 'A exclusão dos logs pode dificultar a resolução de problemas do App.',
+            acceptText: 'Remover',
+            cancelText: 'Cancelar',
             accept: this.deletarLogs
         });
     },
@@ -203,23 +203,12 @@ export default {
     },
     alertLimparCarrinho() {
         this.$vs.dialog({
-            type: "confirm",
-            color: "warning",
-            title: `Atenção`,
-            text: "Deseja realmente apagar seu carrinho ?",
-            acceptText: "Sim",
-            cancelText: "Não",
-            accept: this.alertComfimLimparCarrinho
-        });
-    },
-    alertComfimLimparCarrinho() {
-        this.$vs.dialog({
-            type: "confirm",
-            color: "danger",
-            title: `Atenção`,
-            text: "Tem realmente certeza que deseja apagar seu carrinho ?",
-            acceptText: "Sim, Tenho certeza!",
-            cancelText: "Não, espera, calma aê!",
+            type: 'confirm',
+            color: 'warning',
+            title: 'Deseja limpar o carrinho?',
+            text: 'Serão excluídos todos os itens do carrinho.',
+            acceptText: 'Limpar',
+            cancelText: 'Cancelar',
             accept: this.deletarCarrinho
         });
     }

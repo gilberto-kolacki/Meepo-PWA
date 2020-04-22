@@ -435,7 +435,7 @@
                                             <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editarEndereco(data[indextr], indextr)" />
                                         </div>
                                         <div class="p-1">
-                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" v-if="!data[indextr].enderecoErp" @click="deletarMessage(data[indextr], indextr, 'endereco')"/>
+                                            <vs-button type="filled" size="small" icon-pack="feather" color="danger" icon="icon-x" v-if="!data[indextr].enderecoErp" @click="deletarMessage(data[indextr], indextr, 'endereço')"/>
                                         </div>
                                     </div>
                                 </vs-td>
@@ -588,11 +588,11 @@ export default {
         deletarMessage(data,index,itemExcluir) {
             this.$vs.dialog({
                 type:'confirm',
-                color:'danger',
-                title:'Deseja excluir?',
-                text:`Você está prestes a excluir um ${itemExcluir}. Deseja continuar?`,
+                color:'warning',
+                title:`Deseja excluir o ${itemExcluir}?`,
+                text:`O ${itemExcluir} será excluído.`,
                 accept:itemExcluir === 'contato' ? this.deletarContato : this.deletarEndereco,
-                acceptText: 'Continuar',
+                acceptText: 'Excluir',
                 cancelText: 'Cancelar',
                 parameters: index
             })

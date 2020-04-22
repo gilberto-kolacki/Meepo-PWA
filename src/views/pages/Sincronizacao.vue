@@ -95,18 +95,18 @@ export default {
             this.$vs.dialog({
                 type: 'confirm',
                 color: 'warning',
-                title: `Atenção`,
-                text: 'Isso levará algum tempo, Deseja realmente sincronizar todos os Dados do Sistema?',
-                acceptText: 'Sim',
-                cancelText: 'Não',
+                title: 'Deseja sincronizar todos?',
+                text: 'A sincronização de todos os dados pode demorar.',
+                acceptText: 'Sincronizar',
+                cancelText: 'Cancelar',
                 accept: this.sincronizarTodos,
             })
         },
         openErroSincronizarImgAlert(){
             this.$vs.dialog({
                 color:'warning',
-                title: `Atenção`,
-                text: 'Não foi permitido a sincronização de imagens. Sincronize primeiro os produtos !',
+                title: 'Não foi possível sincronizar as imagens!',
+                text: 'É necessário sincronizar os produtos, para depois sincronizar as imagens.',
                 acceptText: 'Entendi',
             })
         },

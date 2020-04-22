@@ -116,8 +116,8 @@ export default {
             this.$vs.dialog({
                 type: 'confirm',
                 color: 'warning',
-                title: 'Atenção!',
-                text: 'Se sair da aplicação será preciso estar on-line para entrar novamente!',
+                title: 'Deseja sair da aplicação?',
+                text: 'Ao sair da aplicação é necessário estar on-line para entrar novamente.',
                 acceptText: 'Sair',
                 cancelText: 'Cancelar',
                 accept: this.logout

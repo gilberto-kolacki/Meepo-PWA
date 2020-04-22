@@ -350,12 +350,12 @@ export default {
         },
         confirmacaoDeletarItem() {
             this.$vs.dialog({
-                type:'confirm',
-                color:'danger',
-                title:'Deseja Remover?',
-                text:'Você esta prestes a remover um item do carrinho. Deseja continuar?',
-                accept:this.deleteItems,
-                acceptText: 'Continuar',
+                type: 'confirm',
+                color: 'warning',
+                title: 'Deseja excluir os itens selecionados?',
+                text: 'Os itens selecionados serão excluídos do carrinho.',
+                accept: this.deleteItems,
+                acceptText: 'Excluir',
                 cancelText: 'Cancelar',
             });
         },

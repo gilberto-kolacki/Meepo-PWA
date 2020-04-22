@@ -97,10 +97,10 @@ class Storage {
     validaCarrinho(view, acao) {
         if (this.existeCarrinho()) {
             view.$vs.dialog({
-                color:'warning',
-                title:'Atenção!',
-                text:'Para continuar um orçamento você deve limpar o carrinho ou finalizar a compra!',
-                acceptText: 'Ok',
+                color: 'warning',
+                title: 'Não foi possível reabrir o orçamento!',
+                text: 'Há itens no carrinho, para reabrir um orçamento é necessário limpar o carrinho ou finalizar a compra!',
+                acceptText: 'Entendi',
             });
         } else {
             acao();

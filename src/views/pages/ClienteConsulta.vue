@@ -75,12 +75,12 @@ export default {
         },
         deletarMessage(data) {
             this.$vs.dialog({
-                type:'confirm',
-                color:'danger',
-                title:'Deseja excluir?',
-                text:'Você esta prestes a excluir um cliente. Deseja continuar?',
-                accept:this.deletar,
-                acceptText: 'Continuar',
+                type: 'confirm',
+                color: 'warning',
+                title: 'Deseja excluir o cliente?',
+                text: 'O cliente será excluído.',
+                accept: this.deletar,
+                acceptText: 'Excluir',
                 cancelText: 'Cancelar',
                 parameters: data
             })

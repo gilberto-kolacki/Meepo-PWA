@@ -76,12 +76,12 @@ export default {
         },
         deletarMessage(data) {
             this.$vs.dialog({
-                type:'confirm',
-                color:'danger',
-                title:'Deseja excluir?',
-                text:'Você esta prestes a excluir este Orçamento. Deseja continuar?',
-                accept:this.deletar,
-                acceptText: 'Continuar',
+                type: 'confirm',
+                color: 'warning',
+                title: 'Deseja excluir o orçamento?',
+                text: 'O orçamento será excluído.',
+                accept: this.deletar,
+                acceptText: 'Excluir',
                 cancelText: 'Cancelar',
                 parameters: data
             });
