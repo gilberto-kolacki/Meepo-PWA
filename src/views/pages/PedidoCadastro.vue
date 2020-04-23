@@ -263,7 +263,7 @@ export default {
                 type: 'confirm',
                 color: 'warning',
                 title: 'Deseja reabrir o pedido?',
-                text: 'Será gerado um carrinho com os itens dos pedidos selecionados.',
+                text: 'Será criado um carrinho com os itens dos pedidos selecionados.',
                 accept: this.mudarStatusPedido,
                 acceptText: 'Reabrir',
                 cancelText: 'Cancelar',

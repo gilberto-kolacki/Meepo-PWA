@@ -99,7 +99,7 @@ class Storage {
             view.$vs.dialog({
                 color: 'warning',
                 title: 'Não foi possível reabrir o orçamento!',
-                text: 'Há itens no carrinho, para reabrir um orçamento é necessário limpar o carrinho ou finalizar a compra!',
+                text: 'Há itens no carrinho, para reabrir um orçamento é necessário limpar o carrinho ou finalizar o pedido!',
                 acceptText: 'Entendi',
             });
         } else {

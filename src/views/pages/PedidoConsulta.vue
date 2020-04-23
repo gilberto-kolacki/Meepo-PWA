@@ -268,7 +268,7 @@ export default {
                 this.notification('Sucesso!','Pedido replicado com sucesso!','success');
                 const doneReplicar = () => this.$router.push({ name: 'carrinho' });
                 setTimeout(() => {
-                    if (alerta) this.$vs.dialog({title: 'Atenção!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReplicar, acceptText: 'Ok'});
+                    if (alerta) this.$vs.dialog({title: 'Produtos não disponíveis para venda!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReplicar, acceptText: 'Ok'});
                     else doneReplicar();
                     this.$vs.loading.close();
                 }, 400);
@@ -293,7 +293,7 @@ export default {
                 this.notification('Sucesso!','Pedido reaberto com sucesso!','success');
                 const doneReabrir = () => this.$router.push({ name: 'carrinho' });
                 setTimeout(() => {
-                    if (alerta) this.$vs.dialog({title: 'Atenção!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReabrir, acceptText: 'Ok'});
+                    if (alerta) this.$vs.dialog({title: 'Produtos não disponíveis para venda!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReabrir, acceptText: 'Ok'});
                     else doneReabrir();
                     this.$vs.loading.close();
                 }, 400);

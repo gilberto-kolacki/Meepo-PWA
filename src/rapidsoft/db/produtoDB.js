@@ -578,7 +578,7 @@ class produtoDB extends BasicDB {
                     embarquesNew.push(embarque);
                     return embarquesNew;
                 }, []);
-                resolve({embarques, menssagem: `Foram removidos os produtos ${arrayRemove.length}, pois não estão mais disponiveis para venda!`});
+                resolve({embarques, menssagem: `Foram removidos os produtos ${arrayRemove.length}, pois não estão disponíveis para venda!`});
             });
             embarques.forEach(embarque => {
                 const done2 = After(embarque.itens.length, () => done());

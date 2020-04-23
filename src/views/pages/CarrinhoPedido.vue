@@ -379,9 +379,9 @@ export default {
                     this.$vs.dialog({
                         type: 'confirm',
                         color: 'warning',
-                        title: 'Deseja continuar com a geração de pedido?',
-                        text: 'Será criado um pedido para cada embarque, e seu carrinho será apagado.',
-                        acceptText: 'Continuar',
+                        title: 'Deseja finalizar os pedidos?',
+                        text: 'Os pedidos serão gerados e estarão disponíveis para sincronização.',
+                        acceptText: 'Finalizar',
                         cancelText: 'Cancelar',
                         accept: this.gerarPedidos,
                         parameters: pedidos
@@ -403,7 +403,7 @@ export default {
                 this.$vs.dialog({
                     type: 'confirm',
                     color: 'warning',
-                    title: 'Deseja salvar como orçamento?',
+                    title: 'Deseja salvar em orçamento?',
                     text: 'Será criado um novo orçamento com os itens do carrinho, e seu carrinho será apagado.',
                     acceptText: 'Salvar',
                     cancelText: 'Cancelar',
