@@ -585,7 +585,7 @@ class produtoDB extends BasicDB {
                 embarque.itens.forEach(item => {
                     this.getById(item.referencia).then((produto) => {
                         if (produto.existe) {
-                            const cor = produto.result.cores.find((cor) => cor.idCor === item.idCor);
+                            const cor = produto.value.cores.find((cor) => cor.idCor === item.idCor);
                             if (cor.ativo) done2();
                             else {
                                 arrayRemove.push(item.idProduto);
