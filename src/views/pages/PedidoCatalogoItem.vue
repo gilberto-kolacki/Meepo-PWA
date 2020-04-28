@@ -291,11 +291,9 @@ export default {
         hideCard() {
             setTimeout(() => {
                 this.isShowingImagemPrincipal = false;
-                ErrorDB._criarLogDB({url: 'pages/PedidoCatalogoItem', method:'hideCard', message: this.isShowingImagemPrincipal + ' ' +new Date().getTime(), error:'Failed Request'});
             }, 100);
             setTimeout(() => {
                 this.isShowingImagemPrincipal = true;
-                ErrorDB._criarLogDB({url: 'pages/PedidoCatalogoItem', method:'hideCard', message: this.isShowingImagemPrincipal + ' ' +new Date().getTime(), error:'Failed Request'});
             }, 110);
             this.$forceUpdate();
         },

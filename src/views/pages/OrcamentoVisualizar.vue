@@ -3,17 +3,14 @@
         
         <div class="flex flex-wrap items-center justify-between">
             <div class="flex items-center">
-                <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="carrinhoPedido()">Contiuar</vs-button>
+                <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="carrinhoPedido()">Reabrir</vs-button>
                 <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarConsulta()" icon="icon-x">Voltar</vs-button>
                 <vs-button @click.stop="printInvoice" color="primary" type="filled" class="btn-carrinho" icon-pack="feather" icon="icon-printer"></vs-button>
             </div>
         </div>
         
         <vx-card id="invoice-container" v-if="this.showScreen">
-            <vs-button class='w-full' color="primary" type="filled" icon-pack="feather" icon="icon-external-link" @click="replicar()"> 
-                Replicar
-            </vs-button>
-
+            <vs-button class='w-full' color="primary" type="filled" icon-pack="feather" icon="icon-external-link" @click="mensagemDuplicar()">Duplicar</vs-button>
             <div class="vx-row leading-loose p-base">
                 <div class="vx-col w-full md:w-1/2">
                     <h1>Orçamento</h1>
@@ -129,7 +126,18 @@ export default {
                 this.gerarCarrinho();
             });
         },
-        replicar() {
+        mensagemDuplicar() {
+            this.$vs.dialog({
+                type: 'confirm',
+                color: 'warning',
+                title: 'Deseja duplicar o orçamento?',
+                text: 'Será criado um novo orçamento com os mesmos dados deste.',
+                accept: this.duplicar,
+                acceptText: 'Duplicar',
+                cancelText: 'Cancelar'
+            });
+        },
+        duplicar() {
             this.$vs.loading();
             const orcamento = {...this.orcamento, dataOrcamento: new Date().getTime()};
             delete orcamento.id;
@@ -146,17 +154,23 @@ export default {
         gerarCarrinho() {
             CarrinhoUtils.setOrcamentoToCarrinho(this.lodash.cloneDeep(this.orcamento)).then((result) => {
                 if (result.deleta) {
-                    if (result.menssagem) this.$vs.dialog({color:'warning', title:'Atenção!', text: result.menssagem, acceptText: 'Ok'});
+                    if (result.menssagem) {
+                        this.$vs.dialog({
+                            color: 'warning',
+                            title: 'Produtos não disponíveis para venda.',
+                            text: result.menssagem,
+                            acceptText: 'Entendi'});
+                    }
+
                     OrcamentoDB.deletar(this.orcamento).then(() => {
                         this.$router.push({ name: 'carrinho' });
                     });
                 } else {
-                    const menssagem = `Orçamento não pode ser aditado, por que nenhum produto está disponível no momento!`;
                     this.$vs.dialog({
-                        color:'warning',
-                        title:'Atenção!',
-                        text: menssagem,
-                        acceptText: 'Ok',
+                        color: 'warning',
+                        title: 'Não é possível reabrir o orçamento!',
+                        text: 'Este orçamento não pode ser reaberto, nenhum dos produtos está disponível para venda.',
+                        acceptText: 'Entendi',
                     });
                 }
             });

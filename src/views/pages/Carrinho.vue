@@ -103,12 +103,11 @@ export default {
 					this.proximaTela(this.segmentos[0].id);
 				}
 			} else {
-				const menssagem = `Selecione um cliente para continuar!`;
 				this.$vs.dialog({
-					color:'warning',
-					title:'Atenção!',
-					text: menssagem,
-					acceptText: 'Ok',
+					color: 'warning',
+					title: 'Selecione um cliente para continuar!',
+					text: 'É necessário selecionar um cliente para continuar.',
+					acceptText: 'Entendi',
 				});
 			}
 		},

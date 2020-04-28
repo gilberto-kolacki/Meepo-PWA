@@ -95,18 +95,18 @@ export default {
             this.$vs.dialog({
                 type: 'confirm',
                 color: 'warning',
-                title: `Atenção`,
-                text: 'Isso levará algum tempo, Deseja realmente sincronizar todos os Dados do Sistema?',
-                acceptText: 'Sim',
-                cancelText: 'Não',
+                title: 'Deseja sincronizar todos?',
+                text: 'A sincronização de todos os dados pode demorar.',
+                acceptText: 'Sincronizar',
+                cancelText: 'Cancelar',
                 accept: this.sincronizarTodos,
             })
         },
         openErroSincronizarImgAlert(){
             this.$vs.dialog({
                 color:'warning',
-                title: `Atenção`,
-                text: 'Não foi permitido a sincronização de imagens. Sincronize primeiro os produtos !',
+                title: 'Não foi possível sincronizar as imagens!',
+                text: 'É necessário sincronizar os produtos, para depois sincronizar as imagens.',
                 acceptText: 'Entendi',
             })
         },
@@ -362,9 +362,8 @@ export default {
         //verifica se alguma tabela está a mais de 3 dias sem sincronizar, caso esteja, não deixa sair da tela de sincronização
         verificaSincronizacaoTotal() {
             return new Promise((resolve) => {
-                // const dataLimite = new Date().setDate(new Date().getDate() - 3);
                 const sincsTotal = this.tabelasSincronizacao.reduce((sincsTotal, tabela) => {
-                    if ((tabela.type != "pedido" && tabela.type != "orcamento" && tabela.type != "imagem") && tabela.total === 0) sincsTotal.push(false);
+                    if (tabela.dataSincronizacao == null) sincsTotal.push(false);
                     else sincsTotal.push(true);
                     return sincsTotal;
                 }, []);

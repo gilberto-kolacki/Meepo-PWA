@@ -671,14 +671,14 @@ class produtoDB extends BasicDB {
                     embarquesNew.push(embarque);
                     return embarquesNew;
                 }, []);
-                resolve({embarques, menssagem: `Foram removidos ${arrayRemove.length} produtos, pois não estão mais disponiveis para venda!`});
+                resolve({embarques, menssagem: `Foram removidos os produtos ${arrayRemove.length}, pois não estão disponíveis para venda!`});
             });
             embarques.forEach(embarque => {
                 const done2 = After(embarque.itens.length, () => done());
                 embarque.itens.forEach(item => {
                     this.getById(item.referencia).then((produto) => {
                         if (produto.existe) {
-                            const cor = produto.result.cores.find((cor) => cor.idCor === item.idCor);
+                            const cor = produto.value.cores.find((cor) => cor.idCor === item.idCor);
                             if (cor.ativo) done2();
                             else {
                                 arrayRemove.push(item.idProduto);

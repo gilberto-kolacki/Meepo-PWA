@@ -138,10 +138,10 @@ export default {
                 this.$vs.dialog({
                     type: 'confirm',
                     color: 'warning',
-                    title: 'Atenção!',
-                    text: 'Já Fazem 5 dias ou mais desde a sua última sincronização completa, Deseja sincronizar ?',
-                    acceptText: 'Sim',
-                    cancelText: 'Não',
+                    title: 'Deseja sincronizar?',
+                    text: 'Já fazem 5 dias ou mais desde a sua última sincronização completa.',
+                    acceptText: 'Sincronizar',
+                    cancelText: 'Cancelar',
                     accept: () => this.$router.push({ name: 'sincronizacao'})
                 });
             }

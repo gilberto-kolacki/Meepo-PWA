@@ -377,11 +377,11 @@ export default {
             PedidoUtils.gerarPedidosPorEmbarques(this.pedidoCapa).then((pedidos) => {
                 PedidoUtils.validarPedido(pedidos).then(() => {
                     this.$vs.dialog({
-                        type:'confirm',
-                        color:'warning',
-                        title:'Atenção!',
-                        text:'Serão gerados pedidos diferentes para cada Embarque, e seu carrinho será apagado!. Deseja continuar?',
-                        acceptText: 'Sim',
+                        type: 'confirm',
+                        color: 'warning',
+                        title: 'Deseja finalizar os pedidos?',
+                        text: 'Os pedidos serão gerados e estarão disponíveis para sincronização.',
+                        acceptText: 'Finalizar',
                         cancelText: 'Cancelar',
                         accept: this.gerarPedidos,
                         parameters: pedidos
@@ -401,11 +401,11 @@ export default {
         validarDadosOrcamento() {
             PedidoUtils.gerarOrcamento(this.pedidoCapa).then((orcamento) => {
                 this.$vs.dialog({
-                    type:'confirm',
-                    color:'success',
-                    title:'Atenção!',
-                    text:'Será gerado um orçamento, e seu carrinho será apagado!. Deseja continuar?',
-                    acceptText: 'Sim',
+                    type: 'confirm',
+                    color: 'warning',
+                    title: 'Deseja salvar em orçamento?',
+                    text: 'Será criado um novo orçamento com os itens do carrinho, e seu carrinho será apagado.',
+                    acceptText: 'Salvar',
                     cancelText: 'Cancelar',
                     accept: this.gerarOrcamento,
                     parameters: orcamento

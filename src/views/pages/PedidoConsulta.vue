@@ -227,12 +227,12 @@ export default {
         },
         deletarMessage(pedido) {
             this.$vs.dialog({
-                type:'confirm',
-                color:'danger',
-                title:'Deseja excluir?',
-                text:'Você esta prestes a excluir um pedido. Deseja continuar?',
-                accept:this.deletar,
-                acceptText: 'Continuar',
+                type: 'confirm',
+                color: 'warning',
+                title: 'Deseja excluir os pedidos selecionados?',
+                text: 'Os pedidos selecionados serão excluídos.',
+                accept: this.deletar,
+                acceptText: 'Excluir',
                 cancelText: 'Cancelar',
                 parameters: pedido
             });
@@ -252,13 +252,13 @@ export default {
         replicarMessage() {
             Storage.validaCarrinho(this, () => {
                 this.$vs.dialog({
-                    type:'confirm',
-                    color:'warning',
-                    title:'Replicar o pedido ?',
-                    text:'Deseja mesmo replicar este(s) pedido(s) ?',
-                    accept:this.replicar,
-                    acceptText: 'Sim',
-                    cancelText: 'Não',
+                    type: 'confirm',
+                    color: 'warning',
+                    title: 'Deseja replicar os pedidos selecionados?',
+                    text: 'Será criado um carrinho com os itens dos pedidos selecionados.',
+                    accept: this.replicar,
+                    acceptText: 'Replicar',
+                    cancelText: 'Cancelar',
                 });
             });
         },
@@ -268,7 +268,7 @@ export default {
                 this.notification('Sucesso!','Pedido replicado com sucesso!','success');
                 const doneReplicar = () => this.$router.push({ name: 'carrinho' });
                 setTimeout(() => {
-                    if (alerta) this.$vs.dialog({title:'Atenção!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReplicar, acceptText: 'Ok'});
+                    if (alerta) this.$vs.dialog({title: 'Produtos não disponíveis para venda!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReplicar, acceptText: 'Ok'});
                     else doneReplicar();
                     this.$vs.loading.close();
                 }, 400);
@@ -277,13 +277,13 @@ export default {
         reabrirMessage() {
             Storage.validaCarrinho(this, () => {
                 this.$vs.dialog({
-                    type:'confirm',
-                    color:'danger',
-                    title:'Replicar o pedido ?',
-                    text:'Os pedido(s) selecionados serão apagados e enviados ao seu carrinho, Deseja mesmo reabrir este(s) pedido(s) ?',
-                    accept:this.reabrir,
-                    acceptText: 'Sim',
-                    cancelText: 'Não',
+                    type: 'confirm',
+                    color: 'warning',
+                    title: 'Deseja reabrir os pedidos selecionados?',
+                    text: 'Será criado um carrinho com os itens dos pedidos selecionados e os pedidos serão excluídos.',
+                    accept: this.reabrir,
+                    acceptText: 'Reabrir',
+                    cancelText: 'Cancelar',
                 });
             });
         },
@@ -293,7 +293,7 @@ export default {
                 this.notification('Sucesso!','Pedido reaberto com sucesso!','success');
                 const doneReabrir = () => this.$router.push({ name: 'carrinho' });
                 setTimeout(() => {
-                    if (alerta) this.$vs.dialog({title:'Atenção!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReabrir, acceptText: 'Ok'});
+                    if (alerta) this.$vs.dialog({title: 'Produtos não disponíveis para venda!', text:'Alguns itens não puderam ser adicionados ao Carrinho!', accept: doneReabrir, acceptText: 'Ok'});
                     else doneReabrir();
                     this.$vs.loading.close();
                 }, 400);

@@ -260,24 +260,24 @@ export default {
         },
         mensagemMudarParaDigitacao(pedido) {
             this.$vs.dialog({
-                type:'confirm',
-                color:'danger',
-                title:'Deseja reabrir?',
-                text:'Você esta prestes a reabrir o pedido. Deseja continuar?',
-                accept:this.mudarStatusPedido,
-                acceptText: 'Continuar',
+                type: 'confirm',
+                color: 'warning',
+                title: 'Deseja reabrir o pedido?',
+                text: 'Será criado um carrinho com os itens dos pedidos selecionados.',
+                accept: this.mudarStatusPedido,
+                acceptText: 'Reabrir',
                 cancelText: 'Cancelar',
                 parameters: pedido
             })
         },
         mensagemMudarParaEnviar(pedido) {
             this.$vs.dialog({
-                type:'confirm',
-                color:'danger',
-                title:'Deseja finalizar?',
-                text:'Você esta prestes a finalizar o pedido. Deseja continuar?',
-                accept:this.mudarStatusPedido,
-                acceptText: 'Continuar',
+                type: 'confirm',
+                color: 'warning',
+                title: 'Deseja finalizar a geração de pedido?',
+                text: 'Após finalizar a geração de pedido, os pedidos gerados estarão disponíveis para sincronização.',
+                accept: this.mudarStatusPedido,
+                acceptText: 'Finalizar',
                 cancelText: 'Cancelar',
                 parameters: pedido
             });
@@ -330,12 +330,12 @@ export default {
         },
         deletarMessage(data) {
             this.$vs.dialog({
-                type:'confirm',
-                color:'danger',
-                title:'Deseja excluir?',
-                text:'Você está prestes a excluir um item do pedido. Deseja continuar?',
-                accept:this.deletarItemPedido,
-                acceptText: 'Continuar',
+                type: 'confirm',
+                color: 'warning',
+                title: 'Deseja excluir o item?',
+                text: 'O item será excluído do pedido.',
+                accept: this.deletarItemPedido,
+                acceptText: 'Excluir',
                 cancelText: 'Cancelar',
                 parameters: data
             })
