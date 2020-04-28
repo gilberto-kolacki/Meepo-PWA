@@ -206,6 +206,8 @@ export default {
                         SincUtils.removeImagensSemProduto().then(() => {
                             SincUtils.closeLoading(this, sinc, all);
                         });
+                    }).catch((error) => {
+                        console.log("erro download imagens", error);
                     });
                 } else {
                     SincUtils.removeImagensSemProduto().then(() => {
@@ -362,7 +364,7 @@ export default {
             return new Promise((resolve) => {
                 // const dataLimite = new Date().setDate(new Date().getDate() - 3);
                 const sincsTotal = this.tabelasSincronizacao.reduce((sincsTotal, tabela) => {
-                    if ((tabela.type != "pedido" && tabela.type != "orcamento") && tabela.total === 0) sincsTotal.push(false);
+                    if ((tabela.type != "pedido" && tabela.type != "orcamento" && tabela.type != "imagem") && tabela.total === 0) sincsTotal.push(false);
                     else sincsTotal.push(true);
                     return sincsTotal;
                 }, []);

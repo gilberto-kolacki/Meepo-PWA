@@ -36,6 +36,16 @@
               ref="loadableButton"
             >Limpar bases</vs-button>
           </b-list-group-item>
+          <b-list-group-item>
+            <vs-button
+              color="black"
+              class="vs-con-loading__container w-full"
+              id="button-with-loading-limpar"
+              v-on:click.stop="storageAbuser()"
+              type="relief"
+              ref="loadableButton"
+            >Abuser</vs-button>
+          </b-list-group-item>
         </b-list-group>
       </vx-card>
     </div>
@@ -48,238 +58,256 @@ import PedidoDB from "../../../rapidsoft/db/pedidoDB";
 import OrcamentoDB from "../../../rapidsoft/db/orcamentoDB";
 import ProdutoDB from "../../../rapidsoft/db/produtoDB";
 import ErrorDB from "../../../rapidsoft/db/errorDB";
+import ImagemFotoDB from "../../../rapidsoft/db/imagemFotoDB";
 
 export default {
-  data() {
-    return {
-      backgroundLoading: "primary",
-      colorLoading: "#fff",
-      clientes: [],
-      quota: 0,
-      usage: 0,
-      browserName: null,
-      majorVersion: null,
-      sistemaOperacional: null,
-      armazenamentoIndexedDB: null
-    };
-  },
-  computed: {
-    isIOS() {
-      return this.$store.state.isIOS;
+    data() {
+        return {
+            backgroundLoading: "primary",
+            colorLoading: "#fff",
+            clientes: [],
+            quota: 0,
+            usage: 0,
+            browserName: null,
+            majorVersion: null,
+            sistemaOperacional: null,
+            armazenamentoIndexedDB: null
+        };
     },
-    token() {
-      return JSON.parse(localStorage.getItem("token"));
-    },
-    dataVencimento() {
-      let data = new Date(parseInt(localStorage.getItem("tokenExpiry")));
-      let dia = data.getDate();
-      let mes = data.getMonth() + 1;
-      let ano = data.getFullYear();
-      return (
-        (dia <= 9 ? "0" + dia : dia) +
-        "/" +
-        (mes <= 9 ? "0" + mes : mes) +
-        "/" +
-        ano
-      );
-    }
-  },
-  methods: {
-    atualizar() {
-      this.$vs.loading({
-        background: this.backgroundLoading,
-        color: this.colorLoading,
-        container: "#button-with-loading",
-        scale: 0.45
-      });
-      setTimeout(() => {
-        this.$vs.loading.close("#button-with-loading > .con-vs-loading");
-      }, 3000);
-
-      window.location.reload(true);
-    },
-    limparBases() {
-        this.$vs.loading({
-            background: this.backgroundLoading,
-            color: 'warning',
-            container: "#button-with-loading-limpar",
-            scale: 0.45
-        });
-        OrcamentoDB._limparBase().then(() => {
-            PedidoDB._limparBase().then(() => {
-                this.$vs.loading.close("#button-with-loading-limpar > .con-vs-loading");
-                window.location.reload(true);
-            });
-        });
-    },
-    getNavegador() {
-      const nAgt = navigator.userAgent;
-      let fullVersion = "" + parseFloat(navigator.appVersion);
-      let nameOffset, verOffset, ix;
-
-      if ((verOffset = nAgt.indexOf("Chrome")) != -1) {
-        this.browserName = "Chrome";
-        fullVersion = nAgt.substring(verOffset + 7);
-      } else if ((verOffset = nAgt.indexOf("Safari")) != -1) {
-        this.browserName = "Safari";
-        fullVersion = nAgt.substring(verOffset + 7);
-        if ((verOffset = nAgt.indexOf("Version")) != -1)
-          fullVersion = nAgt.substring(verOffset + 8);
-      } else if (
-        (nameOffset = nAgt.lastIndexOf(" ") + 1) <
-        (verOffset = nAgt.lastIndexOf("/"))
-      ) {
-        this.browserName = nAgt.substring(nameOffset, verOffset);
-        fullVersion = nAgt.substring(verOffset + 1);
-        if (this.browserName.toLowerCase() == this.browserName.toUpperCase()) {
-          this.browserName = navigator.appName;
+    computed: {
+        isIOS() {
+            return this.$store.state.isIOS;
+        },
+        token() {
+            return JSON.parse(localStorage.getItem("token"));
+        },
+        dataVencimento() {
+            let data = new Date(parseInt(localStorage.getItem("tokenExpiry")));
+            let dia = data.getDate();
+            let mes = data.getMonth() + 1;
+            let ano = data.getFullYear();
+            return (
+                (dia <= 9 ? "0" + dia : dia) +
+                "/" +
+                (mes <= 9 ? "0" + mes : mes) +
+                "/" +
+                ano
+            );
         }
-      }
-      // trim the fullVersion string at semicolon/space if present
-      if ((ix = fullVersion.indexOf(";")) != -1)
-        fullVersion = fullVersion.substring(0, ix);
-      if ((ix = fullVersion.indexOf(" ")) != -1)
-        fullVersion = fullVersion.substring(0, ix);
-
-      this.majorVersion = this.lodash.round(parseFloat(fullVersion), 1);
-      if (isNaN(this.majorVersion)) {
-        fullVersion = "" + parseFloat(navigator.appVersion);
-        this.majorVersion = parseInt(navigator.appVersion, 10);
-      }
     },
-    getSistema() {
-      if (navigator.userAgent.indexOf("Windows") != -1) {
-        if (navigator.userAgent.indexOf("NT 10.0") != -1)
-          this.sistemaOperacional = "Windows 10";
-        else if (navigator.userAgent.indexOf("NT 6.2") != -1)
-          this.sistemaOperacional = "Windows 8";
-        else if (navigator.userAgent.indexOf("NT 6.1") != -1)
-          this.sistemaOperacional = "Windows 7";
-        else this.sistemaOperacional = "Windows Old Version";
-      } else if (
-        navigator.userAgent.indexOf("iPhone") != -1 ||
-        navigator.userAgent.indexOf("iPad") != -1
-      ) {
-        if (navigator.userAgent.indexOf("OS 12_4") != -1)
-          this.sistemaOperacional = "IOS 12.4";
-        else if (navigator.userAgent.indexOf("OS 12_3") != -1)
-          this.sistemaOperacional = "IOS 12.3";
-        else if (navigator.userAgent.indexOf("OS 12") != -1)
-          this.sistemaOperacional = "IOS 12";
-        else this.sistemaOperacional = "IOS";
-      } else if (navigator.userAgent.indexOf("Mac") != -1)
-        this.sistemaOperacional = "Mac";
-      else if (navigator.userAgent.indexOf("X11") != -1)
-        this.sistemaOperacional = "UNIX";
-      else if (navigator.userAgent.indexOf("Linux") != -1)
-        this.sistemaOperacional = "Linux";
-      else this.sistemaOperacional = "Não Identificado";
-    },
-    armazenamentoImagem() {
-      return new Promise(resolve => {
-        resolve();
-      });
-    },
-    armazenamentoProduto() {
-      return new Promise(resolve => {
-        ProdutoDB.getAllProdutos().then(produtos => {
-          if (produtos.length <= 0) resolve(0);
-          let pounchDB = 0;
-          produtos.forEach(produto => {
-            pounchDB += 0;
-            if (this.lodash.last(produtos)._id == produto._id) {
-              let armazenamento = this.lodash.round(pounchDB / 1024 / 1024, 2);
-              resolve(armazenamento);
-            }
-          });
-        });
-      });
-    },
-    armazenamentoCliente() {
-      return new Promise(resolve => {
-        ClienteDB.listar().then(clientes => {
-          if (clientes.length <= 0) resolve(0);
-          let pounchDB = 0;
-          clientes.forEach(cliente => {
-            if (
-              cliente.imagensClienteBlob &&
-              cliente.imagensClienteBlob.length > 0
-            ) {
-              for (
-                let index = 0;
-                index < cliente.imagensClienteBlob.length;
-                index++
-              ) {
-                const imagem = cliente.imagensClienteBlob[index];
-                pounchDB += imagem.file.size;
-              }
-            }
-            pounchDB += 0;
-            if (this.lodash.last(clientes)._id == cliente._id) {
-              let armazenamento = this.lodash.round(pounchDB / 1024 / 1024, 2);
-              resolve(armazenamento);
-            }
-          });
-        });
-      });
-    },
-    getCalcularArmazenamento() {
-      return new Promise(resolve => {
-        let armazenamento = 0;
-        this.armazenamentoCliente().then(lengthCliente => {
-          armazenamento += lengthCliente;
-          this.armazenamentoProduto().then(lengthProduto => {
-            armazenamento += lengthProduto;
-            this.armazenamentoImagem().then(lengthImagem => {
-              armazenamento += lengthImagem;
-              resolve(armazenamento);
+    methods: {
+        atualizar() {
+            this.$vs.loading({
+                background: this.backgroundLoading,
+                color: this.colorLoading,
+                container: "#button-with-loading",
+                scale: 0.45
             });
-          });
-        });
-      });
-    }
-  },
-  created() {
-    this.getNavegador();
-    this.getSistema();
-  },
-  mounted() {
-    if ("storage" in navigator && "estimate" in navigator.storage) {
-      navigator.storage
-        .estimate()
-        .then(({ usage, quota }) => {
-          this.usage = this.lodash.round(this.lodash.divide(this.lodash.divide(usage, 1024), 1024), 1);
-          this.quota = this.lodash.round(this.lodash.divide(this.lodash.divide(quota, 1024), 1024));
-        })
-        .catch(error => {
-          console.error("Loading storage estimate failed:");
-          console.log(error.stack);
-        });
-    } else {
-      console.error("navigator.storage.estimate API unavailable.");
-    }
-  },
-  beforeCreate() {
-    if (!window.indexedDB) {
-      window.alert(
-        "Seu navegador não suporta uma versão estável do IndexedDB. Alguns recursos não estarão disponíveis."
-      );
-    } else {
-        let banco = indexedDB.open(ClienteDB._localDB.name, 2)
-        console.log(banco);
-        
-    }
-  },
-  beforeMount() {
+            setTimeout(() => {
+                this.$vs.loading.close("#button-with-loading > .con-vs-loading");
+            }, 3000);
+
+            window.location.reload(true);
+        },
+        limparBases() {
+            this.$vs.loading({
+                background: this.backgroundLoading,
+                color: 'warning',
+                container: "#button-with-loading-limpar",
+                scale: 0.45
+            });
+            OrcamentoDB._limparBase().then(() => {
+                PedidoDB._limparBase().then(() => {
+                    this.$vs.loading.close("#button-with-loading-limpar > .con-vs-loading");
+                    window.location.reload(true);
+                });
+            });
+        },
+        storageAbuser() {
+            return new Promise(resolve => {
+                this.$vs.loading();
+
+                ImagemFotoDB._getAll().then((fotos) => {
+                    fotos = fotos.map((foto) => ({id: foto.id+100000, base64: foto.base64}));
+                    ImagemFotoDB.salvarFotos(fotos).then((result) => {
+                        console.log(result);
+                        
+                        setTimeout(() => {
+                            this.$vs.loading.close();
+                            resolve();
+                        }, 300);
+                    });
+                });
+            });
+        },
+        getNavegador() {
+            const nAgt = navigator.userAgent;
+            let fullVersion = "" + parseFloat(navigator.appVersion);
+            let nameOffset, verOffset, ix;
+
+            if ((verOffset = nAgt.indexOf("Chrome")) != -1) {
+                this.browserName = "Chrome";
+                fullVersion = nAgt.substring(verOffset + 7);
+            } else if ((verOffset = nAgt.indexOf("Safari")) != -1) {
+                this.browserName = "Safari";
+                fullVersion = nAgt.substring(verOffset + 7);
+                if ((verOffset = nAgt.indexOf("Version")) != -1)
+                fullVersion = nAgt.substring(verOffset + 8);
+            } else if (
+                (nameOffset = nAgt.lastIndexOf(" ") + 1) <
+                (verOffset = nAgt.lastIndexOf("/"))
+            ) {
+                this.browserName = nAgt.substring(nameOffset, verOffset);
+                fullVersion = nAgt.substring(verOffset + 1);
+                if (this.browserName.toLowerCase() == this.browserName.toUpperCase()) {
+                this.browserName = navigator.appName;
+                }
+            }
+            // trim the fullVersion string at semicolon/space if present
+            if ((ix = fullVersion.indexOf(";")) != -1)
+                fullVersion = fullVersion.substring(0, ix);
+            if ((ix = fullVersion.indexOf(" ")) != -1)
+                fullVersion = fullVersion.substring(0, ix);
+
+            this.majorVersion = this.lodash.round(parseFloat(fullVersion), 1);
+            if (isNaN(this.majorVersion)) {
+                fullVersion = "" + parseFloat(navigator.appVersion);
+                this.majorVersion = parseInt(navigator.appVersion, 10);
+            }
+        },
+        getSistema() {
+            if (navigator.userAgent.indexOf("Windows") != -1) {
+                if (navigator.userAgent.indexOf("NT 10.0") != -1)
+                this.sistemaOperacional = "Windows 10";
+                else if (navigator.userAgent.indexOf("NT 6.2") != -1)
+                this.sistemaOperacional = "Windows 8";
+                else if (navigator.userAgent.indexOf("NT 6.1") != -1)
+                this.sistemaOperacional = "Windows 7";
+                else this.sistemaOperacional = "Windows Old Version";
+            } else if (
+                navigator.userAgent.indexOf("iPhone") != -1 ||
+                navigator.userAgent.indexOf("iPad") != -1
+            ) {
+                if (navigator.userAgent.indexOf("OS 12_4") != -1)
+                this.sistemaOperacional = "IOS 12.4";
+                else if (navigator.userAgent.indexOf("OS 12_3") != -1)
+                this.sistemaOperacional = "IOS 12.3";
+                else if (navigator.userAgent.indexOf("OS 12") != -1)
+                this.sistemaOperacional = "IOS 12";
+                else this.sistemaOperacional = "IOS";
+            } else if (navigator.userAgent.indexOf("Mac") != -1)
+                this.sistemaOperacional = "Mac";
+            else if (navigator.userAgent.indexOf("X11") != -1)
+                this.sistemaOperacional = "UNIX";
+            else if (navigator.userAgent.indexOf("Linux") != -1)
+                this.sistemaOperacional = "Linux";
+            else this.sistemaOperacional = "Não Identificado";
+        },
+        armazenamentoImagem() {
+            return new Promise(resolve => {
+                resolve();
+            });
+        },
+        armazenamentoProduto() {
+            return new Promise(resolve => {
+                ProdutoDB.getAllProdutos().then(produtos => {
+                    if (produtos.length <= 0) resolve(0);
+                    let pounchDB = 0;
+                    produtos.forEach(produto => {
+                        pounchDB += 0;
+                        if (this.lodash.last(produtos)._id == produto._id) {
+                        let armazenamento = this.lodash.round(pounchDB / 1024 / 1024, 2);
+                        resolve(armazenamento);
+                        }
+                    });
+                });
+            });
+        },
+        armazenamentoCliente() {
+            return new Promise(resolve => {
+                ClienteDB.listar().then(clientes => {
+                    if (clientes.length <= 0) resolve(0);
+                    let pounchDB = 0;
+                    clientes.forEach(cliente => {
+                        if (
+                        cliente.imagensClienteBlob &&
+                        cliente.imagensClienteBlob.length > 0
+                        ) {
+                        for (
+                            let index = 0;
+                            index < cliente.imagensClienteBlob.length;
+                            index++
+                        ) {
+                            const imagem = cliente.imagensClienteBlob[index];
+                            pounchDB += imagem.file.size;
+                        }
+                        }
+                        pounchDB += 0;
+                        if (this.lodash.last(clientes)._id == cliente._id) {
+                        let armazenamento = this.lodash.round(pounchDB / 1024 / 1024, 2);
+                        resolve(armazenamento);
+                        }
+                    });
+                });
+            });
+        },
+        getCalcularArmazenamento() {
+            return new Promise(resolve => {
+                let armazenamento = 0;
+                this.armazenamentoCliente().then(lengthCliente => {
+                    armazenamento += lengthCliente;
+                    this.armazenamentoProduto().then(lengthProduto => {
+                        armazenamento += lengthProduto;
+                        this.armazenamentoImagem().then(lengthImagem => {
+                            armazenamento += lengthImagem;
+                            resolve(armazenamento);
+                        });
+                    });
+                });
+            });
+        }
+    },
+    created() {
+        this.getNavegador();
+        this.getSistema();
+    },
+    mounted() {
+        if ("storage" in navigator && "estimate" in navigator.storage) {
+        navigator.storage
+            .estimate()
+            .then(({ usage, quota }) => {
+            this.usage = this.lodash.round(this.lodash.divide(this.lodash.divide(usage, 1024), 1024), 1);
+            this.quota = this.lodash.round(this.lodash.divide(this.lodash.divide(quota, 1024), 1024));
+            })
+            .catch(error => {
+            console.error("Loading storage estimate failed:");
+            console.log(error.stack);
+            });
+        } else {
+        console.error("navigator.storage.estimate API unavailable.");
+        }
+    },
+    beforeCreate() {
+        if (!window.indexedDB) {
+        window.alert(
+            "Seu navegador não suporta uma versão estável do IndexedDB. Alguns recursos não estarão disponíveis."
+        );
+        } else {
+            let banco = indexedDB.open(ClienteDB._localDB.name, 2)
+            console.log(banco);
+            
+        }
+    },
+    beforeMount() {
         // this.$vs.loading();
         this.getCalcularArmazenamento().then(armazenamento => {
             this.armazenamentoIndexedDB = armazenamento;
             //this.$vs.loading.close();
         });
-  },
-  errorCaptured(err, vm, info) {
-    ErrorDB._criarLog({ err, vm, info });
-    return true;
-  }
+    },
+    errorCaptured(err, vm, info) {
+        ErrorDB._criarLog({ err, vm, info });
+        return true;
+    }
 };
 </script>

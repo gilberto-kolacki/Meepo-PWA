@@ -80,7 +80,7 @@
         <div role="tablist" v-if="produtosCarrinho.length > 0">
             <b-card no-body class="mb-1" v-for="(embarque, indexEmbarque) in getArrayEmbarquesProdutos" :key="indexEmbarque">
                 <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="'embarque-'+embarque.id+'-'+embarque.seq">
-                    <h5 class="m-3 font-bold">{{embarque.nome}} - Seq: {{embarque.seq}}</h5>
+                    <h5 class="m-3 font-bold">{{embarque.id}} - {{embarque.nome}}. Seq: {{embarque.seq}}</h5>
                     <vx-card class="w-full">
                         <div slot="no-body">
                             <div class='vx-row flex pr-6 pl-6'>
@@ -396,7 +396,7 @@ export default {
         gerarNovoEmbarque(embarque) {
             embarque = {...embarque};
             if (this.getArrayEmbarquesProdutos.some((emb) => emb.id === embarque.id)) {
-                embarque.seq = this.getArrayEmbarquesProdutos.reduce((seq, emb) => (emb.id === embarque.id && emb.seq > seq ? emb.seq : 0), 0)+1;
+                embarque.seq = this.lodash.findLast(this.getArrayEmbarquesProdutos, (emb) => emb.id === embarque.id).seq+1;
             } else {
                 this.embarques.push(embarque);
                 embarque.seq = 1;
@@ -405,9 +405,9 @@ export default {
             this.popupNovoEmbarque = false;
         },
         getProdutosListNew(produtos){
-            return produtos.filter(produto => {
-                return !this.itensSelecionados.some(item => {
-                    return produto.idProduto === item.idProduto;
+            return produtos.filter((produto) => {
+                return !this.itensSelecionados.some((item) => {
+                    return produto.idProduto === item.idProduto && this.lodash.isEqual(produto.embarqueSelecionado, item.embarqueSelecionado);
                 });
             });
         },
@@ -429,7 +429,7 @@ export default {
             });
         },
         moverItemEmbarque(embarque) {
-            const embarqueSelecionado = {id: embarque.id, seq: embarque.seq ? embarque.seq : 1};
+            const embarqueSelecionado = {id: embarque.id, seq: embarque.seq};
             this.produtosCarrinho = this.atualizaEmbarqueSelecioando(this.produtosCarrinho, embarqueSelecionado);
             this.setEmbarqueCarrinho(embarqueSelecionado);
             this.notification('Movidos!', 'Itens Selecionados foram movidos para o Embarque', 'success');
