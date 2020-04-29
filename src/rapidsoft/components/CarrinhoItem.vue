@@ -4,46 +4,46 @@
             <div class="w-1/5">
                 <div clas="vx-col flex items-center justify-start" style="margin-top:1rem;">
                     <b-dropdown text="Ações" size="sm" variant="danger" class="m-1">
-                        <b-dropdown-item>
+                        <b-dropdown-item @click="selecionarTodos()">
                             <span class="flex items-center">
                                 <feather-icon icon="CheckSquareIcon" svgClasses="h-4 w-4" class="mr-2" />
-                                <span @click="selecionarTodos()">Selecionar Todos</span>
+                                <span>Selecionar Todos</span>
                             </span>
                         </b-dropdown-item>
-                        <div v-if="itensSelecionados.length">
-                            <b-dropdown-divider></b-dropdown-divider>
-                            <b-dropdown-item>
+                        <div v-if="itensSelecionados.length > 0">
+                            <b-dropdown-divider/>
+                            <b-dropdown-item @click="removerSelecao()">
                                 <span class="flex items-center">
                                     <feather-icon icon="XSquareIcon" svgClasses="h-4 w-4" class="mr-2" />
-                                    <span @click="removerSelecao()">Desmarcar Seleção</span>
+                                    <span>Desmarcar Seleção</span>
                                 </span>
                             </b-dropdown-item>
                         </div>
-                        <b-dropdown-divider></b-dropdown-divider>
-                        <b-dropdown-item>
+                        <b-dropdown-divider/>
+                        <b-dropdown-item @click="confirmacaoDeletarItem()">
                             <span class="flex items-center">
                                 <feather-icon icon="TrashIcon" svgClasses="h-4 w-4" class="mr-2" />
-                                <span @click="confirmacaoDeletarItem()">Deletar Itens Selecionados</span>
+                                <span>Deletar Itens Selecionados</span>
                             </span>
                         </b-dropdown-item>
-                        <div v-if="itensSelecionados.length">
-                            <b-dropdown-divider></b-dropdown-divider>
-                            <b-dropdown-item>
+                        <div v-if="itensSelecionados.length > 0">
+                            <b-dropdown-divider/>
+                            <b-dropdown-item @click="criarNovoEmbarque()">
                                 <span class="flex items-center">
                                     <feather-icon icon="PackageIcon" svgClasses="h-4 w-4" class="mr-2" />
-                                    <span @click="criarNovoEmbarque()">Criar Embarque</span>
+                                    <span>Criar Embarque</span>
                                 </span>
                             </b-dropdown-item>
                         </div>
                         <div v-if="getArrayEmbarquesMover.length > 0">
-                            <b-dropdown-divider></b-dropdown-divider>
+                            <b-dropdown-divider/>
                             <b-dropdown-text>
                                 <feather-icon icon="RefreshCwIcon" svgClasses="h-4 w-4" class="mr-2" />
                                 Mover Itens Selecionados
                             </b-dropdown-text>
-                            <b-dropdown-item v-for="(embarque, indexEmbarque) in getArrayEmbarquesMover" :key="indexEmbarque">
+                            <b-dropdown-item v-for="(embarque, indexEmbarque) in getArrayEmbarquesMover" :key="indexEmbarque" @click="moverItemEmbarque(embarque)">
                                 <span class="flex items-center mt-2">
-                                    <span @click="moverItemEmbarque(embarque)">{{embarque.nome +' - '+ embarque.seq}}</span>
+                                    <span>{{embarque.nome +' - '+ embarque.seq}}</span>
                                 </span>
                             </b-dropdown-item>
                         </div>
@@ -125,7 +125,7 @@
                                 <div class="vx-row" style="font-weight:bold;">{{'Ref: ' + produtoCor.referencia}}</div>
                                 <div class="vx-row" style="font-weight:bold;">{{'Cor: ' + produtoCor.nomeCor}}</div>
                             </div>
-                            <div class="vx-col mx-6 w-3/6" style="justify-content:center; margin:auto; min-width: 6.5rem;">
+                            <div class="vx-col mx-6 w-3/6" style="justify-content:center; margin:auto; min-width: 6.5rem; margin-right: 3.5rem !important">
                                 <table>
                                     <thead class="border-solid">
                                         <th class="grade-tam-prod-title" 
@@ -382,18 +382,27 @@ export default {
             });
         },
         selecionarTodos() {
+            this.$vs.loading();
             this.itensSelecionados = this.produtosCarrinho;
+            setTimeout(() => {
+                this.$vs.loading.close();
+            }, 300);
         },
         removerSelecao() {
             this.itensSelecionados = []
         },
         criarNovoEmbarque() {
+            this.$vs.loading();
             EmbarqueDB.getFromEmbarque(this.maiorEmbarqueItensSelecionados).then((result) => {
                 this.embarquesNovos = result;
-                this.popupNovoEmbarque = true;
+                setTimeout(() => {
+                    this.popupNovoEmbarque = true;
+                    this.$vs.loading.close();
+                }, 500);
             });
         },
         gerarNovoEmbarque(embarque) {
+            this.$vs.loading();
             embarque = {...embarque};
             if (this.getArrayEmbarquesProdutos.some((emb) => emb.id === embarque.id)) {
                 embarque.seq = this.lodash.findLast(this.getArrayEmbarquesProdutos, (emb) => emb.id === embarque.id).seq+1;
@@ -402,7 +411,11 @@ export default {
                 embarque.seq = 1;
             }
             this.moverItemEmbarque(embarque);
-            this.popupNovoEmbarque = false;
+            setTimeout(() => {
+                this.popupNovoEmbarque = false;
+                this.$vs.loading.close();
+            }, 500);
+
         },
         getProdutosListNew(produtos){
             return produtos.filter((produto) => {
@@ -421,19 +434,27 @@ export default {
             });
         },
         setEmbarqueCarrinho(embarqueSelecionado) {
-            CarrinhoDB.getCarrinho().then((carrinho) => {
-                carrinho.itens = this.atualizaEmbarqueSelecioando(carrinho.itens, embarqueSelecionado);
-                CarrinhoDB.setCarrinho(carrinho).then(() => {
-                    this.itensSelecionados = [];
+            return new Promise((resolve) => {
+                CarrinhoDB.getCarrinho().then((carrinho) => {
+                    carrinho.itens = this.atualizaEmbarqueSelecioando(carrinho.itens, embarqueSelecionado);
+                    CarrinhoDB.setCarrinho(carrinho).then(() => {
+                        this.itensSelecionados = [];
+                        resolve();
+                    });
                 });
-            });
+            });                
         },
         moverItemEmbarque(embarque) {
+            this.$vs.loading();
             const embarqueSelecionado = {id: embarque.id, seq: embarque.seq};
             this.produtosCarrinho = this.atualizaEmbarqueSelecioando(this.produtosCarrinho, embarqueSelecionado);
-            this.setEmbarqueCarrinho(embarqueSelecionado);
-            this.notification('Movidos!', 'Itens Selecionados foram movidos para o Embarque', 'success');
-            this.$forceUpdate();
+            this.setEmbarqueCarrinho(embarqueSelecionado).then(() => {
+                setTimeout(() => {
+                    this.$forceUpdate();
+                    this.$vs.loading.close();
+                    this.notification('Movidos!', 'Itens Selecionados foram movidos para o Embarque', 'success');
+                }, 500);
+            });
         },
         abrirPesquisaCliente() {
 			this.$bvModal.show("popup-cliente-search");

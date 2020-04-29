@@ -58,7 +58,7 @@
                     <div class="vx-row items-center justify-center" style="z-index: 15; margin-bottom: 2rem;">
                         <h6 class="title-ref">{{produtoA.referencia}} - {{produtoA.nome}}</h6>
                     </div>
-                    <transition name="fade" mode="out-in">
+                    <!-- <transition name="fade" mode="out-in"> -->
                         <Vue2InteractDraggable
                             class="vx-row items-center justify-center"
                             @draggedLeft="nextRef"
@@ -66,13 +66,13 @@
                             interact-lock-y-axis
                             :interact-max-rotation="8"
                             :interact-out-of-sight-x-coordinate="1000"
-                            :interact-x-threshold="120"                         
+                            :interact-x-threshold="50"                         
                             v-if="isShowingImagemPrincipal">
                             <div>
                                 <b-img-lazy center :src="imagemProdutoPrincipal ? imagemProdutoPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" id="produto-swipe-area" v-if="imagemProdutoPrincipal"/>
                             </div>
                         </Vue2InteractDraggable>
-                    </transition>
+                    <!-- </transition> -->
                     <div class="vx-row items-center justify-center" style="z-index: 15; margin-top: 2rem;" v-if="this.produtoB">
                         <h6 class="title-ref">{{produtoB.referencia}} - {{produtoB.nome}}</h6>
                         <h6 class="title-ref" v-if="this.produtoC">{{produtoC.referencia}} - {{produtoC.nome}}</h6>
@@ -298,6 +298,7 @@ export default {
             this.$forceUpdate();
         },
         prevRef() {
+            alert('prev')
             const anterior = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )-1;
             if (anterior >= 0) {
                 this.selectProduto(this.paginas[anterior]).then(() => {
@@ -310,6 +311,7 @@ export default {
             }
         },
         nextRef() {
+            alert('next')
             const proxima = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )+1;
             if (proxima < this.paginas.length) {
                 this.selectProduto(this.paginas[proxima]).then(() => {

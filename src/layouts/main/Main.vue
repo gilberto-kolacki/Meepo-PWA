@@ -202,8 +202,16 @@ export default {
         } else {
             this.updateNavbarColor(this.navbarColor)
         }
-        
-    }
+    },
+    mounted() {
+        // document.addEventListener('gesturestart', (e) => e.preventDefault());
+        document.addEventListener('touchmove', (event) => {
+            event = event.originalEvent || event;
+            if(event.scale > 1) {
+                event.preventDefault();
+            }
+        }, false);
+    },
 }
 </script>
 
