@@ -61,23 +61,23 @@ class imagemDB {
         });
     }
 
-    // salvarFotos(fotos) {
-    //     return new Promise((resolve) => {
-    //         this.compress(fotos, 500, 750, 0.9, 0.1).then((fotosCompress) => {
-    //             if (fotosCompress.length > 0) {
-    //                 ImagemFotoDB.salvarFotos(fotosCompress).then((fotosSalvas) => {
-    //                     resolve(fotosSalvas);
-    //                 });
-    //             } else {
-    //                 resolve(0);
-    //             }
-    //         });
-    //     });
-    // }
-
     salvarFotos(fotos) {
-        return ImagemFotoDB.salvarFotos(fotos);
+        return new Promise((resolve) => {
+            this.compress(fotos, null, null, 0.8, null).then((fotosCompress) => {
+                if (fotosCompress.length > 0) {
+                    ImagemFotoDB.salvarFotos(fotosCompress).then((fotosSalvas) => {
+                        resolve(fotosSalvas);
+                    });
+                } else {
+                    resolve(0);
+                }
+            });
+        });
     }
+
+    /* salvarFotos(fotos) {
+        return ImagemFotoDB.salvarFotos(fotos);
+    } */
 
     salvarCores(cores) {
         return ImagemCorDB.salvarCores(cores);
