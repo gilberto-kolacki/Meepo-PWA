@@ -206,6 +206,8 @@ export default {
                         SincUtils.removeImagensSemProduto().then(() => {
                             SincUtils.closeLoading(this, sinc, all);
                         });
+                    }).catch((error) => {
+                        console.log("erro download imagens", error);
                     });
                 } else {
                     SincUtils.removeImagensSemProduto().then(() => {

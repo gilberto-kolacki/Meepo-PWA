@@ -11,6 +11,7 @@ import OrderBy from 'lodash/orderBy';
 import Uniq from 'lodash/uniq';
 import FlattenDeep from 'lodash/flattenDeep';
 import IsObject from 'lodash/isObject';
+import Round from 'lodash/round';
 
 import arrayMove from 'array-move';
 import BasicDB from './basicDB';
@@ -109,9 +110,8 @@ class produtoDB extends BasicDB {
         }, 0);
     }
 
-    getProdutoCorCarrinho(produtos, carrinho) {
+    getProdutoCorCarrinho(produtos) {
         return produtos.reduce((produtosCor, produto) => {
-            produto.cores = produto.cores.filter((cor) => carrinho.itens.some((itemCarrinho) => itemCarrinho.idProduto  === cor.idProduto ));
             const produtoCores = produto.cores.map((cor) => {
                 const produtoCor = {};
                 produtoCor.referencia = produto.referencia;
@@ -143,14 +143,14 @@ class produtoDB extends BasicDB {
 
     getProdutoEmbarqueSelecionadoSeq(produtos, carrinho) {
         const produtoEmbarqueSeq = carrinho.itens.reduce((produtoEmbarquesSeq, itemCarrinho) => {
-            const chave = itemCarrinho.embarqueSelecionado ? itemCarrinho.referencia +"-"+ itemCarrinho.embarqueSelecionado.id +"-"+ itemCarrinho.embarqueSelecionado.seq : itemCarrinho.referencia;
+            const chave = itemCarrinho.idProduto +"-"+ itemCarrinho.embarqueSelecionado.id +"-"+ itemCarrinho.embarqueSelecionado.seq;
             if (!produtoEmbarquesSeq.hasOwnProperty(chave)) {
                 const produto = {...produtos.find((produto) => produto.referencia === itemCarrinho.referencia)};
+                produto.cores = [...produto.cores.filter((cor) => cor.idProduto === itemCarrinho.idProduto)];
                 produto.embarqueSelecionado = itemCarrinho.embarqueSelecionado ? {...itemCarrinho.embarqueSelecionado} : null;
                 produtoEmbarquesSeq[chave] = produto;
             }
             return produtoEmbarquesSeq;
-            
         }, {});
         return Object.values(produtoEmbarqueSeq);
     }
@@ -164,16 +164,14 @@ class produtoDB extends BasicDB {
                 produtos = this.getProdutoCorCarrinho(produtos, carrinho);
                 if (produtos.length > 0) {
                     const done = After(produtos.length, () => resolve(produtosCarrinho));
-                    produtos.forEach(produto => {
+                    produtos.forEach((produto) => {
                         produto.quantidade = this.getTotalCor(produto.tamanhos, carrinho);
                         produto.tamanhos = this.getTamanhosProdutoCarrinho(produto.tamanhos, carrinho);
-                        if (!produto.hasOwnProperty("embarqueSelecionado")) produto.embarqueSelecionado = this.getEmbarqueSelecionado(produto, carrinho);
                         ImagemDB.getFotoById(produto.imagem).then(imagem => {
                             produto.imagemPrincipal = imagem;
                             EmbarqueDB.getEmbarqueProduto(produto).then((embarque) => {
                                 if (embarque) {
                                     produto.embarque = embarque.id;
-                                    produto.embarqueSelecionado = produto.embarqueSelecionado ? produto.embarqueSelecionado : {id: embarque.id, seq: 1};
                                     produto.segmento = produto.segmento;
                                     produtosCarrinho.push(produto);
                                 }
@@ -268,6 +266,93 @@ class produtoDB extends BasicDB {
             });
         });
     }
+
+    calcularPreco(itemCor, tipo = 1) {
+        const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
+        const precoProduto = tipo === 1 ? itemCor.precoCusto : itemCor.precoVenda;
+        return Round(precoProduto + ((percentual/100) * precoProduto), 2);
+    }
+
+    getEmbarquesProdutoCor(produto) {
+        return new Promise((resolve) => {
+            const done = After(produto.cores.length, () => resolve(produto));
+            produto.cores.forEach((cor) => {
+                EmbarqueDB.getEmbarqueProduto(cor).then((embarque) => {
+                    cor.embarqueSelecionado = {id: embarque.id, seq: 1};
+                    this.getImagensCorProduto(cor).then(() => {
+                        done();
+                    });
+                });
+            });
+        });
+    }
+
+    getByReferenciasAddCarrinho(produtos, prontaEntrega=false) {
+        return new Promise((resolve) => {
+            const referenciasAddCarrinho = [];
+            produtos = [...produtos.filter((produto) => produto != undefined)];
+            const done = After(produtos.length, () => resolve(referenciasAddCarrinho));
+            produtos.forEach((produto) => {
+                this._localDB.get(String(produto.referencia)).then((resultProduto) => {
+                    delete resultProduto._rev;
+                    delete resultProduto.video;
+                    resultProduto.cores = [...resultProduto.cores.filter((cor) => cor.prontaEntrega === prontaEntrega)];
+                    this.createProdutosAddCarrinho(resultProduto).then((resultProdutoAdd) => {
+                        this.getEmbarquesProdutoCor(resultProdutoAdd).then((resultProdutoEmbarques) => {
+                            referenciasAddCarrinho.push(resultProdutoEmbarques);
+                            done();
+                        });
+                    });
+                }).catch((error) => {
+                    this._criarLogDB({url:'db/produtoDB',method:'getById',message: error,error:'Failed Request'});
+                    resolve({existe: false, result: error});
+                });
+            });
+        });
+    }
+
+    createProdutosAddCarrinho(produto) {
+        return new Promise((resolve) => {            
+            produto.produtoAddCores = this.getProdutoAddCores(produto);
+            produto.produtoLabelTamanhos = this.getTamanhosLabelProduto(produto);
+            resolve(produto);
+        });
+    }
+
+    getProdutoAddCores(produto) {
+        const carrinho = Storage.getCarrinho();
+        return OrderBy(produto.cores.reduce((produtoAddCores, cor) => {
+            const itemCarrinho = carrinho.itens.find((item) => item.idProduto === cor.idProduto);
+            const produtoAddCor = {codigo: cor.codigo, ativo: true, idCor: cor.idCor, idProduto: cor.idProduto};
+            produtoAddCor.embarqueSelecionado = itemCarrinho && itemCarrinho.embarqueSelecionado ? itemCarrinho.embarqueSelecionado : null;
+            produtoAddCor.produtoAddTamanhos = this.getTamanhosCor(cor, carrinho);
+            produtoAddCores.push(produtoAddCor);
+            return produtoAddCores;
+        },[]), ['seq'], ['asc']);
+    }
+
+    getTamanhosLabelProduto(produto) {
+        const labels = produto.cores.reduce((labels, cor) => {
+            for (let index = 0; index < cor.tamanhos.length; index++) {
+                const tamanho = cor.tamanhos[index];
+                labels[tamanho.codigo] = {codigo: tamanho.codigo, ativo: true, seq: tamanho.seq};
+            }
+            return labels;
+        }, {});
+        return Object.values(labels);
+    }
+
+    getTamanhosCor(cor, carrinho) {
+        return cor.tamanhos.reduce((tamanhosCor, tamanho) => {
+            const itemCarrinho = carrinho.itens.find((item) => item.id == tamanho.id);
+            if (itemCarrinho) {
+                tamanho.quantidade = itemCarrinho.quantidade;
+            }
+            tamanho.fixadoAtivo = tamanho.ativo;
+            tamanhosCor.push(tamanho);
+            return tamanhosCor;
+        }, []);
+    }
     
 
     getByProdPaginaCatalogo(pagina) {
@@ -318,25 +403,33 @@ class produtoDB extends BasicDB {
         return produto && produto.cores && produto.cores.length > 0 && IsObject(produto.cores[0]);
     }
 
-    getImagensCorProduto(produto) {
+    getImagensCoresProduto(produto) {
         return new Promise((resolve) => {
             if(this.possuiCores(produto)) {
                 const done = After(produto.cores.length, () => resolve(produto));
-                produto.cores.forEach(cor => {
-                    ImagemDB.getCorById(cor).then((resultImagemCor) => {
-                        cor.imagemCor = resultImagemCor;
-                        ImagemDB.getSelos(cor).then((resultSelos) => {
-                            cor.selos = resultSelos;
-                            ImagemDB.getSimbolos(cor).then((resultSimbolos) => {
-                                cor.simbolos = resultSimbolos;
-                                done();
-                            });
-                        });
+                produto.cores.forEach((cor) => {
+                    this.getImagensCorProduto(cor).then(() => {
+                        done();
                     });
                 });
             } else {
                 resolve(produto);
             }
+        });
+    }
+
+    getImagensCorProduto(produtoCor) {
+        return new Promise((resolve) => {
+            ImagemDB.getCorById(produtoCor).then((resultImagemCor) => {
+                produtoCor.imagemCor = resultImagemCor;
+                ImagemDB.getSelos(produtoCor).then((resultSelos) => {
+                    produtoCor.selos = resultSelos;
+                    ImagemDB.getSimbolos(produtoCor).then((resultSimbolos) => {
+                        produtoCor.simbolos = resultSimbolos;
+                        resolve(produtoCor);
+                    });
+                });
+            });
         });
     }
 
@@ -415,7 +508,7 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             this.getImagensProduto(item.produtoA).then((produtoA) => {
                 item.produtoA = produtoA;
-                this.getImagensCorProduto(item.produtoB).then((produtoB) => {
+                this.getImagensCoresProduto(item.produtoB).then((produtoB) => {
                     item.produtoB = produtoB;
                     resolve(item);
                 });

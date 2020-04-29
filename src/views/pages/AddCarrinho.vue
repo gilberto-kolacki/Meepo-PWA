@@ -48,7 +48,6 @@
 
 import ErrorDB from "../../rapidsoft/db/errorDB";
 import AddCarrinhoItem  from '../../rapidsoft/components/AddCarrinhoItem';
-import ProdutoUtils  from '../../rapidsoft/utils/produtoUtils';
 import ProdutoDB from '../../rapidsoft/db/produtoDB';
 import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
 import Storage from '../../rapidsoft/utils/storage';
@@ -101,13 +100,12 @@ export default {
         },
         openLook(produto) {
             this.$router.push({ name: 'catalogoItem',
-                params: {pag: {pag:0,produtoA:{id: produto.id, ref:produto.referencia, seq:1}}}
+                params: {pag: {pag:0, produtoA: {id: produto.id, ref: produto.referencia, seq: 1}}}
             });
         },
         openGradeLookSelecionado (produtoLookSelecionado) {
             CarrinhoDB.setCarrinho(this.carrinho).then(() => {
-                const produtosLook = [produtoLookSelecionado]
-                ProdutoUtils.createProdutosAddCarrinho(produtosLook).then((produtos) => {
+                ProdutoDB.getByReferenciasAddCarrinho([produtoLookSelecionado]).then((produtos) => {
                     this.produtos = produtos;
                     ProdutoDB.getProdutosLook(produtos[0].produtosLook).then((produtosLook) => {
                         this.produtosDoLook = produtosLook;
@@ -122,7 +120,7 @@ export default {
         },
         addReferenciaCarrinho() {
             this.carrinho.valorTotal = this.lodash.round(this.carrinho.itens.reduce((total, item) => {
-                return total = total + (item.quantidade * ProdutoUtils.calcularPreco(item));
+                return total = total + (item.quantidade * ProdutoDB.calcularPreco(item));
             }, 0), 2);
         },
         voltarCatalogo() {
@@ -149,9 +147,9 @@ export default {
             return new Promise((resolve) => {
                 CarrinhoDB.getCarrinho().then((carrinho) => {
                     this.carrinho = carrinho;
-                    ProdutoUtils.createProdutosAddCarrinho(this.$route.params.produtos).then((produtos) => {
-                        this.produtos = produtos;
-                        ProdutoDB.getProdutosLook(produtos[0].produtosLook).then((produtosLook) => {
+                    ProdutoDB.getByReferenciasAddCarrinho(this.$route.params.produtos).then((referenciasAddCarrinhoResult) => {
+                        this.produtos = referenciasAddCarrinhoResult;
+                        ProdutoDB.getProdutosLook(referenciasAddCarrinhoResult[0].produtosLook).then((produtosLook) => {
                             this.produtosDoLook = produtosLook;
                             this.isShow = true;
                             document.getElementById('loading-bg').style.display = "none";
@@ -176,8 +174,10 @@ export default {
         return true;
     },
     async beforeDestroy() {
+        this.$vs.loading();
         return new Promise((resolve) => {
             CarrinhoDB.setCarrinho(this.carrinho).then(() => {
+                this.$vs.loading.close();
                 resolve();
             });
         });

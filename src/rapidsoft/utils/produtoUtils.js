@@ -1,56 +1,8 @@
-import OrderBy from 'lodash/orderBy';
 import Round from 'lodash/round';
 import Storage from '../utils/storage';
 
 class produtoUtils{
 
-    getTamanhosLabelProduto(produto) {
-        const labels = produto.cores.reduce((labels, cor) => {
-            for (let index = 0; index < cor.tamanhos.length; index++) {
-                const tamanho = cor.tamanhos[index];
-                labels[tamanho.codigo] = {codigo: tamanho.codigo, ativo: true, seq: tamanho.seq};
-            }
-            return labels;
-        }, {});
-        return Object.values(labels);
-    }
-
-    getTamanhosCor(cor) {
-        const carrinho = Storage.getCarrinho();
-        return cor.tamanhos.reduce((tamanhosCor, tamanho) => {
-            const itemCarrinho = carrinho.itens.find((item) => item.id == tamanho.id);
-            if (itemCarrinho) {
-                tamanho.quantidade = itemCarrinho.quantidade;
-            }
-            tamanho.fixadoAtivo = tamanho.ativo;
-            tamanhosCor.push(tamanho);
-            return tamanhosCor;
-        }, []);
-    }
-
-    getCoresProduto(produto) {
-        return OrderBy(produto.cores.map((cor) => {
-            return {codigo: cor.codigo, ativo: true, idCor: cor.idCor, idProduto: cor.idProduto, tamanhos: cor.tamanhos};
-        }), ['seq'], ['asc']);
-    }
-
-    createProdutosAddCarrinho(produtos) {
-        return new Promise((resolve) => {
-            produtos = produtos.filter((produto) => produto != undefined);
-            const produtosAdd = produtos.reduce((produtosAdd, produto) => {
-                produto.produtoAddCores = this.getCoresProduto(produto);
-                produto.produtoLabelTamanhos = this.getTamanhosLabelProduto(produto);
-                produto.produtoAddCores = produto.produtoAddCores.map((cor) => {
-                    cor.produtoAddTamanhos = this.getTamanhosCor(cor);
-                    delete cor.tamanhos;
-                    return cor;
-                });
-                produtosAdd.push(produto);
-                return produtosAdd;
-            }, []);
-            resolve(produtosAdd);
-        });
-    }
 
     criaPaginaProdutoSearch(produto) {
         return new Promise((resolve) => {

@@ -153,13 +153,12 @@
             </table>
         </vs-popup>
         </b-collapse>
- 
 
     </div>    
 </template>    
 <script>
 
-import ProdutoUtils from '../utils/produtoUtils';
+import ProdutoDB from '../db/produtoDB';
 import UtilMask from '../utils/utilMask';
 
 export default {
@@ -194,7 +193,6 @@ export default {
         }
     },
     components: {
-        
     },
     data: () => ({
         maxHeight: '0px',
@@ -212,7 +210,7 @@ export default {
             return this.produtoAdd.produtoLabelTamanhos;
         },
         getPreco() {
-            return UtilMask.getMoney(ProdutoUtils.calcularPreco(this.produtoAdd.cores[0]));
+            return UtilMask.getMoney(ProdutoDB.calcularPreco(this.produtoAdd.cores[0]));
         }
     },
     methods: {
@@ -269,9 +267,12 @@ export default {
             this.$forceUpdate();
         },
         criaTamanho(indexCor, indexTamanho) {
+            const embarqueCarrinho = this.produtoAdd.produtoAddCores[indexCor].embarqueSelecionado;
+            const embarqueProdutoCor = this.produtoAdd.cores[indexCor].embarqueSelecionado;
             const tamanho = this.produtoAdd.produtoAddCores[indexCor].produtoAddTamanhos[indexTamanho];
             tamanho.referencia = this.produtoAdd.referencia;
             tamanho.cor = this.produtoAdd.cores[indexCor].idCor;
+            tamanho.embarqueSelecionado = embarqueCarrinho ? embarqueCarrinho : embarqueProdutoCor;
             tamanho.precoCusto = this.produtoAdd.cores[indexCor].precoCusto;
             tamanho.idProduto = this.produtoAdd.cores[indexCor].idProduto;
             tamanho.idSegmento = this.produtoAdd.segmento;
@@ -362,12 +363,10 @@ export default {
                     }
                 }
             }
-        }
+        },
     },
-    created() {
-    },
-    mounted() {        
-    }
+    created() {},
+    mounted() {}
 }
 </script>    
 
