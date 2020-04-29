@@ -23,7 +23,6 @@ import Storage from '../utils/storage';
 
 
 const getProdutoToDBFilterCategoria = (produtos, idsCategorias, textoSearch) => {
-    
     textoSearch = ToUpper(textoSearch);
     const produtosSearch = produtos.filter((produto,index,produtosSearch) => {
         const coresSearch = produtosSearch[index].cores.filter((cor) => {
@@ -380,8 +379,6 @@ class produtoDB extends BasicDB {
     getProdutosSearch(idsCategorias, textoSearch) {
         return new Promise((resolve) => {
             this.getAllProdutosByIdCategorias(idsCategorias, textoSearch).then((produtos) => {
-                console.log(produtos);
-                
                 if(produtos.length > 0) {
                     const done = After(produtos.length, () => resolve(produtos));
                     produtos.forEach(produto => {
