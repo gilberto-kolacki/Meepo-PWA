@@ -298,7 +298,6 @@ export default {
             this.$forceUpdate();
         },
         prevRef() {
-            alert('prev')
             const anterior = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )-1;
             if (anterior >= 0) {
                 this.selectProduto(this.paginas[anterior]).then(() => {
@@ -311,7 +310,6 @@ export default {
             }
         },
         nextRef() {
-            alert('next')
             const proxima = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )+1;
             if (proxima < this.paginas.length) {
                 this.selectProduto(this.paginas[proxima]).then(() => {
