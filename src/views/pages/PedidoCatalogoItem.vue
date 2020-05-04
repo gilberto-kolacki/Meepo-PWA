@@ -2,14 +2,14 @@
     <!-- Adicao de itens -->
     <div id="page-catalogo" class="page-catalogo">
         <div v-if="this.produtoA">
-            <vs-button @click.stop="prevRef" color="primary" type="filled" class="btn-left" icon="chevron_left"></vs-button>
-            <vs-button @click.stop="nextRef" color="primary" type="filled" class="btn-right" icon="chevron_right"></vs-button>
+            <vs-button @click.stop="$refs.CardProduto.decide('prev')" color="primary" type="filled" class="btn-left" icon="chevron_left"></vs-button>
+            <vs-button @click.stop="$refs.CardProduto.decide('next')" color="primary" type="filled" class="btn-right" icon="chevron_right"></vs-button>
             <vs-button @click.stop="abrirCarrinho" color="warning" type="filled" class="btn-carrinho" :disabled="existeCarrinho" icon="shopping_cart"></vs-button>
         </div>
         <vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12">
             <div class="vx-row">
                 
-                <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 50;" v-if="this.produtoA">
+                <div class="vx-col w-full lg:w-1/5 sm:w-1/5 h-12" style="z-index: 60;" v-if="this.produtoA">
                     <div class="vx-row xl:hidden">
                         <div class="flex w-full items-center justify-center">
                             <vs-button color="dark" type="filled" icon-pack="feather" class="w-full" icon="icon-menu" @click.stop="showSidebar"></vs-button>
@@ -49,7 +49,7 @@
                     </div>
                 </div>
                 <!-- IMAGEM PRINCIPAL -->
-                <div class="vx-col w-full lg:w-3/5 sm:w-3/5 h-12" style="z-index: 10;" v-if="this.produtoA">
+                <div class="vx-col w-full lg:w-3/5 sm:w-3/5 h-12" style="z-index: 5;" v-if="this.produtoA">
                     <div class="vx-row items-center justify-center" v-if="this.cliente">
                         <div class="truncate">
                             <h6>CLIENTE: {{this.cliente.nome}}</h6>
@@ -58,28 +58,26 @@
                     <div class="vx-row items-center justify-center" style="z-index: 15; margin-bottom: 2rem;">
                         <h6 class="title-ref">{{produtoA.referencia}} - {{produtoA.nome}}</h6>
                     </div>
-                    <!-- <transition name="fade" mode="out-in"> -->
-                        <Vue2InteractDraggable
-                            class="vx-row items-center justify-center"
-                            @draggedLeft="nextRef"
-                            @draggedRight="prevRef"
-                            interact-lock-y-axis
-                            :interact-max-rotation="8"
-                            :interact-out-of-sight-x-coordinate="1000"
-                            :interact-x-threshold="50"                         
-                            v-if="isShowingImagemPrincipal">
-                            <div>
-                                <b-img-lazy center :src="imagemProdutoPrincipal ? imagemProdutoPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" id="produto-swipe-area" v-if="imagemProdutoPrincipal"/>
-                            </div>
-                        </Vue2InteractDraggable>
-                    <!-- </transition> -->
+                        <div id="pass-image">
+                            <CardProduto
+                                ref="CardProduto"
+                                key-name="id"
+                                :queue.sync="imagemPass"
+                                :max="1"
+                                :offset-y="5"
+                                @submit="onSubmit">
+                                <template slot-scope="scope">
+                                    <b-img-lazy center :src="scope.data.base64" class="card-img-principal"/>
+                                </template>
+                            </CardProduto>
+                        </div>
                     <div class="vx-row items-center justify-center" style="z-index: 15; margin-top: 2rem;" v-if="this.produtoB">
                         <h6 class="title-ref">{{produtoB.referencia}} - {{produtoB.nome}}</h6>
                         <h6 class="title-ref" v-if="this.produtoC">{{produtoC.referencia}} - {{produtoC.nome}}</h6>
                     </div>
                 </div>
                 <!-- IMAGEM PRINCIPAL FIM -->
-                <div class="vx-col w-full md:w-1/5 sm:w-1/5 h-12" style="z-index: 50;" v-if="this.produtoA">
+                <div class="vx-col w-full md:w-1/5 sm:w-1/5 h-12" style="z-index: 60;" v-if="this.produtoA">
                     <div class="vx-row">
                         <div class="flex w-full items-center justify-center">
                             <vs-button color="primary" type="filled" icon-pack="feather" class="w-full" icon="icon-search" @click.stop="abrirPesquisaPodutos()"></vs-button>
@@ -164,7 +162,7 @@
 </template>
 <script>
 
-import { Vue2InteractDraggable } from "vue2-interact";
+import CardProduto from '../../components/vue-tinder/Tinder.vue';
 import ProdutoDB from '../../rapidsoft/db/produtoDB';
 import ImagemDB from '../../rapidsoft/db/imagemDB';
 import ProdutoUtils from '../../rapidsoft/utils/produtoUtils';
@@ -191,7 +189,6 @@ export default {
             imagens: [],
             paginaAtual: null,
             paginas: [],
-            isShowingImagemPrincipal: true,
             produtoZoom: null,
             popupZoomProduto: false,
             disabledInputCor: [],
@@ -203,11 +200,13 @@ export default {
             grupoCliente: null,
             cliente: null,
             popupPrecoRef: false,
+
+            imagemPass: [],
         }
     },
     components: {
         'v-select': vSelect,
-        Vue2InteractDraggable,
+        CardProduto,
         SearchProduto: () => ({
             component: import('../../rapidsoft/components/SearchProduto'),
             delay: 1000,
@@ -254,6 +253,19 @@ export default {
     },
     methods: {
         // tela
+        async onSubmit(item) {
+            if (item.type === "prev") {
+                 const anterior = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )-1;
+                if (anterior >= 0) await this.selectProduto(this.paginas[anterior]);
+                else await this.selectProduto(this.paginas[this.paginas.length-1]);
+            } else if (item.type === "next") {
+                const proxima = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )+1;
+                if (proxima < this.paginas.length) await this.selectProduto(this.paginas[proxima]);
+                else await this.selectProduto(this.paginas[0]);
+            } else {
+                this.addProduto();
+            }
+        },
         async categoriasSelecionadas(idCategoria) {
             this.setFiltroCategoria(idCategoria);
             await this.carregaItensTela();
@@ -267,6 +279,7 @@ export default {
         },
         selectSequenciaImagemProduto(imagemSelecionada) {        
             this.imagemProdutoPrincipal = this.getImagemCorProduto(imagemSelecionada);
+            this.imagemPass = [{id: 1, base64: this.getImagemCorProduto(imagemSelecionada)}];
         },
         getImagemCorProduto(imagem) {
             var cor = Object.assign(this.produtoA.cores[this.corSelecionada]);
@@ -287,41 +300,6 @@ export default {
         scrollDownCategoria() {
             const gallery = document.getElementById("categoria-filter");
             gallery.scrollTop = gallery.scrollTop + 80;
-        },
-        hideCard() {
-            setTimeout(() => {
-                this.isShowingImagemPrincipal = false;
-            }, 100);
-            setTimeout(() => {
-                this.isShowingImagemPrincipal = true;
-            }, 110);
-            this.$forceUpdate();
-        },
-        prevRef() {
-            alert('prev')
-            const anterior = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )-1;
-            if (anterior >= 0) {
-                this.selectProduto(this.paginas[anterior]).then(() => {
-                    this.hideCard();
-                });
-            } else {
-                this.selectProduto(this.paginas[this.paginas.length-1]).then(() => {
-                    this.hideCard();
-                });
-            }
-        },
-        nextRef() {
-            alert('next')
-            const proxima = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )+1;
-            if (proxima < this.paginas.length) {
-                this.selectProduto(this.paginas[proxima]).then(() => {
-                    this.hideCard();
-                });
-            } else {
-                this.selectProduto(this.paginas[0]).then(() => {
-                    this.hideCard();
-                });
-            }
         },
         showSidebar() {
             return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
@@ -362,6 +340,7 @@ export default {
                     this.produtoC = result.produtoC;
                     ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
                         this.imagemProdutoPrincipal = result;
+                        this.imagemPass = [{id: 1, base64: result}];
                         this.corSelecionada = 0;
                         document.getElementById("produto-image-gallery").scrollTop = 0;
                         this.$vs.loading.close();
@@ -444,6 +423,21 @@ html {
   position: fixed;
   width: 100%; 
   height: 100%
+}
+
+#pass-image .vue-tinder {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  top: 5.5rem;
+  margin: auto;
+  width: 60vw;
+  height: 75vh;
+//   width: calc(100% - 60px);
+//   height: calc(100% - 120px - 65px - 47px - 16px);
+  min-width: 300px;
+  max-width: 470px;
 }
 
 .input_filter{
