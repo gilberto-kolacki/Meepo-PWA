@@ -66,7 +66,7 @@
                             interact-lock-y-axis
                             :interact-max-rotation="8"
                             :interact-out-of-sight-x-coordinate="1000"
-                            :interact-x-threshold="50"                         
+                            :interact-x-threshold="0"                         
                             v-if="isShowingImagemPrincipal">
                             <div>
                                 <b-img-lazy center :src="imagemProdutoPrincipal ? imagemProdutoPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal" id="produto-swipe-area" v-if="imagemProdutoPrincipal"/>
