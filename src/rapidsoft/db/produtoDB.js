@@ -23,19 +23,19 @@ import Storage from '../utils/storage';
 
 
 const getProdutoToDBFilterCategoria = (produtos, idsCategorias, textoSearch) => {
-    
     textoSearch = ToUpper(textoSearch);
-    return produtos.filter((produto) => {
-        return textoSearch === null || textoSearch === "" || ToUpper(produto.referencia).includes(textoSearch) || produto.nome.includes(textoSearch);
-    }).filter((produto) => {
-        return idsCategorias.length === 0 || produto.cores.some((cor) => {
-            return cor.categorias.some((categoria) => {
-                return idsCategorias.some((idCategoria) => {
+    const produtosSearch = produtos.filter((produto,index,produtosSearch) => {
+        const coresSearch = produtosSearch[index].cores.filter((cor) => {
+            return (textoSearch === null || textoSearch === "" || ToUpper(produto.referencia).includes(textoSearch) || produto.nome.includes(textoSearch) || ToUpper(cor.codigo).includes(textoSearch)) && cor.categorias.filter((categoria) => {
+                return idsCategorias.length === 0 || idsCategorias.filter((idCategoria) => {
                     return categoria === idCategoria;
-                });
-            });
+                }).length;
+            }).length;
         });
+        produtosSearch[index].cores=coresSearch;
+        return coresSearch.length;
     });
+    return produtosSearch;
 };
 
 const getProdutoToDBCategoria = (produtos, idCategoria) => {

@@ -175,7 +175,6 @@ export default {
     data() {
         return {
             idSegmento: null,
-            imagemProdutoPrincipal: null,
             produtoA: null,
             produtoB: null,
             produtoC: null,
@@ -278,7 +277,6 @@ export default {
             this.selectSequenciaImagemProduto(0);
         },
         selectSequenciaImagemProduto(imagemSelecionada) {        
-            this.imagemProdutoPrincipal = this.getImagemCorProduto(imagemSelecionada);
             this.imagemPass = [{id: 1, base64: this.getImagemCorProduto(imagemSelecionada)}];
         },
         getImagemCorProduto(imagem) {
@@ -339,7 +337,6 @@ export default {
                     this.produtoB = result.produtoB;
                     this.produtoC = result.produtoC;
                     ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
-                        this.imagemProdutoPrincipal = result;
                         this.imagemPass = [{id: 1, base64: result}];
                         this.corSelecionada = 0;
                         document.getElementById("produto-image-gallery").scrollTop = 0;
@@ -434,8 +431,6 @@ html {
   margin: auto;
   width: 60vw;
   height: 75vh;
-//   width: calc(100% - 60px);
-//   height: calc(100% - 120px - 65px - 47px - 16px);
   min-width: 300px;
   max-width: 470px;
 }
