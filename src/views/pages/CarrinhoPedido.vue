@@ -32,8 +32,9 @@
                             :options="getEnderecosEntrega"
                             label="descricao"
                             :reduce="options => options.endereco"
-                            :clearable=false 
-                        /> 
+                            :clearable=false>
+                            <span slot="no-options"></span>
+                        </v-select>
                     </div>
                 </div>
                 <div class="vx-row justify-center mt-5" style="margin-top:20px">
@@ -194,7 +195,6 @@ import vSelect from 'vue-select';
 import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
 import Datepicker from 'vuejs-datepicker';
 import * as lang from "vuejs-datepicker/src/locale";
-import moment from 'moment';
 
 export default {
 	data: () => ({
