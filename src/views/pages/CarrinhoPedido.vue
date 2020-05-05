@@ -108,14 +108,6 @@
                         <div class="vx-row" style="justify-content: flex-start;">
                             <label>Subtotal: {{ pedido.totalBruto | moneyy }} </label>
                         </div>
-                        <div class="vx-row" style="justify-content: flex-start;" v-if="mostraDescontos">
-                            <label>
-                                Descontos: 
-                                {{pedidoCapa.desconto1 && pedidoCapa.desconto1 > 0 ? `(${pedidoCapa.desconto1}%)` : ''}} 
-                                {{pedidoCapa.desconto2 && pedidoCapa.desconto2 > 0 ? `(${pedidoCapa.desconto2}%)` : ''}} 
-                                {{pedidoCapa.desconto3 && pedidoCapa.desconto3 > 0 ? `(${pedidoCapa.desconto3}%)` : ''}}
-                            </label>
-                        </div>
                         <div class="vx-row" style="justify-content: flex-start;">
                             <label><strong>Total: {{getTotalPedido(pedido) | moneyy }}</strong> </label>
                         </div>
@@ -218,16 +210,6 @@ export default {
         'v-select': vSelect,
 	},
 	computed: {    
-        mostraDescontos() {
-            if (this.pedidoCapa !== null
-                && (this.pedidoCapa.desconto1 && this.pedidoCapa.desconto1 > 0
-                    || this.pedidoCapa.desconto2 && this.pedidoCapa.desconto2 > 0
-                        || this.pedidoCapa.desconto3 && this.pedidoCapa.desconto3 > 0)) {
-                return true;
-            } else {
-                return false;
-            }
-        },    
         getListEmbarques() {
             return this.lodash.orderBy(this.pedidoCapa.listEmbarques, ['id', 'seq']);
         },
