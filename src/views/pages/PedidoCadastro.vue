@@ -38,13 +38,14 @@
                     <div class="vx-row">
                         <div class="vx-col w-full">
                             <label for="estadosFiltro" class="vs-input--label">Endereço de entrega</label>
-                            <v-select id="endEntrega" 
-                                @input="setEndEntrega()"
-                                name="endEntrega" 
-                                :clearable=false 
-                                v-model="enderecoEntregaSelecionado" 
-                                :options="getEnderecosEntrega" 
-                            /> 
+                            <v-select
+                                id="endEntrega" 
+                                @input="setEndereco(pedido.endEntrega)"
+                                v-model="pedido.endEntrega" 
+                                :options="getEnderecosEntrega"
+                                :reduce="options => options.endereco"
+                                :clearable=false>
+                            </v-select>
                         </div>
                     </div>
                     
@@ -206,7 +207,6 @@ export default {
             itensPedido: [],
             formaDePagamentoSelecionada: {},
             condicaoDePagamentoSelecionada: {},
-            enderecoEntregaSelecionado: {},
             temCondicaoDePagamento: true,
             showScreen:false,
         }
@@ -235,25 +235,19 @@ export default {
         },
         
         getEnderecosEntrega() {
+            const listaEnderecos = [{label: this.getLabelEndereco({...this.pedido.cliente.endereco}), endereco: {...this.pedido.cliente.endereco}}];
             if (this.pedido.cliente.enderecos && this.pedido.cliente.enderecos.length > 0) {
-                return this.pedido.cliente.enderecos.map((endereco, index) => {
-                    return {value: index, label: this.getLabelEndereco(endereco), endereco: endereco};
+                this.pedido.cliente.enderecos.map((endereco) => {
+                    listaEnderecos.push({label: this.getLabelEndereco(endereco), endereco: {...endereco} });
                 });
-            } else return [];
+            }
+            return listaEnderecos
         },
         
     },
     methods: {
-        setEndEntrega() {
-            this.pedido.endEntrega['cep'] =  this.enderecoEntregaSelecionado.endereco['cep'];
-            this.pedido.endEntrega['endereco'] =  this.enderecoEntregaSelecionado.endereco['endereco'];
-            this.pedido.endEntrega['bairro'] =  this.enderecoEntregaSelecionado.endereco['bairro'];
-            this.pedido.endEntrega['cidade'] =  this.enderecoEntregaSelecionado.endereco['cidade'];
-            this.pedido.endEntrega['numero'] =  this.enderecoEntregaSelecionado.endereco['numero'];
-            this.pedido.endEntrega['complemento'] =  this.enderecoEntregaSelecionado.endereco['complemento'];
-            this.pedido.endEntrega['telefone'] =  this.enderecoEntregaSelecionado.endereco['telefone'];
-            this.pedido.endEntrega['principal'] =  this.enderecoEntregaSelecionado.endereco['principal'];
-            this.pedido.endEntrega['idCidade'] =  this.enderecoEntregaSelecionado.endereco['idCidade'];
+        setEndereco(endereco) {
+            this.pedido.endEntrega = {label: this.getLabelEndereco({...endereco}), endereco: {...endereco} };
         },
         getLabelEndereco(endereco) {
             return endereco ? endereco.endereco + '- CEP: '+ endereco.cep : null;
@@ -380,7 +374,6 @@ export default {
                             this.itensPedido = this.pedido.itens;
                             FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
                                 this.formasPagto = dadosPagamento.formasDePagamento;
-                                this.enderecoEntregaSelecionado = {label: this.getLabelEndereco(this.pedido.endEntrega)};
                                 this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
                                 this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
                                 resolve();

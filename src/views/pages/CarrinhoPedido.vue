@@ -28,12 +28,11 @@
                         <label for="endEntrega" class="vs-input--label">Endereço de entrega</label>
                         <v-select 
                             id="endEntrega" 
+                            @input="setEndereco(pedidoCapa.endEntrega)"
                             v-model="pedidoCapa.endEntrega" 
                             :options="getEnderecosEntrega"
-                            label="descricao"
                             :reduce="options => options.endereco"
                             :clearable=false>
-                            <span slot="no-options"></span>
                         </v-select>
                     </div>
                 </div>
@@ -220,11 +219,13 @@ export default {
             return this.lodash.orderBy(this.pedidoCapa.listEmbarques, ['id', 'seq']);
         },
         getEnderecosEntrega() {
+            const listaEnderecos = [{label: this.getLabelEndereco({...this.pedidoCapa.cliente.endereco}), endereco: {...this.pedidoCapa.cliente.endereco}}];
             if (this.pedidoCapa.cliente.enderecos && this.pedidoCapa.cliente.enderecos.length > 0) {
-                return this.pedidoCapa.cliente.enderecos.map((endereco) => {
-                    return {descricao: this.getLabelEndereco(endereco), endereco: endereco };
+                this.pedidoCapa.cliente.enderecos.map((endereco) => {
+                    listaEnderecos.push({label: this.getLabelEndereco(endereco), endereco: {...endereco} });
                 });
-            } else return [];
+            }
+            return listaEnderecos;
         }, 
         getQtdeEmbarques() {
             return this.pedidoCapa.listEmbarques.length;
@@ -299,7 +300,7 @@ export default {
             return this.condicoesPagto[idPedido];
         },
         setEndereco(endereco) {
-            this.pedidoCapa.endEntrega = {descricao: this.getLabelEndereco({...endereco}), endereco: {...endereco} };
+            this.pedidoCapa.endEntrega = {label: this.getLabelEndereco({...endereco}), endereco: {...endereco} };
         },
         selecionarEndereco() {
             if(this.pedidoCapa.cliente.enderecos){
@@ -486,12 +487,9 @@ export default {
     async mounted() {
         this.pedidoCapa = this.$route.params.pedidoEmbarques;
 
-        console.log({...this.pedidoCapa});
-        
         if (this.pedidoCapa.cliente && this.pedidoCapa.cliente.cpfCnpj) {
             this.pedidoCapa.emailNfe = this.pedidoCapa.cliente.emailNfe;
             this.pedidoCapa.grupoCliente = this.pedidoCapa.cliente.grupoCliente;
-            // this.pedidoCapa.endEntrega = this.getEnderecosEntrega.find((end) => end.endereco.endEntrega );
         } else {
             this.pedidoCapa.grupoCliente = Storage.getGrupoCarrinho();
         }
