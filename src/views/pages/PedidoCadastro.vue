@@ -39,11 +39,9 @@
                         <div class="vx-col w-full">
                             <label for="estadosFiltro" class="vs-input--label">Endereço de entrega</label>
                             <v-select
-                                id="endEntrega" 
-                                @input="setEndereco(pedido.endEntrega)"
-                                v-model="pedido.endEntrega" 
+                                id="endEntrega"
+                                v-model="endEntregaSel"
                                 :options="getEnderecosEntrega"
-                                :reduce="options => options.endereco"
                                 :clearable=false>
                             </v-select>
                         </div>
@@ -209,6 +207,7 @@ export default {
             condicaoDePagamentoSelecionada: {},
             temCondicaoDePagamento: true,
             showScreen:false,
+            endEntregaSel: {},
         }
     },
     components: {
@@ -216,7 +215,9 @@ export default {
         'v-select': vSelect,
     },
     watch: {
-
+        endEntregaSel(val) {
+            this.pedido.endEntrega = {...val.value};
+        },
     },
     computed:{
 
@@ -235,10 +236,10 @@ export default {
         },
         
         getEnderecosEntrega() {
-            const listaEnderecos = [{label: this.getLabelEndereco({...this.pedido.cliente.endereco}), endereco: {...this.pedido.cliente.endereco}}];
+            const listaEnderecos = [{label: this.getLabelEndereco(this.pedido.cliente.endereco), value: {...this.pedido.cliente.endereco}}];
             if (this.pedido.cliente.enderecos && this.pedido.cliente.enderecos.length > 0) {
                 this.pedido.cliente.enderecos.map((endereco) => {
-                    listaEnderecos.push({label: this.getLabelEndereco(endereco), endereco: {...endereco} });
+                    listaEnderecos.push({label: this.getLabelEndereco(endereco), value: {...endereco} });
                 });
             }
             return listaEnderecos
@@ -246,8 +247,8 @@ export default {
         
     },
     methods: {
-        setEndereco(endereco) {
-            this.pedido.endEntrega = {label: this.getLabelEndereco({...endereco}), endereco: {...endereco} };
+        setEndereco(value) {
+            this.pedido.endEntrega = {...value};
         },
         getLabelEndereco(endereco) {
             return endereco ? endereco.endereco + '- CEP: '+ endereco.cep : null;
@@ -371,6 +372,7 @@ export default {
                         GrupoClienteDB.findById(cliente.grupoCliente).then((grupoCliente) => {
                             pedido.grupoCliente = grupoCliente;
                             this.pedido = pedido;
+                            this.endEntregaSel = {label: this.getLabelEndereco(this.pedido.endEntrega), value: {...this.pedido.endEntrega}}
                             this.itensPedido = this.pedido.itens;
                             FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
                                 this.formasPagto = dadosPagamento.formasDePagamento;
