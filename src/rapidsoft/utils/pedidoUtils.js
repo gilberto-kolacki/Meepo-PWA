@@ -104,7 +104,7 @@ class pedidoUtils {
                 newPedido.status = 20;
                 newPedido.cliente = pedido.cliente;
                 newPedido.grupoCliente = pedido.grupoCliente;
-                newPedido.endEntrega = pedido.endEntrega ? pedido.endEntrega.endereco : null;
+                newPedido.endEntrega = pedido.endEntrega;
                 newPedido.desconto1 = Number(pedido.desconto1);
                 newPedido.desconto2 = Number(pedido.desconto2);
                 newPedido.desconto3 = Number(pedido.desconto3);
