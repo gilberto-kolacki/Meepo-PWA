@@ -212,7 +212,6 @@
 
 <script>
 
-import Datepicker from 'vuejs-datepicker';
 import vSelect from 'vue-select';
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
@@ -240,7 +239,6 @@ export default {
         }
     },
     components: {
-        Datepicker,
         'v-select': vSelect,
     },
     watch: {
@@ -419,9 +417,6 @@ export default {
                             pedido.grupoCliente = grupoCliente;
                             this.pedido = pedido;
                             ProdutoDB.getFromPedido(this.pedido.itens).then((itensPedido) => {
-
-                                console.log("itensPedido", itensPedido);
-                                
                                 this.itensPedido = itensPedido;
                                 FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
                                     this.formasPagto = dadosPagamento.formasDePagamento;
@@ -487,10 +482,6 @@ export default {
 
 .my-5-top {
     margin-top: 1.25rem !important;    
-}
-
-.vdp-datepicker input:blur {
-    box-shadow: 0 3px 10px 0 rgba(0, 0, 0, .15);
 }
 
 .vx-card {

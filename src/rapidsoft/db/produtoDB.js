@@ -695,8 +695,6 @@ class produtoDB extends BasicDB {
     }
 
     getItemTamanhoPedido(item) {
-        console.log("item.tamanho", item);
-        
         return {codigo: item.tamanho, quantidade: item.quantidade, quantidadeAberto: item.quantidadeAberto, quantidadeFaturado: item.quantidadeFaturado, quantidadeCancelado: item.quantidadeCancelado };
     }
 
