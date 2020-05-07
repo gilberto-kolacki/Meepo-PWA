@@ -1,7 +1,6 @@
 <template>
     <div v-if="showScreen">
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-save" v-if="pedido.status == 10"  @click="finalizarPedido(pedido)" >Salvar</vs-button>
-        <!-- <vs-button class="btn-confirm" color="rgb(36, 193, 160)" type="filled" icon-pack="feather" icon="icon-unlock" v-if="pedido.status != 10 && pedido.status < 45"  @click="mensagemMudarParaDigitacao(pedido)">Reabrir</vs-button> -->
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
         <b-tabs content-class="mt-5" justified>
             <b-tab  active lazy>
@@ -15,6 +14,15 @@
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
                             <vs-input label="Código" id="id" name="emailNfe" v-model="pedido.id" class="w-full" disabled />
+                        </vs-col>
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
+                            <vs-input label="Status" id="status" name="emailNfe" v-model="getStatus" class="w-full" disabled />
+                        </vs-col>
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
+                            <vs-input label="Data Embarque" id="dataEmbarque" name="dataEmbarque" v-model="getDataEmbarque" class="w-full" disabled />
+                        </vs-col>
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
+                            <vs-input label="Total Líquido" id="totalLiquido" name="totalLiquido" v-model="getTotalLiquido" class="w-full" disabled />
                         </vs-col>
                     </div>
                     <div class="vx-row">
@@ -32,7 +40,7 @@
                     </div>
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
-                            <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedido.cliente.emailNfe" class="w-full" type="email" inputmode="email" />
+                            <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedido.cliente.emailNfe" class="w-full" type="email" inputmode="email" :disabled="pedido.status > 10" />
                         </vs-col>
                     </div>
                     <div class="vx-row">
@@ -44,6 +52,7 @@
                                 :clearable=false 
                                 v-model="enderecoEntregaSelecionado" 
                                 :options="getEnderecosEntrega" 
+                                :disabled="pedido.status > 10"
                             /> 
                         </div>
                     </div>
@@ -52,31 +61,31 @@
                     
                     <div class="vx-row flex justify-between" style="padding-left:25px;padding-right:25px;padding-top:10px">
                         <vs-col vs-type="flex" vs-lg="4" vs-sm="4" vs-xs="12">
-                            <vs-input type="number" icon-pack="feather" label="Desconto 1" icon="icon-percent" v-model="pedido.desconto1" inputmode="decimal" icon-after/>
+                            <vs-input type="number" icon-pack="feather" label="Desc. Volume" icon="icon-percent" v-model="pedido.desconto1" inputmode="decimal" icon-after disabled/>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="4" vs-sm="4" vs-xs="12">
-                            <vs-input type="number" icon-pack="feather" label="Desconto 2" icon="icon-percent" v-model="pedido.desconto2" inputmode="decimal" icon-after/>
+                            <vs-input type="number" icon-pack="feather" label="Desc. Showroom" icon="icon-percent" v-model="pedido.desconto2" inputmode="decimal" icon-after disabled/>
                         </vs-col>
                         <vs-col style="display:flex;justify-content: flex-end;" vs-lg="4" vs-sm="4" vs-xs="12">
-                            <vs-input type="number" icon-pack="feather" label="Desconto 3" icon="icon-percent" v-model="pedido.desconto3" inputmode="decimal" icon-after/>
+                            <vs-input type="number" icon-pack="feather" label="Desc. Comercial" icon="icon-percent" v-model="pedido.desconto3" inputmode="decimal" icon-after disabled/>
                         </vs-col>
                     </div>
                 
                     <div class="vx-row flex justify-between" style="margin-left:20px;margin-right:20px;padding-top:20px">
                         <vs-col vs-lg="5" vs-xs="12">
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <vs-checkbox v-model="pedido.pedidoParcial"></vs-checkbox>
+                                <vs-checkbox v-model="pedido.pedidoParcial" :disabled="pedido.status > 10"></vs-checkbox>
                                 <label>Aceita Pedido Parcial</label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <vs-checkbox v-model="pedido.antecipacaoPedido"></vs-checkbox>
+                                <vs-checkbox v-model="pedido.antecipacaoPedido" :disabled="pedido.status > 10"></vs-checkbox>
                                 <label>Aceita Antecipação do Pedido </label>
                             </div>
                         </vs-col>
                         <vs-col vs-lg="5" vs-sm="5" vs-xs="12">
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Enviar Cópia Por Email </label>
-                                <vs-checkbox v-model="pedido.copiaEmail"></vs-checkbox>
+                                <vs-checkbox v-model="pedido.copiaEmail" :disabled="pedido.status > 10"></vs-checkbox>
                             </div>
                         </vs-col>
                     </div>
@@ -92,6 +101,7 @@
                                 v-model="formaDePagamentoSelecionada" 
                                 :options="getFormasPagto" 
                                 :dir="$vs.rtl ? 'rtl' : 'ltr'"
+                                disabled
                             />
                         </vs-col>
                         <vs-col vs-lg="6" vs-sm="6" vs-xs="12" v-if="temCondicaoDePagamento" >
@@ -104,27 +114,28 @@
                                 v-model="condicaoDePagamentoSelecionada" 
                                 :options="getCondicoesDePagamento" 
                                 :dir="$vs.rtl ? 'rtl' : 'ltr'"
+                                disabled
                             />
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
-                            <vs-textarea v-model="pedido.observacao" style="margin-top:30px" label="Observação" height="100" />
+                            <vs-textarea v-model="pedido.observacao" style="margin-top:30px" label="Observação" height="100" :disabled="pedido.status > 10"/>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
                             <vs-button 
                                 v-if="pedido.status == 20" 
                                 class='w-full' 
-                                color="rgb(36, 193, 160)" 
+                                color="danger" 
                                 type="filled" 
                                 icon-pack="feather" 
                                 icon="icon-lock"
                                 @click="mensagemMudarParaDigitacao(pedido)"
                             >
-                                Reabrir Pedido
+                                Bloquear Sincronização
                             </vs-button>
                             <vs-button 
-                                v-if="pedido.status == 10"
+                                v-else-if="pedido.status == 10"
                                 class='w-full' 
-                                color="primary" 
+                                color="success" 
                                 type="filled" 
                                 icon-pack="feather" 
                                 icon="icon-unlock"
@@ -144,36 +155,52 @@
                     </strong>
                 </template>
                 <div class="parentx">
-                    <div v-for="(item, indexItem) in itensPedido" :key="indexItem">
-                        <div class="flex carrinho-item" v-if="!item.remove">
-                            <div class="vx-col w-3/12 mx-6" style="justify-content:center;margin:auto">
-                                <div class="vx-row" style="font-weight:bold;">
-                                    Data: {{ pedido.dataEmbarque | formatDate}}
-                                </div>
-                                <div class="vx-row" style="font-weight:bold;">
-                                    {{item.sku}}
-                                </div>
-                                <div class="vx-row">
-                                    {{pedido.cliente.nome}}
-                                </div>
+                    <div class="flex carrinho-item" v-for="(itemCor, indexItem) in itensPedido" :key="indexItem">            
+                        <div class="vx-col mx-1 w-1/4" style="justify-content:center; margin:auto">
+                            <img 
+                                :src="itemCor.imagemPrincipal ? itemCor.imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)"
+                                class="rounded m-2 responsive" style="max-width:80px;" 
+                            />
+                        </div>
+                        <div class="vx-col mx-1 w-1/3" style="justify-content:center;margin:auto; max-width: 7rem;">
+                            <div class="vx-row">{{itemCor.nome}}</div>
+                            <div class="vx-row" style="font-weight:bold;">{{'Ref: ' + itemCor.referencia}}</div>
+                            <div class="vx-row" style="font-weight:bold;">{{'Cor: ' + itemCor.cor}}</div>
+                        </div>
+                        <div class="vx-col mx-6 w-3/6" style="justify-content:center; margin:auto; min-width: 6.5rem; margin-right: 3.5rem !important">
+                            <table>
+                                <thead class="border-solid">
+                                    <th class="grade-tam-prod-title">Tam</th>
+                                    <th class="grade-tam-prod-title" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">
+                                        {{tamanho.codigo}}
+                                    </th>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="grade-tam-prod-qtde">Pçs</td>
+                                        <td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidade}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="grade-tam-prod-abert">Aber</td>
+                                        <td class="grade-tam-prod-abert" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidadeAberto}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="grade-tam-prod-fatu">Fatu</td>
+                                        <td class="grade-tam-prod-fatu" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidadeFaturado}}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="grade-tam-prod-canc">Canc</td>
+                                        <td class="grade-tam-prod-canc" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidadeCancelado}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>    
+                        <div class="vx-col mx-2 w-1/6 float-right" style="justify-content:center;margin:auto">
+                            <div class="vx-col text-center">
+                                <span style="font-weight:bold">Qntd: {{itemCor.quantidade}}</span>
                             </div>
-                            <div class="vx-col w-2/12 mx-10" style="justify-content:center;margin:auto">
-                                <div class="vx-row">Tamanho</div>
-                                <div class="vx-row" style="font-weight:bold;">{{item.tamanho}}</div>
-                            </div>
-                            <div class="vx-col w-3/12 mx-10" style="justify-content:center;margin:auto">
-                                <div class="vx-row" style="font-weight:bold;">
-                                    <vs-input-number v-if="pedido.status == 10" color="primary" v-model="item.quantidade" label="Qnt"/>
-                                    <vs-input-number v-else disabled color="primary" v-model="item.quantidade" label="Qnt"/>
-                                </div>
-                            </div>
-                            <div class="vx-col w-3/12 mx-10" style="justify-content:center;margin:auto">
-                                <div class="vx-row">Valor</div>
-                                <div class="vx-row" style="font-weight:bold;">{{item.precoCusto | moneyy(pedido.grupoCliente)}}</div>
-                            </div>
-                            <div class="vx-col w-1/12 mx-10" style="justify-content:center;margin:auto">
-                                <vs-button v-if="pedido.status == 10" type="filled" size="small" icon-pack="feather" color="primary" icon="icon-x" @click="deletarMessage(item)"/>
-                                <vs-button v-else disabled type="filled" size="small" icon-pack="feather" color="primary" icon="icon-x"/>
+                            <div class="vx-row text-center justify-center">
+                                <span style="font-weight:bold">{{getValorTotalCor(itemCor) | moneyy}}</span>
                             </div>
                         </div>
                     </div>
@@ -188,6 +215,7 @@
 import Datepicker from 'vuejs-datepicker';
 import vSelect from 'vue-select';
 import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
+import ProdutoDB from "../../rapidsoft/db/produtoDB";
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
 import ClienteDB from "../../rapidsoft/db/clienteDB";
@@ -216,16 +244,26 @@ export default {
         'v-select': vSelect,
     },
     watch: {
-
+        
     },
     computed:{
-
+        getTotalLiquido() {
+            return this.$options.filters.money(this.pedido.totalLiquido);
+        },
+        getDataEmbarque() {
+            return this.$options.filters.formatDate(this.pedido.dataEmbarque);
+        },
+        getStatus() {
+            if(this.pedido.status == 20) return "Aguardando Sinc.";      
+            else if(this.pedido.status == 50) return "Sincronizado"; 
+            else if(this.pedido.status == 99) return "Cancelado";
+            else return "Bloq. Sinc.";
+        },
         getFormasPagto() {
             return this.formasPagto.map((formaPagto) => {
                 return {value:formaPagto.id, label:formaPagto.nome, condicoes: formaPagto.condicoes};
             });
         },
-
         getCondicoesDePagamento() {
             if (this.formaDePagamentoSelecionada && this.formaDePagamentoSelecionada.condicoes.length > 0) {
                 return this.formaDePagamentoSelecionada.condicoes.map((condicaoDePagamento) => {
@@ -244,6 +282,9 @@ export default {
         
     },
     methods: {
+        getValorTotalCor(itemCor) {
+            return itemCor.quantidade * itemCor.precoCusto;
+        },
         setEndEntrega() {
             this.pedido.endEntrega['cep'] =  this.enderecoEntregaSelecionado.endereco['cep'];
             this.pedido.endEntrega['endereco'] =  this.enderecoEntregaSelecionado.endereco['endereco'];
@@ -377,13 +418,18 @@ export default {
                         GrupoClienteDB.findById(cliente.grupoCliente).then((grupoCliente) => {
                             pedido.grupoCliente = grupoCliente;
                             this.pedido = pedido;
-                            this.itensPedido = this.pedido.itens;
-                            FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
-                                this.formasPagto = dadosPagamento.formasDePagamento;
-                                this.enderecoEntregaSelecionado = {label: this.getLabelEndereco(this.pedido.endEntrega)};
-                                this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
-                                this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
-                                resolve();
+                            ProdutoDB.getFromPedido(this.pedido.itens).then((itensPedido) => {
+
+                                console.log("itensPedido", itensPedido);
+                                
+                                this.itensPedido = itensPedido;
+                                FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
+                                    this.formasPagto = dadosPagamento.formasDePagamento;
+                                    this.enderecoEntregaSelecionado = {label: this.getLabelEndereco(this.pedido.endEntrega)};
+                                    this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
+                                    this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
+                                    resolve();
+                                });
                             });
                         });
                     });
@@ -453,6 +499,43 @@ export default {
 
 .vs-input--input.normal {
     font-size: 0.75rem;
+}
+
+.grade-tam-prod-title {
+    background-color:#808080;
+    color:white;
+    border-style: solid !important
+}
+
+.grade-tam-prod-qtde {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: center !important;
+    border-style: solid !important
+}
+
+.grade-tam-prod-abert {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: center !important;
+    border-style: solid !important;
+    color: #189b36;
+}
+
+.grade-tam-prod-fatu {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: center !important;
+    border-style: solid !important;
+    color: #7179f4;
+}
+
+.grade-tam-prod-canc {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: center !important;
+    border-style: solid !important;
+    color: #f15b5b;
 }
 
 </style>

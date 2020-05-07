@@ -694,6 +694,52 @@ class produtoDB extends BasicDB {
         });
     }
 
+    getItemTamanhoPedido(item) {
+        console.log("item.tamanho", item);
+        
+        return {codigo: item.tamanho, quantidade: item.quantidade, quantidadeAberto: item.quantidadeAberto, quantidadeFaturado: item.quantidadeFaturado, quantidadeCancelado: item.quantidadeCancelado };
+    }
+
+    getFromPedido(itens) {
+        return new Promise((resolve) => {
+            const itensPedido = itens.reduce((itensPedido, item) => {
+                const index = itensPedido.findIndex((itemPedido) => itemPedido.referencia === item.referencia && itemPedido.cor === item.cor );
+                if (index >= 0) {
+                    const itemCor = {...itensPedido[index]};
+                    itemCor.quantidade = itemCor.quantidade + item.quantidade;
+                    itemCor.quantidadeAberto = itemCor.quantidadeAberto + item.quantidadeAberto;
+                    itemCor.quantidadeFaturado = itemCor.quantidadeFaturado + item.quantidadeFaturado;
+                    itemCor.quantidadeCancelado = itemCor.quantidadeCancelado + item.quantidadeCancelado;
+                    itemCor.tamanhos.push(this.getItemTamanhoPedido(item));
+                    itensPedido[index] = itemCor;
+                } else {
+                    const itemCor = {};
+                    itemCor.referencia = item.referencia;
+                    itemCor.cor = item.cor;
+                    itemCor.precoCusto = item.precoCusto;
+                    itemCor.quantidade = item.quantidade;
+                    itemCor.quantidadeAberto = item.quantidadeAberto;
+                    itemCor.quantidadeFaturado = item.quantidadeFaturado;
+                    itemCor.quantidadeCancelado = item.quantidadeCancelado;
+                    itemCor.tamanhos = [this.getItemTamanhoPedido(item)];
+                    itensPedido.push(itemCor);
+                }
+                return itensPedido;
+            }, []);
+            const done = After(itensPedido.length, () => resolve(itensPedido));
+            itensPedido.forEach((item) => {
+                this.getById(item.referencia).then((produto) => {
+                    const cor = produto.value.cores.find((cor) => cor.codigo === item.cor);
+                    ImagemDB.getFotoPrincipalCor(cor).then((imagemProdutoPrincipal) => {
+                        item.nome = produto.value.nome;
+                        item.imagemPrincipal = imagemProdutoPrincipal;
+                        done();
+                    });
+                });
+            });
+        });
+    }
+
 }
 
 export default new produtoDB();

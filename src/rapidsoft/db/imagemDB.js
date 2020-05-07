@@ -184,16 +184,24 @@ class imagemDB {
     getFotoPrincipal(produto) {
         return new Promise((resolve) => {
             if (produto.cores[0].imagens.length > 0 && IsArray(produto.cores[0].imagens)) {
-                ImagemFotoDB._getById(produto.cores[0].imagens[0].id).then((fotoProduto) => {
-                    if(fotoProduto.existe) {
-                        resolve(fotoProduto.value.base64);
-                    } else {
-                        resolve(null);
-                    }
+                this.getFotoPrincipalCor(produto.cores[0]).then((fotoPrincipal) => {
+                    resolve(fotoPrincipal);
                 });
             } else {
                 resolve(null);
             }
+        });
+    }
+
+    getFotoPrincipalCor(produtoCor) {
+        return new Promise((resolve) => {
+            ImagemFotoDB._getById(produtoCor.imagens[0].id).then((fotoProduto) => {
+                if(fotoProduto.existe) {
+                    resolve(fotoProduto.value.base64);
+                } else {
+                    resolve(null);
+                }
+            });
         });
     }
 

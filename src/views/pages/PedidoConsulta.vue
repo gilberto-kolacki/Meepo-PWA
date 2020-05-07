@@ -122,7 +122,7 @@ export default {
             selecteds: false,            
             filtersStatus: [
                 {id:0, title: 'Todos'},
-                {id:10, title: 'Digitação'},
+                {id:10, title: 'Bloq. Sinc.'},
                 {id:20, title: 'Ag. Sincronização'},
                 {id:50, title: 'Sincronizado'},
                 {id:99, title: 'Cancelado'}
@@ -160,7 +160,7 @@ export default {
             if(status == 20) return "Aguardando Sincronização";      
             if(status == 50) return "Sincronizado"; 
             if(status == 99) return "Cancelado";
-            else return "Digitação";
+            else return "Bloq. Sinc.";
         },
         getStatusColor(status) {
             if(status == 20) return "warning";
