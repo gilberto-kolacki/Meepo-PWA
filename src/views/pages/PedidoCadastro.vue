@@ -46,14 +46,12 @@
                     <div class="vx-row">
                         <div class="vx-col w-full">
                             <label for="estadosFiltro" class="vs-input--label">Endereço de entrega</label>
-                            <v-select id="endEntrega" 
-                                @input="setEndEntrega()"
-                                name="endEntrega" 
-                                :clearable=false 
-                                v-model="enderecoEntregaSelecionado" 
-                                :options="getEnderecosEntrega" 
-                                :disabled="pedido.status > 10"
-                            /> 
+                            <v-select
+                                id="endEntrega"
+                                v-model="endEntregaSel"
+                                :options="getEnderecosEntrega"
+                                :clearable=false>
+                            </v-select>
                         </div>
                     </div>
                     
@@ -233,16 +231,18 @@ export default {
             itensPedido: [],
             formaDePagamentoSelecionada: {},
             condicaoDePagamentoSelecionada: {},
-            enderecoEntregaSelecionado: {},
             temCondicaoDePagamento: true,
             showScreen:false,
+            endEntregaSel: {},
         }
     },
     components: {
         'v-select': vSelect,
     },
     watch: {
-        
+        endEntregaSel(val) {
+            this.pedido.endEntrega = {...val.value};
+        },
     },
     computed:{
         getTotalLiquido() {
@@ -271,28 +271,19 @@ export default {
         },
         
         getEnderecosEntrega() {
+            const listaEnderecos = [{label: this.getLabelEndereco(this.pedido.cliente.endereco), value: {...this.pedido.cliente.endereco}}];
             if (this.pedido.cliente.enderecos && this.pedido.cliente.enderecos.length > 0) {
-                return this.pedido.cliente.enderecos.map((endereco, index) => {
-                    return {value: index, label: this.getLabelEndereco(endereco), endereco: endereco};
+                this.pedido.cliente.enderecos.map((endereco) => {
+                    listaEnderecos.push({label: this.getLabelEndereco(endereco), value: {...endereco} });
                 });
-            } else return [];
+            }
+            return listaEnderecos
         },
         
     },
     methods: {
-        getValorTotalCor(itemCor) {
-            return itemCor.quantidade * itemCor.precoCusto;
-        },
-        setEndEntrega() {
-            this.pedido.endEntrega['cep'] =  this.enderecoEntregaSelecionado.endereco['cep'];
-            this.pedido.endEntrega['endereco'] =  this.enderecoEntregaSelecionado.endereco['endereco'];
-            this.pedido.endEntrega['bairro'] =  this.enderecoEntregaSelecionado.endereco['bairro'];
-            this.pedido.endEntrega['cidade'] =  this.enderecoEntregaSelecionado.endereco['cidade'];
-            this.pedido.endEntrega['numero'] =  this.enderecoEntregaSelecionado.endereco['numero'];
-            this.pedido.endEntrega['complemento'] =  this.enderecoEntregaSelecionado.endereco['complemento'];
-            this.pedido.endEntrega['telefone'] =  this.enderecoEntregaSelecionado.endereco['telefone'];
-            this.pedido.endEntrega['principal'] =  this.enderecoEntregaSelecionado.endereco['principal'];
-            this.pedido.endEntrega['idCidade'] =  this.enderecoEntregaSelecionado.endereco['idCidade'];
+        setEndereco(value) {
+            this.pedido.endEntrega = {...value};
         },
         getLabelEndereco(endereco) {
             return endereco ? endereco.endereco + '- CEP: '+ endereco.cep : null;
@@ -417,6 +408,7 @@ export default {
                             pedido.grupoCliente = grupoCliente;
                             this.pedido = pedido;
                             ProdutoDB.getFromPedido(this.pedido.itens).then((itensPedido) => {
+                                this.endEntregaSel = {label: this.getLabelEndereco(this.pedido.endEntrega), value: {...this.pedido.endEntrega}};
                                 this.itensPedido = itensPedido;
                                 FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
                                     this.formasPagto = dadosPagamento.formasDePagamento;

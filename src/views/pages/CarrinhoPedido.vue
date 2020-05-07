@@ -28,12 +28,10 @@
                         <label for="endEntrega" class="vs-input--label">Endereço de entrega</label>
                         <v-select 
                             id="endEntrega" 
-                            v-model="pedidoCapa.endEntrega" 
+                            v-model="endEntregaSel" 
                             :options="getEnderecosEntrega"
-                            label="descricao"
-                            :reduce="options => options.endereco"
-                            :clearable=false 
-                        /> 
+                            :clearable=false>
+                        </v-select>
                     </div>
                 </div>
                 <div class="vx-row justify-center mt-5" style="margin-top:20px">
@@ -108,14 +106,6 @@
                         <div class="vx-row" style="justify-content: flex-start;">
                             <label>Subtotal: {{ pedido.totalBruto | moneyy }} </label>
                         </div>
-                        <div class="vx-row" style="justify-content: flex-start;" v-if="mostraDescontos">
-                            <label>
-                                Descontos: 
-                                {{pedidoCapa.desconto1 && pedidoCapa.desconto1 > 0 ? `(${pedidoCapa.desconto1}%)` : ''}} 
-                                {{pedidoCapa.desconto2 && pedidoCapa.desconto2 > 0 ? `(${pedidoCapa.desconto2}%)` : ''}} 
-                                {{pedidoCapa.desconto3 && pedidoCapa.desconto3 > 0 ? `(${pedidoCapa.desconto3}%)` : ''}}
-                            </label>
-                        </div>
                         <div class="vx-row" style="justify-content: flex-start;">
                             <label><strong>Total: {{getTotalPedido(pedido) | moneyy }}</strong> </label>
                         </div>
@@ -140,15 +130,17 @@
                     <div class="vx-row flex justify-content" style="padding-bottom:15px">
                         <div class="vx-col sm:w-1/4 w-full mb-2">
                             <label>Data Embarque</label>
-                            <v-select 
+                            <datepicker
                                 @input="selecionarCondicaoPagamento(pedido)"
-                                id="dataEmbarque"
-                                label="descricao"
-                                style="width:100%" 
-                                v-model="pedido.dataEmbarque"
-                                :options="datasEmbarque(pedido)" 
-                                :reduce="options => options.valor"
-                                :clearable=false                                     
+                                placeholder="DD/MM/AAAA" 
+                                v-model="pedido.dataEmbarque" 
+                                format="dd/MM/yyyy" 
+                                name="dataEmbarque" 
+                                :language="langSettings"  
+                                :disabledDates="getDataDesabilitadas(pedido)"
+                                input-class="vs-inputx vs-input--input normal rapid-input-date"
+                                maximum-view="month"
+                                calendar-class="margin-calendar"
                             />
                         </div>
                         <div class="vx-col sm:w-2/5 w-full mb-2">
@@ -198,10 +190,12 @@ import PedidoDB from "../../rapidsoft/db/pedidoDB";
 import OrcamentoDB from "../../rapidsoft/db/orcamentoDB";
 import vSelect from 'vue-select';
 import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
-import moment from 'moment';
+import Datepicker from 'vuejs-datepicker';
+import * as lang from "vuejs-datepicker/src/locale";
 
 export default {
 	data: () => ({
+        langSettings: lang.ptBR,
         pedidoCapa: null,
         isOrcamento: false,
         showScreen: false,
@@ -210,33 +204,29 @@ export default {
         embarques:[],
         condigoBrinde: 5,
         condigoBoleto: 1,
+        endEntregaSel: {},
     }),
     watch: {
-        
+        endEntregaSel(option) {
+            this.pedidoCapa.endEntrega = {...option.value};
+        },
     },
 	components: {
         'v-select': vSelect,
-	},
+        Datepicker,
+    },
 	computed: {    
-        mostraDescontos() {
-            if (this.pedidoCapa !== null
-                && (this.pedidoCapa.desconto1 && this.pedidoCapa.desconto1 > 0
-                    || this.pedidoCapa.desconto2 && this.pedidoCapa.desconto2 > 0
-                        || this.pedidoCapa.desconto3 && this.pedidoCapa.desconto3 > 0)) {
-                return true;
-            } else {
-                return false;
-            }
-        },    
         getListEmbarques() {
             return this.lodash.orderBy(this.pedidoCapa.listEmbarques, ['id', 'seq']);
         },
         getEnderecosEntrega() {
+            const listaEnderecos = [this.getEndEntregaOption(this.pedidoCapa.cliente.endereco)];
             if (this.pedidoCapa.cliente.enderecos && this.pedidoCapa.cliente.enderecos.length > 0) {
-                return this.pedidoCapa.cliente.enderecos.map((endereco) => {
-                    return {descricao: this.getLabelEndereco(endereco), endereco: endereco };
+                this.pedidoCapa.cliente.enderecos.map((endereco) => {
+                    listaEnderecos.push(this.getEndEntregaOption(endereco));
                 });
-            } else return [];
+            }
+            return listaEnderecos;
         }, 
         getQtdeEmbarques() {
             return this.pedidoCapa.listEmbarques.length;
@@ -258,38 +248,6 @@ export default {
         }     
 	},
     methods: {        
-        datasEmbarque(embarque) {
-            const datasDisponiveis = [];        
-            if (embarque.periodos) {
-                embarque.periodos.forEach(periodo => {
-                    let dataAtual = 0;
-                    const dataFim = periodo.dataEmbarqueFim;
-                    while (dataAtual < dataFim) {
-                        dataAtual = dataAtual == 0 ? periodo.dataEmbarqueInicio : this.somarDiaData(dataAtual);
-                        datasDisponiveis.push(dataAtual);
-                    }
-                });
-            } else {
-                let dataAtual = 0;
-                const dataFim = embarque.dataFim;
-                while (dataAtual < dataFim) {
-                    dataAtual = dataAtual == 0 ? embarque.dataInicio : this.somarDiaData(dataAtual);
-                    datasDisponiveis.push(dataAtual);
-                }
-            }
-            return this.getLabelData(datasDisponiveis);
-        },
-        somarDiaData(timeUtc) {
-            const date = new Date(timeUtc);
-            const newdate = new Date(timeUtc);
-            newdate.setDate(date.getDate() + 1);
-            return newdate.getTime();
-        },
-        getLabelData(datasDisponiveis) {
-            return datasDisponiveis.map((data) => {
-                return {descricao: moment(new Date(data)).format('DD/MM/YYYY'), valor: data }
-            });
-        },
         selecionarCondicaoPagamento(pedido) {
             const formaPagto = pedido.formaPagamento;
             if (formaPagto.id == this.condigoBrinde) {
@@ -342,20 +300,20 @@ export default {
         getCondicoesPagamento(idPedido) {
             return this.condicoesPagto[idPedido];
         },
-        setEndereco(endereco) {
-            this.pedidoCapa.endEntrega = {descricao: this.getLabelEndereco({...endereco}), endereco: {...endereco} };
-        },
         selecionarEndereco() {
             if(this.pedidoCapa.cliente.enderecos){
                 const enderecoPrincipal = this.pedidoCapa.cliente.enderecos.find((endereco) => endereco.principal);
                 if (enderecoPrincipal) {
-                    this.setEndereco(enderecoPrincipal);
+                    this.endEntregaSel = this.getEndEntregaOption(enderecoPrincipal);
                 } else {
-                    this.setEndereco(this.pedidoCapa.cliente.endereco);
+                    this.endEntregaSel = this.getEndEntregaOption(this.pedidoCapa.cliente.endereco);
                 }
             } else {
-                this.setEndereco(this.pedidoCapa.cliente.endereco);
+                this.endEntregaSel = this.getEndEntregaOption(this.pedidoCapa.cliente.endereco);
             }
+        },
+        getEndEntregaOption(endereco) {
+            return {label: this.getLabelEndereco(endereco), value: {...endereco}};
         },
         getLabelEndereco(endereco) {
             return endereco ? endereco.endereco +', Nº'+ endereco.numero +' - CEP: '+ endereco.cep : null;
@@ -470,9 +428,9 @@ export default {
                     this.formasPagto = formaPagto;
                     PedidoUtils.getEmbarquesPedido(this.pedidoCapa).then((pedido) => {
                         if (this.pedidoCapa.replica) {
-                            this.setEndereco(this.pedidoCapa.endEntrega);
                             this.setFormaPagtoEmbarques(pedido).then((pedidoCapa) => {
                                 this.pedidoCapa = pedidoCapa;
+                                this.endEntregaSel = this.getEndEntregaOption(this.pedidoCapa.endEntrega);
                                 this.showScreen = true;
                                 resolve();
                             });
@@ -490,6 +448,35 @@ export default {
                 })
             });
         },
+        // caso o embarque tenha periodos, pegar a data ininial do promeiro periodo, e a data final do ultimo periodo
+        //  inativar as data que não estiverem no periodo
+        getDataDesabilitadas(embarque) {
+            const datasDesativadas = (ranges) => {
+                if (embarque.periodos) {
+                    return { 
+                        from: new Date(embarque.periodos[embarque.periodos.length-1].dataEmbarqueFim),
+                        to: new Date(embarque.periodos[0].dataEmbarqueInicio),
+                        days: [6, 0],
+                        ranges: ranges
+                    };
+                } else {
+                    return { 
+                        from: new Date(embarque.dataFim),
+                        to: new Date(embarque.dataInicio),
+                        days: [6, 0],
+                        ranges: ranges
+                    };
+                }
+            }
+
+            if (embarque.periodosExcecao) {
+                const ranges = embarque.periodosExcecao.map((periodoExcecao) => { return {from: new Date(periodoExcecao.dataEmbarqueInicio - 86400000), to: new Date(periodoExcecao.dataEmbarqueFim + 86400000)}});
+                return datasDesativadas(ranges);
+            } else {
+                return datasDesativadas([]);
+            }
+            
+        }
 
     },
 	beforeCreate() {
@@ -501,12 +488,9 @@ export default {
     async mounted() {
         this.pedidoCapa = this.$route.params.pedidoEmbarques;
 
-        console.log({...this.pedidoCapa});
-        
         if (this.pedidoCapa.cliente && this.pedidoCapa.cliente.cpfCnpj) {
             this.pedidoCapa.emailNfe = this.pedidoCapa.cliente.emailNfe;
             this.pedidoCapa.grupoCliente = this.pedidoCapa.cliente.grupoCliente;
-            // this.pedidoCapa.endEntrega = this.getEnderecosEntrega.find((end) => end.endereco.endEntrega );
         } else {
             this.pedidoCapa.grupoCliente = Storage.getGrupoCarrinho();
         }
@@ -583,5 +567,10 @@ export default {
         box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.2);
         margin-top: 15px;
     }
+
+    .margin-calendar {
+        margin-bottom: 20px !important;
+    }
+    
 
 </style>
