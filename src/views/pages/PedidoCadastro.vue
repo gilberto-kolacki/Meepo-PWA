@@ -282,6 +282,9 @@ export default {
         
     },
     methods: {
+        getValorTotalCor(itemCor) {
+            return itemCor.quantidade * itemCor.precoCusto;
+        },
         setEndereco(value) {
             this.pedido.endEntrega = {...value};
         },
