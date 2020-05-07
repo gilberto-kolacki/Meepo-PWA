@@ -220,7 +220,7 @@ class clienteDB extends BasicDB {
                 }
 
                 if (cliente.nome == null) {
-                    cliente.nome = (cliente.nomeFantasia ? cliente.nomeFantasia : cliente.razaoSocial).toUpperCase();
+                    cliente.nome = (cliente.razaoSocial ? cliente.razaoSocial : cliente.nomeCliente).toUpperCase();
                 }
                 
                 cliente.clienteErp = true;
