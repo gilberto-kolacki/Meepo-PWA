@@ -101,7 +101,7 @@ class pedidoUtils {
         return new Promise((resolve) => {
             const pedidos = pedido.listEmbarques.map((item) => {
                 const newPedido = {};
-                newPedido.status = 20;
+                newPedido.status = 2;
                 newPedido.cliente = pedido.cliente;
                 newPedido.grupoCliente = pedido.grupoCliente;
                 newPedido.endEntrega = pedido.endEntrega;

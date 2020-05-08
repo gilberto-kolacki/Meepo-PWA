@@ -47,7 +47,7 @@
                             </b-dropdown-text>
                             <b-dropdown-item v-for="(status, indexStatus) in filtersStatus" :key="indexStatus">
                                 <span class="flex items-center mt-2">
-                                    <span @click="filtrar(status)">{{status.id +' - '+ status.title}}</span>
+                                    <span @click="filtrar(status)">{{status.id +' - '+ status.nome}}</span>
                                 </span>
                             </b-dropdown-item>
                         </b-dropdown>
@@ -55,7 +55,7 @@
                 </div>
                 <div class="w-4/5">
                     <div class="flex flex-wrap mt-4">
-                        <h2>Pedidos - {{filterStatusSelecionado.title}}</h2>
+                        <h2>Pedidos - {{filterStatusSelecionado.nome}}</h2>
                     </div>
                 </div>
             </template>
@@ -80,11 +80,8 @@
                                 <vs-button type="filled" size="small" name="Editar" icon-pack="feather" color="warning" icon="icon-edit-2" @click="editar(data[indextr])" />
                             </div>
                             <div class="p-1">
-                                <vs-button type="filled" v-if="data[indextr].status == 10" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarMessage(data[indextr])"/>
+                                <vs-button type="filled" v-if="data[indextr].status == 1" size="small" icon-pack="feather" color="danger" icon="icon-x" @click="deletarMessage(data[indextr])"/>
                             </div>
-                            <!-- <div class="p-1">
-                                <vs-button type="filled" v-if="data[indextr].status >= 50" size="small" icon-pack="feather" color="danger" icon="icon-external-link" @click="replicarMessage(data[indextr])"/>
-                            </div> -->
                         </div>
                     </vs-td>
                     <vs-td :data="data[indextr].cliente.cpfCnpj">
@@ -109,6 +106,7 @@
 
 import PedidoDB from '../../rapidsoft/db/pedidoDB';
 import ClienteDB from '../../rapidsoft/db/clienteDB';
+import StatusDB from "../../rapidsoft/db/statusDB";
 import Storage from '../../rapidsoft/utils/storage';
 import ErrorDB from '../../rapidsoft/db/errorDB';
 
@@ -120,14 +118,9 @@ export default {
             itensSelecionados: [],
             showScreen: false,
             selecteds: false,            
-            filtersStatus: [
-                {id:0, title: 'Todos'},
-                {id:10, title: 'Bloq. Sinc.'},
-                {id:20, title: 'Ag. Sincronização'},
-                {id:50, title: 'Sincronizado'},
-                {id:99, title: 'Cancelado'}
-            ],
-            filterStatusSelecionado: {id:0, title: 'Todos'},
+            filtersStatus: [],
+            listStatus: [],
+            filterStatusSelecionado: {id:0, nome: 'Todos'},
         }
     },
     watch: {
@@ -146,27 +139,23 @@ export default {
             return this.itensSelecionados.length > 0 ? true : false;
         },
         itensSelPendenteSinc() {
-            return this.itensSelecionados.find((item) => item.status >= 50) ? false : true;
+            return this.itensSelecionados.find((item) => item.status > 2) ? false : true;
         },
         itensSelSinc() {
-            return this.itensSelecionados.find((item) => item.status < 50) ? false : true;
+            return this.itensSelecionados.find((item) => item.status <= 2) ? false : true;
         },
         todosSelecionados() {
             return this.itensSelecionados.length == this.pedidosFiltro.length;
         }
     },
     methods: {
-        getNameStatus(status) {
-            if(status == 20) return "Aguardando Sincronização";      
-            if(status == 50) return "Sincronizado"; 
-            if(status == 99) return "Cancelado";
-            else return "Bloq. Sinc.";
+        getNameStatus(idStatus) {
+            return this.listStatus.find((status) => status.id === idStatus).nome;
         },
         getStatusColor(status) {
-            if(status == 20) return "warning";
-            if(status == 50) return "success";
-            if(status == 99) return "danger";
-            else return null;
+            if(status == 1) return "warning";
+            if(status == 2) return "success";
+            else return "null";
         },
         editar(pedido) {
             this.$router.push({ name: 'pedidoEditar', params: {pedidoId: pedido.id} });
@@ -206,12 +195,17 @@ export default {
         },
         listar() {
             return new Promise((resolve) => {
-                PedidoDB._getAll().then((result) => {
-                    ClienteDB.getClientesPedidos(result).then((pedidos) => {
-                        this.pedidos = pedidos;
-                        this.pedidosFiltro = pedidos;
-                        document.getElementById('loading-bg').style.display = 'none';
-                        resolve();
+                StatusDB._getAll().then((listStatus) => {
+                    this.listStatus = listStatus;
+                    this.filtersStatus = listStatus;
+                    this.filtersStatus.push( {id:0, nome: 'Todos'});
+                    PedidoDB._getAll().then((result) => {
+                        ClienteDB.getClientesPedidos(result).then((pedidos) => {
+                            this.pedidos = pedidos;
+                            this.pedidosFiltro = pedidos;
+                            document.getElementById('loading-bg').style.display = 'none';
+                            resolve();
+                        });
                     });
                 });
             });

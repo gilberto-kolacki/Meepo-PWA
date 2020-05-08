@@ -1,6 +1,6 @@
 <template>
     <div v-if="showScreen">
-        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-save" v-if="pedido.status == 10"  @click="finalizarPedido(pedido)" >Salvar</vs-button>
+        <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-save" v-if="pedido.status == 1"  @click="finalizarPedido(pedido)" >Salvar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
         <b-tabs content-class="mt-5" justified>
             <b-tab  active lazy>
@@ -40,7 +40,7 @@
                     </div>
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
-                            <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedido.cliente.emailNfe" class="w-full" type="email" inputmode="email" :disabled="pedido.status > 10" />
+                            <vs-input label="E-mail NFe*" id="emailNfe" name="emailNfe" v-model="pedido.cliente.emailNfe" class="w-full" type="email" inputmode="email" :disabled="pedido.status > 1" />
                         </vs-col>
                     </div>
                     <div class="vx-row">
@@ -51,6 +51,7 @@
                                 v-model="endEntregaSel"
                                 :options="getEnderecosEntrega"
                                 :clearable=false>
+                                :disabled="pedido.status > 1"
                             </v-select>
                         </div>
                     </div>
@@ -72,18 +73,18 @@
                     <div class="vx-row flex justify-between" style="margin-left:20px;margin-right:20px;padding-top:20px">
                         <vs-col vs-lg="5" vs-xs="12">
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <vs-checkbox v-model="pedido.pedidoParcial" :disabled="pedido.status > 10"></vs-checkbox>
+                                <vs-checkbox v-model="pedido.pedidoParcial" :disabled="pedido.status > 1"></vs-checkbox>
                                 <label>Aceita Pedido Parcial</label>
                             </div>
                             <div class="vx-row" style="justify-content: flex-start;">
-                                <vs-checkbox v-model="pedido.antecipacaoPedido" :disabled="pedido.status > 10"></vs-checkbox>
+                                <vs-checkbox v-model="pedido.antecipacaoPedido" :disabled="pedido.status > 1"></vs-checkbox>
                                 <label>Aceita Antecipação do Pedido </label>
                             </div>
                         </vs-col>
                         <vs-col vs-lg="5" vs-sm="5" vs-xs="12">
                             <div class="vx-row" style="justify-content: flex-end;">
                                 <label>Enviar Cópia Por Email </label>
-                                <vs-checkbox v-model="pedido.copiaEmail" :disabled="pedido.status > 10"></vs-checkbox>
+                                <vs-checkbox v-model="pedido.copiaEmail" :disabled="pedido.status > 1"></vs-checkbox>
                             </div>
                         </vs-col>
                     </div>
@@ -116,11 +117,11 @@
                             />
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
-                            <vs-textarea v-model="pedido.observacao" style="margin-top:30px" label="Observação" height="100" :disabled="pedido.status > 10"/>
+                            <vs-textarea v-model="pedido.observacao" style="margin-top:30px" label="Observação" height="100" :disabled="pedido.status > 1"/>
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
                             <vs-button 
-                                v-if="pedido.status == 20" 
+                                v-if="pedido.status == 2"
                                 class='w-full' 
                                 color="danger" 
                                 type="filled" 
@@ -131,7 +132,7 @@
                                 Bloquear Sincronização
                             </vs-button>
                             <vs-button 
-                                v-else-if="pedido.status == 10"
+                                v-else-if="pedido.status == 1"
                                 class='w-full' 
                                 color="success" 
                                 type="filled" 
@@ -216,6 +217,7 @@ import ProdutoDB from "../../rapidsoft/db/produtoDB";
 import ErrorDB from '../../rapidsoft/db/errorDB'
 import PedidoDB from "../../rapidsoft/db/pedidoDB";
 import ClienteDB from "../../rapidsoft/db/clienteDB";
+import StatusDB from "../../rapidsoft/db/statusDB";
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
 
 export default {
@@ -234,6 +236,7 @@ export default {
             temCondicaoDePagamento: true,
             showScreen:false,
             endEntregaSel: {},
+            listStatus: [],
         }
     },
     components: {
@@ -252,10 +255,7 @@ export default {
             return this.$options.filters.formatDate(this.pedido.dataEmbarque);
         },
         getStatus() {
-            if(this.pedido.status == 20) return "Aguardando Sinc.";      
-            else if(this.pedido.status == 50) return "Sincronizado"; 
-            else if(this.pedido.status == 99) return "Cancelado";
-            else return "Bloq. Sinc.";
+            return this.listStatus.find((status) => status.id === this.pedido.status).nome;
         },
         getFormasPagto() {
             return this.formasPagto.map((formaPagto) => {
@@ -271,10 +271,10 @@ export default {
         },
         
         getEnderecosEntrega() {
-            const listaEnderecos = [{label: this.getLabelEndereco(this.pedido.cliente.endereco), value: {...this.pedido.cliente.endereco}}];
+            const listaEnderecos = [this.getEndEntregaOption(this.pedido.cliente.endereco)];
             if (this.pedido.cliente.enderecos && this.pedido.cliente.enderecos.length > 0) {
                 this.pedido.cliente.enderecos.map((endereco) => {
-                    listaEnderecos.push({label: this.getLabelEndereco(endereco), value: {...endereco} });
+                    listaEnderecos.push(this.getEndEntregaOption(endereco));
                 });
             }
             return listaEnderecos
@@ -285,11 +285,11 @@ export default {
         getValorTotalCor(itemCor) {
             return itemCor.quantidade * itemCor.precoCusto;
         },
-        setEndereco(value) {
-            this.pedido.endEntrega = {...value};
+        getEndEntregaOption(endereco) {
+            return {label: this.getLabelEndereco(endereco), value: {...endereco}};
         },
         getLabelEndereco(endereco) {
-            return endereco ? endereco.endereco + '- CEP: '+ endereco.cep : null;
+            return endereco ? endereco.endereco +', Nº'+ endereco.numero +' - CEP: '+ endereco.cep : null;
         },
         mensagemMudarParaDigitacao(pedido) {
             this.$vs.dialog({
@@ -316,17 +316,16 @@ export default {
             });
         },
         mudarStatusPedido(pedido) {
-            if (pedido.status === 20) {
-                pedido.status = 10;
+            if (pedido.status === 2) {
+                pedido.status = 1;
                 PedidoDB.atualizarStatusPedido(pedido);
                 this.$forceUpdate();
             } else {
-                pedido.status = 20;
+                pedido.status = 2;
                 this.finalizarPedido(pedido);
                 this.$forceUpdate();
             }
         },
-
         selectSearchCliente(cliente) {
             this.pedido.cliente = cliente;
         },
@@ -404,21 +403,23 @@ export default {
         },
         async carregaItensTela() {
 			return new Promise((resolve) => {
-                PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
-                    ClienteDB.findById(pedido.cliente.id).then((cliente) => {
-                        pedido.cliente = cliente;
-                        GrupoClienteDB.findById(cliente.grupoCliente).then((grupoCliente) => {
-                            pedido.grupoCliente = grupoCliente;
-                            this.pedido = pedido;
-                            ProdutoDB.getFromPedido(this.pedido.itens).then((itensPedido) => {
-                                this.endEntregaSel = {label: this.getLabelEndereco(this.pedido.endEntrega), value: {...this.pedido.endEntrega}};
-                                this.itensPedido = itensPedido;
-                                FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
-                                    this.formasPagto = dadosPagamento.formasDePagamento;
-                                    this.enderecoEntregaSelecionado = {label: this.getLabelEndereco(this.pedido.endEntrega)};
-                                    this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
-                                    this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
-                                    resolve();
+                StatusDB._getAll().then((listStatus) => {
+                    this.listStatus = listStatus;
+                    PedidoDB.getPedido(this.$route.params.pedidoId, true).then((pedido) => {
+                        ClienteDB.findById(pedido.cliente.id).then((cliente) => {
+                            pedido.cliente = cliente;
+                            GrupoClienteDB.findById(cliente.grupoCliente).then((grupoCliente) => {
+                                pedido.grupoCliente = grupoCliente;
+                                this.pedido = pedido;
+                                ProdutoDB.getFromPedido(this.pedido.itens).then((itensPedido) => {
+                                    this.endEntregaSel = this.getEndEntregaOption(this.pedido.endEntrega);
+                                    this.itensPedido = itensPedido;
+                                    FormaPagtoDB.getDadosPagamento(this.pedido.formaPagamento, this.pedido.condicaoPagamento).then((dadosPagamento) => {
+                                        this.formasPagto = dadosPagamento.formasDePagamento;
+                                        this.formaDePagamentoSelecionada = dadosPagamento.formaPagamentoSelecionada;
+                                        this.condicaoDePagamentoSelecionada = dadosPagamento.condicaoPagamentoSelecionada;
+                                        resolve();
+                                    });
                                 });
                             });
                         });

@@ -131,7 +131,7 @@
                         <div class="vx-col sm:w-1/4 w-full mb-2">
                             <label>Data Embarque</label>
                             <datepicker
-                                @input="selecionarCondicaoPagamento(pedido)"
+                                @input="alterarFormatoData(pedido),selecionarCondicaoPagamento(pedido)"
                                 placeholder="DD/MM/AAAA" 
                                 v-model="pedido.dataEmbarque" 
                                 format="dd/MM/yyyy" 
@@ -192,6 +192,7 @@ import vSelect from 'vue-select';
 import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
 import Datepicker from 'vuejs-datepicker';
 import * as lang from "vuejs-datepicker/src/locale";
+import moment from 'moment';
 
 export default {
 	data: () => ({
@@ -248,6 +249,9 @@ export default {
         }     
 	},
     methods: {        
+        alterarFormatoData(pedido) {
+            pedido.dataEmbarque = moment(pedido.dataEmbarque, ["DD/MM/YYYY"]).toDate().getTime();
+        },
         selecionarCondicaoPagamento(pedido) {
             const formaPagto = pedido.formaPagamento;
             if (formaPagto.id == this.condigoBrinde) {
