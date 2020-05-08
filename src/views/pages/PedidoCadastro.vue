@@ -2,9 +2,9 @@
     <div v-if="showScreen">
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-save" v-if="pedido.status == 1"  @click="finalizarPedido(pedido)" >Salvar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
-        <div style="margin-top: -1rem; margin-bottom: 1rem;" v-if="pedido.status <= 20">
+        <div style="margin-top: -1rem; margin-bottom: 1rem;" v-if="pedido.status <= 2">
             <vs-button 
-                v-if="pedido.status == 20" 
+                v-if="pedido.status == 2" 
                 class='w-full' 
                 color="danger" 
                 type="filled" 
@@ -15,7 +15,7 @@
                 Bloquear Sincronização
             </vs-button>
             <vs-button 
-                v-else-if="pedido.status == 10"
+                v-else-if="pedido.status == 1"
                 class='w-full' 
                 color="success" 
                 type="filled" 
