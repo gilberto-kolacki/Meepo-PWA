@@ -10,7 +10,7 @@
                 type="filled" 
                 icon-pack="feather" 
                 icon="icon-lock"
-                @click="mensagemMudarParaDigitacao(pedido)"
+                @click="bloquearSincronizacao(pedido)"
             >
                 Bloquear Sincronização
             </vs-button>
@@ -21,9 +21,9 @@
                 type="filled" 
                 icon-pack="feather" 
                 icon="icon-unlock"
-                @click="mensagemMudarParaEnviar(pedido)"
+                @click="liberarSincronizacao(pedido)"
             > 
-                Finalizar Pedido
+                Liberar Sincronização
             </vs-button>
         </div>
         <b-tabs content-class="mt-5" justified>
@@ -294,26 +294,26 @@ export default {
         getLabelEndereco(endereco) {
             return endereco ? endereco.endereco +', Nº'+ endereco.numero +' - CEP: '+ endereco.cep : null;
         },
-        mensagemMudarParaDigitacao(pedido) {
+        bloquearSincronizacao(pedido) {
             this.$vs.dialog({
                 type: 'confirm',
                 color: 'warning',
-                title: 'Deseja reabrir o pedido?',
-                text: 'Será criado um carrinho com os itens dos pedidos selecionados.',
+                title: 'Deseja bloquear o pedido para sincronização?',
+                text: 'O pedido não será sincronizado enquanto permanecer bloqueado.',
                 accept: this.mudarStatusPedido,
-                acceptText: 'Reabrir',
+                acceptText: 'Bloquear',
                 cancelText: 'Cancelar',
                 parameters: pedido
             })
         },
-        mensagemMudarParaEnviar(pedido) {
+        liberarSincronizacao(pedido) {
             this.$vs.dialog({
                 type: 'confirm',
                 color: 'warning',
-                title: 'Deseja finalizar a geração de pedido?',
-                text: 'Após finalizar a geração de pedido, os pedidos gerados estarão disponíveis para sincronização.',
+                title: 'Deseja liberar o pedido para sincronização?',
+                text: 'O pedido ficará disponível para sincronização.',
                 accept: this.mudarStatusPedido,
-                acceptText: 'Finalizar',
+                acceptText: 'Liberar',
                 cancelText: 'Cancelar',
                 parameters: pedido
             });
