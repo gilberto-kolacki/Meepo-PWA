@@ -2,6 +2,30 @@
     <div v-if="showScreen">
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-save" v-if="pedido.status == 1"  @click="finalizarPedido(pedido)" >Salvar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
+        <div style="margin-top: -1rem; margin-bottom: 1rem;" v-if="pedido.status <= 20">
+            <vs-button 
+                v-if="pedido.status == 20" 
+                class='w-full' 
+                color="danger" 
+                type="filled" 
+                icon-pack="feather" 
+                icon="icon-lock"
+                @click="mensagemMudarParaDigitacao(pedido)"
+            >
+                Bloquear Sincronização
+            </vs-button>
+            <vs-button 
+                v-else-if="pedido.status == 10"
+                class='w-full' 
+                color="success" 
+                type="filled" 
+                icon-pack="feather" 
+                icon="icon-unlock"
+                @click="mensagemMudarParaEnviar(pedido)"
+            > 
+                Finalizar Pedido
+            </vs-button>
+        </div>
         <b-tabs content-class="mt-5" justified>
             <b-tab  active lazy>
                 <template v-slot:title>
@@ -119,29 +143,8 @@
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
                             <vs-textarea v-model="pedido.observacao" style="margin-top:30px" label="Observação" height="100" :disabled="pedido.status > 1"/>
                         </vs-col>
-                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
-                            <vs-button 
-                                v-if="pedido.status == 2"
-                                class='w-full' 
-                                color="danger" 
-                                type="filled" 
-                                icon-pack="feather" 
-                                icon="icon-lock"
-                                @click="mensagemMudarParaDigitacao(pedido)"
-                            >
-                                Bloquear Sincronização
-                            </vs-button>
-                            <vs-button 
-                                v-else-if="pedido.status == 1"
-                                class='w-full' 
-                                color="success" 
-                                type="filled" 
-                                icon-pack="feather" 
-                                icon="icon-unlock"
-                                @click="mensagemMudarParaEnviar(pedido)"
-                            > 
-                              Finalizar Pedido
-                            </vs-button>
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12" v-if="pedido.status > 2">
+                            <vs-textarea v-model="pedido.mensagem" style="margin-top:30px" label="Menssagens Sincronização" height="100" disabled/>
                         </vs-col>
                     </div>
                 </div>
