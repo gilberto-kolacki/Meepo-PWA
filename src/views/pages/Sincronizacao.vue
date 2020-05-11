@@ -54,6 +54,7 @@ import ClienteDB from '../../rapidsoft/db/clienteDB';
 import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
 import CategoriaDB from '../../rapidsoft/db/categoriaDB';
 import LinhaDB from '../../rapidsoft/db/linhaDB';
+import StatusDB from '../../rapidsoft/db/statusDB';
 import ProntaEntregaDB from '../../rapidsoft/db/prontaEntregaDB';
 import PeriodoDB from '../../rapidsoft/db/periodoDB';
 import EmbarqueDB from '../../rapidsoft/db/embarqueDB';
@@ -256,19 +257,22 @@ export default {
                         SincUtils.atuaizaParcialSinc(sinc, 1);
                         LinhaDB.salvarSinc(data.linha).then(() => {
                             SincUtils.atuaizaParcialSinc(sinc, 1);
-                            ProntaEntregaDB.salvarSinc(data.prontaEntrega).then(() => {
+                            StatusDB.salvarSinc(data.status).then(() => {
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
-                                PeriodoDB.salvarSinc(data.periodo).then(() => {
+                                ProntaEntregaDB.salvarSinc(data.prontaEntrega).then(() => {
                                     SincUtils.atuaizaParcialSinc(sinc, 1);
-                                    EmbarqueDB.salvarSinc(data.embarque).then(() => {
+                                    PeriodoDB.salvarSinc(data.periodo).then(() => {
                                         SincUtils.atuaizaParcialSinc(sinc, 1);
-                                        FormaPagtoDB.salvarSinc(data.formaPagamento).then(() => {
+                                        EmbarqueDB.salvarSinc(data.embarque).then(() => {
                                             SincUtils.atuaizaParcialSinc(sinc, 1);
-                                            CatalogoDB.salvarSinc(data.catalogo).then(() => {
+                                            FormaPagtoDB.salvarSinc(data.formaPagamento).then(() => {
                                                 SincUtils.atuaizaParcialSinc(sinc, 1);
-                                                RefComercialDB.salvarSinc(data.referenciaComercial).then(() => {
+                                                CatalogoDB.salvarSinc(data.catalogo).then(() => {
                                                     SincUtils.atuaizaParcialSinc(sinc, 1);
-                                                    SincUtils.closeLoading(this, sinc, all);
+                                                    RefComercialDB.salvarSinc(data.referenciaComercial).then(() => {
+                                                        SincUtils.atuaizaParcialSinc(sinc, 1);
+                                                        SincUtils.closeLoading(this, sinc, all);
+                                                    })
                                                 })
                                             })
                                         })

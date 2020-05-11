@@ -146,7 +146,7 @@ class pedidoDB extends BasicDB {
         return new Promise((resolve, reject) => {
             try {
                 this._localDB.find({
-                    selector: { status: {$eq: 10}},
+                    selector: { status: {$eq: 1}},
                 }).then((result) => {
                     resolve(result.docs.reduce((pedidos, doc) => {
                         if (doc) pedidos.push(doc);
@@ -201,40 +201,12 @@ class pedidoDB extends BasicDB {
         });
     }
     
-    atualizaStatusPedidos(pedidos) {
-        return new Promise((resolve, reject) => {
-            try{
-                const done = After(pedidos.length, () => resolve());
-                pedidos.forEach(pedido => {
-                    this._getById(pedido.id, true).then((pedido) => {
-                        pedido.status = 45;
-                        this._salvar(pedido).then(() => {
-                            done();
-                        }).catch((error) => {
-                            this._criarLogDB({url:'db/pedidoDB',method:'atualizaStatusPedidos',message: error,error:'Failed Request'});
-                            reject(error);
-                        });
-                    }).catch((error) => {
-                        this._criarLogDB({url:'db/pedidoDB',method:'atualizaStatusPedidos',message: error,error:'Failed Request'});
-                        reject(error);
-                    });
-                }).catch((error) => {
-                    this._criarLogDB({url:'db/pedidoDB',method:'atualizaStatusPedidos',message: error,error:'Failed Request'});
-                    reject(error);
-                });
-            } catch (error) {
-                this._criarLogDB({url:'db/pedidoDB',method:'atualizaStatusPedidos',message: error,error:'Failed Request'});
-                reject(error);
-            }
-        });
-    }
-
     buscaSinc() {
         return new Promise((resolve, reject) => {
             try{
                 this._localDB.find({
                     selector: {
-                        status: {$eq: 20}
+                        status: {$eq: 2}
                     },
                 }).then((result) => {
                     const pedidos = result.docs.reduce((docs, doc) => {
