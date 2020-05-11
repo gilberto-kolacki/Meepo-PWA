@@ -1,5 +1,19 @@
 <template>
     <div id="page-orders" v-if="this.showScreen">
+        <div class="vx-row">
+            <div class="vx-col w-full">
+                <v-select 
+                    id="statusFilter"
+                    name="statusFilter"
+                    multiple
+                    label="nome"
+                    placeholder="Selecione os status de Pedido para visualizar"
+                    :options="optionsStatus"
+                    v-model="selectedStatus"
+                    @input="filtrar()"
+                />
+            </div>
+        </div>
         <vs-table pagination max-items="10" search :data="pedidosFiltro">           
             <template slot="header">
                 <div class="w-1/5">
@@ -41,21 +55,7 @@
                                 </b-dropdown-item>
                             </div>
                             <b-dropdown-divider/>
-                            <b-dropdown-text>
-                                <feather-icon icon="FilterIcon" svgClasses="h-4 w-4" class="mr-2" />
-                                Filtrar Status
-                            </b-dropdown-text>
-                            <b-dropdown-item v-for="(status, indexStatus) in filtersStatus" :key="indexStatus">
-                                <span class="flex items-center mt-2">
-                                    <span @click="filtrar(status)">{{status.id +' - '+ status.nome}}</span>
-                                </span>
-                            </b-dropdown-item>
                         </b-dropdown>
-                    </div>
-                </div>
-                <div class="w-4/5">
-                    <div class="flex flex-wrap mt-4">
-                        <h2>Pedidos - {{filterStatusSelecionado.nome}}</h2>
                     </div>
                 </div>
             </template>
@@ -109,6 +109,7 @@ import ClienteDB from '../../rapidsoft/db/clienteDB';
 import StatusDB from "../../rapidsoft/db/statusDB";
 import Storage from '../../rapidsoft/utils/storage';
 import ErrorDB from '../../rapidsoft/db/errorDB';
+import vSelect from 'vue-select';
 
 export default {
     data() {
@@ -118,9 +119,8 @@ export default {
             itensSelecionados: [],
             showScreen: false,
             selecteds: false,            
-            filtersStatus: [],
-            listStatus: [],
-            filterStatusSelecionado: {id:0, nome: 'Todos'},
+            optionsStatus: [],
+            selectedStatus: [],
         }
     },
     watch: {
@@ -133,6 +133,9 @@ export default {
                 });
             }
         },
+    },
+    components: {
+        'v-select': vSelect,
     },
     computed: {
         itensSel() {
@@ -150,7 +153,7 @@ export default {
     },
     methods: {
         getNameStatus(idStatus) {
-            return this.listStatus.find((status) => status.id === idStatus).nome;
+            return this.optionsStatus.find((status) => status.id === idStatus).nome;
         },
         getStatusColor(status) {
             if(status == 1) return "warning";
@@ -172,33 +175,29 @@ export default {
                 }
             }, 100);
         },
-        filtrar(filterStatus) {
+        filtrar() {
             this.$vs.loading();
             this.selecteds = false;
             this.itensSelecionados = [];
-            this.filterStatusSelecionado = filterStatus;
             PedidoDB._getAll().then((result) => {
                 ClienteDB.getClientesPedidos(result).then((pedidos) => {
-                    if (filterStatus) {
-                        this.pedidosFiltro = pedidos.reduce((pedidos, pedido) => {
-                            if (pedido.status == filterStatus.id || filterStatus.id == 0) pedidos.push(pedido);
-                            return pedidos;
+                    if (this.selectedStatus.length > 0) {
+                        this.pedidosFiltro = pedidos.filter((pedido) => {
+                            return this.selectedStatus.filter((status) => status.id === pedido.status).length
                         }, []);
                     } else {
                         this.pedidosFiltro = pedidos;
                     }
                     setTimeout(() => {
                         this.$vs.loading.close();
-                    }, 300);
+                    }, 10);
                 });
             });
         },
         listar() {
             return new Promise((resolve) => {
-                StatusDB._getAll().then((listStatus) => {
-                    this.listStatus = listStatus;
-                    this.filtersStatus = listStatus;
-                    this.filtersStatus.push( {id:0, nome: 'Todos'});
+                StatusDB._getAll().then((optionsStatus) => {
+                    this.optionsStatus = optionsStatus;
                     PedidoDB._getAll().then((result) => {
                         ClienteDB.getClientesPedidos(result).then((pedidos) => {
                             this.pedidos = pedidos;
