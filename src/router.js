@@ -209,6 +209,16 @@ const router = new Router({
                         navBar: false,
                     },
                 },
+                {
+					path: '/invoice',
+					name: 'invoice',
+					component: () => import('./views/pages/Invoice.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor',
+                        navBar: true,
+                    },
+                },
 			],
 		},
         // =============================================================================

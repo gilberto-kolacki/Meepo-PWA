@@ -5,12 +5,15 @@
             <div class="flex items-center">
                 <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-arrow-down" @click="carrinhoPedido()">Reabrir</vs-button>
                 <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarConsulta()" icon="icon-x">Voltar</vs-button>
-                <vs-button @click.stop="printInvoice" color="primary" type="filled" class="btn-carrinho" icon-pack="feather" icon="icon-printer"></vs-button>
             </div>
         </div>
         
         <vx-card id="invoice-container" v-if="this.showScreen">
-            <vs-button class='w-full' color="primary" type="filled" icon-pack="feather" icon="icon-external-link" @click="mensagemDuplicar()">Duplicar</vs-button>
+            <div class="btn-group centex w-full" >
+                <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-external-link" @click.stop="mensagemDuplicar()">Duplicar</vs-button>
+                <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-printer" @click.stop="printInvoice()">PDF</vs-button>
+            </div>
+
             <div class="vx-row leading-loose p-base">
                 <div class="vx-col w-full md:w-1/2">
                     <h1>Orçamento</h1>
@@ -187,10 +190,12 @@ export default {
             });
         },
         voltarConsulta() {
-            this.$router.go(-1);
+            this.$router.push({ name: 'orcamentoConsulta'});
         },
         printInvoice() {
-            window.print()
+            this.$router.push({ name: 'invoice', 
+                params: {orcamento: true, dados: this.orcamento}
+            });
         },
     },
     async mounted() {

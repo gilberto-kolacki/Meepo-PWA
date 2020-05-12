@@ -2,29 +2,10 @@
     <div v-if="showScreen">
         <vs-button class="btn-confirm" color="success" type="filled" icon-pack="feather" icon="icon-save" v-if="pedido.status == 1"  @click="finalizarPedido(pedido)" >Salvar</vs-button>
         <vs-button class="btn-cancel" color="danger" type="filled" icon-pack="feather" @click="voltarPedido()" icon="icon-x">Voltar</vs-button>
-        <div style="margin-top: -1rem; margin-bottom: 1rem;" v-if="pedido.status <= 2">
-            <vs-button 
-                v-if="pedido.status == 2" 
-                class='w-full' 
-                color="danger" 
-                type="filled" 
-                icon-pack="feather" 
-                icon="icon-lock"
-                @click="bloquearSincronizacao(pedido)"
-            >
-                Bloquear Sincronização
-            </vs-button>
-            <vs-button 
-                v-else-if="pedido.status == 1"
-                class='w-full' 
-                color="success" 
-                type="filled" 
-                icon-pack="feather" 
-                icon="icon-unlock"
-                @click="liberarSincronizacao(pedido)"
-            > 
-                Liberar Sincronização
-            </vs-button>
+        <div class="btn-group centex w-full" style="margin-top: -1rem; margin-bottom: 1rem;">
+            <vs-button v-if="pedido.status == 2" class='w-full' color="danger" type="filled" icon-pack="feather" icon="icon-lock" @click="bloquearSincronizacao(pedido)">Bloquear Sincronização</vs-button>
+            <vs-button v-else-if="pedido.status == 1" class='w-full' color="success" type="filled" icon-pack="feather" icon="icon-unlock" @click="liberarSincronizacao(pedido)">Liberar Sincronização</vs-button>
+            <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-printer" @click.stop="printInvoice()">PDF</vs-button>
         </div>
         <b-tabs content-class="mt-5" justified>
             <b-tab  active lazy>
@@ -403,6 +384,13 @@ export default {
         },
         voltarPedido() {
             this.$router.push('/pedido/consulta');
+        },
+        printInvoice() {
+            const pedidoInvoice = {...this.pedido};
+            pedidoInvoice.itens = [...this.itensPedido];
+            this.$router.push({ name: 'invoice', 
+                params: {pedido: true, dados: pedidoInvoice}
+            });
         },
         async carregaItensTela() {
 			return new Promise((resolve) => {

@@ -47,6 +47,15 @@ class orcamentoDB extends BasicDB {
                 } else {
                     this.findLastId().then((idOrcamento) => {
                         orcamento.id = idOrcamento;
+                        orcamento.embarques = orcamento.embarques.reduce((embarques, embarque) => {
+                            embarque.itens = embarque.itens.reduce((itens, item) => {
+                                delete item.imagemPrincipal;
+                                itens.push(item);
+                                return itens;
+                            }, []);
+                            embarques.push(embarque);
+                            return embarques;
+                        }, []);
                         this._salvar(orcamento).then((result) => {
                             resolve(result);
                         }).catch((error) => {

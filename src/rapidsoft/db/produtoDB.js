@@ -18,6 +18,7 @@ import BasicDB from './basicDB';
 import ImagemDB from './imagemDB';
 import EmbarqueDB from './embarqueDB';
 import CategoriaDB from './categoriaDB';
+import SegmentoDB from './segmentoDB';
 import Storage from '../utils/storage';
 
 
@@ -733,6 +734,36 @@ class produtoDB extends BasicDB {
                         item.imagemPrincipal = imagemProdutoPrincipal;
                         done();
                     });
+                });
+            });
+        });
+    }
+
+    getImagensCorProdutoEmbarques(embarques, isPedido=false) {
+        return new Promise((resolve) => {
+            let itensCor = [];
+            if (isPedido) itensCor = embarques;
+            else itensCor = embarques.reduce((itensEmbarques, embarque) => itensEmbarques.concat(embarque.itens), []).map((item) => ({referencia: item.referencia, cor: item.nomeCor}));
+            const imagensCorProduto = [];
+            const done = After(itensCor.length, () => resolve(imagensCorProduto));
+            itensCor.forEach((item) => {
+                this.getById(item.referencia).then((produto) => {
+                    const cor = produto.value.cores.find((cor) => cor.codigo === item.cor);
+                    ImagemDB.getFotoPrincipalCor(cor).then((imagemProdutoPrincipal) => {
+                        item.base64 = imagemProdutoPrincipal;
+                        imagensCorProduto.push(item);
+                        done();
+                    });
+                });
+            });
+        });
+    }
+
+    getSegmentosReferencias(referencias) {
+        return new Promise((resolve) => {
+            this._getFindCondition({referencia : {$in : referencias}}).then((produtos) => {
+                SegmentoDB.getSegmentosCarrinho(produtos).then((segmentos) => {
+                    resolve(segmentos);
                 });
             });
         });

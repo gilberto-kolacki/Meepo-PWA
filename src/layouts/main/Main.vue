@@ -67,14 +67,12 @@
                                 <vs-button icon-pack="feather" icon="icon-arrow-up" class="shadow-lg" />
                             </back-to-top>
                             <transition :name="routerTransition" mode="out-in">
-                                <router-view @changeRouteTitle="changeRouteTitle"></router-view>
+                                <router-view @changeRouteTitle="changeRouteTitle" @setAppClasses="(classesStr) => $emit('setAppClasses', classesStr)" />
                             </transition>
                         </div>
                     </div>
                 </div>
-
             </div>
-
             <the-footer></the-footer>
         </div>
     </div>

@@ -9,8 +9,8 @@
 
 
 <template>
-	<div id="app">
-		<router-view></router-view>
+	<div id="app" :class="vueAppClasses">
+		<router-view @setAppClasses="setAppClasses"/>
 	</div>
 </template>
 
@@ -18,6 +18,11 @@
 import themeConfig from '@/../themeConfig.js'
 
 export default {
+  data () {
+    return {
+      vueAppClasses: []
+    }
+  },
   watch: {
     '$store.state.theme'(val) {
       this.toggleClassInBody(val);
@@ -42,6 +47,9 @@ export default {
         if (document.body.className.match('theme-dark')) document.body.classList.remove('theme-dark');
         if (document.body.className.match('theme-semi-dark')) document.body.classList.remove('theme-semi-dark');
       }
+    },
+    setAppClasses (classesStr) {
+      this.vueAppClasses.push(classesStr)
     },
     handleWindowResize(event) {
       this.$store.dispatch('updateWindowWidth', event.currentTarget.innerWidth);
