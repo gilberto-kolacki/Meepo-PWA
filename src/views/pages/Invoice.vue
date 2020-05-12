@@ -82,16 +82,15 @@
                                     <td style="padding: 1px;">
                                         <table>
                                             <thead class="border-solid">
-                                                <th class="grade-tam-prod-title" 
-                                                    v-for="(tamanho, indexTamanho) in item.tamanhos" :key="indexTamanho + ' - ' + tamanho.sku">
+                                                <th class="grade-tam-prod-title" v-for="(tamanho, indexTamanho) in item.tamanhos" :key="indexTamanho">
                                                     {{tamanho.codigo}}
                                                 </th>
                                             </thead>
                                             <tbody>
                                                 <tr>
-                                                    <td class="grade-tam-prod-qtde"
-                                                        v-for="(tamanho, indexTamanho) in item.tamanhos" :key="indexTamanho + ' - ' + tamanho.sku">
-                                                    {{tamanho.quantidade}}</td>
+                                                    <td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in item.tamanhos" :key="indexTamanho">
+                                                        {{tamanho.quantidade}}
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -223,8 +222,7 @@ export default{
             });
         } else {
             this.isPedido = true;
-            this.pedido = this.$route.params.dados;            
-
+            this.pedido = this.$route.params.dados;
             ProdutoDB.getImagensCorProdutoEmbarques(this.$route.params.dados.itens, true).then((imagensCorProduto) => {
                 this.embarques = [{id: this.pedido.embarque, nome: this.pedido.nome, itens: this.$route.params.dados.itens}];
                 this.imagensCorProduto = imagensCorProduto;

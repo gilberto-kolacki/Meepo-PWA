@@ -10,8 +10,8 @@
         
         <vx-card id="invoice-container" v-if="this.showScreen">
             <div class="btn-group centex w-full" >
-                <vs-button class="w-full" color="primary" icon-pack="feather" icon="icon-external-link" @click.stop="mensagemDuplicar()">Duplicar</vs-button>
-                <vs-button class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-printer" @click.stop="printInvoice()">PDF</vs-button>
+                <vs-button size="small" class="w-full" color="primary" icon-pack="feather" icon="icon-external-link" @click.stop="mensagemDuplicar()">Duplicar</vs-button>
+                <vs-button size="small" class="w-full" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-printer" @click.stop="printInvoice()">PDF</vs-button>
             </div>
 
             <div class="vx-row leading-loose p-base">
