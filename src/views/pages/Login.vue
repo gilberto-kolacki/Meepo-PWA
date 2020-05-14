@@ -27,7 +27,7 @@
                                         name="email"
                                         icon="icon icon-user"
                                         icon-pack="feather"
-                                        label-placeholder="CNPJ"
+                                        label-placeholder="Login"
                                         v-model="email"
                                         class="w-full no-icon-border"/>
 
