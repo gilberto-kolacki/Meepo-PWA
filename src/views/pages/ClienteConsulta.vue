@@ -68,7 +68,7 @@ export default {
         listar() {
             return new Promise((resolve) => {
                 clienteDB.listarConsulta().then((resposta) => {
-                    this.clientes = Object.assign(resposta);
+                    this.clientes = this.lodash.orderBy(Object.assign(resposta), ['ativo', 'nome'], ['desc', 'asc']);
                     resolve();
                 });
             });
