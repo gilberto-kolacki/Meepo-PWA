@@ -185,7 +185,7 @@ export default {
                 const cnpjCpf = this.cnpjCpfSearch ? this.cnpjCpfSearch : null;
                 const nome = this.nomeSearch ? this.nomeSearch : null;
                 ClienteDB.getClientesSearch(uf, idCidade, cnpjCpf, nome).then((clientes) => {
-                    this.listaPesquisa = clientes;
+                    this.listaPesquisa = this.lodash.orderBy(clientes, ['ativo', 'nome'], ['desc', 'asc']);
                     this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
                     resolve();
                 });

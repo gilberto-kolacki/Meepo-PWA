@@ -67,6 +67,20 @@
                         </div>
                     </vs-col>
                 </div>
+                <div class="vx-col justify-center mt-1 mr-10">
+                    <div class="vx-row" style="justify-content: flex-end;">
+                        <label>Aceita Pedido Parcial</label>
+                        <vs-checkbox v-model="pedidoParcialCapa" ></vs-checkbox>
+                    </div>
+                    <div class="vx-row" style="justify-content: flex-end;">
+                        <label>Aceita Antecipação do Pedido </label>
+                        <vs-checkbox v-model="antecipacaoPedidoCapa"></vs-checkbox>
+                    </div>
+                    <div class="vx-row" style="justify-content: flex-end;">
+                        <label>Enviar Cópia Por Email </label>
+                        <vs-checkbox v-model="copiaEmailCapa"></vs-checkbox>
+                    </div>
+                </div>
                 <div v-if="getQtdeEmbarques > 1">
                     <vs-divider>Faturamento</vs-divider>
                     <div class="vx-row flex" >
@@ -98,7 +112,7 @@
                         <h4><strong>Pedido:</strong> {{pedido.nome}} <strong>Seq:</strong> {{pedido.seq}}</h4>
                     </vs-col>
                 </div>
-                <div class="vx-row flex justify-between" style="margin-top:20px;padding-left:15px">
+                <div class="vx-row flex justify-between" style="margin-top:20px;padding-left:15px;margin-right:5px">
                     <vs-col vs-lg="6" vs-sm="6" vs-xs="12">
                         <div class="vx-row" style="justify-content: flex-start;">
                             <label>Quantidade: {{ pedido.quantidade }} </label>
@@ -113,15 +127,15 @@
                     <vs-col vs-lg="6" vs-sm="6" vs-xs="12">
                         <div class="vx-row" style="justify-content: flex-end;">
                             <label>Aceita Pedido Parcial</label>
-                            <vs-checkbox v-model="pedido.pedidoParcial "></vs-checkbox>
+                            <vs-checkbox v-model="pedido.pedidoParcial" @click="selPedidoParcial()"></vs-checkbox>
                         </div>
                         <div class="vx-row" style="justify-content: flex-end;">
                             <label>Aceita Antecipação do Pedido </label>
-                            <vs-checkbox v-model="pedido.antecipacaoPedido"></vs-checkbox>
+                            <vs-checkbox v-model="pedido.antecipacaoPedido" @click="selAntecipacaoPedido()"></vs-checkbox>
                         </div>
                         <div class="vx-row" style="justify-content: flex-end;">
                             <label>Enviar Cópia Por Email </label>
-                            <vs-checkbox v-model="pedido.copiaEmail"></vs-checkbox>
+                            <vs-checkbox v-model="pedido.copiaEmail" @click="selCopiaEmail()"></vs-checkbox>
                         </div>
                     </vs-col>
                 </div>
@@ -206,10 +220,28 @@ export default {
         condigoBrinde: 5,
         condigoBoleto: 1,
         endEntregaSel: {},
+        pedidoParcialCapa: true,
+        antecipacaoPedidoCapa: true,
+        copiaEmailCapa: true,
     }),
     watch: {
         endEntregaSel(option) {
             this.pedidoCapa.endEntrega = {...option.value};
+        },
+        pedidoParcialCapa(newValue, oldValue) {
+            if ((newValue != null && newValue != oldValue)) {
+                this.pedidoCapa.listEmbarques.map((pedido) => pedido.pedidoParcial = this.pedidoParcialCapa);
+            }
+        },
+        antecipacaoPedidoCapa(newValue, oldValue) {
+            if ((newValue != null && newValue != oldValue)) {
+                this.pedidoCapa.listEmbarques.map((pedido) => pedido.antecipacaoPedido = this.antecipacaoPedidoCapa);
+            }
+        },
+        copiaEmailCapa(newValue, oldValue) {
+            if ((newValue != null && newValue != oldValue)) {
+                this.pedidoCapa.listEmbarques.map((pedido) => pedido.copiaEmail = this.copiaEmailCapa);
+            }
         },
     },
 	components: {
@@ -246,9 +278,36 @@ export default {
             return this.pedidoCapa.listEmbarques.reduce((total, pedido) => {
                 return total +  this.getTotalPedido(pedido);
             }, 0);
-        }     
+        },
 	},
-    methods: {        
+    methods: {
+        selPedidoParcial() {
+            setTimeout(() => {
+                if (this.pedidoCapa.listEmbarques.filter((pedido) => pedido.pedidoParcial == false).length > 0) {
+                    this.pedidoParcialCapa = null;
+                } else {
+                    this.pedidoParcialCapa = true;
+                }
+            } ,10);
+        },
+        selAntecipacaoPedido() {
+            setTimeout(() => {
+                if (this.pedidoCapa.listEmbarques.filter((pedido) => pedido.antecipacaoPedido == false).length > 0) {
+                    this.antecipacaoPedidoCapa = null;
+                } else {
+                    this.antecipacaoPedidoCapa = true;
+                }
+            } ,10);
+        },
+        selCopiaEmail() {
+            setTimeout(() => {
+                if (this.pedidoCapa.listEmbarques.filter((pedido) => pedido.copiaEmail == false).length > 0) {
+                    this.copiaEmailCapa = null;
+                } else {
+                    this.copiaEmailCapa = true;
+                }
+            } ,10);
+        },
         alterarFormatoData(pedido) {
             pedido.dataEmbarque = moment(pedido.dataEmbarque, ["DD/MM/YYYY"]).toDate().getTime();
         },
@@ -532,6 +591,10 @@ export default {
         width: 10rem;
         transform: rotate(-90deg);
         margin-right: -5px;
+    }
+
+     .linha1 {
+        padding: 0 0 px !important;
     }
 
     @media only screen and (max-width: 830px) {
