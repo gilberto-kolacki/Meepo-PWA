@@ -418,7 +418,7 @@ class clienteDB extends BasicDB {
                 } else if (idCidade == 0 && nome != null) {
                     selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}, 'cpfCnpj': {$gte: cnpjCpf}, 'nome': {$regex : nome}};
                 } else {
-                    selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}};
+                    selectorFilter = {'endereco.estado': {$eq: uf}};
                 }
 
                 this._localDB.find({
