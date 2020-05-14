@@ -41,7 +41,7 @@
                     </div>
                     <!-- ---- -->
                     <div class="vx-row">
-                        <div class="vx-col sm:w-1/4 w-full mb-2" v-on:keyup.enter="proximoCampo('emailNfe')">
+                        <div class="vx-col sm:w-3/12 w-full mb-2" v-on:keyup.enter="proximoCampo('emailNfe')">
                             <div v-if="isJuridico" class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="" class="vs-input--label">Data Fundação*</label>
                                 <div class="vs-con-input">
@@ -81,13 +81,28 @@
                                 <span class="text-danger text-sm">{{ errors.first('cpfCnpj') }}</span>
                             </div>
                         </div>
-                        <div class="vx-col sm:w-1/4 w-full mb-2" v-if="isJuridico">
+                        <div class="vx-col sm:w-3/12 w-full mb-2" v-if="isJuridico">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary" v-on:keyup.enter="proximoCampo('emailNfe')">
-                                <vs-input @input="cnpjnulo(cpfCnpj)" v-validate="clienteEdit.clienteErp ? 'required':''" :disabled="this.clienteEdit.clienteErp" label="Inscrição Estadual*" id="inscricaoEstadual" name="inscricaoEstadual" v-model="clienteEdit.inscricaoEstadual" class="w-full" :maxlength=14 />
+                                <vs-input 
+                                    id="inscricaoEstadual" 
+                                    name="inscricaoEstadual" 
+                                    label="Inscrição Estadual*"
+                                    v-model="clienteEdit.inscricaoEstadual" 
+                                    v-validate="clienteEdit.clienteErp ? 'required':''" 
+                                    class="w-full"
+                                    @input="cnpjnulo(cpfCnpj)"
+                                    :disabled="this.clienteEdit.clienteErp||clienteIsento" 
+                                    :maxlength=14 />
                                 <span class="text-danger text-sm">{{ errors.first('inscricaoEstadual') }}</span>
                             </div>
                         </div>
-                        <div v-if="isJuridico" class="vx-col sm:w-1/2 w-full mb-2" v-on:keyup.enter="proximoCampo('emailNfe')">
+                        <div class="vx-col sm:w-1/12 w-full mb-2" v-if="isJuridico">
+                            <div class="vx-row" style="justify-content: flex-start;">
+                                <label style="font-size: 0.9rem;">Isento</label>
+                                <vs-checkbox v-model="clienteIsento" :disabled="this.clienteEdit.clienteErp"></vs-checkbox>
+                            </div>
+                        </div>
+                        <div class="vx-col sm:w-5/12 w-full mb-2" v-if="isJuridico" v-on:keyup.enter="proximoCampo('emailNfe')">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="" class="vs-input--label">Segmentos*</label>
                                 <v-select 
@@ -101,7 +116,7 @@
                                 <span class="text-danger text-sm">{{ errors.first('segmento') }}</span>
                             </div>
                         </div>
-                        <div v-else class="vx-col sm:w-3/4 w-full mb-2" v-on:keyup.enter="proximoCampo('emailNfe')">
+                        <div v-else class="vx-col sm:w-5/12 w-full mb-2" v-on:keyup.enter="proximoCampo('emailNfe')">
                             <div class="vs-component vs-con-input-label vs-input w-full vs-input-primary">
                                 <label for="" class="vs-input--label">Segmentos*</label>
                                 <v-select 
@@ -476,7 +491,7 @@ export default {
             cepCobranca: null,
             clienteEdit: {
                 tipoPessoa: 1,
-                inscricaoEstadual: "ISENTO",
+                inscricaoEstadual: null,
                 clienteErp: false,
                 endereco: {},
                 contatos: [],
@@ -499,7 +514,8 @@ export default {
             indexEditContato: null,
             cidadeEnderecoCliente: null,
             idExistente: false,
-            referenciasSelecionadas: []
+            referenciasSelecionadas: [],
+            clienteIsento: false
         }
     },
     components: {
@@ -534,6 +550,13 @@ export default {
         segmentosCliente(val) {
             this.clienteEdit.segmentos = (val && val.value) ? [ val.value.toString() ] : [];
         },
+        clienteIsento() {
+            if (this.clienteIsento) {
+                this.clienteEdit.inscricaoEstadual = 'ISENTO';
+            } else {
+                this.clienteEdit.inscricaoEstadual = null;
+            }
+        }
     },
     computed:{
         getFilesFilter() {
@@ -988,6 +1011,7 @@ export default {
             cliente.dataFundacao = (cliente.dataFundacao) ? moment(new Date(Number(cliente.dataFundacao))).format('DD/MM/YYYY') : undefined;
             cliente.dataAniversario = (cliente.dataAniversario) ? moment(new Date(Number(cliente.dataAniversario))).format('DD/MM/YYYY') : undefined;
             cliente.endereco.cidade = {value:cliente.endereco.idCidade, label:cliente.endereco.cidade};
+            this.clienteIsento = (cliente.inscricaoEstadual==='ISENTO') ? true : false
             this.clienteEdit = cliente;
         },
         listaCidades(callback) {
