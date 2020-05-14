@@ -968,6 +968,7 @@ export default {
             cliente.nome = (this.tipoPessoa === 1) ? cliente.razaoSocial : cliente.nomeCliente;
             cliente.dataFundacao = (cliente.dataFundacao) ? moment(cliente.dataFundacao, ["DD/MM/YYYY"]).toDate().getTime() : undefined;
             cliente.dataAniversario = (cliente.dataAniversario) ? moment(cliente.dataAniversario, ["DD/MM/YYYY"]).toDate().getTime() : undefined;
+            cliente.endereco.idCidade = cliente.endereco.cidade ? cliente.endereco.cidade.value : null;
             cliente.endereco.cidade = cliente.endereco.cidade ? cliente.endereco.cidade.label : null;
             
             if (this.lodash.findIndex(this.segmentosCliente, {'value':3333}) >= 0) {

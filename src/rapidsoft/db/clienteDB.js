@@ -412,11 +412,11 @@ class clienteDB extends BasicDB {
                 } else if (idCidade > 0) {
                     selectorFilter = {'endereco.idCidade': {$eq: idCidade}, 'endereco.estado': {$eq: uf}};
                 } else if (idCidade == 0 && cnpjCpf != null && nome != null) {
-                    selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}, 'nome': {$regex: nome}, 'cpfCnpj': {$regex: cnpjCpf}};
+                    selectorFilter = {'endereco.estado': {$eq: uf}, 'nome': {$regex: nome}, 'cpfCnpj': {$regex: cnpjCpf}};
                 } else if (idCidade == 0 && cnpjCpf != null) {
-                    selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}, 'cpfCnpj': {$regex : cnpjCpf}, 'nome': {$gte: nome}};
+                    selectorFilter = {'endereco.estado': {$eq: uf}, 'cpfCnpj': {$regex : cnpjCpf}, 'nome': {$gte: nome}};
                 } else if (idCidade == 0 && nome != null) {
-                    selectorFilter = {'endereco.idCidade': {$gte: idCidade}, 'endereco.estado': {$eq: uf}, 'cpfCnpj': {$gte: cnpjCpf}, 'nome': {$regex : nome}};
+                    selectorFilter = {'endereco.estado': {$eq: uf}, 'cpfCnpj': {$gte: cnpjCpf}, 'nome': {$regex : nome}};
                 } else {
                     selectorFilter = {'endereco.estado': {$eq: uf}};
                 }
