@@ -93,9 +93,10 @@ class orcamentoDB extends BasicDB {
 
     buscaSinc() {
         return new Promise((resolve) => {
-            this._getAll().then((result) => {
+            resolve([ ]);
+            /* this._getAll().then((result) => {
                 resolve(result);
-            });
+            }); */
         });
     }
 

@@ -328,15 +328,17 @@ export default {
                         sinc.parcial = 0;
                         sinc.total = orcamentos.length;
                         const done = this.lodash.after(orcamentos.length, () => SincUtils.closeLoading(this, sinc, all));
-                        orcamentos.forEach(orcamento => {
-                            OrcamentoDB._salvarSinc(orcamento).then(() => {
+                        orcamentos.forEach(() => {
+                            SincUtils.atuaizaParcialSinc(sinc, 1);
+                            done();
+                            /* OrcamentoDB._salvarSinc(orcamento).then(() => {
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
                                 done();
                             }).catch((error) => {
                                 ErrorDB._criarLogDB({url: 'pages/Sincronizacao', method:'sincOrcamento', message: error, error:'Failed Request'});
                                 SincUtils.atuaizaParcialSinc(sinc, 1);
                                 done();
-                            });
+                            }); */
                         });
                     } else {
                         SincUtils.closeLoading(this, sinc, all);
