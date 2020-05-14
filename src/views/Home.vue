@@ -13,12 +13,20 @@
                     <h4 class="mb-4">Pedidos</h4>
                 </vx-card>
             </div>
+            <div class="vx-col w-full lg:w-1/4 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/orcamento/consulta')">
+                <vx-card class="text-center cursor-pointer border-solid">
+                    <img :src="require(`@/assets/images/rapidsoft/icons1/009-wishlist.png`)" alt="graphic" width="40" class="mx-auto mb-4">
+                    <h4 class="mb-4">Orçamentos</h4>
+                </vx-card>
+            </div>
             <div class="vx-col w-full lg:w-1/4 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/catalogo')">
                 <vx-card class="text-center cursor-pointer border-solid">
                     <img :src="require(`@/assets/images/rapidsoft/icons1/catalog.png`)" alt="graphic" width="40" class="mx-auto mb-4">
                     <h4 class="mb-4">Catálogo</h4>
                 </vx-card>
             </div>
+        </div>
+        <div class="vx-row">
             <div class="vx-col w-full lg:w-1/4 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/pages/sincronizacao')">
                 <vx-card class="text-center cursor-pointer border-solid">
                     <img :src="require(`@/assets/images/rapidsoft/icons1/sinc.png`)" alt="graphic" width="40" class="mx-auto mb-4">
