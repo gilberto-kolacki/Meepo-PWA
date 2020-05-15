@@ -55,8 +55,8 @@
                                 id="endEntrega"
                                 v-model="endEntregaSel"
                                 :options="getEnderecosEntrega"
-                                :clearable=false>
-                                :disabled="pedido.status > 1"
+                                :clearable=false
+                                :disabled="pedido.status > 1">
                             </v-select>
                         </div>
                     </div>
