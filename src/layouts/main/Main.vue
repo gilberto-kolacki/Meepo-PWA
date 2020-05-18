@@ -164,17 +164,11 @@ export default {
             this.setSidebarWidth();
         },
         setSidebarWidth() {
-            if (this.windowWidth < 1200) {
-                this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', false)
-                this.$store.dispatch('updateSidebarWidth', 'no-sidebar')
-                this.disableThemeTour = true;
-            }
-            else if(this.windowWidth < 1200) {
-                this.$store.dispatch('updateSidebarWidth', 'reduced')
-            }
-            else {
-                this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true)
-            }
+            this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', false)
+            this.$store.dispatch('updateSidebarWidth', 'no-sidebar')
+            this.disableThemeTour = true;
+            
+            //this.$store.dispatch('updateSidebarWidth', 'reduced')
         },
         toggleHideScrollToTop(val) {
             this.hideScrollToTop = val;
@@ -230,13 +224,13 @@ html, body {
     width: 97% !important; 
     margin: 0.3rem 0.0rem 0.3rem 0.0rem;
     z-index: 200000 !important;
-    left: 12px;
+    left: 0px;
 }
 
 .btn-left {
     position: fixed;
     top:50%;
-    left: 262px;    
+    left: 0px;    
     border-top-left-radius: 0 !important;
     border-bottom-left-radius: 0 !important;
     border-top-right-radius: 50% !important;
@@ -274,13 +268,12 @@ html, body {
 .btn-cancel {
     position: fixed;
     top: 50%;
-    left: 217px;
+    left: -50px !important;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
     z-index: 1000;
     width: 10rem;
     transform: rotate(90deg);
-    margin-left: -5px;
 }
 
 .btn-carrinho {
@@ -359,17 +352,6 @@ html, body {
 .on-scroll::-webkit-scrollbar-thumb
 {
 	background-color: #fff;    
-}
-
-@media only screen and (max-width: 1200px) {
-
-    .btn-left {
-        left: 0;    
-    }
-
-    .btn-cancel {
-        left: -50px;
-    }
 }
 
 </style>
