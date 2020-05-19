@@ -17,29 +17,13 @@
             </div>
             <div class="vx-col sm:w-1/2 w-full mb-2">
                 <label for="segmentoFiltro" class="vs-input--label">Segmentos</label>
-                <v-select id="segmentoFiltro" name="segmento" v-model="segmentoSelecionado" label="nome" :options="getSegmentosSearch"/>
+                <v-select id="segmentoFiltro" name="segmento" v-model="segmentoSelecionado" label="nome" :clearable="false" :options="getSegmentosSearch"/>
             </div>
         </div>
         <div class="vx-col w-full mb-2">
             <label for="categoriaFiltro" class="vs-input--label">Categorias</label>
             <v-select multiple id="categoriaFiltro" name="segmento" v-model="categoriasSelecionadas" label="nome" :options="getCategoriasSearch"/>
         </div>
-        
-        <!-- <div class="flex flex-wrap-reverse items-center">
-            <div v-for="(categoria, index) in getCategoriasCardPesquisa" :key="index" style="padding: 1.5px;" class="items-center justify-center">
-                <b-button
-                    squared 
-                    
-                    v-bind:variant="categoria.check ? 'danger' : 'outline-danger'"
-                    class="w-full"
-                    v-on:click="searchProduct(categoria)">
-                    <small class="flex cursor-pointer">
-                        <feather-icon :icon="categoria.check ? 'CheckIcon' : 'XIcon'" svgClasses='h-4 w-4'></feather-icon>
-                        {{categoria.nome}}
-                    </small>
-                </b-button>
-            </div>
-        </div> -->
         <div style="height: 65vh;overflow:scroll;overflow-x: hidden;">
         <template>
             <div id="div-with-loading-search" class="vx-row vs-con-loading__container vs-con-loading-search">
@@ -58,32 +42,6 @@
             </div>
         </template>
         </div>
-
-        <!-- <vs-table ref="table" v-model="produtoSearch" @selected="selectSearchProduto(produtoSearch)" :data="listaProdutosPesquisa">
-            <div slot="header" class="flex flex-wrap-reverse items-center flex-grow justify-between">
-            </div>
-            <template slot="thead">
-                <vs-th>Image</vs-th>
-                <vs-th sort-key="referencia">Referencia</vs-th>
-                <vs-th sort-key="nome">Nome</vs-th>
-            </template>
-            <template slot-scope="{data}">
-                <tbody id="div-with-loading-search" class="vs-con-loading__container vs-con-loading-search">
-                    <vs-tr :data="tr" :key="indextr" v-for="(tr, indextr) in data">
-                        <vs-td :data="data[indextr].imagemPrincipal">
-                            <img :src="data[indextr].imagemPrincipal" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-if="data[indextr].imagemPrincipal"/>
-                            <img :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded mb-4 user-latest-image responsive img-popup product-img" v-else />
-                        </vs-td>
-                        <vs-td :data="data[indextr].referencia">
-                            <p class="product-name font-medium">{{ tr.referencia }}</p>
-                        </vs-td>
-                        <vs-td :data="data[indextr].nome">
-                            <p class="product-category">{{ tr.nome }}</p>
-                        </vs-td>
-                    </vs-tr>
-                </tbody>
-            </template>
-        </vs-table> -->
     </b-modal>
 </template>    
 <script>
