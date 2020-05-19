@@ -120,7 +120,7 @@ class pedidoUtils {
                 newPedido.dataEmbarque = item.dataEmbarque;
                 newPedido.totalBruto = item.totalBruto;
                 newPedido.totalLiquido = this.calcularDesconto(newPedido.desconto3, this.calcularDesconto(newPedido.desconto2, this.calcularDesconto(newPedido.desconto1, item.totalBruto)));
-                newPedido.observacao = (pedido.observacao ? pedido.observacao : "")+""+(item.observacao ? item.observacao : "");
+                newPedido.observacao = item.observacao;
                 newPedido.embarque = item.id;
                 newPedido.segmento = item.idSegmento;
                 newPedido.itens = this.getItemTamanho(item.itensPedido);
@@ -171,6 +171,7 @@ class pedidoUtils {
                 newEmbarque.formaPagamento = embarque.formaPagamento.id;
                 newEmbarque.condicaoPagamento = embarque.condicaoPagamento ? embarque.condicaoPagamento.id : null;
                 newEmbarque.itens = embarque.itensPedido;
+                newEmbarque.observacao = embarque.observacao;
                 return newEmbarque;
             });
             orcamento.quantidade = this.getQuantidadeOrcamento(orcamento.embarques);
