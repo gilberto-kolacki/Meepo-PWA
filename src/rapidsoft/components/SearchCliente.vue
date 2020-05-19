@@ -154,7 +154,7 @@ export default {
             if (this.estadoSelecionado) {
                 this.cidadeSelecionada = null;
                 ClienteDB.getCidadesComClientes(this.estadoSelecionado.uf).then((cidades) => {
-                    this.cidadesFiltro = cidades;
+                    this.cidadesFiltro = this.lodash.orderBy(cidades, ['nome'], ['asc']);
                     callback();
                 });
             } else {
