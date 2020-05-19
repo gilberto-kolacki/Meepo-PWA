@@ -23,9 +23,6 @@ const validarPedido = (pedidos) => {
                 if (IsNil(pedido.cliente) || IsNil(pedido.cliente.cpfCnpj)){
                     throw { campo: "nomeCliente", label: "Cliente" };
                 }
-                else if (IsNil(pedido.condicaoPagamento)) {
-                    throw { campo: "condicaoPgto", label: "Condição de Pagamento" };
-                }                
                 else if (IsNil(pedido.emailNfe) || pedido.emailNfe === ""){
                     throw { campo: "emailNfe", label: "E-mail Nfe" };
                 }

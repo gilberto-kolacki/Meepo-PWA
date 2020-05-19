@@ -16,6 +16,7 @@ class formaPagtoDB extends BasicDB {
 
     getDadosPagamento (idFormaPagamento, idCondicaoPagamento) {
         return new Promise((resolve) => {
+            if (idCondicaoPagamento === null) idCondicaoPagamento = 1;
             this._getFindCondition({id : {$eq : idFormaPagamento}}).then((formaPagamentoSelecionada) => {
                 this.getCondicaoPagamento(idCondicaoPagamento,formaPagamentoSelecionada[0]).then((condicaoSelecionada) => {
                     this._getAll().then((formasDePagamento) => {
@@ -28,8 +29,8 @@ class formaPagtoDB extends BasicDB {
                             condicaoPagamentoSelecionada: condicaoSelecionada,
                             formasDePagamento: formasDePagamento,
                         });
-                    })
-                })
+                    });
+                });
             });
         });
     }
