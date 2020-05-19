@@ -80,7 +80,7 @@
         <div role="tablist" v-if="produtosCarrinho.length > 0">
             <b-card no-body class="mb-1" v-for="(embarque, indexEmbarque) in getArrayEmbarquesProdutos" :key="indexEmbarque">
                 <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="'embarque-'+embarque.id+'-'+embarque.seq">
-                    <h5 class="m-3 font-bold">{{embarque.id}} - {{embarque.nome}}. Seq: {{embarque.seq}}</h5>
+                    <h5 class="m-3 font-bold">{{embarque.nome}}. Seq: {{embarque.seq}}</h5>
                     <vx-card class="w-full">
                         <div slot="no-body">
                             <div class='vx-row flex pr-6 pl-6'>
