@@ -56,9 +56,9 @@
                     <!-- HEADER -->
                     <template slot="thead">
                         <vs-th style="width:50%">EMBARQUE</vs-th>
-                        <vs-th style="width:20%">DATA</vs-th>
-                        <vs-th style="text-align:right; width:10%" >QTDE.</vs-th>
-                        <vs-th style="text-align:center; width:20%">VALOR</vs-th>
+                        <vs-th style="width:25%">DATA</vs-th>
+                        <vs-th style="width:15%">QTDE.</vs-th>
+                        <vs-th style="width:20%">VALOR</vs-th>
                     </template>
                     <!-- DATA -->
                     <template slot-scope="{data}">
@@ -69,7 +69,7 @@
                             <vs-td :data="data[index].dataEmbarque">
                                 {{ data[index].dataEmbarque | formatDate}}
                             </vs-td>
-                            <vs-td :data="data[index].quantidade" style="text-align:right">
+                            <vs-td :data="data[index].quantidade" style="text-align:center">
                                 {{ data[index].quantidade }}
                             </vs-td>
                             <vs-td :data="data[index].totalBruto" style="text-align:right">
@@ -82,19 +82,19 @@
                 <!-- INVOICE SUMMARY TABLE -->
                 <vs-table hoverFlat class="w-2/3 ml-auto mt-4">
                     <vs-tr>
-                        <vs-th>SUBTOTAL:</vs-th>
-                        <vs-td style="text-align:right">
-                            <vs-td >{{ orcamento.quantidade }}</vs-td>
-                            <vs-td style="padding-left:40px;padding-right:0px" >{{ orcamento.totalBruto | moneyy(orcamento.grupoCliente) }}</vs-td>
-                        </vs-td>
+                        <vs-th style="width:60%">SUBTOTAL:</vs-th>
+                        <vs-td style="width:25%; text-align:center">{{ orcamento.quantidade }}</vs-td>
+                        <vs-td style="width:25%; text-align:right">{{ orcamento.totalBruto | moneyy(orcamento.grupoCliente) }}</vs-td>
                     </vs-tr>
                     <vs-tr>
-                        <vs-th>DESCONTO (%)</vs-th>
-                        <vs-td style="text-align:right">{{orcamento.desconto1}} + {{orcamento.desconto2}} + {{orcamento.desconto3}} </vs-td>
+                        <vs-th style="width:60%">DESCONTO (%)</vs-th>
+                        <vs-td style="width:25%; text-align:right"></vs-td>
+                        <vs-td style="width:25%; text-align:right">{{orcamento.desconto1}} + {{orcamento.desconto2}} + {{orcamento.desconto3}}</vs-td>
                     </vs-tr>
                     <vs-tr>
-                        <vs-th>TOTAL:</vs-th>
-                        <td style="text-align:right">{{ orcamento.totalLiquido | moneyy(orcamento.grupoCliente) }}</td>
+                        <vs-th style="width:60%">TOTAL:</vs-th>
+                        <vs-td style="width:25%; text-align:right"></vs-td>
+                        <vs-td style="width:25%; text-align:right">{{ orcamento.totalLiquido | moneyy(orcamento.grupoCliente) }}</vs-td>
                     </vs-tr>
                 </vs-table>
             </div>
