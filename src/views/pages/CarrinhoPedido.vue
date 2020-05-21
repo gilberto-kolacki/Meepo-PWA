@@ -100,7 +100,7 @@
                     <vs-divider>Observação</vs-divider>
                     <div class="vx-row flex justify-between">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
-                            <vs-textarea v-model="pedidoCapa.observacao" height="100" />
+                            <vs-textarea v-model="observacaoCapa" label="Ao alterar esta observação, a observação dos embarques será atualizada." height="100" />
                         </vs-col>
                     </div>
                 </div>
@@ -186,7 +186,7 @@
                 </div>
                 <div class="vx-row flex justify-between">
                     <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="12" vs-sm="12" vs-xs="12">
-                        <vs-textarea v-model="pedido.observacao" label="Observação" height="70" />
+                        <vs-textarea v-model="pedido.observacao" label="Observação" @input="alteraObservacao(pedido)" height="70" />
                     </vs-col>
                 </div>
             </div>
@@ -223,6 +223,7 @@ export default {
         pedidoParcialCapa: true,
         antecipacaoPedidoCapa: true,
         copiaEmailCapa: true,
+        observacaoCapa: null,
     }),
     watch: {
         endEntregaSel(option) {
@@ -241,6 +242,12 @@ export default {
         copiaEmailCapa(newValue, oldValue) {
             if ((newValue != null && newValue != oldValue)) {
                 this.pedidoCapa.listEmbarques.map((pedido) => pedido.copiaEmail = this.copiaEmailCapa);
+            }
+        },
+        observacaoCapa(newValue, oldValue) {
+            if ((newValue != null && newValue != oldValue)) {
+                this.pedidoCapa.observacao = this.observacaoCapa
+                this.pedidoCapa.listEmbarques.map((pedido) => pedido.observacao = this.observacaoCapa);
             }
         },
     },
@@ -358,6 +365,9 @@ export default {
             this.$forceUpdate();
         },
         alteraCondicaoPagamento() {
+            this.$forceUpdate();
+        },
+        alteraObservacao() {
             this.$forceUpdate();
         },
         getCondicoesPagamento(idPedido) {

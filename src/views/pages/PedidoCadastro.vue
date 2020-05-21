@@ -55,8 +55,8 @@
                                 id="endEntrega"
                                 v-model="endEntregaSel"
                                 :options="getEnderecosEntrega"
-                                :clearable=false>
-                                :disabled="pedido.status > 1"
+                                :clearable=false
+                                :disabled="pedido.status > 1">
                             </v-select>
                         </div>
                     </div>
@@ -108,7 +108,7 @@
                                 disabled
                             />
                         </vs-col>
-                        <vs-col vs-lg="6" vs-sm="6" vs-xs="12" v-if="temCondicaoDePagamento" >
+                        <vs-col vs-lg="6" vs-sm="6" vs-xs="12" v-if="!pedido.brinde" >
                             <label style="font-size:smaller">Condição de Pagamento</label>
                             <v-select
                                 @input="setCondicaoDePagamento()"
@@ -217,7 +217,6 @@ export default {
             itensPedido: [],
             formaDePagamentoSelecionada: {},
             condicaoDePagamentoSelecionada: {},
-            temCondicaoDePagamento: true,
             showScreen:false,
             endEntregaSel: {},
             listStatus: [],
@@ -335,12 +334,10 @@ export default {
                 };
                 this.pedido.condicaoPagamento = this.condicaoDePagamentoSelecionada.value;
                 this.pedido.brinde = false;
-                this.temCondicaoDePagamento = true;
             }
         },
 
         setBrinde(){
-            this.temCondicaoDePagamento = !this.pedido.brinde;
             this.pedido.formaPagamento = this.pedido.brinde ? this.condigoBrinde : null;
             this.pedido.condicaoPagamento = null;
         },

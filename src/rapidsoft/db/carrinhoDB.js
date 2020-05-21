@@ -40,31 +40,24 @@ class carrinhoDB extends BasicRemoteDB {
         return new Promise((resolve) => {
             carrinho._id = "1";
             carrinho.alterado = true;
-            if (carrinho.itens.length > 0) {
-                carrinho.valorTotal = this.getValorTotalCarrinho(carrinho.itens);
-                this._localDB.put(carrinho).then((result) => {
-                    Storage.setCarrinho(carrinho);
-                    resolve(result);
-                }).catch((erro) => {
-                    if (erro.status == 409) {
-                        this.getCarrinho(true).then((carrinhoBanco) => {
-                            this._localDB.remove(carrinhoBanco).then(() => {
-                                this.setCarrinho(carrinho).then((result) => {
-                                    resolve(result);
-                                });
+            carrinho.valorTotal = this.getValorTotalCarrinho(carrinho.itens);
+            this._localDB.put(carrinho).then((result) => {
+                Storage.setCarrinho(carrinho);
+                resolve(result);
+            }).catch((erro) => {
+                if (erro.status == 409) {
+                    this.getCarrinho(true).then((carrinhoBanco) => {
+                        this._localDB.remove(carrinhoBanco).then(() => {
+                            this.setCarrinho(carrinho).then((result) => {
+                                resolve(result);
                             });
                         });
-                    } else {
-                        this._criarLogDB({url:'db/carrinhoDB', method:'setCarrinho', message: erro, error:'Failed Request'});
-                        resolve(erro);
-                    }
-                });
-            } else {
-                Storage.setCarrinho(carrinho);
-                this.deleteCarrinho().then(() => {
-                    resolve();
-                });
-            }
+                    });
+                } else {
+                    this._criarLogDB({url:'db/carrinhoDB', method:'setCarrinho', message: erro, error:'Failed Request'});
+                    resolve(erro);
+                }
+            });
         });
     }
 

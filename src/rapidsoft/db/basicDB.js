@@ -362,20 +362,14 @@ class basicDB {
                 this._getObjeto(objeto._id).then((objetoDB) => {
                     objeto._rev = objetoDB._rev;
                     if (!IsEqual(objetoDB, objeto)) {
-                        if (objetoDB.idPedido && objeto.idPedido && objetoDB.idPedido !== objeto.idPedido) {
-                            const error = 'Existe um mesmo id '+objetoDB.id+' de pedido para idPedido do ERP diferentes ('+objetoDB.idPedido+'/'+objeto.idPedido+')!';
+                        objeto.embarque = objetoDB.embarque;
+                        objeto.cliente.id = String(objeto.cliente.id);
+                        this._salvar(objeto).then(() => {
+                            resolve();
+                        }).catch((error) => {
                             this._criarLogDB({url:'db/basicDB',method:'_salvarSinc',message: error,error:'Failed Request'});
                             reject(error);
-                        } else {
-                            objeto.embarque = objetoDB.embarque;
-                            objeto.cliente.id = String(objeto.cliente.id);
-                            this._salvar(objeto).then(() => {
-                                resolve();
-                            }).catch((error) => {
-                                this._criarLogDB({url:'db/basicDB',method:'_salvarSinc',message: error,error:'Failed Request'});
-                                reject(error);
-                            });
-                        }
+                        });
                     } else {
                         resolve();
                     }

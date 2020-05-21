@@ -23,9 +23,6 @@ const validarPedido = (pedidos) => {
                 if (IsNil(pedido.cliente) || IsNil(pedido.cliente.cpfCnpj)){
                     throw { campo: "nomeCliente", label: "Cliente" };
                 }
-                else if (IsNil(pedido.condicaoPagamento)) {
-                    throw { campo: "condicaoPgto", label: "Condição de Pagamento" };
-                }                
                 else if (IsNil(pedido.emailNfe) || pedido.emailNfe === ""){
                     throw { campo: "emailNfe", label: "E-mail Nfe" };
                 }
@@ -120,7 +117,7 @@ class pedidoUtils {
                 newPedido.dataEmbarque = item.dataEmbarque;
                 newPedido.totalBruto = item.totalBruto;
                 newPedido.totalLiquido = this.calcularDesconto(newPedido.desconto3, this.calcularDesconto(newPedido.desconto2, this.calcularDesconto(newPedido.desconto1, item.totalBruto)));
-                newPedido.observacao = (pedido.observacao ? pedido.observacao : "")+""+(item.observacao ? item.observacao : "");
+                newPedido.observacao = item.observacao;
                 newPedido.embarque = item.id;
                 newPedido.segmento = item.idSegmento;
                 newPedido.itens = this.getItemTamanho(item.itensPedido);
@@ -171,6 +168,7 @@ class pedidoUtils {
                 newEmbarque.formaPagamento = embarque.formaPagamento.id;
                 newEmbarque.condicaoPagamento = embarque.condicaoPagamento ? embarque.condicaoPagamento.id : null;
                 newEmbarque.itens = embarque.itensPedido;
+                newEmbarque.observacao = embarque.observacao;
                 return newEmbarque;
             });
             orcamento.quantidade = this.getQuantidadeOrcamento(orcamento.embarques);

@@ -187,34 +187,13 @@ export default {
             this.setSidebarWidth();
         },
         setSidebarWidth() {
-            if (this.windowWidth < 1200) {
-                if(this.windowWidth < 992) this.$store.commit('UPDATE_WINDOW_BREAKPOINT', 'md')
-                else this.$store.commit('UPDATE_WINDOW_BREAKPOINT', 'lg')
-
-                this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', false)
-                if (this.reduceButton) this.reduce = false;
-                // this.reduceButton = false;
-                this.showCloseButton = true;
-                this.clickNotClose = false;
-                this.$store.dispatch('updateSidebarWidth', 'no-sidebar')
-                this.$store.commit('UPDATE_SIDEBAR_ITEMS_MIN', false)
-            }
-            else {
-                this.$store.commit('UPDATE_WINDOW_BREAKPOINT', 'xl')
-                if (this.reduceButton) this.reduce = true;
-                else this.reduce = false;
-
-                this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true)
-                if (this.reduceButton && !this.isMouseEnter) this.$store.commit('UPDATE_SIDEBAR_ITEMS_MIN', true)
-                else this.$store.commit('UPDATE_SIDEBAR_ITEMS_MIN', false)
-
-                this.clickNotClose = true;
-                this.showCloseButton = false;
-                if (this.reduceSidebar)
-                    this.$store.dispatch('updateSidebarWidth', 'reduced')
-                else
-                    this.$store.dispatch('updateSidebarWidth', 'default')
-            }
+            this.$store.commit('UPDATE_WINDOW_BREAKPOINT', 'md')
+            this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', false)
+            if (this.reduceButton) this.reduce = false;
+            this.showCloseButton = true;
+            this.clickNotClose = false;
+            this.$store.dispatch('updateSidebarWidth', 'no-sidebar')
+            this.$store.commit('UPDATE_SIDEBAR_ITEMS_MIN', false)
         },
         psSectionScroll() {
             if(this.$refs.mainSidebarPs.$el.scrollTop > 0) this.showShadowBottom = true;

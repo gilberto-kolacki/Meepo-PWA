@@ -1097,17 +1097,6 @@ export default {
     transform: rotate(-90deg);
 }
 
-.btn-cancel {
-    position: fixed;
-    top: 50%;
-    left: -50px;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-    z-index: 1000;
-    width: 10rem;
-    transform: rotate(90deg);
-}
-
 .mb-base-button {
     margin-bottom: 0.8rem !important;
 }

@@ -5,7 +5,7 @@
             <vs-button @click.stop="prev" color="primary" type="filled" class="btn-right" icon-pack="feather" icon="icon-chevron-right"></vs-button>
         </div>
         <div class="flex flex-wrap items-center justify-center" style="margin-bottom:20px; margin-top: -10px;">
-            <div class="w-1/5 xl:hidden">
+            <div class="w-1/5">
                 <div clas="vx-col justify-start m-1" style="margin-top: 1.8rem; margin-left: -8px; margin-right: 8px;">
                     <vs-button color="dark" type="filled" class="w-full" icon="menu" @click.stop="showSidebar"></vs-button>
                 </div>

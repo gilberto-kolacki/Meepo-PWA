@@ -50,7 +50,6 @@ import ErrorDB from "../../rapidsoft/db/errorDB";
 import AddCarrinhoItem  from '../../rapidsoft/components/AddCarrinhoItem';
 import ProdutoDB from '../../rapidsoft/db/produtoDB';
 import CarrinhoDB from '../../rapidsoft/db/carrinhoDB';
-import Storage from '../../rapidsoft/utils/storage';
 
 export default {
 	data: () => ({
@@ -64,7 +63,11 @@ export default {
     },
     computed: {   
         existeCarrinho() {
-            return Storage.existeCarrinho();
+            if (this.carrinho && this.carrinho.itens && this.carrinho.itens.length > 0) {
+                return true;
+            } else {
+                return false;
+            }
         },    
     },
     methods: {
