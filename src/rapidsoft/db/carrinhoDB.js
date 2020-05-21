@@ -4,13 +4,13 @@
   ----------------------------------------------------------------------------------------
   Author: Giba
 ==========================================================================================*/
-import BasicDB from './basicDB';
+import BasicRemoteDB from './basicRemoteDB';
 import Storage from '../utils/storage';
 
-class carrinhoDB extends BasicDB {
+class carrinhoDB extends BasicRemoteDB {
 
     constructor() {
-        super("carrinho", true);
+        super("carrinho");
     }
 
     getCarrinho(rev = false) {

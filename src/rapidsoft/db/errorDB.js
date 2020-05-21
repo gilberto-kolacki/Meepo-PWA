@@ -5,12 +5,12 @@
   Author: Giba
 ==========================================================================================*/
 
-import BasicDB from './basicDB';
+import basicRemoteDB from './basicRemoteDB';
 
-class errorDB extends BasicDB {
+class errorDB extends basicRemoteDB {
 
     constructor() {
-        super("erros", true);
+        super("error");
     }
 
     listar() {

@@ -1,34 +1,32 @@
 <template>
     <div class="page-home" v-if="this.showScreen">
         <div class="vx-row">
-            <div class="vx-col w-full lg:w-1/4 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/cliente/consulta')">
-                <vx-card class="text-center cursor-pointer border-solid">
+            <div class="vx-col w-full lg:w-1/5 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/cliente/consulta')">
+                <vx-card class="text-center cursor-pointer border-component-home">
                     <img :src="require(`@/assets/images/rapidsoft/icons1/customer.png`)" alt="graphic" width="40" class="mx-auto mb-4">
                     <h4 class="mb-4">Clientes</h4>
                 </vx-card>
             </div>
-            <div class="vx-col w-full lg:w-1/4 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/catalogo')">
-                <vx-card class="text-center cursor-pointer border-solid">
-                    <img :src="require(`@/assets/images/rapidsoft/icons1/catalog.png`)" alt="graphic" width="40" class="mx-auto mb-4">
-                    <h4 class="mb-4">Catálogo</h4>
-                </vx-card>
-            </div>
-            <div class="vx-col w-full lg:w-1/4 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/pedido/consulta')">
-                <vx-card class="text-center cursor-pointer border-solid">
+            <div class="vx-col w-full lg:w-1/5 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/pedido/consulta')">
+                <vx-card class="text-center cursor-pointer border-component-home">
                     <img :src="require(`@/assets/images/rapidsoft/icons1/order.png`)" alt="graphic" width="40" class="mx-auto mb-4">
                     <h4 class="mb-4">Pedidos</h4>
                 </vx-card>
             </div>
-            <div class="vx-col w-full lg:w-1/4 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/orcamento/consulta')">
-                <vx-card class="text-center cursor-pointer border-solid">
+            <div class="vx-col w-full lg:w-1/5 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/orcamento/consulta')">
+                <vx-card class="text-center cursor-pointer border-component-home">
                     <img :src="require(`@/assets/images/rapidsoft/icons1/009-wishlist.png`)" alt="graphic" width="40" class="mx-auto mb-4">
                     <h4 class="mb-4">Orçamentos</h4>
                 </vx-card>
             </div>
-        </div>
-        <div class="vx-row">
-            <div class="vx-col w-full lg:w-1/4 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/pages/sincronizacao')">
-                <vx-card class="text-center cursor-pointer border-solid">
+            <div class="vx-col w-full lg:w-1/5 md:w-1/4 sm:w-1/3 mb-base" @click="$router.push('/catalogo')">
+                <vx-card class="text-center cursor-pointer border-component-home">
+                    <img :src="require(`@/assets/images/rapidsoft/icons1/catalog.png`)" alt="graphic" width="40" class="mx-auto mb-4">
+                    <h4 class="mb-4">Catálogo</h4>
+                </vx-card>
+            </div>
+            <div class="vx-col w-full lg:w-1/5 mb-base" @click="$router.push('/pages/sincronizacao')">
+                <vx-card class="text-center cursor-pointer border-component-home">
                     <img :src="require(`@/assets/images/rapidsoft/icons1/sinc.png`)" alt="graphic" width="40" class="mx-auto mb-4">
                     <h4 class="mb-4">Sinc</h4>
                 </vx-card>
@@ -36,7 +34,7 @@
         </div>
         <div class="vx-row flex justify-center" v-if="this.existeCarrinho">
             <div class="vx-col w-full" @click="$router.push('/carrinho')">
-                <vx-card class="cursor-pointer">
+                <vx-card class="cursor-pointer border-component-home">
                     <h5>Carrinho</h5>
                     <table style="width:100%" class="border-collapse">
                         <tr>
@@ -55,7 +53,7 @@
         </div>
         <div class="vx-row flex justify-center" style="margin-top:10px" v-if="this.existePedidoEmDigitacao">
             <div class="vx-col w-full" @click="$router.push('/pedido/consulta')">
-                <vx-card class="cursor-pointer">
+                <vx-card class="cursor-pointer border-component-home">
                     <h5>Pedidos em Digitação</h5>
                     <table style="width:100%" class="border-collapse">
                         <tr>
@@ -158,3 +156,13 @@ export default {
 }
 
 </script>
+
+<style lang="scss">
+
+.border-component-home {
+    border: 2px solid #919093;    
+    box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.3);
+}
+
+</style>
