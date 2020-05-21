@@ -5,19 +5,17 @@
   Author: Giba
 ==========================================================================================*/
 import After from 'lodash/after';
-import BasicDB from './basicDB';
+import BasicRemoteDB from './basicRemoteDB';
 import CarrinhoDB from './carrinhoDB';
 import ClienteDB from './clienteDB';
 import ProdutoDB from './produtoDB';
 import GrupoClienteDB from './grupoClienteDB';
 
-class pedidoDB extends BasicDB {
+class pedidoDB extends BasicRemoteDB {
 
     constructor() {
-        super("pedido", true);
-        this._createIndex('id');
+        super("pedido");
         this._createIndex('status');
-        this._createIndex('alterado');
     }
 
     findLastId() {
@@ -234,12 +232,6 @@ class pedidoDB extends BasicDB {
             try{
                 this._deletar(idPedido).then((result) => {
                     resolve(result);
-                    // TODO (Luiz): Removido para testar a aplicação sem sincronizar base local com a nuvem
-                    /* this._remoteDB.get(idPedido).then((objectRemote) => {
-                        this._remoteDB.remove(objectRemote).then(() => {
-                            resolve(result);
-                        });
-                    }); */
                 }).catch((error) => {
                     this._criarLogDB({url:'db/pedidoDB',method:'deletar',message: error,error:'Failed Request'});
                     reject(error);

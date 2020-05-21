@@ -6,7 +6,7 @@
 ==========================================================================================*/
 
 // import PouchDB from 'pouchdb';
-import BasicDB from './basicDB';
+import BasicRemoteDB from './basicRemoteDB';
 import After from 'lodash/after';
 import UniqBy from 'lodash/uniqBy';
 import IsArray from 'lodash/isArray';
@@ -171,14 +171,13 @@ const validarObjetoDB = (cliente) => {
     });
 };
 
-class clienteDB extends BasicDB {
+class clienteDB extends BasicRemoteDB {
 
     constructor() {
-        super("cliente", true);
+        super("cliente");
         this.indexes = ['endereco.idCidade', 'endereco.estado', 'cpfCnpj', 'nome'];
         this._createIndexes(this.indexes, 'search');
-        this._createIndex('clienteErp');
-        this._createIndex('alterado');
+        this._createIndex('clienteErp');        
         this._createIndex('endereco.estado');
     }
 

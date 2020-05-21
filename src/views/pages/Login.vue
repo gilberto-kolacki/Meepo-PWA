@@ -24,16 +24,19 @@
                                         <h4 class="mb-4">Login</h4>
                                     </div>
                                     <vs-input
-                                        name="email"
+                                        id="username"
+                                        name="username"
                                         icon="icon icon-user"
                                         icon-pack="feather"
+                                        type="text"
                                         label-placeholder="Login"
                                         v-model="email"
                                         class="w-full no-icon-border"/>
 
                                     <vs-input
-                                        type="password"
+                                        id="password"
                                         name="password"
+                                        type="password"
                                         icon="icon icon-lock"
                                         icon-pack="feather"
                                         label-placeholder="Password"
@@ -74,8 +77,8 @@ import ErrorDB from '../../rapidsoft/db/errorDB';
 export default {
     data() {
         return {
-            email: '',
-            password: '',
+            email: '',//05108435000178
+            password: '',//teste123
             checkbox_remember_me: true,
             popupInstall: false,
         }
@@ -134,4 +137,5 @@ export default {
 </script>
 
 <style lang="scss">
+
 </style>

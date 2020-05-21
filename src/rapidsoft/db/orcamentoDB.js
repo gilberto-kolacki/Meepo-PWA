@@ -4,16 +4,12 @@
   ----------------------------------------------------------------------------------------
   Author: Giba
 ==========================================================================================*/
-// import _ from 'lodash';
-import BasicDB from './basicDB';
+import BasicRemoteDB from './basicRemoteDB';
 
-
-class orcamentoDB extends BasicDB {
+class orcamentoDB extends BasicRemoteDB {
 
     constructor() {
-        super("orcamento", true);
-        this._createIndex('id');
-        this._createIndex('alterado');
+        super("orcamento");
     }
 
     findLastId() {
@@ -84,11 +80,6 @@ class orcamentoDB extends BasicDB {
             try {
                 this._localDB.remove(orcamento).then(() => {
                     resolve();
-                    /* this._remoteDB.get(orcamento.id).then((orcamentoRemote) => {
-                        this._remoteDB.remove(orcamentoRemote).then(() => {
-                            resolve();
-                        });
-                    }); */
                 }).catch((error) => {
                     this._criarLogDB({url:'db/orcamentoDB',method:'deletar',message: error,error:'Failed Request'});
                     reject(error);
@@ -103,9 +94,6 @@ class orcamentoDB extends BasicDB {
     buscaSinc() {
         return new Promise((resolve) => {
             resolve([ ]);
-            /* this._getAll().then((result) => {
-                resolve(result);
-            }); */
         });
     }
 
