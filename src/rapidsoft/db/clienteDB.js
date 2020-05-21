@@ -77,7 +77,6 @@ const validarObjetoDB = (cliente) => {
         let retorno = {
             mensagem : "Campo obrigatório!"
         };
-        // let validarEndereco = validarEnderecoDB(cliente.endereco, 1);
         if (cliente.cpfCnpj === undefined || cliente.cpfCnpj.length < 14 || cliente.cpfCnpj === "") {
             retorno.campo = "cpfCnpj";    
             reject(retorno);
@@ -92,7 +91,7 @@ const validarObjetoDB = (cliente) => {
                 retorno.campo = "fantasia";
                 reject(retorno);
             }
-            else if (cliente.dataFundacao === undefined || cliente.dataFundacao === "") {
+            else if (cliente.dataFundacao === undefined || (!cliente.clienteErp && cliente.dataFundacao === "")) {
                 retorno.campo = "dataFundacao";
                 reject(retorno);
             }
@@ -105,7 +104,7 @@ const validarObjetoDB = (cliente) => {
                 retorno.campo = "nomeCliente";
                 reject(retorno);
             }
-            else if (cliente.dataAniversario === undefined || cliente.dataAniversario === "") {
+            else if (cliente.dataAniversario === undefined || (!cliente.clienteErp && cliente.dataAniversario === "")) {
                 retorno.campo = "dataAniversario";
                 reject(retorno);
             }
@@ -121,11 +120,11 @@ const validarObjetoDB = (cliente) => {
         if (!cliente.clienteErp && cliente.segmentos[0] === undefined && cliente.segmentos[1] === undefined) {
             reject({campo: "segmento", mensagem: "Campo obrigatório, informe ao menos 1 Segmento!"});
         }
-        else if (cliente.emailNfe === undefined || (!(cliente.emailNfe.includes("@") && cliente.emailNfe.includes(".com"))) ) {
+        else if (cliente.emailNfe === undefined || (!cliente.clienteErp && !(cliente.emailNfe.includes("@") && cliente.emailNfe.includes(".com"))) ) {
             retorno.campo = "emailNfe";
             reject(retorno);
         }
-        else if (cliente.endereco.telefone === undefined || cliente.endereco.telefone === "") {
+        else if (cliente.endereco.telefone === undefined || (!cliente.clienteErp && cliente.endereco.telefone === "")) {
             retorno.campo = "enderecoTelefone";
             reject(retorno);
         }
