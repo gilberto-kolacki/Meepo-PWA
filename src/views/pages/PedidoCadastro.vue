@@ -149,6 +149,33 @@
                     </strong>
                 </template>
                 <div class="parentx">
+                    <vs-row class="w-1/2 ml-auto mt-4" style="margin-bottom: 20px">
+                        <vs-row class="total-title">
+                            <vs-col style="width:30%;"></vs-col>
+                            <vs-col style="width:30%;">Qtde.</vs-col>
+                            <vs-col style="width:40%;">Valor</vs-col>
+                        </vs-row>
+                        <vs-row class="total-qtde">
+                            <vs-col style="width:30%;">Total</vs-col>
+                            <vs-col style="width:30%;">{{pedido.quantidade}}</vs-col>
+                            <vs-col style="width:40%;">{{pedido.totalLiquido | moneyy}}</vs-col>
+                        </vs-row>
+                        <vs-row class="total-abert" v-if="pedido.qtdeAberto">
+                            <vs-col style="width:30%;">Aberto</vs-col>
+                            <vs-col style="width:30%;">{{pedido.qtdeAberto}}</vs-col>
+                            <vs-col style="width:40%;">{{pedido.valorAberto | moneyy}}</vs-col>
+                        </vs-row>
+                        <vs-row class="total-fatu" v-if="pedido.qtdeFaturado">
+                            <vs-col style="width:30%;">Faturado</vs-col>
+                            <vs-col style="width:30%;">{{pedido.qtdeFaturado}}</vs-col>
+                            <vs-col style="width:40%;">{{pedido.valorFaturado | moneyy}}</vs-col>
+                        </vs-row>
+                        <vs-row class="total-canc" v-if="pedido.qtdeCancelado">
+                            <vs-col style="width:30%;">Cancelado</vs-col>
+                            <vs-col style="width:30%;">{{pedido.qtdeCancelado}}</vs-col>
+                            <vs-col style="width:40%;">{{pedido.valorCancelado | moneyy}}</vs-col>
+                        </vs-row>
+                    </vs-row>
                     <div class="flex carrinho-item" v-for="(itemCor, indexItem) in itensPedido" :key="indexItem">            
                         <div class="vx-col mx-1 w-1/4" style="justify-content:center; margin:auto">
                             <img 
@@ -171,18 +198,18 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td class="grade-tam-prod-qtde">Pçs</td>
+                                        <td class="grade-tam-prod-qtde">Qtde</td>
                                         <td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidade}}</td>
                                     </tr>
-                                    <tr>
+                                    <tr v-if="pedido.qtdeAberto">
                                         <td class="grade-tam-prod-abert">Aber</td>
                                         <td class="grade-tam-prod-abert" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidadeAberto}}</td>
                                     </tr>
-                                    <tr>
+                                    <tr v-if="pedido.qtdeFaturado">
                                         <td class="grade-tam-prod-fatu">Fatu</td>
                                         <td class="grade-tam-prod-fatu" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidadeFaturado}}</td>
                                     </tr>
-                                    <tr>
+                                    <tr v-if="pedido.qtdeCancelado">
                                         <td class="grade-tam-prod-canc">Canc</td>
                                         <td class="grade-tam-prod-canc" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidadeCancelado}}</td>
                                     </tr>
@@ -531,4 +558,45 @@ export default {
     color: #f15b5b;
 }
 
+.total-title {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+}
+
+.total-qtde {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+}
+
+.total-abert {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+    color: #189b36;
+}
+
+.total-fatu {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+    color: #7179f4;
+}
+
+.total-canc {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+    color: #f15b5b;
+}
 </style>

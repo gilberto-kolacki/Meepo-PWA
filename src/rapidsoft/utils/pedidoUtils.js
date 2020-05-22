@@ -160,6 +160,7 @@ class pedidoUtils {
                 newEmbarque.nome = embarque.nome;
                 newEmbarque.quantidade = embarque.quantidade;
                 newEmbarque.totalBruto = embarque.totalBruto;
+                newEmbarque.totalLiquido = this.calcularDesconto(orcamento.desconto3, this.calcularDesconto(orcamento.desconto2, this.calcularDesconto(orcamento.desconto1, newEmbarque.totalBruto)));
                 newEmbarque.dataEmbarque = embarque.dataEmbarque;
                 newEmbarque.brinde = embarque.brinde;
                 newEmbarque.pedidoParcial = embarque.pedidoParcial;
