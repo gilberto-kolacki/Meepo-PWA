@@ -18,16 +18,16 @@
                 <div class="my-6" v-if="this.pedido">
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
-                            <vs-input label="Código" id="id" name="emailNfe" v-model="pedido.id" class="w-full" disabled />
+                            <vs-input label="Pedido" id="idPedido" name="idPedido" v-model="pedido.idPedido" class="w-full" disabled />
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
-                            <vs-input label="Status" id="status" name="emailNfe" v-model="getStatus" class="w-full" disabled />
+                            <vs-input label="Status" id="status" name="status" v-model="getStatus" class="w-full" disabled />
+                        </vs-col>
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
+                            <vs-input label="Data Emissão" id="dataEmissao" name="dataEmissao" v-model="getDataEmissao" class="w-full" disabled />
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
                             <vs-input label="Data Embarque" id="dataEmbarque" name="dataEmbarque" v-model="getDataEmbarque" class="w-full" disabled />
-                        </vs-col>
-                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
-                            <vs-input label="Total Líquido" id="totalLiquido" name="totalLiquido" v-model="getTotalLiquido" class="w-full" disabled />
                         </vs-col>
                     </div>
                     <div class="vx-row">
@@ -59,6 +59,17 @@
                                 :disabled="pedido.status > 1">
                             </v-select>
                         </div>
+                    </div>
+                    <div class="vx-row" style="justify-content: flex-end;">
+                        <vs-col vs-justify="center" vs-align="center" vs-w="6">
+                            <vs-input label="Notas Fiscais" id="notaFiscal" name="notaFiscal" v-model="pedido.notaFiscal" class="w-full" disabled />
+                        </vs-col>
+                        <vs-col vs-justify="center" vs-align="center" vs-w="3">
+                            <vs-input label="Quantidade" id="quantidade" name="quantidade" v-model="pedido.quantidade" class="w-full" disabled />
+                        </vs-col>
+                        <vs-col vs-justify="center" vs-align="center" vs-w="3">
+                            <vs-input label="Total Líquido" id="totalLiquido" name="totalLiquido" v-model="getTotalLiquido" class="w-full" disabled />
+                        </vs-col>
                     </div>
                     
                     <vs-divider class="mb-0">Formas de Pagamento</vs-divider>
@@ -233,6 +244,13 @@ export default {
     computed:{
         getTotalLiquido() {
             return this.$options.filters.money(this.pedido.totalLiquido);
+        },
+        getDataEmissao() {
+            if (this.pedido.dataPedido) {
+                return this.$options.filters.formatDate(this.pedido.dataPedido);
+            } else {
+                return null;
+            }
         },
         getDataEmbarque() {
             return this.$options.filters.formatDate(this.pedido.dataEmbarque);
