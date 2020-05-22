@@ -199,16 +199,10 @@
                 <tr>
                     <th class="p-2 border border-solid d-theme-border-grey-light">Embarque</th>
                     <th class="p-2 border border-solid d-theme-border-grey-light text-center">A partir de</th>
-                    <th class="p-2 border border-solid d-theme-border-grey-light">Sel.</th>
                 </tr>
                 <tr v-for="(embarque, indexEmbarque) in this.embarquesNovos" :key="indexEmbarque">
-                    <td class="p-2 border border-solid d-theme-border-grey-light">{{embarque.nome}}</td>
-                    <td class="p-2 border border-solid d-theme-border-grey-light text-center">{{embarque.dataInicio | formatDate}}</td>
-                    <td class="p-2 border border-solid d-theme-border-grey-light">
-						<div class="flex w-full items-center justify-center">
-                            <vs-button color="success" type="filled" size="small" icon-pack="feather" class="w-full" icon="icon-check" @click.stop="gerarNovoEmbarque(embarque)"></vs-button>
-                        </div>
-					</td>
+                    <td @click.stop="gerarNovoEmbarque(embarque)" class="p-2 border border-solid d-theme-border-grey-light">{{embarque.nome}}</td>
+                    <td @click.stop="gerarNovoEmbarque(embarque)" class="p-2 border border-solid d-theme-border-grey-light text-center">{{embarque.dataInicio | formatDate}}</td>
                 </tr>      
             </table>
         </vs-popup>
