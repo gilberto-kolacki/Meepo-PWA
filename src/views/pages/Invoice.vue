@@ -75,8 +75,8 @@
                                 <tr v-for="(item, indexCor) in embarque.itens" :key="indexCor">
                                     <td>{{item.referencia}}</td>
                                     <td>{{item.nomeCor || item.cor}}</td>
-                                    <td style="padding: 1px; max-width:80px !important; min-width:60px !important;" class="flex">
-                                        <img :src="getImagemCorProduto(item)" class="rounded m-2 responsive" style="max-width:80px !important; min-width:60px !important;" />
+                                    <td style="padding: 1px; max-width:60px !important; min-width:50px !important;" >
+                                        <img :src="getImagemCorProduto(item)" class="rounded m-2 responsive" style="max-width:40px !important; min-width:30px !important;" />
                                     </td>
                                     <td>{{item.nome}}</td>
                                     <td style="padding: 1px;">
@@ -240,14 +240,14 @@ export default{
 
 .grade-tam-prod-title {
     background-color:#808080;
-    color:white;
+    color:black;
     font-size: 10px;
+    font-weight:bold;
     padding: 9px !important;
 }
 
 .grade-tam-prod-qtde {
     border-color:#808080;
-    font-weight:bold;
     text-align: center !important;
     border-style: solid !important;
     font-size: 10px;
