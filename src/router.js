@@ -140,6 +140,16 @@ const router = new Router({
                     },
                 },
                 {
+					path: '/monteLook',
+					name: 'monteLook',
+					component: () => import('./views/pages/MonteLook.vue'),
+					meta: {
+                        requiresAuth: true,
+                        rule: 'editor',
+                        navBar: true,
+                    },
+                },
+                {
 					path: '/carrinhoPedido',
 					name: 'carrinhoPedido',
 					component: () => import('./views/pages/CarrinhoPedido.vue'),

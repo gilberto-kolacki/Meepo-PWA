@@ -1,6 +1,6 @@
 <template>
     <div class="parentx">
-        <b-card-header header-tag="header" class="p-1" role="tab">
+        <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="idColapse">
             <vx-card class="w-full">
                 <div slot="no-body">
                     <div class='vx-row flex pr-6 pl-6'>

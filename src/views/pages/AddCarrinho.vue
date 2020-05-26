@@ -22,7 +22,7 @@
         </div>
         <h2 class='mt-5' style="display:flex;justify-content: center;" v-if="this.produtosDoLook.length > 0">Complete o Look</h2>
         <div class='flex justify-center w-full' v-if="this.produtosDoLook.length > 0">
-            <div class="produto-image-gallery vx-row mt-6" style="width:95%" id="content-produtos">
+            <div class="addcarrinho-complete-look vx-row mt-6" style="width:95%" id="content-produtos">
                 <div class="vx-col px-1 lg:w-1/4 md:w-1/4 sm:w-1/3 mb-4" v-for="(produtoLook, indextr) in this.produtosDoLook" :key="indextr" style="min-width: 13rem;">
                     <vx-card class="w-full text-center cursor-pointer; height:100%;">
                         <b-card-text style="display:flex;align-items:center;justify-content:center;">
@@ -195,32 +195,10 @@ export default {
     margin-top: -15px;
 }
 
-.produto-image-gallery {
+.addcarrinho-complete-look {
     overflow-x: scroll;
     overflow-y: hidden;
-    flex-wrap: nowrap;    
-}
-
-.produto-image-gallery-button {
-    width: 100% !important;
-    cursor: pointer;
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;        
-    -webkit-box-pack: center !important;
-    -ms-flex-pack: center !important;
-    justify-content: center !important;
-    -webkit-box-align: center !important;
-    -ms-flex-align: center !important;
-    align-items: center !important;
-    border-radius: .5rem !important;
-    background-color: #fff;
-}
-
-.produto-image-gallery-button-up {
-    margin-bottom: 10px;
+    flex-wrap: nowrap; 
 }
 
 </style>
