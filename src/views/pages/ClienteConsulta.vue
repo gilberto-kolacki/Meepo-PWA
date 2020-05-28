@@ -49,6 +49,9 @@
 
 import clienteDB from '../../rapidsoft/db/clienteDB';
 import ErrorDB from '../../rapidsoft/db/errorDB';
+import PedidoDB from '../../rapidsoft/db/pedidoDB';
+import OrcamentoDB from '../../rapidsoft/db/orcamentoDB';
+import CarrinhoUtils from "../../rapidsoft/utils/carrinhoUtils";
 
 export default {
     data() {
@@ -85,9 +88,33 @@ export default {
                 parameters: data
             })
         },
+        erroDeletar(msgErro) {
+            this.$vs.notify({
+                title: 'Cliente não pode ser excluído!',
+                text: `Para exlcuir você deve primeiro excluir ${msgErro} existente(s) para este cliente!`,
+                color: 'danger',
+                iconPack: 'feather',
+                icon: 'icon-alert-circle',
+                position:'top-right'
+            })
+        },
         deletar(parameters) {
-            clienteDB.deletar(parameters.id).then(() => {
-                this.listar();
+            CarrinhoUtils.getExisteClienteCarrinho(parameters.id).then((existeCarrinho) => {
+                PedidoDB.getPedidoByCliente(parameters.id).then((existePedido) => {
+                    OrcamentoDB.getExisteClienteOrcamento(parameters.id).then((existeOrcamento) => {
+                        if (existePedido || existeCarrinho || existeOrcamento) {
+                            let arrayErro = [];
+                            if (existePedido) arrayErro = [...arrayErro, 'pedidos'];
+                            if (existeOrcamento) arrayErro = [...arrayErro, 'orçamentos'];
+                            if (existeCarrinho) arrayErro = [...arrayErro, 'carrinho'];
+                            this.erroDeletar(arrayErro.toString());
+                        } else {
+                            clienteDB.deletar(parameters.id).then(() => {
+                                this.listar();
+                            });
+                        }
+                    });
+                });
             });
         },
     },

@@ -5,6 +5,7 @@ import GrupoClienteDB from '../db/grupoClienteDB';
 import CarrinhoDB from '../db/carrinhoDB';
 import EmbarqueDB from '../db/embarqueDB';
 import PeriodoDB from '../db/periodoDB';
+import Storage from '../utils/storage';
 
 class carrinhoUtils {
 
@@ -64,6 +65,17 @@ class carrinhoUtils {
                     resolve(carrinhoTela);
                 });
             });
+        });
+    }
+
+    getExisteClienteCarrinho(idCliente) {
+        return new Promise((resolve) => {
+            const cliente = Storage.getClienteCarrinho();
+            if (cliente && idCliente == cliente.id) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
         });
     }
 

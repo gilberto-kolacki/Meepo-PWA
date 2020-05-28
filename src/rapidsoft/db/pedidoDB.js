@@ -5,6 +5,7 @@
   Author: Giba
 ==========================================================================================*/
 import After from 'lodash/after';
+import Find from 'lodash/find';
 import BasicRemoteDB from './basicRemoteDB';
 import CarrinhoDB from './carrinhoDB';
 import ClienteDB from './clienteDB';
@@ -428,6 +429,18 @@ class pedidoDB extends BasicRemoteDB {
                         });
                     }
                 });
+            });
+        });
+    }
+    
+    getPedidoByCliente(idCliente) {
+        return new Promise((resolve) => {
+            this._getAll().then((pedidos) => {
+                if (Find(pedidos, (pedido) => { return pedido.cliente.id == idCliente; })) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
             });
         });
     }
