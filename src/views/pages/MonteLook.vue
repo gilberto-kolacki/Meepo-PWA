@@ -108,8 +108,8 @@
                 <tr v-for="(produto, index) in produtos" :key="index">
                     <td v-if="produto.referencia" class="p-2 border border-solid d-theme-border-grey-light">{{produto.referencia}}</td>
                     <td v-if="produto.nome" class="p-2 border border-solid d-theme-border-grey-light">{{produto.nome}}</td>
-                    <td v-if="produto.corSelecionada" class="p-2 border border-solid d-theme-border-grey-light text-right">{{produto.corSelecionada ? produto.corSelecionada.precoCusto : ''}}</td>
-                    <td v-if="produto.corSelecionada" class="p-2 border border-solid d-theme-border-grey-light text-right">{{produto.corSelecionada ? produto.corSelecionada.precoVenda : ''}}</td>
+                    <td v-if="produto.corSelecionada" class="p-2 border border-solid d-theme-border-grey-light text-right">{{getPrecoRef(produto, 1) | moneyy}}</td>
+                    <td v-if="produto.corSelecionada" class="p-2 border border-solid d-theme-border-grey-light text-right">{{getPrecoRef(produto, 2) | moneyy}}</td>
                 </tr>
             </table>
         </vs-popup>
@@ -151,6 +151,7 @@
     import MonteLookItem  from '../../rapidsoft/components/MonteLookItem';
     import CategoriaDB from '../../rapidsoft/db/categoriaDB';
     import ProdutoDB from '../../rapidsoft/db/produtoDB';
+    import ProdutoUtils from '../../rapidsoft/utils/produtoUtils';
     import Segmento from '../../rapidsoft/db/segmentoDB';
     import vSelect from 'vue-select';
     
@@ -247,6 +248,9 @@
             scrollDown() {
                 const gallery = document.getElementById("montelook-lista-produtos");
                 gallery.scrollTop = gallery.scrollTop + 80;
+            },
+            getPrecoRef(produto, tipo) {
+                return ProdutoUtils.calcularPreco(produto.cores[0], tipo)
             },
         },
         created() {
