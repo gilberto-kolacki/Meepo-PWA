@@ -124,6 +124,10 @@ const validarObjetoDB = (cliente) => {
             retorno.campo = "emailNfe";
             reject(retorno);
         }
+        else if (!cliente.endereco || cliente.endereco === undefined || cliente.endereco === null) {
+            retorno.campo = "endereco";
+            reject(retorno);
+        }
         else if (cliente.endereco.telefone === undefined || (!cliente.clienteErp && cliente.endereco.telefone === "")) {
             retorno.campo = "enderecoTelefone";
             reject(retorno);
