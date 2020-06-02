@@ -63,11 +63,12 @@
                                 <label for="segmentoFiltro" class="vs-input--label">Categorias Produto {{index + 1}}</label>
                                 <v-select
                                     @input="searchFindProduto(produto,index)"
-                                    multiple 
+                                    multiple
                                     id="categoriaFiltro"
                                     name="segmento"
                                     v-model="categoriasSelecionadas[index]"
                                     label="nome"
+                                    :searchable=false
                                     :options="getCategoriasSearch"
                                 />
                             </div>
