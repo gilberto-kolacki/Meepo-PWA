@@ -78,7 +78,7 @@
         </div>
         
         <div role="tablist" v-if="produtosCarrinho.length > 0">
-            <b-card no-body class="mb-1" v-for="(embarque, indexEmbarque) in getArrayEmbarquesProdutos" :key="indexEmbarque">
+            <b-card no-body class="mb-1" v-for="(embarque, indexEmbarque) in getArrayEmbarquesProdutos()" :key="indexEmbarque">
                 <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="'embarque-'+embarque.id+'-'+embarque.seq">
                     <h5 class="m-3 font-bold">{{embarque.nome}}. Seq: {{embarque.seq}}</h5>
                     <vx-card class="w-full">
@@ -254,29 +254,9 @@ export default {
         getValueEmbarques() {
             return [...this.embarques];
         },
-        getArrayEmbarquesProdutos() {
-            const percentual = Storage.getGrupoCarrinho().porcentagem;
-            const arrayEmbarquesProdutos = this.lodash.orderBy(this.produtosCarrinho.reduce((arrayEmbarquesProdutos, produto) => {
-                const index = arrayEmbarquesProdutos.findIndex((embarque) => this.isEqualsEmbarque(embarque, produto));
-                if (index >= 0) {
-                    const embarque = {...arrayEmbarquesProdutos[index]};
-                    embarque.quantidade = embarque.quantidade + produto.quantidade;
-                    embarque.totalBruto = embarque.totalBruto + ((produto.precoCusto + ((percentual/100) * produto.precoCusto)) * produto.quantidade);
-                    arrayEmbarquesProdutos[index] = embarque;
-                } else {
-                    const embarque = {...this.getValueEmbarques.find((embarque) => embarque.id === produto.embarqueSelecionado.id)};
-                    embarque.seq = produto.embarqueSelecionado.seq;
-                    embarque.quantidade = produto.quantidade;
-                    embarque.totalBruto = ((produto.precoCusto + ((percentual/100) * produto.precoCusto)) * produto.quantidade);
-                    arrayEmbarquesProdutos.push(embarque);
-                }
-                return arrayEmbarquesProdutos;
-            }, []), ['id', 'seq']);
-            return arrayEmbarquesProdutos;
-        },
         getArrayEmbarquesMover() {
             const embarques = this.itensSelecionados.reduce((embarques, item) => {
-                return embarques.concat(this.getArrayEmbarquesProdutos.reduce((embarquesArray, embSel) => {
+                return embarques.concat(this.getArrayEmbarquesProdutos().reduce((embarquesArray, embSel) => {
                     if ((embSel.dataInicio <= this.dataAtual || embSel.dataFim >= this.dataAtual)
                             && (this.maiorEmbarqueItensSelecionados.dataInicio <= embSel.dataInicio && this.maiorEmbarqueItensSelecionados.dataFim >= embSel.dataFim)
                                 && !this.isEqualsEmbarque(embSel, item)) {
@@ -285,7 +265,7 @@ export default {
                     return embarquesArray;
                 }, []))
             }, []);
-            return this.getArrayEmbarquesProdutos.filter((embarque) => embarques.some((emb) => emb.id === embarque.id && emb.seq === embarque.seq));
+            return this.getArrayEmbarquesProdutos().filter((embarque) => embarques.some((emb) => emb.id === embarque.id && emb.seq === embarque.seq));
         },
         maiorEmbarqueItensSelecionados() {
             return this.itensSelecionados.reduce((embarque, item) => {
@@ -304,6 +284,26 @@ export default {
         getTotalValor() {
 			return this.produtosCarrinho.reduce((qtdeTotal, item) => qtdeTotal + (item.quantidade * item.precoCusto), 0);
 		},
+        getArrayEmbarquesProdutos() {
+            const percentual = Storage.getGrupoCarrinho().porcentagem;
+            const arrayEmbarquesProdutos = this.lodash.orderBy (this.produtosCarrinho.reduce((arrayEmbarquesProdutos, produto) => {
+                const index = arrayEmbarquesProdutos.findIndex((embarque) => this.isEqualsEmbarque(embarque, produto));
+                if (index >= 0) {
+                    const embarque = {...arrayEmbarquesProdutos[index]};
+                    embarque.quantidade = embarque.quantidade + produto.quantidade;
+                    embarque.totalBruto = embarque.totalBruto + ((produto.precoCusto + ((percentual/100) * produto.precoCusto)) * produto.quantidade);
+                    arrayEmbarquesProdutos[index] = embarque;
+                } else {
+                    const embarque = {...this.getValueEmbarques.find((embarque) => embarque.id === produto.embarqueSelecionado.id)};
+                    embarque.seq = produto.embarqueSelecionado.seq;
+                    embarque.quantidade = produto.quantidade;
+                    embarque.totalBruto = ((produto.precoCusto + ((percentual/100) * produto.precoCusto)) * produto.quantidade);
+                    arrayEmbarquesProdutos.push(embarque);
+                }
+                return arrayEmbarquesProdutos;
+            }, []), ['id', 'seq']);
+            return arrayEmbarquesProdutos;
+        },
 		getTamanhosItens(linha) {
 			return linha.itens.reduce((tamanhosLinha, item) => {
 				return tamanhosLinha.concat(item.tamanhos.reduce((tamanhos, tamanho) => {
@@ -398,8 +398,8 @@ export default {
         gerarNovoEmbarque(embarque) {
             this.$vs.loading();
             embarque = {...embarque};
-            if (this.getArrayEmbarquesProdutos.some((emb) => emb.id === embarque.id)) {
-                embarque.seq = this.lodash.findLast(this.getArrayEmbarquesProdutos, (emb) => emb.id === embarque.id).seq+1;
+            if (this.getArrayEmbarquesProdutos().some((emb) => emb.id === embarque.id)) {
+                embarque.seq = this.lodash.findLast(this.getArrayEmbarquesProdutos(), (emb) => emb.id === embarque.id).seq+1;
             } else {
                 this.embarques.push(embarque);
                 embarque.seq = 1;
