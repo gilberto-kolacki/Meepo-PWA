@@ -83,6 +83,7 @@
                                     name="segmento"
                                     v-model="categoriasSelecionadas[2]"
                                     label="nome"
+                                    :searchable=false
                                     :options="getCategoriasSearch"
                                 />
                             </div>
