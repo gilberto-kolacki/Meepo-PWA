@@ -1,10 +1,10 @@
 <template>
     <div class="parentx">
-        <b-card-header header-tag="header" class="p-1" role="tab" v-b-toggle="idColapse">
+        <b-card-header header-tag="header" class="p-1" role="tab">
             <vx-card class="w-full">
                 <div slot="no-body">
                     <div class='vx-row flex pr-6 pl-6'>
-                        <div class="vx-col w-full sm:w-2/3 flex" style="padding: 8px;">
+                        <div class="vx-col w-full sm:w-2/3 flex" style="padding: 8px;" v-b-toggle="idColapse">
                             <vs-avatar class="mr-23" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-package" size="30px" />
                             <div class="truncate">
                                 <h5 class="mt-3 font-bold">{{produtoAdd.referencia +' - '+ produtoAdd.nome}}</h5>
@@ -138,22 +138,21 @@
             </b-card-body>
             
             <vs-popup title="Preço" :active.sync="popupPreco" :button-close-hidden="false">
-            <table style="width:100%" class="border-collapse">
-                <tr>
-                    <th class="p-2 border border-solid d-theme-border-grey-light">Ref.</th>
-                    <th class="p-2 border border-solid d-theme-border-grey-light">Nome</th>
-                    <th class="p-2 border border-solid d-theme-border-grey-light">Sell In</th>
-                </tr>
-                <tr v-if="produtoAdd">
-                    <td class="p-2 border border-solid d-theme-border-grey-light">{{produtoAdd.referencia}}</td>
-                    <td class="p-2 border border-solid d-theme-border-grey-light">{{produtoAdd.nome}}</td>
-                    <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{getPreco}}</td>
-                    
-                </tr>
-            </table>
-        </vs-popup>
+                <table style="width:100%" class="border-collapse">
+                    <tr>
+                        <th class="p-2 border border-solid d-theme-border-grey-light">Ref.</th>
+                        <th class="p-2 border border-solid d-theme-border-grey-light">Nome</th>
+                        <th class="p-2 border border-solid d-theme-border-grey-light">Sell In</th>
+                    </tr>
+                    <tr v-if="produtoAdd">
+                        <td class="p-2 border border-solid d-theme-border-grey-light">{{produtoAdd.referencia}}</td>
+                        <td class="p-2 border border-solid d-theme-border-grey-light">{{produtoAdd.nome}}</td>
+                        <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{getPreco}}</td>
+                        
+                    </tr>
+                </table>
+            </vs-popup>
         </b-collapse>
-
     </div>    
 </template>    
 <script>
