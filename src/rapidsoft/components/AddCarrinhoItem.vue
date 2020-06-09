@@ -143,11 +143,13 @@
                         <th class="p-2 border border-solid d-theme-border-grey-light">Ref.</th>
                         <th class="p-2 border border-solid d-theme-border-grey-light">Nome</th>
                         <th class="p-2 border border-solid d-theme-border-grey-light">Sell In</th>
+                        <th class="p-2 border border-solid d-theme-border-grey-light">Sell Out</th>
                     </tr>
                     <tr v-if="produtoAdd">
                         <td class="p-2 border border-solid d-theme-border-grey-light">{{produtoAdd.referencia}}</td>
                         <td class="p-2 border border-solid d-theme-border-grey-light">{{produtoAdd.nome}}</td>
-                        <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{getPreco}}</td>
+                        <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{getPrecoSellIn | moneyy}}</td>
+                        <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{getPrecoSellOut | moneyy}}</td>
                         
                     </tr>
                 </table>
@@ -158,7 +160,6 @@
 <script>
 
 import ProdutoDB from '../db/produtoDB';
-import UtilMask from '../utils/utilMask';
 
 export default {
     name: 'add-carrinho-item',
@@ -208,9 +209,12 @@ export default {
         getTamanhosProduto() {
             return this.produtoAdd.produtoLabelTamanhos;
         },
-        getPreco() {
-            return UtilMask.getMoney(ProdutoDB.calcularPreco(this.produtoAdd.cores[0]));
-        }
+        getPrecoSellIn() {
+            return ProdutoDB.calcularPreco(this.produtoAdd.cores[0],1);
+        },
+        getPrecoSellOut() {
+            return ProdutoDB.calcularPreco(this.produtoAdd.cores[0],2);
+        },
     },
     methods: {
         // 2-tamanho, 1-cor
@@ -320,16 +324,17 @@ export default {
         getTotalPecasTamanho(tamanho) {
             if (tamanho.ativo) {
                 return this.produtoAdd.produtoAddCores.reduce((totalTamanho, cor ) => {
-                    totalTamanho = totalTamanho ? totalTamanho : 0;
                     if (cor.ativo) {
-                        return totalTamanho + cor.produtoAddTamanhos.reduce((totalCor, tamanhoCor) => {
+                         const totalCor = cor.produtoAddTamanhos.reduce((totalCor, tamanhoCor) => {
                             if (tamanho.codigo === tamanhoCor.codigo && tamanhoCor.quantidade) {
                                 return Number(totalCor) + parseInt(tamanhoCor.quantidade);
                             } else {
                                 return Number(totalCor);
                             }
-                        }, 0)
+                        }, 0);
+                        totalTamanho = totalTamanho + totalCor;
                     }
+                    return totalTamanho;
                 }, 0);
             } else {
                 return 0;
@@ -338,14 +343,16 @@ export default {
         getTotalPecas() {
             return this.produtoAdd.produtoAddCores.reduce((totalTamanho, cor ) => {
                 if (cor.ativo) {
-                    return totalTamanho + cor.produtoAddTamanhos.reduce((totalCor, tamanho) => {
+                    const totalCor = cor.produtoAddTamanhos.reduce((totalCor, tamanho) => {
                         if (tamanho.ativo && tamanho.quantidade) {
                             return totalCor + parseInt(tamanho.quantidade);
                         } else {
                             return totalCor;
                         }
                     }, 0)
+                    totalTamanho = totalTamanho + totalCor;
                 }
+                return totalTamanho;
             }, 0);
         },
 

@@ -1,7 +1,7 @@
 {
   "name": "Live! - FV",
   "short_name": "Live FV",
-  "start_url": "/?start=a2hs",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
