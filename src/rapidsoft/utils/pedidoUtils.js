@@ -41,7 +41,7 @@ const validarPedido = (pedidos) => {
                 else if (IsNil(pedido.dataEmbarque) || pedido.dataEmbarque === ""){
                     throw { campo: "dataEmbarque", warning: "Selecione a Data do Embarque" };
                 }
-                else if (IsNil(pedido.totalLiquido) || valorMinimo > pedido.totalLiquido){
+                else if (pedido.formaPagamento != 5 && (IsNil(pedido.totalLiquido) || valorMinimo > pedido.totalLiquido)){
                     throw { campo: "totalLiquido", warning: "O pedido "+pedido.nome+" não atingiu o valor mínimo de "+ UtilMask.getMoney(valorMinimo, true)+"!"};
                 }
 
