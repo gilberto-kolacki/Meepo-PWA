@@ -172,6 +172,9 @@ class produtoDB extends BasicDB {
                                 if (embarque) {
                                     produto.embarque = embarque.id;
                                     produto.segmento = produto.segmento;
+                                    EmbarqueDB._getById(produto.embarqueSelecionado.id).then((result) => {
+                                        if (!result.existe) produto.embarqueSelecionado = {id: embarque.id, seq: 1};
+                                    });
                                     produtosCarrinho.push(produto);
                                 }
                                 done();
