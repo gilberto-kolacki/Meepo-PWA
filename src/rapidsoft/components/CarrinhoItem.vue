@@ -99,7 +99,7 @@
                                 <div class="vx-col w-full sm:w-2/5 flex" style="padding: 8px;">
                                     <vs-avatar class="mr-3" color="rgb(123, 123, 123)" icon-pack="feather" icon="icon-calendar" size="30px" />
                                     <div class="truncate">
-                                        <h5 class="mt-3 font-bold">{{embarque.dataEmbarque | formatDate}}</h5>
+                                        <h5 class="mt-3 font-bold">{{embarque.dataEmbarque ? embarque.dataEmbarque : embarque.dataInicio | formatDate}}</h5>
                                     </div>
                                 </div>
                             </div>
