@@ -4,6 +4,7 @@
   ----------------------------------------------------------------------------------------
   Author: Giba
 ==========================================================================================*/
+import Find from 'lodash/find';
 import BasicRemoteDB from './basicRemoteDB';
 
 class orcamentoDB extends BasicRemoteDB {
@@ -94,6 +95,20 @@ class orcamentoDB extends BasicRemoteDB {
     buscaSinc() {
         return new Promise((resolve) => {
             resolve([ ]);
+        });
+    }
+
+    getExisteClienteOrcamento(idCliente) {
+        return new Promise((resolve) => {
+            this._getAll().then((orcamentos) => {
+                if (Find(orcamentos, (orcamento) => { 
+                    return orcamento.cliente.id == idCliente; })
+                ) {
+                    resolve(true);
+                } else {
+                    resolve(false);
+                }
+            });
         });
     }
 

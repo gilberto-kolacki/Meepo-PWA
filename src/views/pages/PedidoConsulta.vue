@@ -64,8 +64,10 @@
                     <vs-checkbox class="inline-flex" v-model="selecteds" @click="selecionarTodos(selecteds)"/>
                 </vs-th>
                 <vs-th class="th-acoes">Ações</vs-th>
-                <vs-th sort-key="cnpj" style="width: 30%">CNPJ</vs-th>
                 <vs-th sort-key="nome">Nome</vs-th>
+                <vs-th sort-key="id">Pedido</vs-th>
+                <vs-th sort-key="totalLiquido">Valor</vs-th>
+                <vs-th sort-key="segmento">Linha</vs-th>
                 <vs-th sort-key="dataEmbarque" style="width: 15%">Embarque</vs-th>
                 <vs-th sort-key="status" style="width: 20%" >Status</vs-th>
             </template> 
@@ -84,11 +86,17 @@
                             </div>
                         </div>
                     </vs-td>
-                    <vs-td :data="data[indextr].cliente.cpfCnpj">
-                        {{ data[indextr].cliente.cpfCnpj | cpfCnpj }}
-                    </vs-td>
                     <vs-td :data="data[indextr].cliente.nome">
                         {{ data[indextr].cliente.nome | capitalize }}
+                    </vs-td>
+                    <vs-td>
+                        {{ getIdPedido(data[indextr]) }}
+                    </vs-td>
+                    <vs-td :data="data[indextr].totalLiquido">
+                        {{ data[indextr].totalLiquido | money }}
+                    </vs-td>
+                    <vs-td>
+                        {{ getNameSegmento(data[indextr].segmento) | capitalize }}
                     </vs-td>
                     <vs-td :data="data[indextr].dataEmbarque">
                         {{ data[indextr].dataEmbarque | formatDate }}
@@ -109,6 +117,7 @@ import ClienteDB from '../../rapidsoft/db/clienteDB';
 import StatusDB from "../../rapidsoft/db/statusDB";
 import Storage from '../../rapidsoft/utils/storage';
 import ErrorDB from '../../rapidsoft/db/errorDB';
+import SegmentoDB from '../../rapidsoft/db/segmentoDB';
 import vSelect from 'vue-select';
 
 export default {
@@ -121,6 +130,7 @@ export default {
             selecteds: false,            
             optionsStatus: [],
             selectedStatus: [],
+            segmentos: [],
         }
     },
     watch: {
@@ -152,6 +162,13 @@ export default {
         }
     },
     methods: {
+        getIdPedido(pedido) {
+            if (pedido.idPedido) return pedido.idPedido;
+            else return null;
+        },
+        getNameSegmento(idSegmento) {
+            return this.segmentos.find((segmento) => segmento.id === idSegmento).nome;
+        },
         getNameStatus(idStatus) {
             return this.optionsStatus.find((status) => status.id === idStatus).nome;
         },
@@ -198,12 +215,15 @@ export default {
             return new Promise((resolve) => {
                 StatusDB._getAll().then((optionsStatus) => {
                     this.optionsStatus = optionsStatus;
-                    PedidoDB._getAll().then((result) => {
-                        ClienteDB.getClientesPedidos(result).then((pedidos) => {
-                            this.pedidos = pedidos;
-                            this.pedidosFiltro = pedidos;
-                            document.getElementById('loading-bg').style.display = 'none';
-                            resolve();
+                    SegmentoDB._getAll().then((segmentos) => {
+                        this.segmentos = segmentos;
+                        PedidoDB._getAll().then((result) => {
+                            ClienteDB.getClientesPedidos(result).then((pedidos) => {
+                                this.pedidos = pedidos;
+                                this.pedidosFiltro = pedidos;
+                                document.getElementById('loading-bg').style.display = 'none';
+                                resolve();
+                            });
                         });
                     });
                 });

@@ -28,8 +28,8 @@ class produtoUtils{
 
     calcularPreco(itemCor, tipo = 1) {
         const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
-        const precoProduto = tipo === 1 ? itemCor.precoCusto : itemCor.precoVenda;
-        return Round(precoProduto + ((percentual/100) * precoProduto), 2);
+        const precoProduto = tipo === 1 ? (itemCor.precoCusto + ((percentual/100) * itemCor.precoCusto)) : itemCor.precoVenda;
+        return Round(precoProduto, 2);
     }
 
     calcularPrecoCarrinho(itemCor) {

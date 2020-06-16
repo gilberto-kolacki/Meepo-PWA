@@ -137,6 +137,22 @@ class imagemDB {
         });
     }
 
+    getFotosByCores(cores) {
+        return new Promise((resolve) => {
+            cores.map((cor) => {
+                this.getCorById(cor).then((resultImagemCor) => {
+                    cor.imagemCor = resultImagemCor;
+                    cor.imagens.map((imagem) => {
+                        this.getFotoById(imagem.id).then((imagemCor) => {
+                            imagem.imagemCor = imagemCor;
+                        });
+                    });
+                });
+            });
+            resolve(cores);
+        });
+    }
+
     existFoto(idsFoto) {
         return new Promise((resolve) => {
             ImagemFotoDB._getIds().then((idsFotoDB) => {

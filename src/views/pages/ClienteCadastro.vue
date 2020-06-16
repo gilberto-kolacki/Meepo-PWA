@@ -230,6 +230,7 @@
                     </div>
                     <div class="vx-row" v-if="!clienteEdit.clienteErp">
                         <div class="vx-col w-full mb-2">
+                            <label for="" class="vs-input--label">Fotos* (Faxada, interior e área de vendas LIVE!)</label>
                             <div class="con-upload">
                                 <div class="con-img-upload" ref="customer-images">
                                     <div class="img-upload" v-for="(imagenCliente, index) in getFilesFilter" :key="`imagem-cliente-${index}`">
@@ -1037,7 +1038,7 @@ export default {
         buscaSegmentos(callback) {
             SegmentoDB._getAll().then((segmentos) => {
                 this.segmentos = segmentos;
-                this.segmentos.push({id: 3333,nome:'Fitnes + Moda Praia'})
+                this.segmentos.push({id: 3333,nome:'Fitness + Moda Praia'})
                 callback();
             })
         },

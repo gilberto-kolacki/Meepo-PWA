@@ -53,6 +53,12 @@ export default [
     icon: "BookOpenIcon",
   },
   {
+    url: "/monteLook",
+    name: "Monte o Look",
+    slug: "Monte o Look",
+    icon: "SlidersIcon",
+  },
+  {
     url: "/pedido/consulta",
     name: "Pedidos",
     slug: "Pedido",
@@ -86,4 +92,4 @@ export default [
     slug: "Logs",
     icon: "ListIcon",
   },
-]
+];

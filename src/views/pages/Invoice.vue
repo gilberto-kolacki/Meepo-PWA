@@ -54,9 +54,35 @@
                 <!-- INVOICE TASKS TABLE -->
                 <h6 v-if="isOrcamento">Resumo do Orçamento</h6>
                 <h6 v-else>Resumo do Pedido</h6>
-
                 <div v-for="(embarque, indexEmbarque) in embarques" :key="indexEmbarque">
                     <h5>{{embarque.nome}}</h5>
+                    <vs-row class="w-1/2 ml-auto mt-4" style="margin-bottom: 20px">
+                        <vs-row class="total-title">
+                            <vs-col style="width:30%;"></vs-col>
+                            <vs-col style="width:30%;">Qtde.</vs-col>
+                            <vs-col style="width:40%;">Valor</vs-col>
+                        </vs-row>
+                        <vs-row class="total-qtde">
+                            <vs-col style="width:30%;">Total</vs-col>
+                            <vs-col style="width:30%;">{{embarque.quantidade}}</vs-col>
+                            <vs-col style="width:40%;">{{embarque.totalBruto | moneyy}}</vs-col>
+                        </vs-row>
+                        <vs-row class="total-abert" v-if="embarque.qtdeAberto">
+                            <vs-col style="width:30%;">Aberto</vs-col>
+                            <vs-col style="width:30%;">{{embarque.qtdeAberto}}</vs-col>
+                            <vs-col style="width:40%;">{{embarque.valorAberto | moneyy}}</vs-col>
+                        </vs-row>
+                        <vs-row class="total-fatu" v-if="embarque.qtdeFaturado">
+                            <vs-col style="width:30%;">Faturado</vs-col>
+                            <vs-col style="width:30%;">{{embarque.qtdeFaturado}}</vs-col>
+                            <vs-col style="width:40%;">{{embarque.valorFaturado | moneyy}}</vs-col>
+                        </vs-row>
+                        <vs-row class="total-canc" v-if="embarque.qtdeCancelado">
+                            <vs-col style="width:30%;">Cancelado</vs-col>
+                            <vs-col style="width:30%;">{{embarque.qtdeCancelado}}</vs-col>
+                            <vs-col style="width:40%;">{{embarque.valorCancelado | moneyy}}</vs-col>
+                        </vs-row>
+                    </vs-row>
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
@@ -75,22 +101,32 @@
                                 <tr v-for="(item, indexCor) in embarque.itens" :key="indexCor">
                                     <td>{{item.referencia}}</td>
                                     <td>{{item.nomeCor || item.cor}}</td>
-                                    <td style="padding: 1px; max-width:80px !important; min-width:60px !important;" class="flex">
-                                        <img :src="getImagemCorProduto(item)" class="rounded m-2 responsive" style="max-width:80px !important; min-width:60px !important;" />
+                                    <td style="padding: 1px; max-width:60px !important; min-width:50px !important;" >
+                                        <img :src="getImagemCorProduto(item)" class="rounded m-2 responsive" style="max-width:40px !important; min-width:30px !important;" />
                                     </td>
                                     <td>{{item.nome}}</td>
                                     <td style="padding: 1px;">
                                         <table>
                                             <thead class="border-solid">
-                                                <th class="grade-tam-prod-title" v-for="(tamanho, indexTamanho) in item.tamanhos" :key="indexTamanho">
-                                                    {{tamanho.codigo}}
-                                                </th>
+                                                <th class="grade-tam-prod-title">Tam</th>
+                                                <th class="grade-tam-prod-title" v-for="(tamanho, indexTamanho) in item.tamanhos" :key="indexTamanho">{{tamanho.codigo}}</th>
                                             </thead>
                                             <tbody>
                                                 <tr>
-                                                    <td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in item.tamanhos" :key="indexTamanho">
-                                                        {{tamanho.quantidade}}
-                                                    </td>
+                                                    <td class="grade-tam-prod-qtde">Qtde</td>
+                                                    <td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in item.tamanhos" :key="indexTamanho"> {{tamanho.quantidade}}</td>
+                                                </tr>
+                                                <tr v-if="embarque.qtdeAberto">
+                                                    <td class="grade-tam-prod-abert">Aber</td>
+                                                    <td class="grade-tam-prod-abert" v-for="(tamanho, indexTamanho) in item.tamanhos" :key="indexTamanho">{{tamanho.quantidadeAberto}}</td>
+                                                </tr>
+                                                <tr v-if="embarque.qtdeFaturado">
+                                                    <td class="grade-tam-prod-fatu">Fatu</td>
+                                                    <td class="grade-tam-prod-fatu" v-for="(tamanho, indexTamanho) in item.tamanhos" :key="indexTamanho">{{tamanho.quantidadeFaturado}}</td>
+                                                </tr>
+                                                <tr v-if="embarque.qtdeCancelado">
+                                                    <td class="grade-tam-prod-canc">Canc</td>
+                                                    <td class="grade-tam-prod-canc" v-for="(tamanho, indexTamanho) in item.tamanhos" :key="indexTamanho">{{tamanho.quantidadeCancelado}}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -100,26 +136,6 @@
                                     <td>{{getValorSub(item) | money }}</td>
                                 </tr>
                             </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th><strong>Totais</strong></th>
-                                    <th>
-                                        <div class="flex w-full items-center justify-center">
-                                            <strong>{{getTotalPecas(embarque)}}</strong>
-                                        </div>
-                                    </th>
-                                    <th>
-                                        <div class="flex w-full items-center justify-center">
-                                            <strong>{{getValorPecas(embarque) | money}}</strong>
-                                        </div>
-                                    </th>
-                                </tr>
-                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -224,7 +240,19 @@ export default{
             this.isPedido = true;
             this.pedido = this.$route.params.dados;
             ProdutoDB.getImagensCorProdutoEmbarques(this.$route.params.dados.itens, true).then((imagensCorProduto) => {
-                this.embarques = [{id: this.pedido.embarque, nome: this.pedido.nome, itens: this.$route.params.dados.itens}];
+                this.embarques = [{
+                    id: this.pedido.embarque, 
+                    nome: this.pedido.nome, 
+                    quantidade: this.pedido.quantidade, 
+                    totalBruto: this.pedido.totalBruto, 
+                    qtdeAberto: this.pedido.qtdeAberto, 
+                    valorAberto: this.pedido.valorAberto, 
+                    qtdeFaturado: this.pedido.qtdeFaturado, 
+                    valorFaturado: this.pedido.valorFaturado, 
+                    qtdeCancelado: this.pedido.qtdeCancelado, 
+                    valorCancelado: this.pedido.valorCancelado, 
+                    itens: this.$route.params.dados.itens
+                }];
                 this.imagensCorProduto = imagensCorProduto;
                 this.getLinha();
             });
@@ -240,18 +268,90 @@ export default{
 
 .grade-tam-prod-title {
     background-color:#808080;
-    color:white;
+    color:black;
     font-size: 10px;
+    font-weight:bold;
     padding: 9px !important;
 }
 
 .grade-tam-prod-qtde {
     border-color:#808080;
-    font-weight:bold;
     text-align: center !important;
     border-style: solid !important;
     font-size: 10px;
     padding: 9px !important;
+}
+
+.grade-tam-prod-abert {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: center !important;
+    border-style: solid !important;
+    color: #189b36;
+    font-size: 10px;
+    padding: 9px !important;
+}
+
+.grade-tam-prod-fatu {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: center !important;
+    border-style: solid !important;
+    color: #7179f4;
+    font-size: 10px;
+    padding: 9px !important;
+}
+
+.grade-tam-prod-canc {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: center !important;
+    border-style: solid !important;
+    color: #f15b5b;
+    font-size: 10px;
+    padding: 9px !important;
+}
+
+.total-title {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+}
+
+.total-qtde {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+}
+
+.total-abert {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+    color: #189b36;
+}
+
+.total-fatu {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+    color: #7179f4;
+}
+
+.total-canc {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+    color: #f15b5b;
 }
 
 @media print {

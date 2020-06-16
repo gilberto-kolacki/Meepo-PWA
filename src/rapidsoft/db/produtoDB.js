@@ -82,7 +82,6 @@ class produtoDB extends BasicDB {
     }
 
     getAllProdutosByIdCategorias(idCategorias, textoSearch) {
-        
         return new Promise((resolve) => {
             if (idCategorias.length > 0 || textoSearch.length > 0) {
                 this.getAllProdutos().then((produtos) => {
@@ -125,7 +124,7 @@ class produtoDB extends BasicDB {
                 produtoCor.nomeCor = cor.nome;
                 produtoCor.precoCusto = cor.precoCusto;
                 produtoCor.precoVenda = cor.precoVenda;
-                produtoCor.imagem = cor.imagens[0].id;
+                produtoCor.imagem = (cor.imagens[0]) ? cor.imagens[0].id : null;
                 produtoCor.tamanhos = cor.tamanhos;
                 produtoCor.categorias = cor.categorias;
                 produtoCor.embarques = cor.embarques;
@@ -173,6 +172,9 @@ class produtoDB extends BasicDB {
                                 if (embarque) {
                                     produto.embarque = embarque.id;
                                     produto.segmento = produto.segmento;
+                                    EmbarqueDB._getById(produto.embarqueSelecionado.id).then((result) => {
+                                        if (!result.existe) produto.embarqueSelecionado = {id: embarque.id, seq: 1};
+                                    });
                                     produtosCarrinho.push(produto);
                                 }
                                 done();
@@ -392,6 +394,34 @@ class produtoDB extends BasicDB {
                             done();
                         }
                     });
+                }
+            });
+        });
+    }
+
+    getProdutosMonteLook(idsCategorias, textoSearch = '') {
+        return new Promise((resolve) => {
+            this.getAllProdutosByIdCategorias(idsCategorias, textoSearch).then((produtos) => {
+                if(produtos.length > 0) {
+                    const done = After(produtos.length, () => resolve(produtos));
+                    produtos.forEach(produto => {
+                        this.getImagensCorProduto(produto).then((resultCor) => {
+                            ImagemDB.getFotosByCores(resultCor.cores).then((cores) => {
+                                resultCor.cores = cores;
+                                produto = resultCor;
+                                if(produto.cores.length > 0) {
+                                    ImagemDB.getFotoPrincipal(produto).then((result) => {
+                                        produto.imagemPrincipal = result;
+                                        done();
+                                    });
+                                } else {
+                                    done();
+                                }
+                            });
+                        });
+                    });
+                } else {
+                    resolve(produtos); 
                 }
             });
         });

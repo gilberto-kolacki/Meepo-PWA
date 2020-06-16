@@ -18,16 +18,16 @@
                 <div class="my-6" v-if="this.pedido">
                     <div class="vx-row">
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
-                            <vs-input label="Código" id="id" name="emailNfe" v-model="pedido.id" class="w-full" disabled />
+                            <vs-input label="Pedido" id="idPedido" name="idPedido" v-model="pedido.idPedido" class="w-full" disabled />
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
-                            <vs-input label="Status" id="status" name="emailNfe" v-model="getStatus" class="w-full" disabled />
+                            <vs-input label="Status" id="status" name="status" v-model="getStatus" class="w-full" disabled />
+                        </vs-col>
+                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
+                            <vs-input label="Data Emissão" id="dataEmissao" name="dataEmissao" v-model="getDataEmissao" class="w-full" disabled />
                         </vs-col>
                         <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
                             <vs-input label="Data Embarque" id="dataEmbarque" name="dataEmbarque" v-model="getDataEmbarque" class="w-full" disabled />
-                        </vs-col>
-                        <vs-col vs-type="flex" vs-justify="center" vs-align="center" vs-lg="3" vs-sm="3" vs-xs="3">
-                            <vs-input label="Total Líquido" id="totalLiquido" name="totalLiquido" v-model="getTotalLiquido" class="w-full" disabled />
                         </vs-col>
                     </div>
                     <div class="vx-row">
@@ -59,6 +59,17 @@
                                 :disabled="pedido.status > 1">
                             </v-select>
                         </div>
+                    </div>
+                    <div class="vx-row" style="justify-content: flex-end;">
+                        <vs-col vs-justify="center" vs-align="center" vs-w="6">
+                            <vs-input label="Notas Fiscais" id="notaFiscal" name="notaFiscal" v-model="pedido.notaFiscal" class="w-full" disabled />
+                        </vs-col>
+                        <vs-col vs-justify="center" vs-align="center" vs-w="3">
+                            <vs-input label="Quantidade" id="quantidade" name="quantidade" v-model="pedido.quantidade" class="w-full" disabled />
+                        </vs-col>
+                        <vs-col vs-justify="center" vs-align="center" vs-w="3">
+                            <vs-input label="Total Líquido" id="totalLiquido" name="totalLiquido" v-model="getTotalLiquido" class="w-full" disabled />
+                        </vs-col>
                     </div>
                     
                     <vs-divider class="mb-0">Formas de Pagamento</vs-divider>
@@ -138,6 +149,33 @@
                     </strong>
                 </template>
                 <div class="parentx">
+                    <vs-row class="w-1/2 ml-auto mt-4" style="margin-bottom: 20px">
+                        <vs-row class="total-title">
+                            <vs-col style="width:30%;"></vs-col>
+                            <vs-col style="width:30%;">Qtde.</vs-col>
+                            <vs-col style="width:40%;">Valor</vs-col>
+                        </vs-row>
+                        <vs-row class="total-qtde">
+                            <vs-col style="width:30%;">Total</vs-col>
+                            <vs-col style="width:30%;">{{pedido.quantidade}}</vs-col>
+                            <vs-col style="width:40%;">{{pedido.totalLiquido | moneyy}}</vs-col>
+                        </vs-row>
+                        <vs-row class="total-abert" v-if="pedido.qtdeAberto">
+                            <vs-col style="width:30%;">Aberto</vs-col>
+                            <vs-col style="width:30%;">{{pedido.qtdeAberto}}</vs-col>
+                            <vs-col style="width:40%;">{{pedido.valorAberto | moneyy}}</vs-col>
+                        </vs-row>
+                        <vs-row class="total-fatu" v-if="pedido.qtdeFaturado">
+                            <vs-col style="width:30%;">Faturado</vs-col>
+                            <vs-col style="width:30%;">{{pedido.qtdeFaturado}}</vs-col>
+                            <vs-col style="width:40%;">{{pedido.valorFaturado | moneyy}}</vs-col>
+                        </vs-row>
+                        <vs-row class="total-canc" v-if="pedido.qtdeCancelado">
+                            <vs-col style="width:30%;">Cancelado</vs-col>
+                            <vs-col style="width:30%;">{{pedido.qtdeCancelado}}</vs-col>
+                            <vs-col style="width:40%;">{{pedido.valorCancelado | moneyy}}</vs-col>
+                        </vs-row>
+                    </vs-row>
                     <div class="flex carrinho-item" v-for="(itemCor, indexItem) in itensPedido" :key="indexItem">            
                         <div class="vx-col mx-1 w-1/4" style="justify-content:center; margin:auto">
                             <img 
@@ -160,18 +198,18 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td class="grade-tam-prod-qtde">Pçs</td>
+                                        <td class="grade-tam-prod-qtde">Qtde</td>
                                         <td class="grade-tam-prod-qtde" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidade}}</td>
                                     </tr>
-                                    <tr>
+                                    <tr v-if="pedido.qtdeAberto">
                                         <td class="grade-tam-prod-abert">Aber</td>
                                         <td class="grade-tam-prod-abert" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidadeAberto}}</td>
                                     </tr>
-                                    <tr>
+                                    <tr v-if="pedido.qtdeFaturado">
                                         <td class="grade-tam-prod-fatu">Fatu</td>
                                         <td class="grade-tam-prod-fatu" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidadeFaturado}}</td>
                                     </tr>
-                                    <tr>
+                                    <tr v-if="pedido.qtdeCancelado">
                                         <td class="grade-tam-prod-canc">Canc</td>
                                         <td class="grade-tam-prod-canc" v-for="(tamanho, indexTamanho) in itemCor.tamanhos" :key="indexTamanho">{{tamanho.quantidadeCancelado}}</td>
                                     </tr>
@@ -233,6 +271,13 @@ export default {
     computed:{
         getTotalLiquido() {
             return this.$options.filters.money(this.pedido.totalLiquido);
+        },
+        getDataEmissao() {
+            if (this.pedido.dataPedido) {
+                return this.$options.filters.formatDate(this.pedido.dataPedido);
+            } else {
+                return null;
+            }
         },
         getDataEmbarque() {
             return this.$options.filters.formatDate(this.pedido.dataEmbarque);
@@ -513,4 +558,45 @@ export default {
     color: #f15b5b;
 }
 
+.total-title {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+}
+
+.total-qtde {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+}
+
+.total-abert {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+    color: #189b36;
+}
+
+.total-fatu {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+    color: #7179f4;
+}
+
+.total-canc {
+    border-color:#808080;
+    font-weight:bold;
+    text-align: right !important;
+    border-style: solid !important;
+    border-top-style: none !important;
+    color: #f15b5b;
+}
 </style>
