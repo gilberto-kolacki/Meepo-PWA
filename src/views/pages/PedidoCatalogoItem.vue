@@ -67,7 +67,12 @@
                                 :offset-y="5"
                                 @submit="onSubmit">
                                 <template slot-scope="scope">
-                                    <b-img-lazy center :src="scope.data.base64" class="card-img-principal"/>
+                                    <div v-if="scope.data.base64 !== null">
+                                        <b-img-lazy center :src="scope.data.base64" class="card-img-principal"/>
+                                    </div>
+                                    <div v-else>
+                                        <b-img-lazy center :src="require(`@/assets/images/rapidsoft/no-image.jpg`)" class="card-img-principal"/>
+                                    </div>
                                 </template>
                             </CardProduto>
                         </div>
@@ -232,7 +237,7 @@ export default {
             });
         },
         getImagensCorProduto() {
-            if (this.produtoA) {
+            if (this.produtoA && this.produtoA.cores[this.corSelecionada].imagens.length > 0) {
                 return this.produtoA.cores[this.corSelecionada].imagens;
             } else {
                 return [];
@@ -281,7 +286,12 @@ export default {
         },
         getImagemCorProduto(imagem) {
             var cor = Object.assign(this.produtoA.cores[this.corSelecionada]);
-            return cor.imagens[imagem].base64;
+            if (cor.imagens.length > 0) {
+                return cor.imagens[imagem].base64;
+            } else {
+                return null;
+            }
+
         },
         scrollUp() {
             const gallery = document.getElementById("produto-image-gallery");
