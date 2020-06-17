@@ -49,30 +49,10 @@ const router = new Router({
                         navBar: true,
                     },
 				},
-				{
-					path: '/cliente/cadastro',
-					name: 'clienteCadastro',
-					component: () => import('./views/pages/ClienteCadastro.vue'),
-					meta: {
-                        requiresAuth: true,
-                        rule: 'editor',
-                        navBar: true,
-                    },
-                },
                 {
 					path: '/cliente/cadastro',
 					name: 'clienteEditar',
 					component: () => import('./views/pages/ClienteCadastro.vue'),
-					meta: {
-                        requiresAuth: true,
-                        rule: 'editor',
-                        navBar: true,
-                    },
-                },
-                {
-					path: '/pedido/cadastro',
-					name: 'pedidoEditar',
-					component: () => import('./views/pages/PedidoCadastro.vue'),
 					meta: {
                         requiresAuth: true,
                         rule: 'editor',
@@ -101,7 +81,7 @@ const router = new Router({
                 },
                 {
 					path: '/pedido/cadastro',
-					name: 'pedidoCadastro',
+					name: 'pedidoEditar',
 					component: () => import('./views/pages/PedidoCadastro.vue'),
 					meta: {
                         requiresAuth: true,
@@ -146,7 +126,7 @@ const router = new Router({
 					meta: {
                         requiresAuth: true,
                         rule: 'editor',
-                        navBar: true,
+                        navBar: false,
                     },
                 },
                 {

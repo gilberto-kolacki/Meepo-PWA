@@ -17,7 +17,7 @@
 
             <div id="content-overlay"></div>
 
-            <div class="content-wrapper">
+            <div class="content-wrapper" :class="fixedOrRelativePosition">
 
                 <the-navbar :navbarColor="navbarColor" :class="[{'text-white': isNavbarDark && !isThemeDark}, {'text-base': !isNavbarDark && isThemeDark}]" />
 
@@ -73,7 +73,7 @@
                     </div>
                 </div>
             </div>
-            <the-footer></the-footer>
+            <the-footer :classes="fixedOrRelativePositionFooter"></the-footer>
         </div>
     </div>
 </template>
@@ -99,7 +99,18 @@ export default {
             disableCustomizer: themeConfig.disableCustomizer,
             windowWidth: window.innerWidth, //width of windows
             hideScrollToTop: themeConfig.hideScrollToTop,
-            disableThemeTour: themeConfig.disableThemeTour
+            disableThemeTour: themeConfig.disableThemeTour,
+            fixedOrRelativePosition: 'content-fixed-wrapper',
+            fixedOrRelativePositionFooter: 'content-fixed-wrapper-footer',
+            listaRelativeWrapper: [
+                "carrinhoAdd",
+                "carrinho",
+                "carrinhoPedido",
+                "clienteEditar",
+                "pedidoEditar",
+                "orcamentoVisualizar",
+                "invoice",
+            ]
         }
     },
     watch: {
@@ -108,6 +119,15 @@ export default {
         },
         '$route.meta.navBar'(mostrar) {
             this.navbarType = mostrar ? themeConfig.navbarType || 'floating' : 'hidden';
+        },
+        '$route.name'(name) {
+            if (this.listaRelativeWrapper.some((tela) => tela == name)) {
+                this.fixedOrRelativePosition = "content-relative-wrapper";
+                this.fixedOrRelativePositionFooter = "content-relative-wrapper";
+            } else {
+                this.fixedOrRelativePosition = "content-fixed-wrapper";
+                this.fixedOrRelativePositionFooter = "content-fixed-wrapper-footer";
+            }
         },
         isThemeDark(val) {
             if(this.navbarColor == "#fff" && val) {
@@ -196,16 +216,30 @@ export default {
         }
     },
     mounted() {
-        // document.addEventListener('gesturestart', (e) => e.preventDefault());
-        document.addEventListener('touchmove', (event) => {
-            event = event.originalEvent || event;
-            if(event.scale > 1) {
-                event.preventDefault();
-            }
-        }, false);
+   
     },
 }
 </script>
+
+<style lang="scss" scoped>
+
+    .content-fixed-wrapper {
+        position: fixed !important;
+        width: 100%; 
+        height: 100%;
+    }
+
+    .content-relative-wrapper {
+        position: relative !important;
+    }
+
+    .content-fixed-wrapper-footer {
+        position: fixed !important;
+        width: 100%; 
+        bottom: 0;
+    }
+
+</style>
 
 <style lang="scss">
 

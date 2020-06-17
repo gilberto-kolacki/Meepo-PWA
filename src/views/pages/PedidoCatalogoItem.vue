@@ -2,8 +2,8 @@
     <!-- Adicao de itens -->
     <div id="page-catalogo" class="page-catalogo">
         <div v-if="this.produtoA">
-            <vs-button @click.stop="$refs.CardProduto.decide('prev')" color="primary" type="filled" class="btn-left" icon="chevron_left"></vs-button>
-            <vs-button @click.stop="$refs.CardProduto.decide('next')" color="primary" type="filled" class="btn-right" icon="chevron_right"></vs-button>
+            <vs-button @click="$refs.CardProduto.decide('prev')" color="primary" type="filled" class="btn-left" icon="chevron_left"></vs-button>
+            <vs-button @click="$refs.CardProduto.decide('next')" color="primary" type="filled" class="btn-right" icon="chevron_right"></vs-button>
             <vs-button @click.stop="abrirCarrinho" color="warning" type="filled" class="btn-carrinho" :disabled="existeCarrinho" icon="shopping_cart"></vs-button>
         </div>
         <vs-col vs-type="block" vs-justify="center" vs-align="center" vs-w="12">
@@ -350,7 +350,9 @@ export default {
                         this.imagemPass = [{id: 1, base64: result}];
                         this.corSelecionada = 0;
                         document.getElementById("produto-image-gallery").scrollTop = 0;
-                        this.$vs.loading.close();
+                        setTimeout(() => {
+                            this.$vs.loading.close();
+                        }, 100);
                         resolve();
                     });
                 });
@@ -426,11 +428,6 @@ export default {
 
 <style lang="scss" scoped>
 
-html {
-  position: fixed;
-  width: 100%; 
-  height: 100%
-}
 
 #pass-image .vue-tinder {
   position: fixed;

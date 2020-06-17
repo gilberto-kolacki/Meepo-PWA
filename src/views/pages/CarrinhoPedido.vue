@@ -517,7 +517,7 @@ export default {
                                 resolve();
                             });
                         }            
-                    });                    
+                    });
                 })
             });
         },
@@ -578,6 +578,10 @@ export default {
 </script>
 
 <style lang="scss">
+
+    html {
+        position: relative;
+    }
 
     .btn-orcamento {
         position: fixed;

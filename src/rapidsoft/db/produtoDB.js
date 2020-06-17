@@ -124,7 +124,7 @@ class produtoDB extends BasicDB {
                 produtoCor.nomeCor = cor.nome;
                 produtoCor.precoCusto = cor.precoCusto;
                 produtoCor.precoVenda = cor.precoVenda;
-                produtoCor.imagem = (cor.imagens[0]) ? cor.imagens[0].id : null;
+                produtoCor.imagem = (cor.imagens.length > 0) ? cor.imagens[0].id : null;
                 produtoCor.tamanhos = cor.tamanhos;
                 produtoCor.categorias = cor.categorias;
                 produtoCor.embarques = cor.embarques;
