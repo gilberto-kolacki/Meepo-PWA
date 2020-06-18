@@ -779,7 +779,7 @@ class produtoDB extends BasicDB {
             itensCor.forEach((item) => {
                 this.getById(item.referencia).then((produto) => {
                     const cor = produto.value.cores.find((cor) => cor.codigo === item.cor);
-                    ImagemDB.getFotoPrincipalCor(cor).then((imagemProdutoPrincipal) => {
+                    ImagemDB.getFotoPrincipalCorCompress(cor).then((imagemProdutoPrincipal) => {
                         item.base64 = imagemProdutoPrincipal;
                         imagensCorProduto.push(item);
                         done();

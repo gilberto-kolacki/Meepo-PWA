@@ -33,19 +33,10 @@
                 <div class="vx-col w-1/2 text-right mt-12">
                     <h5>{{ getCliente.nome | capitalize }}</h5>
                     <div class="invoice__company-info my-4">
-                        <p>Comp: {{ getCliente.endereco.complemento }}</p>
+                        <p>Comp: {{ getCliente.endereco.complemento}}</p>
+                        <p>E-mail: {{ getCliente.emailNfe }}</p>
+                        <p>Tel: {{ getCliente.endereco.telefone }}</p>
                     </div>
-                    <div class="invoice__company-contact">
-                        <p class="flex items-center justify-end">
-                            <feather-icon icon="MailIcon" svgClasses="h-4 w-4"></feather-icon>
-                            <span class="ml-2">{{ getCliente.emailNfe }}</span>
-                        </p>
-                        <p class="flex items-center justify-end">
-                            <feather-icon icon="PhoneIcon" svgClasses="h-4 w-4"></feather-icon>
-                            <span class="ml-2">{{ getCliente.endereco.telefone }}</span>
-                        </p>
-                    </div>
-
                 </div>
             </div>
 
@@ -63,7 +54,7 @@
                     <div class="vx-row">
                         <div class="vx-col w-1/2 mt-5">
                             <div class="invoice__embarque-detalhes my-4">
-                                <p>Data: {{ embarque.dataEmbarque | formatDate }}</p>
+                                <p v-if="embarque.dataEmbarque">Data Embarque: {{ embarque.dataEmbarque | formatDate }}</p>
                                 <p v-if="embarque.formaPagamento">Forma Pgto: {{ getFormaPgto(embarque.formaPagamento) }}</p>
                                 <p v-if="embarque.condicaoPagamento">Cond Pagto: {{ getCondPgto(embarque.formaPagamento, embarque.condicaoPagamento) }}</p>
                             </div>
@@ -203,7 +194,7 @@ export default{
             if (this.isOrcamento) {
                 return this.orcamento.dataOrcamento;
             } else {
-                return this.pedido.dataOrcamento;
+                return this.pedido.dataPedido;
             } 
         },
         getCliente() {            
@@ -289,6 +280,7 @@ export default{
                     this.embarques = [{
                         id: this.pedido.embarque, 
                         nome: this.pedido.nome, 
+                        dataEmbarque: this.pedido.dataEmbarque, 
                         quantidade: this.pedido.quantidade, 
                         totalBruto: this.pedido.totalBruto, 
                         qtdeAberto: this.pedido.qtdeAberto, 
@@ -297,6 +289,8 @@ export default{
                         valorFaturado: this.pedido.valorFaturado, 
                         qtdeCancelado: this.pedido.qtdeCancelado, 
                         valorCancelado: this.pedido.valorCancelado, 
+                        formaPagamento: this.pedido.formaPagamento,
+                        condicaoPagamento: this.pedido.condicaoPagamento,
                         itens: this.$route.params.dados.itens
                     }];
                     this.imagensCorProduto = imagensCorProduto;
