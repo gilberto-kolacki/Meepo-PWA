@@ -131,8 +131,6 @@ export default {
         },
     },
     created(){
-        console.log(this.produto);
-        
     }
 }
 </script>
