@@ -266,8 +266,8 @@ class clienteDB extends BasicRemoteDB {
                             id: cliente._id, 
                             cpfCnpj: cliente.cpfCnpj, 
                             nome: cliente.nome, 
-                            cidade: cliente.endereco.cidade, 
-                            estado: cliente.endereco.estado,
+                            cidade: (cliente.endereco) ? cliente.endereco.cidade : null, 
+                            estado: (cliente.endereco) ? cliente.endereco.estado : null,
                             inadimplente: cliente.inadimplente,
                             ativo: cliente.ativo,
                             clienteErp: cliente.clienteErp
