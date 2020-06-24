@@ -16,15 +16,12 @@ module.exports = {
     msTileColor: '#000000',
     appleMobileWebAppCapable: 'yes',
     appleMobileWebAppStatusBarStyle: 'white',
-    assetsVersion:'1.0.0',
-
+    // assetsVersion:'1.0.0',
     // configure the workbox plugin
-    workboxPluginMode: 'GenerateSW',
-    // workboxPluginMode: 'InjectManifest',
-    // workboxOptions: {
-    //   // swSrc is required in InjectManifest mode.
-    //   swSrc: 'src/registerServiceWorker.js',
-    //   // ...other Workbox options...
-    // }
-  }
-}
+    // workboxPluginMode: 'GenerateSW',
+    workboxPluginMode: 'InjectManifest',
+    workboxOptions: {
+      swSrc: 'src/service-worker.js',
+    },
+  },
+};

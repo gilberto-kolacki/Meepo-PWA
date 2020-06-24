@@ -1,0 +1,48 @@
+// Docs: https://aka.ms/vscode-remote/devcontainer.json
+{
+  "name": "meepo-pwa ",
+  "dockerFile": "Dockerfile",
+  "forwardPorts": [8080],
+  "runArgs": [
+    // "--env",
+    // "AWS_ACCESS_KEY_ID",
+    // "--env",
+    // "AWS_SECRET_ACCESS_KEY",
+    // "--env",
+    // "AWS_REGION",
+    // "--env",
+    // "AWS_DEFAULT_REGION",
+    // "--env",
+    // "GH_TOKEN",
+    "-v",
+    // use this volume on linux
+    "/devhero:/devhero:rw"
+  ],
+  "extensions": [
+    "alefragnani.Bookmarks",
+    "christian-kohler.npm-intellisense",
+    "dbaeumer.jshint",
+    "dbaeumer.vscode-eslint",
+    "donjayamanne.githistory",
+    "dracula-theme.theme-dracula",
+    "ducksoupdev.Vue2",
+    "eg2.vscode-npm-",
+    "esbenp.prettier-vscode",
+    "formulahendry.auto-close-tag",
+    "formulahendry.auto-complete-tag",
+    "formulahendry.auto-rename-tag",
+    "hollowtree.vue-snippets",
+    "HookyQR.beautify",
+    "jcbuisson.vue",
+    "jeremyrajan.vscode-lebab",
+    "mgmcdermott.vscode-language-babel",
+    "mubaidr.vuejs-extension-pack",
+    "octref.vetur",
+    "PKief.material-icon-theme",
+    "sdras.vue-vscode-snippets",
+    "tombonnike.vscode-status-bar-format-toggle",
+    "VisualStudioExptTeam.vscodeintellicode",
+    "xabikos.JavaSnippets",
+    "wakatime.vscode-wakatime",
+  ]
+}
