@@ -6,6 +6,7 @@
 ==========================================================================================*/
 import BasicRemoteDB from './basicRemoteDB';
 import Storage from '../utils/storage';
+import IsEqual from 'lodash/isEqual';
 
 class carrinhoDB extends BasicRemoteDB {
 
@@ -38,24 +39,31 @@ class carrinhoDB extends BasicRemoteDB {
 
     setCarrinho(carrinho) {
         return new Promise((resolve) => {
-            carrinho._id = "1";
-            carrinho.alterado = true;
-            carrinho.valorTotal = this.getValorTotalCarrinho(carrinho.itens);
-            this._localDB.put(carrinho).then((result) => {
-                Storage.setCarrinho(carrinho);
-                resolve(result);
-            }).catch((erro) => {
-                if (erro.status == 409) {
-                    this.getCarrinho(true).then((carrinhoBanco) => {
-                        this._localDB.remove(carrinhoBanco).then(() => {
-                            this.setCarrinho(carrinho).then((result) => {
-                                resolve(result);
+            this.getCarrinho(true).then((carrinhoDB)=> {
+                carrinho._rev = carrinhoDB._rev;
+                if (!IsEqual(carrinhoDB,carrinho)) {
+                    carrinho._id = "1";
+                    carrinho.alterado = true;
+                    carrinho.valorTotal = this.getValorTotalCarrinho(carrinho.itens);
+                    this._localDB.put(carrinho).then((result) => {
+                        Storage.setCarrinho(carrinho);
+                        resolve(result);
+                    }).catch((erro) => {
+                        if (erro.status == 409) {
+                            this.getCarrinho(true).then((carrinhoBanco) => {
+                                this._localDB.remove(carrinhoBanco).then(() => {
+                                    this.setCarrinho(carrinho).then((result) => {
+                                        resolve(result);
+                                    });
+                                });
                             });
-                        });
+                        } else {
+                            this._criarLogDB({url:'db/carrinhoDB', method:'setCarrinho', message: erro, error:'Failed Request'});
+                            resolve(erro);
+                        }
                     });
                 } else {
-                    this._criarLogDB({url:'db/carrinhoDB', method:'setCarrinho', message: erro, error:'Failed Request'});
-                    resolve(erro);
+                    resolve(carrinho);
                 }
             });
         });
