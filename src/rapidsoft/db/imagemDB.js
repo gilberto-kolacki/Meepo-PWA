@@ -37,7 +37,7 @@ class imagemDB {
                 const compress = new Compress();
 
                 const done = After(coresSave.length, () => resolve(coresSave));
-                coresSave.forEach(imagem => {
+                coresSave.forEach((imagem) => {
                     const base64 = imagem.base64.split(',');
                     const type = base64[0].split(';')[0].split(':')[1];
                     fetch(imagem.base64).then(res => res.blob()).then(blob => {
@@ -58,6 +58,31 @@ class imagemDB {
             } else {
                 resolve([]);
             }
+        });
+    }
+
+    // size: 4, // the max size in MB, defaults to 2MB
+    // quality: .75, // the quality of the image, max is 1,
+    // maxWidth: 1920, // the max width of the output image, defaults to 1920px
+    // maxHeight: 1920, // the max height of the output image, defaults to 1920px
+    // resize: true, // defaults to true, set false if you do not want to resize the image width and height
+    compressImage(imagemBase64, width=null, height=null, quality=null, size=null) {
+        return new Promise((resolve) => {
+            const compress = new Compress();
+            const base64 = imagemBase64.split(',');
+            const type = base64[0].split(';')[0].split(':')[1];
+            fetch(imagemBase64).then((res) => res.blob()).then(blob => {
+                const file = new File([blob], "1", { type: type });
+                const config = {};
+                if (width) config.width = width;
+                if (height) config.height = height;
+                if (quality) config.quality = quality;
+                if (size) config.size = size;
+
+                compress.compress([file], config).then((results) => {
+                    resolve(results[0].prefix + results[0].data);
+                });
+            });
         });
     }
 
@@ -223,6 +248,20 @@ class imagemDB {
             } else {
                 resolve(null);
             }
+        });
+    }
+
+    getFotoPrincipalCorCompress(produtoCor) {
+        return new Promise((resolve) => {
+            this.getFotoPrincipalCor(produtoCor).then((imagemBase64) => {
+                if (imagemBase64) {
+                    this.compressImage(imagemBase64, null, null, 0.1).then((imagemBase64Compresed) => {
+                        resolve(imagemBase64Compresed);
+                    });
+                } else {
+                    resolve(imagemBase64);
+                }
+            });
         });
     }
 

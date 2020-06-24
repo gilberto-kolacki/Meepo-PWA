@@ -1,47 +1,45 @@
 <template>
     <div id="page-montelook">
-        <div class="vx-row">
+        <div class="vx-row" v-show="idSegmento">
             <!-- Produtos -->
-            <div class="vx-col w-3/4 mt-4">
-                
-                    <div>
-                        <vx-card>
-                            <h4 v-b-toggle="'look'" class="m-1">Produtos do Look</h4>
-                            <b-collapse :id="'look'" visible accordion="my-accordion" role="tabpanel">
-                                <div v-for="(produto, index) in produtos" :key="index">
-                                    <monte-look-item
-                                        v-if="idSegmento && index != 2"
-                                        @atualiza-produtos="atualizarProdutos"
-                                        @mostrar-produtos-categorias="mostrarProdutosCategorias"
-                                        @set-cor-produto="setCorProduto"
-                                        :produto="produtos[index]"
-                                        :produtoSeq="index"
-                                    />
-                                </div>
-                            </b-collapse>
-                        </vx-card>
-                        <vx-card v-if="acessorioView" class="mt-4">
-                            <h3 v-b-toggle="'acessorio'" class="m-1">Acessórios</h3>
-                            <b-collapse :id="'acessorio'" visible accordion="my-accordion" role="tabpanel">
-                                <div>
-                                    <monte-look-item
-                                        v-if="idSegmento"
-                                        @atualiza-produtos="atualizarProdutos"
-                                        @mostrar-produtos-categorias="mostrarProdutosCategorias"
-                                        @set-cor-produto="setCorProduto"
-                                        :produto="produtos[2]"
-                                        :produtoSeq="2"
-                                    />
-                                </div>
-                            </b-collapse>
-                        </vx-card>
-                    </div>
-                
+            <div class="vx-col w-3/4">
+                <vx-card>
+                    <h4 v-b-toggle="'look'" class="m-1">Produtos do Look</h4>
+                    <b-collapse :id="'look'" visible accordion="my-accordion" role="tabpanel">
+                        <div v-for="(produto, index) in produtos" :key="index">
+                            <monte-look-item
+                                v-if="index != 2"
+                                @atualiza-produtos="atualizarProdutos"
+                                @mostrar-produtos-categorias="mostrarProdutosCategorias"
+                                @set-cor-produto="setCorProduto"
+                                v-model="produtos[index]"
+                                :produtoSeq="index"
+                                :disabledProdutos="categoriasSelecionadas[index].length <= 0"
+                            />
+                        </div>
+                    </b-collapse>
+                </vx-card>
+                <vx-card v-if="acessorioView" class="mt-4">
+                    <h3 v-b-toggle="'acessorio'" class="m-1">Acessórios</h3>
+                    <b-collapse :id="'acessorio'" visible accordion="my-accordion" role="tabpanel">
+                        <div>
+                            <monte-look-item
+                                @atualiza-produtos="atualizarProdutos"
+                                @mostrar-produtos-categorias="mostrarProdutosCategorias"
+                                @set-cor-produto="setCorProduto"
+                                v-model="produtos[2]"
+                                :produtoSeq="2"
+                                :disabledProdutos="categoriasSelecionadas[2].length <= 0"
+                            />
+                        </div>
+                    </b-collapse>
+                </vx-card>
             </div>
             <!-- informações -->
             <div class="vx-col w-1/4">
-                <div class="vx-row mt-4">
-                    <vx-card>
+                <div class="vx-row">
+                    <vs-button color="dark" type="filled" class="w-full" icon="menu" @click.stop="showSidebar"></vs-button>
+                    <vx-card class="mt-2">
                         <div class="vx-row" v-for="(produto, index) in produtos" :key="index">
                             <h6 v-if="index != 2"><b>Produto {{index+1}}: </b>{{produto.nome}}</h6>
                         </div>
@@ -114,36 +112,45 @@
                 </tr>
             </table>
         </vs-popup>
+        
+
         <!-- popup Escolha o Segmento -->
-        <vs-popup title="Escolha o Segmento" :active.sync="popupSegmento" :button-close-hidden="false">
-            <div class="vx-row flex justify-center">
-                <div class="vx-col w-2/5" @click="setSegmento(segmento)" v-for="(segmento,index) in listaSegmentos" :key="index">
-                    <vx-card color="rgb(123, 123, 123)" style="background-color:rgb(123, 123, 123);color:#fff" class="flex justify-center">
-                        <h1 style="color:#fff">{{segmento.nome}}</h1>
-                    </vx-card>
+        <fun-modal title="Escolha o Segmento" :active.sync="showModalSegmento" :button-close-hidden="true" :footer-hidden="true">
+            <div slot="body">
+                <div class="vx-row flex justify-center">
+                    <div class="vx-col w-2/5" @click="setSegmento(segmento)" v-for="(segmento,index) in listaSegmentos" :key="index">
+                        <vx-card color="rgb(123, 123, 123)" style="background-color:rgb(123, 123, 123);color:#fff" class="flex justify-center">
+                            <h1 style="color:#fff">{{segmento.nome}}</h1>
+                        </vx-card>
+                    </div>
                 </div>
             </div>
-        </vs-popup>
+        </fun-modal>
+
         <!-- popup produtos -->
-        <vs-popup title="Escolha o Produto" :active.sync="popupProdutosCategoria" :button-close-hidden="false">
-            <div class="vx-row flex justify-center">
-                <div class="vx-row mt-6 ml-2">
-                    <div class="mr-2 vx-row w-full montelook-lista-produtos" style="height: auto;">
-                        <div class="vx-col px-1 lg:w-2/5 md:w-1/5 sm:w-1/3 mb-4" @click="setProduto(produto)" v-for="(produto, index) in listaProdutosPesquisa[posicaoProduto]" :key="index">
-                            <vx-card class="w-full text-center cursor-pointer; height:100%;">
-                                <b-card-text style="display:flex;align-items:center;justify-content:center;">
-                                    <b-img-lazy :src="produto.imagemPrincipal ? produto.imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded user-latest-image responsive img-popup product-img"/>
-                                </b-card-text >
-                                <b-card-text style="padding:10px">
-                                    <span class="vx-row" style="font-weight:bold">{{'Ref: ' + produto.referencia}}</span>
-                                    <span class="vx-row" style="max-width: 10ch; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{{produto.nome}}</span>
-                                </b-card-text>
-                            </vx-card>
+        <fun-modal title="Escolha o Produto" :active.sync="popupProdutosCategoria" :footer-hidden="true" :fullscreen="true">
+            <div slot="body">
+                <div class="vx-row flex justify-center">
+                    <div class="vx-row ml-2">
+                        <div class="mr-2 vx-row w-full montelook-lista-produtos" style="height: 85vh;">
+                            <div class="vx-col px-1 lg:w-1/5 md:w-1/5 sm:w-1/4 mb-4" @click="setProduto(produto)" v-for="(produto, index) in listaProdutosPesquisa[posicaoProduto]" :key="index">
+                                <vx-card class="w-full text-center cursor-pointer; height:100%;">
+                                    <div slot="no-body" style="padding: 15px;">
+                                        <b-card-text style="display:flex;align-items:center;justify-content:center;">
+                                            <b-img-lazy :src="produto.imagemPrincipal ? produto.imagemPrincipal : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="rounded user-latest-image responsive img-popup product-img"/>
+                                        </b-card-text >
+                                        <b-card-text style="padding:10px">
+                                            <span class="vx-row" style="font-weight:bold">{{'Ref: ' + produto.referencia}}</span>
+                                            <span class="vx-row" style="max-width: 10ch; overflow: hidden;text-overflow: ellipsis;white-space: nowrap;">{{produto.nome}}</span>
+                                        </b-card-text>
+                                    </div>
+                                </vx-card>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </vs-popup>
+        </fun-modal>
     </div>
 </template>
 
@@ -155,23 +162,24 @@
     import ProdutoUtils from '../../rapidsoft/utils/produtoUtils';
     import Segmento from '../../rapidsoft/db/segmentoDB';
     import vSelect from 'vue-select';
+
     
     export default {
         data: () => ({
             idSegmento: null,
             produtos:[{},{},{}],
             categoriasFiltro: [],
-            categoriasSelecionadas: [],
+            categoriasSelecionadas: [[],[],[]],
             listaProdutosPesquisa: [],
             listaCores: [],
             popupPrecoRef: false,
-            popupSegmento: false,
             popupProdutosCategoria: false,
             popupCorProduto: false,
             listaSegmentos: [],
             mostrarCoresDisponiveis:false,
             posicaoProduto:null,
             acessorioView: false,
+            showModalSegmento: false,
         }),
         components: {
             'v-select': vSelect,
@@ -185,6 +193,9 @@
             },
         },
         methods: {
+            showSidebar() {
+                return this.$store.commit('TOGGLE_IS_SIDEBAR_ACTIVE', true);
+            },
             setCorProduto(produto) {
                 this.produtos[this.posicaoProduto] = produto;
                 this.popupCorProduto = false;
@@ -200,7 +211,7 @@
             },
             setSegmento(segmento) {
                 this.idSegmento = segmento.id;
-                this.popupSegmento = false;
+                this.showModalSegmento = false;
                 this.searchCategorias();
             },
             atualizarProdutos(produtos) {
@@ -219,16 +230,16 @@
                     });
                 }
             },
-            searchFindProduto(produto,index) {
+            searchFindProduto(produto, index) {
                 this.$vs.loading();
-                const idsCategorias = this.categoriasSelecionadas[index].map((categoria) => {return categoria.id})
+                const idsCategorias = this.categoriasSelecionadas[index].map((categoria) => categoria.id)
                 ProdutoDB.getProdutosMonteLook(idsCategorias).then((result) => {
                     this.listaProdutosPesquisa[index] = result;
                     this.$vs.loading.close();
                 });
             },
             searchCategorias() {
-                this.categoriasSelecionadas = [];
+                this.categoriasSelecionadas = [[],[],[]];
                 CategoriaDB.getAllBySegmento(this.idSegmento).then((categorias) => {
                     this.categoriasFiltro = this.lodash.cloneDeep(categorias);
                     this.$vs.loading.close('#div-with-loading-search > .con-vs-loading');
@@ -255,7 +266,7 @@
             },
         },
         created() {
-            this.popupSegmento = true;
+            this.showModalSegmento = true;
             this.carregaItensTela();
         },
         mounted() {
@@ -265,11 +276,11 @@
 </script>
 
 <style lang="scss">
-    html {
-        position: fixed;
-        width: 100%; 
-        height: 100%
-    }
+    // html {
+    //     position: fixed;
+    //     width: 100%; 
+    //     height: 100%
+    // }
     
     // .produto-image-scroll{
     //     overflow-x: hidden;
@@ -286,8 +297,9 @@
         overflow-x: hidden;
         overflow-y: scroll;
     }
+
     .page-montelook {
-        top: 2rem;
+        margin-top: 2px;
     }
 
 </style>

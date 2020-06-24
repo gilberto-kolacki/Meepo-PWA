@@ -124,7 +124,7 @@ class produtoDB extends BasicDB {
                 produtoCor.nomeCor = cor.nome;
                 produtoCor.precoCusto = cor.precoCusto;
                 produtoCor.precoVenda = cor.precoVenda;
-                produtoCor.imagem = (cor.imagens[0]) ? cor.imagens[0].id : null;
+                produtoCor.imagem = (cor.imagens.length > 0) ? cor.imagens[0].id : null;
                 produtoCor.tamanhos = cor.tamanhos;
                 produtoCor.categorias = cor.categorias;
                 produtoCor.embarques = cor.embarques;
@@ -779,7 +779,7 @@ class produtoDB extends BasicDB {
             itensCor.forEach((item) => {
                 this.getById(item.referencia).then((produto) => {
                     const cor = produto.value.cores.find((cor) => cor.codigo === item.cor);
-                    ImagemDB.getFotoPrincipalCor(cor).then((imagemProdutoPrincipal) => {
+                    ImagemDB.getFotoPrincipalCorCompress(cor).then((imagemProdutoPrincipal) => {
                         item.base64 = imagemProdutoPrincipal;
                         imagensCorProduto.push(item);
                         done();

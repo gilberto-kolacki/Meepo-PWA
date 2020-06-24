@@ -189,6 +189,11 @@ export default {
 </script>
 
 <style lang="scss">
+
+html {
+    position: relative;
+}
+
 .dropdown-button-container {
   display: flex;
   align-items: center;

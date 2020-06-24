@@ -36,24 +36,24 @@
                 </div>
                 <div class="vx-row flex justify-center mt-4 ">
                     <div class="btn-group centex w-full" >
-                        <vs-button @click="mostrarProdutos()" color="primary" type="filled" class="customizer-btn w-1/4" icon-pack="feather" icon="icon-list">Produtos</vs-button>
-                        <vs-button @click="showZoom()" color="rgb(123, 123, 123)" type="filled" class="customizer-btn w-1/4" icon-pack="feather" icon="icon-zoom-in">Zoom</vs-button>
-                        <vs-button @click="mostrarCores()" color="primary" type="filled" class="customizer-btn w-1/4" icon-pack="feather" icon="icon-settings">Cor</vs-button>
+                        <vs-button @click="mostrarProdutos()" :disabled="disabledProdutos" color="primary" type="filled" class="customizer-btn w-1/4" icon-pack="feather" icon="icon-list">Produtos</vs-button>
+                        <vs-button @click="showZoom()" :disabled="buttonsConfig" color="rgb(123, 123, 123)" type="filled" class="customizer-btn w-1/4" icon-pack="feather" icon="icon-zoom-in">Zoom</vs-button>
+                        <vs-button @click="mostrarCores()" :disabled="buttonsConfig" color="primary" type="filled" class="customizer-btn w-1/4" icon-pack="feather" icon="icon-settings">Cor</vs-button>
                     </div>
                 </div>
                 <!-- </vx-card> -->
             </div>
         </div>
-
-        <vs-popup title="Cores Disponíveis" :active.sync="popupCorProduto" :button-close-hidden="false">
-            <div class="vx-row flex">
-                <div class="vx-row w-full montelookitem-lista-produtos p-5" style="height: auto;">
+        
+        <fun-modal title="Cores Disponíveis" :active.sync="popupCorProduto" :button-close-hidden="false" :footer-hidden="true">
+            <div slot="body">
+                <div class="vx-row flex w-full montelookitem-lista-produtos p-2 ml-2" style="height: auto; overflow-x: hidden;">
                     <div @click="setProdutoCor(cor)" class="vx-col lg:w-1/12 md:w-1/12 sm:w-1/3 mr-2" v-for="(cor, index) in produto.cores" :key="index">
                         <vs-avatar :src="cor.imagemCor ? cor.imagemCor : require(`@/assets/images/rapidsoft/no-image.jpg`)" class="m-0" size="40px"/>
                     </div>
                 </div>
             </div>
-        </vs-popup>
+        </fun-modal>
 
         <div id="zoom-produto" v-if="this.showProdutoZoom">
             <zoom-produto @zoom-closed="hideZoom" :produtoZoom="this.produto" :produtoImagens="this.produto.corSelecionada.imagens" :id="idPopUpZoom"></zoom-produto>
@@ -68,10 +68,11 @@ import ZoomProduto from './ZoomProduto';
 export default {
     data: () => ({
         popupCorProduto: false,
+        buttonsConfig: true,
         slide: 0,
         sliding: null,
         produtoZoom:{},
-        showProdutoZoom:false,
+        showProdutoZoom: false,
         idPopUpZoom: 'popup-produto-zoom',
     }),
 
@@ -90,6 +91,16 @@ export default {
         produtoSeq: {
             type: Number,
             required: true,
+        },
+        disabledProdutos: {
+            type: Boolean,
+            default: false,
+        }
+    },
+    watch: {
+        'produto'(value) {
+            if (value.referencia) this.buttonsConfig = false;
+            else this.buttonsConfig = true;
         },
     },
     methods: {
@@ -116,7 +127,7 @@ export default {
         setProdutoCor(cor) {
             this.produto.corSelecionada = cor;
             this.$forceUpdate();
-            this.$emit('set-cor-produto',this.produto);
+            this.$emit('set-cor-produto', this.produto);
         },
     },
     created(){

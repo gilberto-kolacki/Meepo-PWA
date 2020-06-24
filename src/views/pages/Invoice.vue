@@ -6,7 +6,7 @@
                 <vs-button @click.stop="printInvoice" color="primary" type="filled" class="btn-carrinho" icon-pack="feather" icon="icon-printer"></vs-button>
             </div>
         </div>
-        <vx-card id="invoice-container">
+        <vx-card id="invoice-container" v-if="isShow">
 
             <!-- INVOICE METADATA -->
             <div class="vx-row leading-loose p-base">
@@ -33,29 +33,41 @@
                 <div class="vx-col w-1/2 text-right mt-12">
                     <h5>{{ getCliente.nome | capitalize }}</h5>
                     <div class="invoice__company-info my-4">
-                        <p>Comp: {{ getCliente.endereco.complemento }}</p>
+                        <p>Comp: {{ getCliente.endereco.complemento}}</p>
+                        <p>E-mail: {{ getCliente.emailNfe }}</p>
+                        <p>Tel: {{ getCliente.endereco.telefone }}</p>
                     </div>
-                    <div class="invoice__company-contact">
-                        <p class="flex items-center justify-end">
-                            <feather-icon icon="MailIcon" svgClasses="h-4 w-4"></feather-icon>
-                            <span class="ml-2">{{ getCliente.emailNfe }}</span>
-                        </p>
-                        <p class="flex items-center justify-end">
-                            <feather-icon icon="PhoneIcon" svgClasses="h-4 w-4"></feather-icon>
-                            <span class="ml-2">{{ getCliente.endereco.telefone }}</span>
-                        </p>
-                    </div>
-
                 </div>
             </div>
 
             <!-- INVOICE CONTENT -->
             <div class="p-base">
                 <!-- INVOICE TASKS TABLE -->
-                <h6 v-if="isOrcamento">Resumo do Orçamento</h6>
-                <h6 v-else>Resumo do Pedido</h6>
+                <!-- <h6 v-if="isOrcamento">Resumo do Orçamento</h6>
+                <h6 v-else>Resumo do Pedido</h6> -->
+
+                <vs-divider v-if="isOrcamento">Resumo do Orçamento</vs-divider>
+                <vs-divider v-else>Resumo do Pedido</vs-divider>
+
                 <div v-for="(embarque, indexEmbarque) in embarques" :key="indexEmbarque">
                     <h5>{{embarque.nome}}</h5>
+                    <div class="vx-row">
+                        <div class="vx-col w-1/2 mt-5">
+                            <div class="invoice__embarque-detalhes my-4">
+                                <p v-if="embarque.dataEmbarque">Data Embarque: {{ embarque.dataEmbarque | formatDate }}</p>
+                                <p v-if="embarque.formaPagamento">Forma Pgto: {{ getFormaPgto(embarque.formaPagamento) }}</p>
+                                <p v-if="embarque.condicaoPagamento">Cond Pagto: {{ getCondPgto(embarque.formaPagamento, embarque.condicaoPagamento) }}</p>
+                            </div>
+                        </div>
+                        <div class="vx-col w-1/2 text-right mt-5">
+                            <div class="invoice__embarque-detalhes my-4">
+                                <p v-if="desconto1">Desc. Volume: {{ desconto1 }}%</p>
+                                <p v-if="desconto2">Desc. Showroom: {{ desconto2 }}%</p>
+                                <p v-if="desconto3">Desc. Comercial: {{ desconto3 }}%</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <vs-row class="w-1/2 ml-auto mt-4" style="margin-bottom: 20px">
                         <vs-row class="total-title">
                             <vs-col style="width:30%;"></vs-col>
@@ -138,6 +150,7 @@
                             </tbody>
                         </table>
                     </div>
+                    <vs-divider></vs-divider>
                 </div>
             </div>
             <div class="invoice__footer text-right p-base">
@@ -150,10 +163,12 @@
 <script>
 
 import ProdutoDB from "../../rapidsoft/db/produtoDB";
+import FormaPagtoDB from "../../rapidsoft/db/formaPagtoDB";
 
 export default{
     data () {
         return {
+            isShow:false,
             isPedido: false,
             isOrcamento: false,
             orcamento: null,
@@ -161,6 +176,10 @@ export default{
             embarques: [],
             textoLinha: "",
             imagensCorProduto: [],
+            desconto1: null,
+            desconto2: null,
+            desconto3: null,
+            formasPagto: []
         }
     },
     computed: {
@@ -175,7 +194,7 @@ export default{
             if (this.isOrcamento) {
                 return this.orcamento.dataOrcamento;
             } else {
-                return this.pedido.dataOrcamento;
+                return this.pedido.dataPedido;
             } 
         },
         getCliente() {            
@@ -224,39 +243,63 @@ export default{
         },
         getValorSub(item) {
             return item.quantidade * item.precoCusto;
-        }
+        },
+        getFormaPgto(idFormaPagto) {
+            return this.formasPagto.find((forma) => forma.id == idFormaPagto).nome;
+        },
+        getCondPgto(idFormaPagto, idCondPagto) {
+            const formaPagto = this.formasPagto.find((forma) => forma.id == idFormaPagto);
+            return formaPagto.condicoes.find((cond) => cond.id == idCondPagto).nome;
+        },
     },
-    components: {},
+    components: {
+
+    },
     created() {
-        if (this.$route.params.orcamento) {
-            this.isOrcamento = true;
-            this.orcamento = this.$route.params.dados;
-            ProdutoDB.getImagensCorProdutoEmbarques(this.$route.params.dados.embarques).then((imagensCorProduto) => {
-                this.embarques = this.$route.params.dados.embarques
-                this.imagensCorProduto = imagensCorProduto;
-                this.getLinha();
-            });
-        } else {
-            this.isPedido = true;
-            this.pedido = this.$route.params.dados;
-            ProdutoDB.getImagensCorProdutoEmbarques(this.$route.params.dados.itens, true).then((imagensCorProduto) => {
-                this.embarques = [{
-                    id: this.pedido.embarque, 
-                    nome: this.pedido.nome, 
-                    quantidade: this.pedido.quantidade, 
-                    totalBruto: this.pedido.totalBruto, 
-                    qtdeAberto: this.pedido.qtdeAberto, 
-                    valorAberto: this.pedido.valorAberto, 
-                    qtdeFaturado: this.pedido.qtdeFaturado, 
-                    valorFaturado: this.pedido.valorFaturado, 
-                    qtdeCancelado: this.pedido.qtdeCancelado, 
-                    valorCancelado: this.pedido.valorCancelado, 
-                    itens: this.$route.params.dados.itens
-                }];
-                this.imagensCorProduto = imagensCorProduto;
-                this.getLinha();
-            });
-        }
+        FormaPagtoDB._getAll().then((formaPagto) => {
+            this.formasPagto = formaPagto;
+            if (this.$route.params.orcamento) {
+                this.isOrcamento = true;
+                this.orcamento = this.$route.params.dados;
+                this.desconto1 = this.orcamento.desconto1;
+                this.desconto2 = this.orcamento.desconto2;
+                this.desconto3 = this.orcamento.desconto3;
+                ProdutoDB.getImagensCorProdutoEmbarques(this.$route.params.dados.embarques).then((imagensCorProduto) => {
+                    this.embarques = this.$route.params.dados.embarques
+                    this.imagensCorProduto = imagensCorProduto;
+                    this.getLinha();
+                    this.isShow = true;
+                });
+            } else {
+                this.isPedido = true;
+                this.pedido = this.$route.params.dados;
+                this.desconto1 = this.pedido.desconto1;
+                this.desconto2 = this.pedido.desconto2;
+                this.desconto3 = this.pedido.desconto3;
+                ProdutoDB.getImagensCorProdutoEmbarques(this.$route.params.dados.itens, true).then((imagensCorProduto) => {
+                    this.embarques = [{
+                        id: this.pedido.embarque, 
+                        nome: this.pedido.nome, 
+                        dataEmbarque: this.pedido.dataEmbarque, 
+                        quantidade: this.pedido.quantidade, 
+                        totalBruto: this.pedido.totalBruto, 
+                        qtdeAberto: this.pedido.qtdeAberto, 
+                        valorAberto: this.pedido.valorAberto, 
+                        qtdeFaturado: this.pedido.qtdeFaturado, 
+                        valorFaturado: this.pedido.valorFaturado, 
+                        qtdeCancelado: this.pedido.qtdeCancelado, 
+                        valorCancelado: this.pedido.valorCancelado, 
+                        formaPagamento: this.pedido.formaPagamento,
+                        condicaoPagamento: this.pedido.condicaoPagamento,
+                        itens: this.$route.params.dados.itens
+                    }];
+                    this.imagensCorProduto = imagensCorProduto;
+                    this.getLinha();
+                    this.isShow = true;
+                });
+            }
+        });
+
     },
     mounted () {
         this.$emit('setAppClasses', 'invoice-page');
