@@ -239,6 +239,11 @@ const router = new Router({
                 },
             ]
         },
+        // Fallback index to empty route
+        {
+          path: '/index.html',
+          redirect: '/',
+        },
         // Redirect to 404 page, if no match found
         {
             path: '*',
@@ -260,15 +265,21 @@ router.afterEach(() => {
 router.beforeEach((to, from, next) => {
     document.getElementById('loading-bg').style.display = null;
     if(to.matched.some(record => record.meta.requiresAuth)) {
+        // TODO FIXME auth.isAuthenticated() === true quando offline
+        console.log("auth is authenticated?", auth.isAuthenticated());
         if(auth.isAuthenticated()) {
+            console.log("next() 1");
             next();
         } else {
+            console.log("next(/login)");
             next('/login');
         }
     } else {
         if (to.name === "login" && auth.isAuthenticated()) {
+            console.log("next(/)");
             next('/');
         } else {
+            console.log("next() 2");
             next();
         }
     }
