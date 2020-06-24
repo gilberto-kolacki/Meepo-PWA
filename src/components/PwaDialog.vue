@@ -30,7 +30,7 @@ export default {
         this.registration.waiting.postMessage('skipWaiting');
         window.location.reload();
       } else {
-        console.warn("No service worker waiting to be activated!");
+        console.warn("No service worker waiting to be activated");
         this.close();
       }
     },
@@ -40,8 +40,7 @@ export default {
         this.$vs.notify({
             position: "bottom-center",
             color: "dark",
-            text: "Nova versão baixada (v1.2.7), clique para atualizar!",
-            fixed: true,
+            text: "Nova versão baixada, clique para atualizar!",
             click: this.reload
         });
     },
