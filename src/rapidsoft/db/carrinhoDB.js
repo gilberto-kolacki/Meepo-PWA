@@ -6,6 +6,7 @@
 ==========================================================================================*/
 import BasicRemoteDB from './basicRemoteDB';
 import Storage from '../utils/storage';
+import IsEqual from 'lodash/isEqual';
 
 class carrinhoDB extends BasicRemoteDB {
 
@@ -36,26 +37,63 @@ class carrinhoDB extends BasicRemoteDB {
         });
     }
 
-    setCarrinho(carrinho) {
-        return new Promise((resolve) => {
-            carrinho._id = "1";
-            carrinho.alterado = true;
-            carrinho.valorTotal = this.getValorTotalCarrinho(carrinho.itens);
-            this._localDB.put(carrinho).then((result) => {
-                Storage.setCarrinho(carrinho);
-                resolve(result);
-            }).catch((erro) => {
-                if (erro.status == 409) {
-                    this.getCarrinho(true).then((carrinhoBanco) => {
-                        this._localDB.remove(carrinhoBanco).then(() => {
-                            this.setCarrinho(carrinho).then((result) => {
-                                resolve(result);
-                            });
+    getConflitoCarrinhos() {
+        return new Promise((resolve, reject) => {
+            this._localDB.get("1", {conflicts: true}).then((carrinhoAtual) => {
+                const carrinhos = [carrinhoAtual];
+
+                if (carrinhoAtual._conflicts && carrinhoAtual._conflicts.length > 0) {
+                    carrinhoAtual._conflicts.map((rev) => {
+                        this._localDB.get("1", {rev: rev}).then((result) => {
+                            carrinhos.push(result);
                         });
                     });
+                }
+
+                resolve(carrinhos);
+            }).catch((error) => {
+                console.log(error);
+                reject();
+            });
+        });
+    }
+
+    RemoverConflitoCarrinhos(carrinhos, revManter) {
+        return new Promise((resolve) => {
+            carrinhos.map((carrinho) => {
+                if (carrinho._rev !== revManter) {
+                    console.log('excluir',carrinho._rev, revManter);
+                    this._localDB.remove("1", carrinho._rev).then(() => {
+                        resolve();
+                    });
+                }
+            });
+        });
+    }
+
+    setCarrinho(carrinho) {
+        return new Promise((resolve) => {
+            this.getCarrinho(true).then((carrinhoDB)=> {
+                carrinho._rev = carrinhoDB._rev;
+                if (!IsEqual(carrinhoDB,carrinho)) {
+                    carrinho._id = "1";
+                    carrinho.alterado = true;
+                    carrinho.valorTotal = this.getValorTotalCarrinho(carrinho.itens);
+                    this._localDB.put(carrinho).then((result) => {
+                        Storage.setCarrinho(carrinho);
+                        resolve(result);
+                    }).catch((erro) => {
+                        if (erro.status == 409) {
+                            this._localDB.get("1", {conflicts: true}).then((carrinhoBanco) => {
+                                resolve(carrinhoBanco);
+                            });
+                        } else {
+                            this._criarLogDB({url:'db/carrinhoDB', method:'setCarrinho', message: erro, error:'Failed Request'});
+                            resolve(erro);
+                        }
+                    });
                 } else {
-                    this._criarLogDB({url:'db/carrinhoDB', method:'setCarrinho', message: erro, error:'Failed Request'});
-                    resolve(erro);
+                    resolve(carrinho);
                 }
             });
         });

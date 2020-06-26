@@ -260,12 +260,12 @@ export default {
         async onSubmit(item) {
             if (item.type === "prev") {
                  const anterior = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )-1;
-                if (anterior >= 0) await this.selectProduto(this.paginas[anterior]);
-                else await this.selectProduto(this.paginas[this.paginas.length-1]);
+                if (anterior >= 0) await this.selectProduto(this.paginas[anterior],item.type);
+                else await this.selectProduto(this.paginas[this.paginas.length-1],item.type);
             } else if (item.type === "next") {
                 const proxima = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )+1;
-                if (proxima < this.paginas.length) await this.selectProduto(this.paginas[proxima]);
-                else await this.selectProduto(this.paginas[0]);
+                if (proxima < this.paginas.length) await this.selectProduto(this.paginas[proxima],item.type);
+                else await this.selectProduto(this.paginas[0],item.type);
             } else {
                 this.addProduto();
             }
@@ -337,25 +337,47 @@ export default {
                 params: {produtos: produtos, tela: 'catalogoItem', pag: this.paginaAtual, paginas: this.paginas}
             });
         },
-        selectProduto(pagina) {
+        selectProduto(pagina, sentido="next") {
             return new Promise((resolve) => {
                 this.$vs.loading();
-                this.paginaAtual = pagina;
-                ProdutoDB.getProdutoPaginaCatalogo(pagina).then((result) => {
-                    this.popupSearchProdutos = false;
-                    this.produtoA = result.produtoA;
-                    this.produtoB = result.produtoB;
-                    this.produtoC = result.produtoC;
-                    ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
-                        this.imagemPass = [{id: 1, base64: result}];
-                        this.corSelecionada = 0;
-                        document.getElementById("produto-image-gallery").scrollTop = 0;
-                        setTimeout(() => {
-                            this.$vs.loading.close();
-                        }, 100);
+                setTimeout(() => {
+                    try{
+                        this.paginaAtual = pagina;
+                        ProdutoDB.getProdutoPaginaCatalogo(pagina).then((result) => {
+                            this.popupSearchProdutos = false;
+                            this.produtoA = result.produtoA;
+                            this.produtoB = result.produtoB;
+                            this.produtoC = result.produtoC;
+                            ImagemDB.getFotoPrincipal(this.produtoA).then((result) => {
+                                this.imagemPass = [{id: 1, base64: result}];
+                                this.corSelecionada = 0;
+                                document.getElementById("produto-image-gallery").scrollTop = 0;
+                            });
+                        }).catch((error) => {
+                            console.log('catch',error,pagina);
+                            this.$vs.notify({
+                                title: `Erro ao acessar a página ${pagina.pag} do catalogo.`,
+                                text: error,
+                                color: 'danger',
+                                iconPack: 'feather',
+                                icon: 'icon-alert-circle',
+                                position:'bottom-center'
+                            });
+                            if (sentido === "prev") {
+                                const anterior = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )-1;
+                                if (anterior >= 0) this.selectProduto(this.paginas[anterior],sentido);
+                                else this.selectProduto(this.paginas[this.paginas.length-1],sentido);
+                            } else if (sentido === "next") {
+                                const proxima = this.paginas.findIndex((pagina) => pagina.pag === this.paginaAtual.pag )+1;
+                                if (proxima < this.paginas.length) this.selectProduto(this.paginas[proxima],sentido);
+                                else this.selectProduto(this.paginas[0],sentido);
+                            }
+                        });
+                    } finally {
+                        this.$vs.loading.close();
                         resolve();
-                    });
-                });
+                    }
+                }, 100);
             });
         },
         selectSearchProduto(produto) {

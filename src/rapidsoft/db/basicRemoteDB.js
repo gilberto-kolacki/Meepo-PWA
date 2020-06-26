@@ -20,7 +20,7 @@ const setTimeout = (delay) => {
 
 const options = {
     live: true,
-    retry: false,
+    retry: true,
     continuous: true,
     back_off_function: (delay) => setTimeout(delay),
 };
@@ -44,7 +44,26 @@ const createDBRemote = (dataBaselocal) => {
 // };
 
 const Sync = (localDB, remoteLink) => {
-    localDB.sync(remoteLink, options);
+    localDB.sync(remoteLink, options)
+        .on('change', function (info){
+            console.log(info);
+            //localStorage.setItem('syncChangeInfo',  [localStorage.getItem('syncChangeInfo'), info]);
+        }).on('paused', function (err) {
+            console.log(err);
+            //localStorage.setItem('syncPausedInfo', [localStorage.getItem('syncPausedInfo'), err]);
+        }).on('active', function () {
+            console.log('active');
+            //localStorage.setItem('syncActiveInfo', [localStorage.getItem('syncActiveInfo'), 'active']);
+        }).on('complete', function (info) {
+            console.log(info);
+            //localStorage.setItem('syncCompleteInfo',  [localStorage.getItem('syncCompleteInfo'), info]);
+        }).on('deneid', function (err) {
+            console.log('deneid',err);
+            //localStorage.setItem('syncErrorInfo', [localStorage.getItem('syncErrorInfo'), err]);
+        }).on('error', function (err) {
+            console.log('Erro',err);
+            //localStorage.setItem('syncErrorInfo', [localStorage.getItem('syncErrorInfo'), err]);
+        });
 };
 
 const create = (name, callback) => {
@@ -53,12 +72,9 @@ const create = (name, callback) => {
         const dataBaseLocal = createDBLocal(name, representante);
         if (dataBaseLocal) {
             const localDB = new PouchDB(dataBaseLocal, {auto_compaction: true, cache : false});
-            // localDB.changes({live: true, since: 'now', include_docs: true}).on('change', OnChange);
-            localDB.setMaxListeners(2);
             const dataBaseLink = createDBRemote(dataBaseLocal);
             if (dataBaseLink) {
                 Sync(localDB, dataBaseLink);
-                window.addEventListener('online', Sync(localDB, dataBaseLink));
                 callback(localDB, dataBaseLink);
             }
         }

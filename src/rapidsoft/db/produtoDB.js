@@ -192,7 +192,9 @@ class produtoDB extends BasicDB {
         return new Promise((resolve) => {
             if (idCategoria) {
                 resolve(paginas.filter((pagina) => {
-                    return pagina.produtos.some((produto) => produto.cat.indexOf(idCategoria) >= 0);
+                    return pagina.produtos.some((produto) => {
+                        return produto.cat.indexOf(idCategoria) >= 0;
+                    });
                 }));
             } else {
                 resolve(paginas);
@@ -203,6 +205,7 @@ class produtoDB extends BasicDB {
     getPaginasCatalogo(idCategoria = null) {
         return new Promise((resolve) => {
             const catalogo = Storage.getCatalogo();
+            
             this.getPaginasByCategorias(idCategoria, catalogo.paginas).then((paginas) => {
                 catalogo.paginas = paginas;
 
@@ -218,16 +221,9 @@ class produtoDB extends BasicDB {
     getProdutosFromPaginas(paginas) {
         return paginas.map((pagina) => {
             const prodOrderSeq = OrderBy(pagina.produtos, ['seq']);
+            
             pagina.produtoA = prodOrderSeq[0];
-            // if (prodOrderSeq[1]) {
-            //     pagina.produtoB = prodOrderSeq[1];
-            // }
-            // if (prodOrderSeq[2]) {
-            //     pagina.produtoC = prodOrderSeq[2];
-            // }
-            // if (prodOrderSeq[3]) {
-            //     pagina.produtoD = prodOrderSeq[3];
-            // }
+            
             return pagina;
         });
     }
@@ -271,8 +267,8 @@ class produtoDB extends BasicDB {
 
     calcularPreco(itemCor, tipo = 1) {
         const percentual = Number(Storage.getGrupoCarrinho().porcentagem);
-        const precoProduto = tipo === 1 ? itemCor.precoCusto : itemCor.precoVenda;
-        return Round(precoProduto + ((percentual/100) * precoProduto), 2);
+        const precoProduto = tipo === 1 ? (itemCor.precoCusto + ((percentual/100) * itemCor.precoCusto)) : itemCor.precoVenda;
+        return Round(precoProduto, 2);
     }
 
     getEmbarquesProdutoCor(produto) {
@@ -495,7 +491,7 @@ class produtoDB extends BasicDB {
     }
 
     getProdutoPaginaCatalogo(pagina) {
-        return new Promise((resolve) => {
+        return new Promise((resolve,reject) => {
             let item = {};
             this.getByProdPaginaCatalogo(pagina.produtoA).then((resultProdutoA) => {
                 if (resultProdutoA) {
@@ -523,12 +519,10 @@ class produtoDB extends BasicDB {
                         });
                     });
                 } else {
-                    this._criarLogDB({url:'db/produtoDB',method:'getProdutoPaginaCatalogo',message: 'Produto não encontrado: '+pagina.produtoA,error:'Failed Request'});
-                    resolve();
+                    //this._criarLogDB({url:'db/produtoDB',method:'getProdutoPaginaCatalogo',message: 'Produto não encontrado: '+pagina.produtoA,error:'Failed Request'});
+                    reject(`Produto ${pagina.produtoA.ref} não foi sincronizado!`);
                 }
             });
-        }).catch((err) => {
-            this._criarLogDB({url:'db/produtoDB',method:'getProdutoPaginaCatalogo',message: err,error:'Failed Request'});
         });
     }
 
@@ -539,7 +533,11 @@ class produtoDB extends BasicDB {
                 this.getImagensCoresProduto(item.produtoB).then((produtoB) => {
                     item.produtoB = produtoB;
                     resolve(item);
+                }).catch(() => {
+                    resolve(item);
                 });
+            }).catch(() => {
+                resolve(item);
             });
         });
     }

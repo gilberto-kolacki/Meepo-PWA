@@ -236,13 +236,18 @@ class imagemDB {
 
     getFotoPrincipalCor(produtoCor) {
         return new Promise((resolve) => {
-            ImagemFotoDB._getById(produtoCor.imagens[0].id).then((fotoProduto) => {
-                if(fotoProduto.existe) {
-                    resolve(fotoProduto.value.base64);
-                } else {
-                    resolve(null);
-                }
-            });
+            if (produtoCor && produtoCor.imagens.length > 0) {
+                ImagemFotoDB._getById(produtoCor.imagens[0].id).then((fotoProduto) => {
+                    if(fotoProduto.existe) {
+                        resolve(fotoProduto.value.base64);
+                    } else {
+                        resolve(null);
+                    }
+                });
+            
+            } else {
+                resolve(null);
+            }
         });
     }
 

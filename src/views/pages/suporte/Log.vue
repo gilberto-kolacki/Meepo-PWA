@@ -108,6 +108,27 @@
                     </vs-table>
                 </vs-tab>
                 <vs-tab label="Carrinho">
+                    <div v-for="(carrinho, index) in carrinhosConflito" :key="index">
+                        <div class="vx-row flex justify-center">
+                            <div class="p-2 vx-col w-full" @click="alertRemoverConflito(carrinho._rev)">
+                                <vx-card class="cursor-pointer border-component-home">
+                                    <h5>Carrinho</h5>
+                                    <table style="width:100%" class="border-collapse">
+                                        <tr>
+                                            <th class="p-2 border border-solid d-theme-border-grey-light">Cliente</th>
+                                            <th class="p-2 border border-solid d-theme-border-grey-light">Total de Peças</th>
+                                            <th class="p-2 border border-solid d-theme-border-grey-light">Total</th>
+                                        </tr>
+                                        <tr>
+                                            <td class="p-2 border border-solid d-theme-border-grey-light">{{carrinho.cliente ? carrinho.cliente.nome : " - " | capitalize}}</td>
+                                            <td class="p-2 border border-solid d-theme-border-grey-light">{{pecasCarrinho(index)}}</td>
+                                            <td class="p-2 border border-solid d-theme-border-grey-light text-right">{{carrinho.valorTotal | moneyy}}</td>
+                                        </tr>
+                                    </table>
+                                </vx-card>
+                            </div>
+                        </div>
+                    </div>
                     <div style="margin-bottom:15px;margin-top:15px;">
                         <vs-button color="warning" icon-pack="feather" icon="icon-archive" class="mb-2 w-full" @click="alertLimparCarrinho()">Limpar Carrinho</vs-button>
                     </div>
@@ -134,25 +155,31 @@ export default {
         browserName: null,
         majorVersion: null,
         sistemaOperacional: null,
-        armazenamentoIndexedDB: null
+        armazenamentoIndexedDB: null,
+        carrinhosConflito: [],
     };
   },
   computed: {
     isIOS() {
-      return this.$store.state.isIOS;
+        return this.$store.state.isIOS;
     },
     token() {
-      return JSON.parse(localStorage.getItem("token"));
-    }
+        return JSON.parse(localStorage.getItem("token"));
+    },
   },
   methods: {
     diminuirCaminho(caminho){
-      const removeHttp = caminho.substring(caminho.indexOf("http://") + 7);
-      const caminhoErro = removeHttp.substring(removeHttp.indexOf("/"));
-      return caminhoErro;
+        const removeHttp = caminho.substring(caminho.indexOf("http://") + 7);
+        const caminhoErro = removeHttp.substring(removeHttp.indexOf("/"));
+        return caminhoErro;
+    },
+    pecasCarrinho(index) {
+        return this.carrinhosConflito[index].itens.reduce((total, item) => {
+            return total + item.quantidade;
+        }, 0);
     },
     listarErros() {
-        ErrorDB.listar().then(errorReturn => {
+        ErrorDB.listar().then((errorReturn) => {
             let errorsLocal = this.lodash.clone(errorReturn);
             errorsLocal.forEach(error => {
                 if (error.type === "tela") {
@@ -163,13 +190,9 @@ export default {
                     this.errosDB.push(this.lodash.clone(error));
                 }
             });
+        }).catch((error) => {
+            console.log(error);
         });
-    },
-    openLoading() {
-        this.$vs.loading({ color: this.colorLoading });
-        setTimeout(() => {
-            this.$vs.loading.close();
-        }, 2000);
     },
     deletarLogs() {
       ErrorDB._limparBase();
@@ -211,7 +234,40 @@ export default {
             cancelText: 'Cancelar',
             accept: this.deletarCarrinho
         });
-    }
+    },
+    listConflitoCarrinho() {
+        CarrinhoDB.getConflitoCarrinhos().then((carrinhosConflito) => {
+            this.carrinhosConflito = carrinhosConflito;
+        }).catch((error) => {
+            console.log(error);
+        });
+    },
+    alertRemoverConflito(revManter) {
+        this.$vs.dialog({
+            type: 'confirm',
+            color: 'warning',
+            title: 'Deseja manter a revisão selecionada do carrinho?',
+            text: 'Somente a revisão selecionada do carrinho ficará disponível, as demais serão excluídas.',
+            acceptText: 'Manter',
+            cancelText: 'Cancelar',
+            accept: this.RemoverConflito,
+            parameters: revManter
+        });
+    },
+    RemoverConflito(revManter) {
+        this.$vs.loading({ color: this.colorLoading });
+        setTimeout(() => {
+            try{
+                CarrinhoDB.RemoverConflitoCarrinhos(this.carrinhosConflito,revManter).then(() => {
+                    this.listConflitoCarrinho();
+                });
+            } catch(error) {
+                console.log(error);
+            } finally {
+                this.$vs.loading.close();
+            }
+        }, 2000);
+    },
   },
   created() {
     this.listarErros();
@@ -228,6 +284,7 @@ export default {
     } else {
         console.error("navigator.storage.estimate API unavailable.");
     }
+    this.listConflitoCarrinho();
   },
   beforeCreate() {
     if (!window.indexedDB) {

@@ -265,7 +265,6 @@ router.afterEach(() => {
 router.beforeEach((to, from, next) => {
     document.getElementById('loading-bg').style.display = null;
     if(to.matched.some(record => record.meta.requiresAuth)) {
-        // TODO FIXME auth.isAuthenticated() === true quando offline
         console.log("auth is authenticated?", auth.isAuthenticated());
         if(auth.isAuthenticated()) {
             console.log("next() 1");

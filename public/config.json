@@ -4,6 +4,6 @@
     "endereco_api": "https://api.liveoficial.com.br/offline",
     "endereco_couchdb": "https://rapidsoft_sync:rapidsoft_sync@app.shoplive.com.br:8080/",
     "authorization": "Basic bHZfYzBuN2FyMzpyZkBpRCNlYU5jb2Qz",
-    "versao": "1.0"
+    "versao": "1.1"
     
 }

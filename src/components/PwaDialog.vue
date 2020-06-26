@@ -27,8 +27,7 @@ export default {
     reload() {
       if (this.registration && this.registration.waiting) {
         // this event is being listened by src/service-worker.js
-        this.registration.waiting.postMessage('skipWaiting');
-        window.location.reload();
+        this.$router.push({ name: 'atualizacao' });
       } else {
         console.warn("No service worker waiting to be activated");
         this.close();
@@ -40,7 +39,7 @@ export default {
         this.$vs.notify({
             position: "bottom-center",
             color: "dark",
-            text: "Nova versão baixada, clique para atualizar!",
+            text: "Nova versão disponibilizada, verique!",
             click: this.reload
         });
     },
