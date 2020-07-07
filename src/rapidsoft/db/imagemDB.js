@@ -347,7 +347,7 @@ class imagemDB {
             ImagemSeloDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
                 const idsBanco = resultDocs.rows.filter((row) => !row.id.includes("_design")).map((row) => row.id);
                 const idsOld = Difference(idsBanco, Ids);
-                this.deletarImagens(ImagemCorDB, idsOld).then(() => {
+                this.deletarImagens(ImagemSeloDB, idsOld).then(() => {
                     resolve();
                 });
             });
@@ -359,7 +359,7 @@ class imagemDB {
             ImagemSimboloDB._localDB.allDocs({include_docs: false}).then((resultDocs) => {
                 const idsBanco = resultDocs.rows.filter((row) => !row.id.includes("_design")).map((row) => row.id);
                 const idsOld = Difference(idsBanco, Ids);
-                this.deletarImagens(ImagemCorDB, idsOld).then(() => {
+                this.deletarImagens(ImagemSimboloDB, idsOld).then(() => {
                     resolve();
                 });
             });

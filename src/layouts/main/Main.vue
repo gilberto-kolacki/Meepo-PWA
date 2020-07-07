@@ -106,8 +106,11 @@ export default {
                 "carrinhoAdd",
                 "carrinho",
                 "carrinhoPedido",
+                "clienteConsulta",
                 "clienteEditar",
+                "pedidoConsulta",
                 "pedidoEditar",
+                "orcamentoConsulta",
                 "orcamentoVisualizar",
                 "invoice",
             ]

@@ -11,7 +11,6 @@
         <h4 class="mb-4">Dados da Aplicação</h4>
         <b-list-group>
           <b-list-group-item>Aplicação: {{usage}} MB - {{quota}}MB</b-list-group-item>
-          <b-list-group-item>Armazenamento: {{armazenamentoIndexedDB}} MB</b-list-group-item>
           <b-list-group-item>Sistema: {{sistemaOperacional}}</b-list-group-item>
           <b-list-group-item>Navegador: {{browserName}} v{{majorVersion}}</b-list-group-item>
           <b-list-group-item>Token: {{token}}</b-list-group-item>
@@ -21,30 +20,20 @@
               color="primary"
               class="vs-con-loading__container w-full"
               id="button-with-loading"
+              v-on:click.stop="verificar()"
+              type="relief"
+              ref="loadableButton"
+            >Verificar Atualização</vs-button>
+          </b-list-group-item>
+          <b-list-group-item v-if="visible">
+            <vs-button
+              color="primary"
+              class="vs-con-loading__container w-full"
+              id="button-with-loading"
               v-on:click.stop="atualizar()"
               type="relief"
               ref="loadableButton"
             >Atualizar</vs-button>
-          </b-list-group-item>
-          <b-list-group-item>
-            <vs-button
-              color="warning"
-              class="vs-con-loading__container w-full"
-              id="button-with-loading-limpar"
-              v-on:click.stop="limparBases()"
-              type="relief"
-              ref="loadableButton"
-            >Limpar bases</vs-button>
-          </b-list-group-item>
-          <b-list-group-item>
-            <vs-button
-              color="black"
-              class="vs-con-loading__container w-full"
-              id="button-with-loading-limpar"
-              v-on:click.stop="storageAbuser()"
-              type="relief"
-              ref="loadableButton"
-            >Abuser</vs-button>
           </b-list-group-item>
         </b-list-group>
       </vx-card>
@@ -53,12 +42,7 @@
 </template>
 
 <script>
-import ClienteDB from "../../../rapidsoft/db/clienteDB";
-import PedidoDB from "../../../rapidsoft/db/pedidoDB";
-import OrcamentoDB from "../../../rapidsoft/db/orcamentoDB";
-import ProdutoDB from "../../../rapidsoft/db/produtoDB";
 import ErrorDB from "../../../rapidsoft/db/errorDB";
-import ImagemFotoDB from "../../../rapidsoft/db/imagemFotoDB";
 
 export default {
     data() {
@@ -71,7 +55,8 @@ export default {
             browserName: null,
             majorVersion: null,
             sistemaOperacional: null,
-            armazenamentoIndexedDB: null
+            visible: false,
+            registration: null,
         };
     },
     computed: {
@@ -96,7 +81,11 @@ export default {
         }
     },
     methods: {
-        atualizar() {
+        onServiceWorkerUpdated(e) {
+            this.registration = e.detail.registration;
+            this.visible = true;
+        },
+        verificar() {
             this.$vs.loading({
                 background: this.backgroundLoading,
                 color: this.colorLoading,
@@ -109,36 +98,15 @@ export default {
 
             window.location.reload(true);
         },
-        limparBases() {
-            this.$vs.loading({
-                background: this.backgroundLoading,
-                color: 'warning',
-                container: "#button-with-loading-limpar",
-                scale: 0.45
-            });
-            OrcamentoDB._limparBase().then(() => {
-                PedidoDB._limparBase().then(() => {
-                    this.$vs.loading.close("#button-with-loading-limpar > .con-vs-loading");
-                    window.location.reload(true);
-                });
-            });
-        },
-        storageAbuser() {
-            return new Promise(resolve => {
-                this.$vs.loading();
-
-                ImagemFotoDB._getAll().then((fotos) => {
-                    fotos = fotos.map((foto) => ({id: foto.id+100000, base64: foto.base64}));
-                    ImagemFotoDB.salvarFotos(fotos).then((result) => {
-                        console.log(result);
-                        
-                        setTimeout(() => {
-                            this.$vs.loading.close();
-                            resolve();
-                        }, 300);
-                    });
-                });
-            });
+        atualizar() {
+            if (this.registration && this.registration.waiting) {
+                // this event is being listened by src/service-worker.js
+                this.registration.waiting.postMessage('skipWaiting');
+                window.location.reload();
+            } else {
+                console.warn("No service worker waiting to be activated");
+                this.visible = false;
+            }
         },
         getNavegador() {
             const nAgt = navigator.userAgent;
@@ -203,107 +171,35 @@ export default {
                 this.sistemaOperacional = "Linux";
             else this.sistemaOperacional = "Não Identificado";
         },
-        armazenamentoImagem() {
-            return new Promise(resolve => {
-                resolve();
-            });
-        },
-        armazenamentoProduto() {
-            return new Promise(resolve => {
-                ProdutoDB.getAllProdutos().then(produtos => {
-                    if (produtos.length <= 0) resolve(0);
-                    let pounchDB = 0;
-                    produtos.forEach(produto => {
-                        pounchDB += 0;
-                        if (this.lodash.last(produtos)._id == produto._id) {
-                        let armazenamento = this.lodash.round(pounchDB / 1024 / 1024, 2);
-                        resolve(armazenamento);
-                        }
-                    });
-                });
-            });
-        },
-        armazenamentoCliente() {
-            return new Promise(resolve => {
-                ClienteDB.listar().then(clientes => {
-                    if (clientes.length <= 0) resolve(0);
-                    let pounchDB = 0;
-                    clientes.forEach(cliente => {
-                        if (
-                        cliente.imagensClienteBlob &&
-                        cliente.imagensClienteBlob.length > 0
-                        ) {
-                        for (
-                            let index = 0;
-                            index < cliente.imagensClienteBlob.length;
-                            index++
-                        ) {
-                            const imagem = cliente.imagensClienteBlob[index];
-                            pounchDB += imagem.file.size;
-                        }
-                        }
-                        pounchDB += 0;
-                        if (this.lodash.last(clientes)._id == cliente._id) {
-                        let armazenamento = this.lodash.round(pounchDB / 1024 / 1024, 2);
-                        resolve(armazenamento);
-                        }
-                    });
-                });
-            });
-        },
-        getCalcularArmazenamento() {
-            return new Promise(resolve => {
-                let armazenamento = 0;
-                this.armazenamentoCliente().then(lengthCliente => {
-                    armazenamento += lengthCliente;
-                    this.armazenamentoProduto().then(lengthProduto => {
-                        armazenamento += lengthProduto;
-                        this.armazenamentoImagem().then(lengthImagem => {
-                            armazenamento += lengthImagem;
-                            resolve(armazenamento);
-                        });
-                    });
-                });
-            });
-        }
     },
     created() {
         this.getNavegador();
         this.getSistema();
+        // this event is being triggered by src/registerServiceWorker.js
+        window.addEventListener('onServiceWorkerUpdated', this.onServiceWorkerUpdated);
+        // DEBUG HELPER: uncomment this in case you need to see the dialog without doing the whole service worker flow.
+    },
+    destroyed() {
+        window.removeEventListener('onServiceWorkerUpdated', this.onServiceWorkerUpdated);
     },
     mounted() {
         if ("storage" in navigator && "estimate" in navigator.storage) {
-        navigator.storage
-            .estimate()
-            .then(({ usage, quota }) => {
-            this.usage = this.lodash.round(this.lodash.divide(this.lodash.divide(usage, 1024), 1024), 1);
-            this.quota = this.lodash.round(this.lodash.divide(this.lodash.divide(quota, 1024), 1024));
+            navigator.storage.estimate().then(({ usage, quota }) => {
+                this.usage = this.lodash.round(this.lodash.divide(this.lodash.divide(usage, 1024), 1024), 1);
+                this.quota = this.lodash.round(this.lodash.divide(this.lodash.divide(quota, 1024), 1024));
             })
             .catch(error => {
-            console.error("Loading storage estimate failed:");
-            console.log(error.stack);
+                console.error("Loading storage estimate failed:");
+                console.log(error.stack);
             });
         } else {
-        console.error("navigator.storage.estimate API unavailable.");
+            console.error("navigator.storage.estimate API unavailable.");
         }
     },
     beforeCreate() {
         if (!window.indexedDB) {
-        window.alert(
-            "Seu navegador não suporta uma versão estável do IndexedDB. Alguns recursos não estarão disponíveis."
-        );
-        } else {
-            let banco = indexedDB.open(ClienteDB._localDB.name, 2)
-            console.log(banco);
-            
+            window.alert("Seu navegador não suporta uma versão estável do IndexedDB. Alguns recursos não estarão disponíveis.");
         }
-    },
-    beforeMount() {
-        // this.$vs.loading();
-        this.getCalcularArmazenamento().then(armazenamento => {
-            this.armazenamentoIndexedDB = armazenamento;
-            //this.$vs.loading.close();
-        });
     },
     errorCaptured(err, vm, info) {
         ErrorDB._criarLog({ err, vm, info });

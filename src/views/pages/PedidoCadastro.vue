@@ -109,7 +109,6 @@
                         <vs-col vs-lg="6" vs-sm="6" vs-xs="12">
                             <label style="font-size:smaller">Forma de Pagamento</label>
                             <v-select 
-                                @input="setFormaDePagamento()"
                                 id="formaPgto" 
                                 style="width:100%" 
                                 :clearable=false 
@@ -122,7 +121,6 @@
                         <vs-col vs-lg="6" vs-sm="6" vs-xs="12" v-if="!pedido.brinde" >
                             <label style="font-size:smaller">Condição de Pagamento</label>
                             <v-select
-                                @input="setCondicaoDePagamento()"
                                 id="condicaoPgto" 
                                 style="width:100%" 
                                 :clearable=false
@@ -245,13 +243,9 @@ import GrupoClienteDB from '../../rapidsoft/db/grupoClienteDB';
 export default {
     data() {
         return {  
-            idPopUpSearch: 'popup-cliente-search',  
             pedido: null,
             data:null,
             formasPagto:[],
-            condicoesPagto:[],
-            condigoBrinde: 5,
-            condigoBoleto: 1,
             itensPedido: [],
             formaDePagamentoSelecionada: {},
             condicaoDePagamentoSelecionada: {},
@@ -354,50 +348,6 @@ export default {
                 this.$forceUpdate();
             }
         },
-        selectSearchCliente(cliente) {
-            this.pedido.cliente = cliente;
-        },
-
-        abrirPesquisaCliente() {
-            this.$bvModal.show(this.idPopUpSearch);
-        },
-
-        setCondicaoDePagamento() {
-            this.pedido.condicaoPagamento = this.condicaoDePagamentoSelecionada.value;
-        },
-
-        setFormaDePagamento() {
-            this.pedido.formaPagamento = this.formaDePagamentoSelecionada.value;
-            if (this.formaDePagamentoSelecionada.value == this.condigoBrinde) {
-                this.pedido.brinde = true;
-                this.setBrinde();
-            } else {
-                // FormaPagtoDB._getById()
-                this.condicaoDePagamentoSelecionada = {
-                    value: this.formaDePagamentoSelecionada.condicoes[0].id,
-                    label:this.formaDePagamentoSelecionada.condicoes[0].nome,
-                };
-                this.pedido.condicaoPagamento = this.condicaoDePagamentoSelecionada.value;
-                this.pedido.brinde = false;
-            }
-        },
-
-        setBrinde(){
-            this.pedido.formaPagamento = this.pedido.brinde ? this.condigoBrinde : null;
-            this.pedido.condicaoPagamento = null;
-        },
-        deletarMessage(data) {
-            this.$vs.dialog({
-                type: 'confirm',
-                color: 'warning',
-                title: 'Deseja excluir o item?',
-                text: 'O item será excluído do pedido.',
-                accept: this.deletarItemPedido,
-                acceptText: 'Excluir',
-                cancelText: 'Cancelar',
-                parameters: data
-            })
-        },
         notification(titulo,mensagem,cor) {
             this.$vs.notify({
                 title: titulo,
@@ -405,15 +355,6 @@ export default {
                 color: cor,
                 iconPack: 'feather',
                 icon: 'icon-alert-circle'
-            });
-        },
-        deletarItemPedido(parametersItemPedido) {
-            this.pedido.itens = this.lodash.remove(this.pedido.itens, (itemPedido) => itemPedido.sku !== parametersItemPedido.sku);
-            PedidoDB.deletarItemPedido(this.pedido).then(() => {
-                this.notification('Excluído!','Item excluído do pedido com sucesso!','primary');
-                setTimeout(() => {
-                    this.carregaItensTela();
-                }, 400);
             });
         },
         finalizarPedido(pedido) {

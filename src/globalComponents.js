@@ -13,11 +13,13 @@ import VxCard  from './components/vx-card/VxCard.vue'
 import FeatherIcon  from './components/FeatherIcon.vue'
 import VxInputGroup  from './components/vx-input-group/VxInputGroup.vue';
 import FunModal  from './components/fun-modal/FunModal.vue';
+import PwaDialog from './components/PwaDialog.vue';
 
 Vue.component(VxCard.name, VxCard);
 Vue.component(FeatherIcon.name, FeatherIcon);
 Vue.component(VxInputGroup.name, VxInputGroup);
 Vue.component(FunModal.name, FunModal);
+Vue.component(PwaDialog.name, PwaDialog);
 
 
 // v-select component

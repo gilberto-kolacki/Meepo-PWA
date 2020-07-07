@@ -93,7 +93,7 @@ export default {
         
     },
     computed: {
-         existeCarrinho() {
+        existeCarrinho() {
             return Storage.existeCarrinho();
         },
         lastDateSinc() {

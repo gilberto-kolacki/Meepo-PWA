@@ -11,6 +11,7 @@
 <template>
 	<div id="app" :class="vueAppClasses">
 		<router-view @setAppClasses="setAppClasses"/>
+    <pwa-dialog></pwa-dialog>
 	</div>
 </template>
 

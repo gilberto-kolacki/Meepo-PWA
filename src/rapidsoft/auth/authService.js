@@ -27,19 +27,15 @@ class AuthService extends EventEmitter {
     }
 
     isAuthenticated() {
-        if (window.navigator.onLine) {
-            const user = JSON.parse(localStorage.getItem('userInfo'));
-            const dataExpiracaoToken = new Date(parseInt(localStorage.getItem(tokenExpiryKey)));
-            const token = localStorage.getItem(localStorageKey);
-            if(user && new Date(Date.now()) < dataExpiracaoToken && token != "") {
-                store.dispatch('updateUserActive', user);
-                
-                return true;
-            } else {
-                return false;
-            }
-        } else {
+        const user = JSON.parse(localStorage.getItem('userInfo'));
+        const dataExpiracaoToken = new Date(parseInt(localStorage.getItem(tokenExpiryKey)));
+        const token = localStorage.getItem(localStorageKey);
+        if(user && new Date(Date.now()) < dataExpiracaoToken && token != "") {
+            store.dispatch('updateUserActive', user);
+            
             return true;
+        } else {
+            return false;
         }
     }
 }

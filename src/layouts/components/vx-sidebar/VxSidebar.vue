@@ -11,7 +11,7 @@
 
 <template>
     <div class="parentx">
-        <vs-sidebar v-hammer:swipe.left="onSwipeLeft" ref="mainSidebar" :parent="parent" :hiddenBackground="clickNotClose" :reduce="reduce" default-index="-1" class="sidebarx main-menu-sidebar items-no-padding" v-model="isSidebarActive" :click-not-close="clickNotClose" :reduce-not-rebound="reduceNotRebound">
+        <vs-sidebar ref="mainSidebar" :parent="parent" :hiddenBackground="clickNotClose" :reduce="reduce" default-index="-1" class="sidebarx main-menu-sidebar items-no-padding" v-model="isSidebarActive" :click-not-close="clickNotClose" :reduce-not-rebound="reduceNotRebound">
             <div @click="sidebarMouseEntered" v-on:mouseleave="sidebarMouseLeave">
                 <div class="header-sidebar flex items-end justify-between" slot="header">
                     <div class="logo flex items-center">
@@ -56,7 +56,6 @@
                     <vs-button icon="reply" color="danger" class="w-full" type="line" line-position="top" line-origin="left" @click="logoutAlert">Sair</vs-button>
                 </div>
         </vs-sidebar>
-        <div v-hammer:swipe.right="onSwipeRightSidebarSwipeArea" v-if="!isSidebarActive" class="sidebar-swipe-area" id="sidebar-swipe-area"></div>
     </div>
 </template>
 
