@@ -38,10 +38,14 @@ class embarqueDB extends BasicDB {
     }
 
     getEmbarqueProduto(produto) {
-        return new Promise((resolve) => {
+        return new Promise((resolve,reject) => {
             const grupo = Storage.getGrupoCarrinho();
             const embarques = Intersection(grupo.embarques, produto.embarques);
-            this._getFindCondition({$and : [{id : {$in : embarques}}, {idSegmento : {$in : produto.segmento}}]}).then((embarques) => resolve(embarques[0]));
+            if (embarques.length > 0) {
+                this._getFindCondition({$and : [{id : {$in : embarques}}, {idSegmento : {$in : produto.segmento}}]}).then((embarques) => resolve(embarques[0]));
+            } else {
+                reject({title:'Embarque não liberado ao grupo de cliente', text:'O embarque definido para o produto não está liberado para o grupo de cliente, sincronize o App e tente novamente.'});
+            }
         });
     }
 

@@ -115,6 +115,17 @@ export default {
                         this.isShow = true;
                         this.$forceUpdate();
                     });
+                }).catch((error) => {
+                    this.$vs.notify({
+                        color: 'warning',
+                        position:'top-center',
+                        title: error.title,
+                        text: error.text,
+                        time:5000,
+                        click:()=> {
+                            this.voltarCatalogo()
+                        }
+                    });
                 });
             });
         },
@@ -128,7 +139,7 @@ export default {
         },
         voltarCatalogo() {
             this.$router.push({ name: this.$route.params.tela, 
-                params: {pag: this.$route.params.pag, edit: this.$route.params.edit ? true : false, segmento:this.produtos[0].segmento[0]}
+                params: {pag: this.$route.params.pag, edit: this.$route.params.edit ? true : false, segmento: this.produtos[0] ? this.produtos[0].segmento[0] : null}
             });
         },
         atualizaQuantidadeItens(tamanho) {
@@ -157,6 +168,17 @@ export default {
                             this.isShow = true;
                             document.getElementById('loading-bg').style.display = "none";
                             resolve();
+                        });
+                    }).catch((error) => {
+                        this.$vs.notify({
+                            color: 'warning',
+                            position:'top-center',
+                            title: error.title,
+                            text: error.text,
+                            time:5000,
+                            click:()=> {
+                                this.voltarCatalogo()
+                            }
                         });
                     });
                 });

@@ -178,6 +178,8 @@ class produtoDB extends BasicDB {
                                     produtosCarrinho.push(produto);
                                 }
                                 done();
+                            }).catch(() => {
+                                done();
                             });
                         });
                     });
@@ -272,7 +274,7 @@ class produtoDB extends BasicDB {
     }
 
     getEmbarquesProdutoCor(produto) {
-        return new Promise((resolve) => {
+        return new Promise((resolve,reject) => {
             const done = After(produto.cores.length, () => resolve(produto));
             produto.cores.forEach((cor) => {
                 EmbarqueDB.getEmbarqueProduto(cor).then((embarque) => {
@@ -280,13 +282,15 @@ class produtoDB extends BasicDB {
                     this.getImagensCorProduto(cor).then(() => {
                         done();
                     });
+                }).catch((error) => {
+                    reject(error);
                 });
             });
         });
     }
 
     getByReferenciasAddCarrinho(produtos, prontaEntrega=false) {
-        return new Promise((resolve) => {
+        return new Promise((resolve,reject) => {
             const referenciasAddCarrinho = [];
             produtos = [...produtos.filter((produto) => produto != undefined)];
             const done = After(produtos.length, () => resolve(referenciasAddCarrinho));
@@ -299,6 +303,8 @@ class produtoDB extends BasicDB {
                         this.getEmbarquesProdutoCor(resultProdutoAdd).then((resultProdutoEmbarques) => {
                             referenciasAddCarrinho.push(resultProdutoEmbarques);
                             done();
+                        }).catch((error) => {
+                            reject(error);
                         });
                     });
                 }).catch((error) => {
